@@ -47,10 +47,30 @@ app.use(morgan('combined'));
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.status(200).json({ 
-    status: 'OK', 
+    status: 'OK',
     timestamp: new Date().toISOString(),
     service: 'CareGrid API'
   });
+});
+
+// Database health check endpoint
+app.get('/health/db', async (req, res) => {
+  try {
+    const { testConnection } = require('./config/database');
+    await testConnection();
+    res.status(200).json({
+      status: 'OK',
+      database: 'Connected',
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(503).json({
+      status: 'ERROR',
+      database: 'Disconnected',
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
 });
 
 // API routes
