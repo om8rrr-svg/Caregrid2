@@ -1,0 +1,43 @@
+services:
+  - type: web
+    name: caregrid-backend
+    env: node
+    plan: free
+    buildCommand: cd backend && npm install
+    startCommand: cd backend && npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: DB_HOST
+        fromDatabase:
+          name: caregrid-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: caregrid-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: caregrid-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: caregrid-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: caregrid-db
+          property: password
+      - key: JWT_SECRET
+        generateValue: true
+      - key: FRONTEND_URL
+        value: https://caregrid-frontend.onrender.com
+
+databases:
+  - name: caregrid-db
+    databaseName: caregrid
+    plan: free
+    postgresMajorVersion: 15
