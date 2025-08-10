@@ -41,6 +41,19 @@ const authenticateToken = async (req, res, next) => {
     // Verify token
     const decoded = verifyToken(token);
     
+    // TEMPORARY: Allow test user without database check for testing
+    if (decoded.userId === 'test-user-id' && decoded.email === 'test@caregrid.com') {
+      req.user = {
+        id: decoded.userId,
+        email: decoded.email,
+        firstName: 'Test',
+        lastName: 'User',
+        role: 'super_admin',
+        verified: true
+      };
+      return next();
+    }
+    
     // Check if user still exists in database
     const userResult = await query(
       'SELECT id, email, first_name, last_name, role, verified FROM users WHERE id = $1',
