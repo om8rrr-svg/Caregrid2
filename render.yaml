@@ -3,7 +3,7 @@ services:
     name: caregrid-backend
     env: node
     plan: free
-    buildCommand: cd backend && npm install
+    buildCommand: cd backend && npm install && node scripts/setup-render-database.js
     startCommand: cd backend && npm start
     healthCheckPath: /health
     envVars:
