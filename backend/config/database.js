@@ -1,18 +1,34 @@
 const { Pool } = require('pg');
 require('dotenv').config();
 
-// Database configuration
-const dbConfig = {
-  user: process.env.DB_USER || 'postgres',
-  host: process.env.DB_HOST || 'localhost',
-  database: process.env.DB_NAME || 'caregrid',
-  password: process.env.DB_PASSWORD || 'password',
-  port: process.env.DB_PORT || 5432,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
-  max: 20, // maximum number of clients in the pool
-  idleTimeoutMillis: 30000, // how long a client is allowed to remain idle
-  connectionTimeoutMillis: 2000, // how long to wait when connecting a client
-};
+// Database configuration - supports both DATABASE_URL and individual env vars
+let dbConfig;
+
+if (process.env.DATABASE_URL) {
+  // Use DATABASE_URL (common for Render, Heroku, etc.)
+  dbConfig = {
+    connectionString: process.env.DATABASE_URL,
+    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+    max: 20, // maximum number of clients in the pool
+    idleTimeoutMillis: 30000, // how long a client is allowed to remain idle
+    connectionTimeoutMillis: 2000, // how long to wait when connecting a client
+  };
+  console.log('🔗 Using DATABASE_URL for connection');
+} else {
+  // Use individual environment variables
+  dbConfig = {
+    user: process.env.DB_USER || 'postgres',
+    host: process.env.DB_HOST || 'localhost',
+    database: process.env.DB_NAME || 'caregrid',
+    password: process.env.DB_PASSWORD || 'password',
+    port: process.env.DB_PORT || 5432,
+    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+    max: 20, // maximum number of clients in the pool
+    idleTimeoutMillis: 30000, // how long a client is allowed to remain idle
+    connectionTimeoutMillis: 2000, // how long to wait when connecting a client
+  };
+  console.log('🔗 Using individual DB_* environment variables');
+}
 
 // Create connection pool
 const pool = new Pool(dbConfig);
