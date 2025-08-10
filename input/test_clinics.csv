@@ -1,0 +1,3 @@
+name,category,city,address,postcode,phone,website,services
+"Manchester Medical Centre","GP","Manchester","123 Oxford Road","M1 7ED","+44 161 234 5678","https://manchestermedical.example.com","General Practice, Health Checks"
+"Bolton Dental Practice","Dentist","Bolton","45 High Street","BL1 2AB","+44 1204 567890","https://boltondental.example.com","General Dentistry, Cosmetic Dentistry"

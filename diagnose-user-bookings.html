@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnose User Bookings (om8rrr@gmail.com) - CareGrid</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .diagnostic-section {
+            background: white;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #007bff;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .danger {
+            background: #dc3545;
+        }
+        .danger:hover {
+            background: #c82333;
+        }
+        .success {
+            background: #28a745;
+        }
+        .success:hover {
+            background: #218838;
+        }
+        .warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        .warning:hover {
+            background: #e0a800;
+        }
+    </style>
+</head>
+<body>
+    <h1>Diagnose User Bookings for om8rrr@gmail.com</h1>
+    
+    <div class="diagnostic-section">
+        <h2>Current User State</h2>
+        <button onclick="checkCurrentUser()">Check Current User</button>
+        <pre id="userOutput">Click "Check Current User" to see current authentication state</pre>
+    </div>
+    
+    <div class="diagnostic-section">
+        <h2>All Bookings Analysis</h2>
+        <button onclick="analyzeAllBookings()">Analyze All Bookings</button>
+        <pre id="bookingsOutput">Click "Analyze All Bookings" to see detailed booking analysis</pre>
+    </div>
+    
+    <div class="diagnostic-section">
+        <h2>User-Specific Bookings</h2>
+        <button onclick="checkUserBookings()">Check om8rrr@gmail.com Bookings</button>
+        <pre id="userBookingsOutput">Click "Check om8rrr@gmail.com Bookings" to see user-specific bookings</pre>
+    </div>
+    
+    <div class="diagnostic-section">
+        <h2>Test Cleanup Actions</h2>
+        <button class="warning" onclick="simulateCleanup()">Simulate Cleanup (Test Only)</button>
+        <button class="danger" onclick="forceCleanupForUser()">Force Cleanup for om8rrr@gmail.com</button>
+        <button class="success" onclick="manualCleanup()">Manual Selective Cleanup</button>
+        <pre id="cleanupOutput">Cleanup results will appear here</pre>
+    </div>
+
+    <script>
+        function checkCurrentUser() {
+            const output = document.getElementById('userOutput');
+            let result = 'Current User Authentication State:\n\n';
+            
+            try {
+                // Check localStorage current user
+                const localUser = localStorage.getItem('careGridCurrentUser');
+                const sessionUser = sessionStorage.getItem('careGridCurrentUser');
+                
+                result += 'localStorage currentUser: ' + (localUser || 'null') + '\n\n';
+                result += 'sessionStorage currentUser: ' + (sessionUser || 'null') + '\n\n';
+                
+                // Parse and display user info
+                const currentUser = JSON.parse(localUser || sessionUser || 'null');
+                if (currentUser) {
+                    result += 'Parsed Current User:\n';
+                    result += `- ID: ${currentUser.id}\n`;
+                    result += `- Email: ${currentUser.email}\n`;
+                    result += `- Name: ${currentUser.firstName} ${currentUser.lastName}\n`;
+                    result += `- Created: ${currentUser.createdAt}\n`;
+                } else {
+                    result += 'No current user found - user is not logged in\n';
+                }
+                
+                // Check all users
+                const allUsers = JSON.parse(localStorage.getItem('careGridUsers') || '[]');
+                result += `\nTotal users in system: ${allUsers.length}\n`;
+                
+                const targetUser = allUsers.find(user => user.email.toLowerCase() === 'om8rrr@gmail.com');
+                if (targetUser) {
+                    result += '\nFound om8rrr@gmail.com user:\n';
+                    result += JSON.stringify(targetUser, null, 2);
+                } else {
+                    result += '\nom8rrr@gmail.com user NOT found in system\n';
+                }
+                
+            } catch (error) {
+                result += `Error checking user state: ${error.message}\n`;
+            }
+            
+            output.textContent = result;
+        }
+        
+        function analyzeAllBookings() {
+            const output = document.getElementById('bookingsOutput');
+            let result = 'Complete Bookings Analysis:\n\n';
+            
+            try {
+                const bookings = JSON.parse(localStorage.getItem('careGridBookings') || '[]');
+                result += `Total bookings in localStorage: ${bookings.length}\n\n`;
+                
+                if (bookings.length === 0) {
+                    result += 'No bookings found in localStorage.\n';
+                } else {
+                    bookings.forEach((booking, index) => {
+                        result += `=== BOOKING ${index + 1} ===\n`;
+                        result += `Reference: ${booking.reference || 'No reference'}\n`;
+                        result += `Clinic Name: ${booking.clinic?.name || 'Unknown'}\n`;
+                        result += `Clinic Type: ${booking.clinic?.type || 'Unknown'}\n`;
+                        result += `Date: ${booking.date || 'undefined'}\n`;
+                        result += `Time: ${booking.time || 'undefined'}\n`;
+                        result += `User ID: ${booking.userId || 'No user ID'}\n`;
+                        result += `Guest Email: ${booking.guestEmail || 'No guest email'}\n`;
+                        result += `Is Guest: ${booking.isGuestBooking || false}\n`;
+                        
+                        // Identify problematic bookings
+                        const problems = [];
+                        if (!booking.clinic?.name || booking.clinic.name === 'Unknown Clinic') {
+                            problems.push('Unknown clinic name');
+                        }
+                        if (booking.date === 'undefined' || !booking.date) {
+                            problems.push('Undefined/missing date');
+                        }
+                        if (booking.time === 'undefined' || !booking.time) {
+                            problems.push('Undefined/missing time');
+                        }
+                        if (booking.reference && (booking.reference.startsWith('TEST-') || booking.reference.startsWith('PAST-'))) {
+                            problems.push('Test reference');
+                        }
+                        
+                        if (problems.length > 0) {
+                            result += `🚨 PROBLEMS: ${problems.join(', ')}\n`;
+                        } else {
+                            result += `✅ Appears valid\n`;
+                        }
+                        
+                        result += '\n';
+                    });
+                }
+                
+            } catch (error) {
+                result += `Error analyzing bookings: ${error.message}\n`;
+            }
+            
+            output.textContent = result;
+        }
+        
+        function checkUserBookings() {
+            const output = document.getElementById('userBookingsOutput');
+            let result = 'om8rrr@gmail.com Specific Bookings:\n\n';
+            
+            try {
+                const bookings = JSON.parse(localStorage.getItem('careGridBookings') || '[]');
+                const allUsers = JSON.parse(localStorage.getItem('careGridUsers') || '[]');
+                
+                // Find the user
+                const targetUser = allUsers.find(user => user.email.toLowerCase() === 'om8rrr@gmail.com');
+                if (!targetUser) {
+                    result += 'User om8rrr@gmail.com not found in system.\n';
+                    output.textContent = result;
+                    return;
+                }
+                
+                result += `User ID: ${targetUser.id}\n\n`;
+                
+                // Find bookings for this user
+                const userBookings = bookings.filter(booking => 
+                    booking.userId === targetUser.id || 
+                    (booking.guestEmail && booking.guestEmail.toLowerCase() === 'om8rrr@gmail.com')
+                );
+                
+                result += `Bookings associated with this user: ${userBookings.length}\n\n`;
+                
+                if (userBookings.length === 0) {
+                    result += 'No bookings found for this user.\n';
+                    
+                    // Check for any bookings that might be showing up incorrectly
+                    result += '\nChecking for any bookings that might be displayed incorrectly...\n';
+                    bookings.forEach((booking, index) => {
+                        if (!booking.userId && !booking.guestEmail) {
+                            result += `Orphaned booking ${index + 1}: ${booking.clinic?.name || 'Unknown'} - ${booking.date}\n`;
+                        }
+                    });
+                } else {
+                    userBookings.forEach((booking, index) => {
+                        result += `${index + 1}. ${booking.clinic?.name || 'Unknown'} - ${booking.date} ${booking.time}\n`;
+                        result += `   Reference: ${booking.reference || 'None'}\n`;
+                        result += `   Association: ${booking.userId ? 'User ID' : 'Guest Email'}\n\n`;
+                    });
+                }
+                
+            } catch (error) {
+                result += `Error checking user bookings: ${error.message}\n`;
+            }
+            
+            output.textContent = result;
+        }
+        
+        function simulateCleanup() {
+            const output = document.getElementById('cleanupOutput');
+            let result = 'Simulating Cleanup (No Changes Made):\n\n';
+            
+            try {
+                const bookings = JSON.parse(localStorage.getItem('careGridBookings') || '[]');
+                result += `Original bookings: ${bookings.length}\n\n`;
+                
+                // Simulate the clearTestBookings logic
+                const wouldKeep = [];
+                const wouldRemove = [];
+                
+                bookings.forEach(booking => {
+                    let shouldRemove = false;
+                    let reason = '';
+                    
+                    // Check test references
+                    if (booking.reference && (booking.reference.startsWith('TEST-') || booking.reference.startsWith('PAST-'))) {
+                        shouldRemove = true;
+                        reason = 'Test reference';
+                    }
+                    
+                    // Check test clinics
+                    if (booking.clinic && (
+                        booking.clinic.name === 'City Medical Center' ||
+                        booking.clinic.name === 'Smile Dental Care' ||
+                        booking.clinic.name === 'Test Medical Center' ||
+                        booking.clinic.name === 'Past Medical Center'
+                    )) {
+                        shouldRemove = true;
+                        reason = 'Test clinic';
+                    }
+                    
+                    // Check for undefined values
+                    if (booking.date === 'undefined' || booking.time === 'undefined' || 
+                        !booking.clinic?.name || booking.clinic.name === 'Unknown Clinic') {
+                        shouldRemove = true;
+                        reason = 'Invalid data';
+                    }
+                    
+                    if (shouldRemove) {
+                        wouldRemove.push({booking, reason});
+                    } else {
+                        wouldKeep.push(booking);
+                    }
+                });
+                
+                result += `Would keep: ${wouldKeep.length} bookings\n`;
+                result += `Would remove: ${wouldRemove.length} bookings\n\n`;
+                
+                if (wouldRemove.length > 0) {
+                    result += 'Bookings that would be removed:\n';
+                    wouldRemove.forEach((item, index) => {
+                        result += `${index + 1}. ${item.booking.clinic?.name || 'Unknown'} - ${item.booking.date} (${item.reason})\n`;
+                    });
+                }
+                
+                if (wouldKeep.length > 0) {
+                    result += '\nBookings that would be kept:\n';
+                    wouldKeep.forEach((booking, index) => {
+                        result += `${index + 1}. ${booking.clinic?.name || 'Unknown'} - ${booking.date}\n`;
+                    });
+                }
+                
+            } catch (error) {
+                result += `Error simulating cleanup: ${error.message}\n`;
+            }
+            
+            output.textContent = result;
+        }
+        
+        function forceCleanupForUser() {
+            const output = document.getElementById('cleanupOutput');
+            let result = 'Force Cleanup for om8rrr@gmail.com:\n\n';
+            
+            try {
+                const bookings = JSON.parse(localStorage.getItem('careGridBookings') || '[]');
+                const allUsers = JSON.parse(localStorage.getItem('careGridUsers') || '[]');
+                
+                result += `Found ${allUsers.length} users in system:\n`;
+                allUsers.forEach((user, index) => {
+                    result += `${index + 1}. Email: "${user.email}" (lowercase: "${user.email.toLowerCase()}")\n`;
+                });
+                result += '\n';
+                
+                const targetUser = allUsers.find(user => user.email.toLowerCase() === 'om8rrr@gmail.com');
+                if (!targetUser) {
+                    result += 'User om8rrr@gmail.com not found. Cannot proceed with cleanup.\n';
+                    result += 'Available users listed above.\n';
+                    output.textContent = result;
+                    return;
+                }
+                
+                const originalCount = bookings.length;
+                
+                // Remove all problematic bookings
+                const cleanedBookings = bookings.filter(booking => {
+                    // Keep only valid bookings
+                    const hasValidClinic = booking.clinic?.name && 
+                                         booking.clinic.name !== 'Unknown Clinic' &&
+                                         booking.clinic.name !== 'City Medical Center' &&
+                                         booking.clinic.name !== 'Smile Dental Care' &&
+                                         booking.clinic.name !== 'Test Medical Center' &&
+                                         booking.clinic.name !== 'Past Medical Center';
+                    
+                    const hasValidDate = booking.date && booking.date !== 'undefined';
+                    const hasValidTime = booking.time && booking.time !== 'undefined';
+                    const hasValidReference = !booking.reference || 
+                                            (!booking.reference.startsWith('TEST-') && 
+                                             !booking.reference.startsWith('PAST-'));
+                    
+                    return hasValidClinic && hasValidDate && hasValidTime && hasValidReference;
+                });
+                
+                localStorage.setItem('careGridBookings', JSON.stringify(cleanedBookings));
+                
+                result += `Original bookings: ${originalCount}\n`;
+                result += `Cleaned bookings: ${cleanedBookings.length}\n`;
+                result += `Removed: ${originalCount - cleanedBookings.length}\n\n`;
+                result += '✅ Force cleanup completed!\n';
+                
+            } catch (error) {
+                result += `Error during force cleanup: ${error.message}\n`;
+            }
+            
+            output.textContent = result;
+        }
+        
+        function manualCleanup() {
+            const output = document.getElementById('cleanupOutput');
+            let result = 'Manual Selective Cleanup:\n\n';
+            
+            try {
+                const bookings = JSON.parse(localStorage.getItem('careGridBookings') || '[]');
+                const originalCount = bookings.length;
+                
+                // Very aggressive cleanup - remove anything that looks like test data
+                const cleanedBookings = bookings.filter(booking => {
+                    // Only keep bookings that have ALL of these:
+                    // 1. Valid clinic name (not Unknown, not test clinics)
+                    // 2. Valid date (not undefined, not empty)
+                    // 3. Valid time (not undefined, not empty)
+                    // 4. No test references
+                    // 5. Either has a real user ID or is a legitimate guest booking
+                    
+                    const clinicName = booking.clinic?.name;
+                    if (!clinicName || 
+                        clinicName === 'Unknown Clinic' || 
+                        clinicName === 'Unknown' ||
+                        clinicName.includes('Test') ||
+                        clinicName.includes('City Medical') ||
+                        clinicName.includes('Smile Dental') ||
+                        clinicName.includes('Past Medical')) {
+                        return false;
+                    }
+                    
+                    if (!booking.date || booking.date === 'undefined' || booking.date === '') {
+                        return false;
+                    }
+                    
+                    if (!booking.time || booking.time === 'undefined' || booking.time === '') {
+                        return false;
+                    }
+                    
+                    if (booking.reference && 
+                        (booking.reference.startsWith('TEST-') || 
+                         booking.reference.startsWith('PAST-') ||
+                         booking.reference.includes('test'))) {
+                        return false;
+                    }
+                    
+                    return true;
+                });
+                
+                localStorage.setItem('careGridBookings', JSON.stringify(cleanedBookings));
+                
+                result += `Original bookings: ${originalCount}\n`;
+                result += `Remaining bookings: ${cleanedBookings.length}\n`;
+                result += `Removed: ${originalCount - cleanedBookings.length}\n\n`;
+                result += '✅ Manual cleanup completed!\n\n';
+                
+                if (cleanedBookings.length > 0) {
+                    result += 'Remaining bookings:\n';
+                    cleanedBookings.forEach((booking, index) => {
+                        result += `${index + 1}. ${booking.clinic?.name} - ${booking.date} ${booking.time}\n`;
+                    });
+                } else {
+                    result += 'All bookings have been removed.\n';
+                }
+                
+            } catch (error) {
+                result += `Error during manual cleanup: ${error.message}\n`;
+            }
+            
+            output.textContent = result;
+        }
+        
+        // Auto-check user state on load
+        window.addEventListener('load', () => {
+            checkCurrentUser();
+            analyzeAllBookings();
+        });
+    </script>
+</body>
+</html>

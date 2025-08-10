@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cleanup Unknown Bookings - CareGrid</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .cleanup-section {
+            background: white;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #007bff;
+            white-space: pre-wrap;
+        }
+        button {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #c82333;
+        }
+        .success {
+            background: #28a745;
+        }
+        .success:hover {
+            background: #218838;
+        }
+        .info {
+            background: #17a2b8;
+        }
+        .info:hover {
+            background: #138496;
+        }
+    </style>
+</head>
+<body>
+    <h1>Cleanup Unknown Bookings</h1>
+    
+    <div class="cleanup-section">
+        <h2>Current Bookings Analysis</h2>
+        <button class="info" onclick="analyzeBookings()">Analyze Current Bookings</button>
+        <pre id="analysisOutput">Click "Analyze Current Bookings" to see current state</pre>
+    </div>
+    
+    <div class="cleanup-section">
+        <h2>Cleanup Actions</h2>
+        <button onclick="removeUnknownBookings()">Remove Unknown Clinic Bookings</button>
+        <button onclick="removeUndefinedBookings()">Remove Undefined Bookings</button>
+        <button onclick="removeAllProblematicBookings()">Remove All Problematic Bookings</button>
+        <pre id="cleanupOutput">Cleanup results will appear here</pre>
+    </div>
+    
+    <div class="cleanup-section">
+        <h2>Verification</h2>
+        <button class="success" onclick="verifyCleanup()">Verify Cleanup</button>
+        <pre id="verificationOutput">Verification results will appear here</pre>
+    </div>
+
+    <script>
+        function analyzeBookings() {
+            const output = document.getElementById('analysisOutput');
+            let result = 'Current Bookings Analysis:\n\n';
+            
+            try {
+                const bookings = JSON.parse(localStorage.getItem('careGridBookings') || '[]');
+                result += `Total bookings found: ${bookings.length}\n\n`;
+                
+                if (bookings.length === 0) {
+                    result += 'No bookings found in localStorage.\n';
+                } else {
+                    bookings.forEach((booking, index) => {
+                        const clinicName = booking.clinic?.name || 'Unknown';
+                        const date = booking.date || 'undefined';
+                        const time = booking.time || 'undefined';
+                        const reference = booking.reference || 'No reference';
+                        
+                        result += `${index + 1}. Clinic: "${clinicName}" - Date: ${date} - Time: ${time} - Ref: ${reference}\n`;
+                        
+                        // Flag problematic entries
+                        if (clinicName === 'Unknown Clinic' || clinicName === 'Unknown') {
+                            result += '   ⚠️  PROBLEMATIC: Unknown clinic name\n';
+                        }
+                        if (date === 'undefined' || time === 'undefined') {
+                            result += '   ⚠️  PROBLEMATIC: Undefined date/time\n';
+                        }
+                        result += '\n';
+                    });
+                }
+            } catch (error) {
+                result += `Error analyzing bookings: ${error.message}\n`;
+            }
+            
+            output.textContent = result;
+        }
+        
+        function removeUnknownBookings() {
+            const output = document.getElementById('cleanupOutput');
+            let result = 'Removing Unknown Clinic bookings...\n\n';
+            
+            try {
+                const bookings = JSON.parse(localStorage.getItem('careGridBookings') || '[]');
+                const originalCount = bookings.length;
+                
+                const cleanedBookings = bookings.filter(booking => {
+                    const clinicName = booking.clinic?.name || 'Unknown';
+                    return clinicName !== 'Unknown Clinic' && clinicName !== 'Unknown';
+                });
+                
+                const removedCount = originalCount - cleanedBookings.length;
+                
+                localStorage.setItem('careGridBookings', JSON.stringify(cleanedBookings));
+                
+                result += `Original bookings: ${originalCount}\n`;
+                result += `Remaining bookings: ${cleanedBookings.length}\n`;
+                result += `Removed bookings: ${removedCount}\n\n`;
+                result += 'Unknown clinic bookings have been removed successfully!';
+                
+            } catch (error) {
+                result += `Error removing unknown bookings: ${error.message}\n`;
+            }
+            
+            output.textContent = result;
+        }
+        
+        function removeUndefinedBookings() {
+            const output = document.getElementById('cleanupOutput');
+            let result = 'Removing bookings with undefined date/time...\n\n';
+            
+            try {
+                const bookings = JSON.parse(localStorage.getItem('careGridBookings') || '[]');
+                const originalCount = bookings.length;
+                
+                const cleanedBookings = bookings.filter(booking => {
+                    return booking.date !== 'undefined' && 
+                           booking.time !== 'undefined' && 
+                           booking.date && 
+                           booking.time;
+                });
+                
+                const removedCount = originalCount - cleanedBookings.length;
+                
+                localStorage.setItem('careGridBookings', JSON.stringify(cleanedBookings));
+                
+                result += `Original bookings: ${originalCount}\n`;
+                result += `Remaining bookings: ${cleanedBookings.length}\n`;
+                result += `Removed bookings: ${removedCount}\n\n`;
+                result += 'Undefined date/time bookings have been removed successfully!';
+                
+            } catch (error) {
+                result += `Error removing undefined bookings: ${error.message}\n`;
+            }
+            
+            output.textContent = result;
+        }
+        
+        function removeAllProblematicBookings() {
+            const output = document.getElementById('cleanupOutput');
+            let result = 'Removing all problematic bookings...\n\n';
+            
+            try {
+                const bookings = JSON.parse(localStorage.getItem('careGridBookings') || '[]');
+                const originalCount = bookings.length;
+                
+                const cleanedBookings = bookings.filter(booking => {
+                    const clinicName = booking.clinic?.name || 'Unknown';
+                    const hasValidDate = booking.date && booking.date !== 'undefined';
+                    const hasValidTime = booking.time && booking.time !== 'undefined';
+                    const hasValidClinic = clinicName !== 'Unknown Clinic' && clinicName !== 'Unknown';
+                    
+                    return hasValidDate && hasValidTime && hasValidClinic;
+                });
+                
+                const removedCount = originalCount - cleanedBookings.length;
+                
+                localStorage.setItem('careGridBookings', JSON.stringify(cleanedBookings));
+                
+                result += `Original bookings: ${originalCount}\n`;
+                result += `Remaining bookings: ${cleanedBookings.length}\n`;
+                result += `Removed bookings: ${removedCount}\n\n`;
+                result += 'All problematic bookings have been removed successfully!\n\n';
+                result += 'Removed bookings that had:\n';
+                result += '- Unknown or missing clinic names\n';
+                result += '- Undefined or missing dates\n';
+                result += '- Undefined or missing times\n';
+                
+            } catch (error) {
+                result += `Error removing problematic bookings: ${error.message}\n`;
+            }
+            
+            output.textContent = result;
+        }
+        
+        function verifyCleanup() {
+            const output = document.getElementById('verificationOutput');
+            let result = 'Verification Results:\n\n';
+            
+            try {
+                const bookings = JSON.parse(localStorage.getItem('careGridBookings') || '[]');
+                result += `Total remaining bookings: ${bookings.length}\n\n`;
+                
+                if (bookings.length === 0) {
+                    result += '✅ No bookings remain in localStorage.\n';
+                } else {
+                    let hasProblems = false;
+                    
+                    bookings.forEach((booking, index) => {
+                        const clinicName = booking.clinic?.name || 'Unknown';
+                        const date = booking.date || 'undefined';
+                        const time = booking.time || 'undefined';
+                        
+                        result += `${index + 1}. "${clinicName}" - ${date} ${time}\n`;
+                        
+                        if (clinicName === 'Unknown Clinic' || clinicName === 'Unknown' || 
+                            date === 'undefined' || time === 'undefined') {
+                            result += '   ❌ STILL PROBLEMATIC\n';
+                            hasProblems = true;
+                        } else {
+                            result += '   ✅ Valid booking\n';
+                        }
+                    });
+                    
+                    result += '\n';
+                    if (hasProblems) {
+                        result += '❌ Some problematic bookings still remain. Consider running cleanup again.\n';
+                    } else {
+                        result += '✅ All remaining bookings appear to be valid!\n';
+                    }
+                }
+                
+            } catch (error) {
+                result += `Error during verification: ${error.message}\n`;
+            }
+            
+            output.textContent = result;
+        }
+        
+        // Auto-analyze on load
+        window.addEventListener('load', analyzeBookings);
+    </script>
+</body>
+</html>

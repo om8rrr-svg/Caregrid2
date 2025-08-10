@@ -1,0 +1,5 @@
+name,category,city,address,postcode,phone,website,services,bookingLink,logoUrl
+City GP Clinic,GP,Manchester,12 Deansgate,M3 4JL,0161 000 1234,https://citygp.example.com,"General Practice; Private Prescriptions; Same-day Appointments",https://book.citygp.example.com,https://img.example.com/citygp.png
+Smile Dental,Dentist,Manchester,22 Oxford Rd,M1 5AN,0161 000 5678,smiledental.example.com,"Invisalign; Implants; Hygiene Services",,https://img.example.com/smile.png
+Bolton Physio Centre,Physio,Bolton,5 Market Street,BL1 1AA,01204 000 987,https://boltonphysio.example.com,"Sports Injury Rehab; Manual Therapy; Exercise Plans",https://book.boltonphysio.example.com,https://img.example.com/boltonphysio.png
+Aesthetic Glow,Aesthetics,Liverpool,8 Bold Street,L1 4DS,0151 000 246,aestheticglow.example.com,"Botox; Dermal Fillers; Skin Peels",,https://img.example.com/aestheticglow.png

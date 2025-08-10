@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Appointment - CareGrid</title>
+    <meta name="description" content="Book an appointment with your chosen healthcare provider through CareGrid">
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .booking-hero {
+            background: #2A6EF3;
+            padding: 120px 0 60px;
+            text-align: center;
+            border-bottom: 3px solid #2A6EF3;
+        }
+        
+        .booking-hero h1 {
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        .booking-hero p {
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 500;
+            margin-bottom: 0;
+        }
+        
+        .booking-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 20px;
+            background: #2A6EF3;
+        }
+        
+        .booking-form {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-top: -40px;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .clinic-summary {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+        
+        .clinic-summary img {
+            width: 80px;
+            height: 80px;
+            border-radius: 12px;
+            object-fit: cover;
+        }
+        
+        .clinic-info h3 {
+            margin: 0 0 5px 0;
+            color: #2c3e50;
+        }
+        
+        .clinic-info p {
+            margin: 0;
+            color: #7f8c8d;
+        }
+        
+        .booking-steps {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 40px;
+            gap: 20px;
+        }
+        
+        .step {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #E1E8ED;
+            color: #5A6C7D;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .step.active {
+            background: #2A6EF3;
+            color: white;
+        }
+        
+        .step.completed {
+            background: #27AE60;
+            color: white;
+        }
+        
+        .booking-step {
+            display: none;
+        }
+        
+        .booking-step.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2C3E50;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #E1E8ED;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #2A6EF3;
+        }
+        
+        .time-slots {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .time-slot {
+            padding: 12px;
+            border: 2px solid #E1E8ED;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        
+        .time-slot:hover {
+            border-color: #2A6EF3;
+        }
+        
+        .time-slot.selected {
+            background: #2A6EF3;
+            color: white;
+            border-color: #2A6EF3;
+        }
+        
+        .time-slot.unavailable {
+            background: #f8f9fa;
+            color: #adb5bd;
+            cursor: not-allowed;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .booking-summary {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .summary-row:last-child {
+            margin-bottom: 0;
+            font-weight: 600;
+            border-top: 1px solid #2A6EF3;
+            padding-top: 10px;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        
+        .btn-primary {
+            background: #2A6EF3;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #1E5AD1;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .success-message {
+            text-align: center;
+            padding: 40px 20px;
+        }
+        
+        .success-icon {
+            width: 60px;
+            height: 60px;
+            background: #27AE60;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: white;
+            font-size: 1.8rem;
+        }
+        .success-icon i {
+            color: white !important;
+            line-height: 1;
+        }
+        
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <img src="images/logo.svg" alt="CareGrid - Healthcare Directory Platform Logo" class="logo">
+                <span class="logo-text">CareGrid</span>
+            </div>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li class="stakeholder-only"><a href="pricing.html" class="nav-link">Pricing</a></li>
+                <li><a href="contact.html" class="nav-link">Contact</a></li>
+                <li id="authNavItem"><a href="auth.html" class="nav-link">Sign In</a></li>
+                <li id="userNavItem" style="display: none;">
+                    <div class="user-menu">
+                        <div class="user-avatar" onclick="toggleUserMenu()">
+                            <img src="images/default-avatar.svg" alt="User Avatar" id="userAvatar">
+                            <span id="userName">User</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="user-dropdown" id="userDropdown">
+                            <a href="dashboard.html" class="dropdown-item">
+                                <i class="fas fa-tachometer-alt"></i>
+                                Dashboard
+                            </a>
+                            <a href="#" class="dropdown-item" onclick="logout()">
+                                <i class="fas fa-sign-out-alt"></i>
+                                Logout
+                            </a>
+                        </div>
+                    </div>
+                </li>
+                <li><a href="list-clinic.html" class="nav-link cta-nav">List Your Clinic</a></li>
+            </ul>
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Booking Hero -->
+    <section class="booking-hero">
+        <div class="booking-container">
+            <h1>Book Your Appointment</h1>
+            <p>Schedule your visit with ease</p>
+            <!-- Developer shortcut - remove in production -->
+                    <button onclick="if(typeof goToStep === 'function') { goToStep(4); } else { alert('Function not loaded yet, try again in a moment'); }" style="background: #ff6b6b; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 12px; margin-top: 10px;">DEV: Skip to Confirmation</button>
+        </div>
+    </section>
+
+    <!-- Booking Form -->
+    <section class="booking-section">
+        <div class="booking-container">
+            <div class="booking-form">
+                <!-- Clinic Summary -->
+                <div class="clinic-summary" id="clinicSummary">
+                    <img src="images/clinic1.svg" alt="Clinic" id="clinicImage">
+                    <div class="clinic-info">
+                        <h3 id="clinicName">Manchester Medical Centre</h3>
+                        <p id="clinicAddress">123 Oxford Road, Manchester M1 7ED</p>
+                        <p id="clinicPhone">0161 234 5678</p>
+                    </div>
+                </div>
+
+                <!-- Booking Steps -->
+                <div class="booking-steps">
+                    <div class="step active" id="step1">1</div>
+                    <div class="step" id="step2">2</div>
+                    <div class="step" id="step3">3</div>
+                    <div class="step" id="step4">4</div>
+                </div>
+
+                <!-- Step 1: Service Selection -->
+                <div class="booking-step active" id="bookingStep1">
+                    <h3>Select Service</h3>
+                    <div class="form-group">
+                        <label for="serviceType">Service Type</label>
+                        <select id="serviceType" required>
+                            <option value="">Choose a service...</option>
+                            <option value="consultation">General Consultation</option>
+                            <option value="checkup">Health Check-up</option>
+                            <option value="vaccination">Vaccination</option>
+                            <option value="screening">Health Screening</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="appointmentReason">Reason for Visit</label>
+                        <textarea id="appointmentReason" rows="3" placeholder="Please describe your symptoms or reason for the appointment..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Step 2: Date & Time Selection -->
+                <div class="booking-step" id="bookingStep2">
+                    <h3>Select Date & Time</h3>
+                    <div class="form-group">
+                        <label for="appointmentDate">Preferred Date</label>
+                        <input type="date" id="appointmentDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Available Time Slots</label>
+                        <div class="time-slots" id="timeSlots">
+                            <div class="time-slot" data-time="09:00">9:00 AM</div>
+                            <div class="time-slot" data-time="09:30">9:30 AM</div>
+                            <div class="time-slot" data-time="10:00">10:00 AM</div>
+                            <div class="time-slot" data-time="10:30">10:30 AM</div>
+                            <div class="time-slot" data-time="11:00">11:00 AM</div>
+                            <div class="time-slot" data-time="11:30">11:30 AM</div>
+                            <div class="time-slot" data-time="14:00">2:00 PM</div>
+                            <div class="time-slot" data-time="14:30">2:30 PM</div>
+                            <div class="time-slot" data-time="15:00">3:00 PM</div>
+                            <div class="time-slot" data-time="15:30">3:30 PM</div>
+                            <div class="time-slot" data-time="16:00">4:00 PM</div>
+                            <div class="time-slot" data-time="16:30">4:30 PM</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Personal Information -->
+                <div class="booking-step" id="bookingStep3">
+                    <h3>Your Information</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="firstName">First Name</label>
+                            <input type="text" id="firstName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="lastName">Last Name</label>
+                            <input type="text" id="lastName" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone Number</label>
+                            <input type="tel" id="phone" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="dateOfBirth">Date of Birth</label>
+                            <input type="date" id="dateOfBirth" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="gender">Gender</label>
+                            <select id="gender" required>
+                                <option value="">Select...</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                                <option value="other">Other</option>
+                                <option value="prefer-not-to-say">Prefer not to say</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="medicalHistory">Relevant Medical History (Optional)</label>
+                        <textarea id="medicalHistory" rows="3" placeholder="Any relevant medical conditions, allergies, or current medications..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Step 4: Confirmation -->
+                <div class="booking-step" id="bookingStep4">
+                    <h3>Confirm Your Appointment</h3>
+                    <div class="booking-summary" id="bookingSummary">
+                        <div class="summary-row">
+                            <span>Clinic:</span>
+                            <span id="summaryClinic">Manchester Medical Centre</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Service:</span>
+                            <span id="summaryService">-</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Date:</span>
+                            <span id="summaryDate">-</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Time:</span>
+                            <span id="summaryTime">-</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Patient:</span>
+                            <span id="summaryPatient">-</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Estimated Cost:</span>
+                            <span id="summaryCost">£75</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" id="termsAccepted" required>
+                            <span>I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Success Message -->
+                <div class="booking-step" id="successStep">
+                    <!-- Success message for signed-in users -->
+                    <div class="success-message" id="signedInSuccess" style="display: none;">
+                        <div class="success-icon">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <h3>Appointment Booked Successfully!</h3>
+                        <p>Your appointment has been confirmed. You will receive a confirmation email shortly.</p>
+                        <p><strong>Booking Reference:</strong> <span id="bookingReferenceSignedIn">CG-2025-001</span></p>
+                        
+                        <div class="appointment-access-info" style="background: #f8f9fa; padding: 25px; border-radius: 12px; margin: 25px 0; border-left: 4px solid #2A6EF3; line-height: 1.6;">
+                            <h4 style="margin: 0 0 15px 0; color: #2A6EF3; font-size: 1.1rem;">Your Appointment</h4>
+                            <div style="display: grid; gap: 12px;">
+                                <div style="padding: 12px; background: white; border-radius: 8px; border: 1px solid #e9ecef;">
+                                    <strong style="color: #2A6EF3;">View Your Appointments</strong><br>
+                                    <a href="dashboard.html" style="color: #2A6EF3; text-decoration: none; font-weight: 500;">→ Go to your dashboard</a> <span style="color: #6c757d;">to manage all your bookings</span>
+                                </div>
+                                <div style="padding: 12px; background: white; border-radius: 8px; border: 1px solid #e9ecef;">
+                                    <strong style="color: #2A6EF3;">Appointment Details</strong><br>
+                                    <span style="color: #6c757d;">This booking has been automatically added to your account</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="btn-group">
+                            <a href="index.html" class="btn btn-primary">Back to Home</a>
+                            <button class="btn btn-secondary" onclick="window.print()">Print Confirmation</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Success message for guest users -->
+                    <div class="success-message" id="guestSuccessMessage">
+                        <div class="success-icon">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <h3>Appointment Booked Successfully!</h3>
+                        <p>Your appointment has been confirmed. You will receive a confirmation email shortly.</p>
+                        <p><strong>Booking Reference:</strong> <span id="bookingReference">CG-2025-001</span></p>
+                        
+                        <div class="appointment-access-info" style="background: #f8f9fa; padding: 25px; border-radius: 12px; margin: 25px 0; border-left: 4px solid #2A6EF3; line-height: 1.6;">
+                            <h4 style="margin: 0 0 15px 0; color: #2A6EF3; font-size: 1.1rem;">Manage Your Appointments</h4>
+                            <div style="display: grid; gap: 12px;">
+                                <div style="padding: 12px; background: white; border-radius: 8px; border: 1px solid #e9ecef;">
+                                    <strong style="color: #2A6EF3;">Already have an account?</strong><br>
+                                    <a href="auth.html" style="color: #2A6EF3; text-decoration: none; font-weight: 500;">→ Sign in to view your appointments</a>
+                                </div>
+                                <div style="padding: 12px; background: white; border-radius: 8px; border: 1px solid #e9ecef;">
+                                    <strong style="color: #2A6EF3;">New to CareGrid?</strong><br>
+                                    <a href="auth.html" style="color: #2A6EF3; text-decoration: none; font-weight: 500;">→ Create an account</a> <span style="color: #6c757d;">- your booking links automatically</span>
+                                </div>
+                                <div style="padding: 12px; background: white; border-radius: 8px; border: 1px solid #e9ecef;">
+                                    <strong style="color: #2A6EF3;">Booking as a guest?</strong><br>
+                                    <span style="color: #6c757d;">Save your booking reference - claim it anytime by creating an account</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="btn-group">
+                            <a href="index.html" class="btn btn-primary">Back to Home</a>
+                            <button class="btn btn-secondary" onclick="window.print()">Print Confirmation</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation Buttons -->
+                <div class="btn-group" id="navigationButtons">
+                    <button class="btn btn-secondary" id="prevBtn" onclick="previousStep()" style="display: none;">Previous</button>
+                    <button class="btn btn-primary" id="nextBtn" onclick="nextStep()">Next</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-logo">
+                        <img src="images/logo.svg" alt="CareGrid Logo" class="logo">
+                        <span class="logo-text">CareGrid</span>
+                    </div>
+                    <p>Connecting patients with trusted private healthcare providers across the UK.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="pricing.html">Pricing</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 CareGrid. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/api-service.js"></script>
+<script src="js/script.js"></script>
+<script src="js/booking.js"></script>
+    <script>
+        // Ensure goToStep function is available for dev button
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wait a bit for scripts to load
+            setTimeout(function() {
+                if (typeof window.goToStep !== 'function') {
+                    console.log('goToStep function not found, defining fallback');
+                    window.goToStep = function(step) {
+                        if (typeof goToStep === 'function') {
+                            goToStep(step);
+                        } else {
+                            alert('Booking system not ready yet. Please wait a moment and try again.');
+                        }
+                    };
+                }
+            }, 500);
+        });
+    </script>
+    <script src="js/auth.js"></script>
+</body>
+</html>

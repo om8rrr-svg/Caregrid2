@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing - CareGrid</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        .pricing-hero {
+            background: linear-gradient(135deg, #E6F0FF 0%, #F0F8FF 100%);
+            padding: 120px 0 80px;
+            text-align: center;
+        }
+        
+        .pricing-hero .hero-title {
+            color: #1a365d;
+            text-shadow: none;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        
+        .pricing-hero .hero-subtitle {
+            color: #4a5568;
+            text-shadow: none;
+            font-weight: 400;
+            opacity: 0.8;
+        }
+        
+        .pricing-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            margin: 60px 0;
+        }
+        
+        .pricing-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            position: relative;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .pricing-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+        }
+        
+        .pricing-card.featured {
+            border-color: #2A6EF3;
+            transform: scale(1.05);
+        }
+        
+        .pricing-card.featured::before {
+            content: "Most Popular";
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2A6EF3;
+            color: white;
+            padding: 8px 24px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .plan-name {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #2C3E50;
+            margin-bottom: 10px;
+        }
+        
+        .plan-description {
+            color: #5A6C7D;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        
+        .plan-price {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #2A6EF3;
+            margin-bottom: 5px;
+        }
+        
+        .plan-price .currency {
+            font-size: 1.5rem;
+            vertical-align: top;
+        }
+        
+        .plan-period {
+            color: #5A6C7D;
+            margin-bottom: 30px;
+        }
+        
+        .plan-features {
+            list-style: none;
+            margin-bottom: 40px;
+        }
+        
+        .plan-features li {
+            padding: 12px 0;
+            border-bottom: 1px solid #F0F4F8;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .plan-features li:last-child {
+            border-bottom: none;
+        }
+        
+        .feature-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+        
+        .feature-included {
+            background: #27AE60;
+            color: white;
+        }
+        
+        .feature-not-included {
+            background: #E74C3C;
+            color: white;
+        }
+        
+        .plan-button {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        
+        .plan-button.primary {
+            background: #2A6EF3;
+            color: white;
+        }
+        
+        .plan-button.primary:hover {
+            background: #1E5AD1;
+            transform: translateY(-2px);
+        }
+        
+        .plan-button.secondary {
+            background: transparent;
+            color: #2A6EF3;
+            border: 2px solid #2A6EF3;
+        }
+        
+        .plan-button.secondary:hover {
+            background: #2A6EF3;
+            color: white;
+        }
+        
+        .faq-section {
+            padding: 80px 0;
+            background: #F8FAFE;
+        }
+        
+        .faq-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .faq-item {
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .faq-question {
+            padding: 25px;
+            background: white;
+            border: none;
+            width: 100%;
+            text-align: left;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2C3E50;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.3s ease;
+        }
+        
+        .faq-question:hover {
+            background: #F8FAFE;
+        }
+        
+        .faq-answer {
+            padding: 0 25px 25px;
+            color: #5A6C7D;
+            line-height: 1.6;
+            display: none;
+        }
+        
+        .faq-answer.active {
+            display: block;
+        }
+        
+        .faq-icon {
+            transition: transform 0.3s ease;
+        }
+        
+        .faq-question.active .faq-icon {
+            transform: rotate(180deg);
+        }
+        
+        .comparison-table {
+            margin: 60px 0;
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .comparison-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .comparison-table th,
+        .comparison-table td {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid #F0F4F8;
+        }
+        
+        .comparison-table th {
+            background: #F8FAFE;
+            font-weight: 600;
+            color: #2C3E50;
+        }
+        
+        .comparison-table .feature-name {
+            text-align: left;
+            font-weight: 500;
+        }
+        
+        @media (max-width: 768px) {
+            .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .pricing-card.featured {
+                transform: none;
+            }
+            
+            .comparison-table {
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <img src="images/logo.svg" alt="CareGrid - Healthcare Directory Platform Logo" class="logo">
+                <span class="logo-text">CareGrid</span>
+            </div>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li class="stakeholder-only"><a href="pricing.html" class="nav-link active">Pricing</a></li>
+                <li><a href="contact.html" class="nav-link">Contact</a></li>
+                <li id="authNavItem"><a href="auth.html" class="nav-link">Sign In</a></li>
+                <li id="userNavItem" style="display: none;">
+                    <div class="user-menu">
+                        <div class="user-avatar" onclick="toggleUserMenu()">
+                            <img src="images/default-avatar.svg" alt="User Avatar" id="userAvatar">
+                            <span id="userName">User</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="user-dropdown" id="userDropdown">
+                            <a href="dashboard.html" class="dropdown-item">
+                                <i class="fas fa-tachometer-alt"></i>
+                                Dashboard
+                            </a>
+                            <a href="#" class="dropdown-item" onclick="logout()">
+                                <i class="fas fa-sign-out-alt"></i>
+                                Logout
+                            </a>
+                        </div>
+                    </div>
+                </li>
+                <li><a href="list-clinic.html" class="nav-link cta-nav">List Your Clinic</a></li>
+            </ul>
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Pricing Hero -->
+    <section class="pricing-hero">
+        <div class="pricing-container">
+            <h1 class="hero-title">Simple, Transparent Pricing</h1>
+            <p class="hero-subtitle">Choose the plan that works best for your healthcare practice. Start free and upgrade when you're ready to grow.</p>
+        </div>
+    </section>
+
+    <!-- Pricing Plans -->
+    <section class="pricing-plans">
+        <div class="pricing-container">
+            <div class="pricing-grid">
+                <!-- Free Plan -->
+                <div class="pricing-card">
+                    <h3 class="plan-name">Free Listing</h3>
+                    <p class="plan-description">Perfect for getting started and testing the platform</p>
+                    <div class="plan-price">
+                        <span class="currency">£</span>0
+                    </div>
+                    <p class="plan-period">Forever free</p>
+                    <ul class="plan-features">
+                        <li>
+                            <span class="feature-icon feature-included">✓</span>
+                            Basic clinic listing
+                        </li>
+                        <li>
+                            <span class="feature-icon feature-included">✓</span>
+                            Contact information display
+                        </li>
+                        <li>
+                            <span class="feature-icon feature-included">✓</span>
+                            Opening hours
+                        </li>
+                        <li>
+                            <span class="feature-icon feature-included">✓</span>
+                            Basic location mapping
+                        </li>
+                        <li>
+                            <span class="feature-icon feature-not-included">✗</span>
+                            Priority placement
+                        </li>
+                        <li>
+                            <span class="feature-icon feature-not-included">✗</span>
+                            Photo gallery
+                        </li>
+                        <li>
+                            <span class="feature-icon feature-not-included">✗</span>
+                            Patient reviews management
+                        </li>
+                        <li>
+                            <span class="feature-icon feature-not-included">✗</span>
+                            Analytics dashboard
+                        </li>
+                    </ul>
+                    <a href="list-clinic.html" class="plan-button secondary">Get Started Free</a>
+                </div>
+
+                <!-- Premium Plan -->
+                <div class="pricing-card featured">
+                    <h3 class="plan-name">Premium Listing</h3>
+                    <p class="plan-description">Everything you need to stand out and attract more patients</p>
+                    <div class="plan-price">
+                        <span class="currency">£</span>29
+                    </div>
+                    <p class="plan-period">per month</p>
+                    <ul class="plan-features">
+                        <li>
+                            <span class="feature-icon feature-included">✓</span>
+                            Everything in Free plan
+                        </li>
+                        <li>
+                            <span class="feature-icon feature-included">✓</span>
+                            Priority placement in search
+                        </li>
+                        <li>
+                            <span class="feature-icon feature-included">✓</span>
+                            Photo gallery (up to 10 images)
+                        </li>
+                        <li>
+                            <span class="feature-icon feature-included">✓</span>
+                            Patient reviews management
+                        </li>
+                        <li>
+                            <span class="feature-icon feature-included">✓</span>
+                            Detailed service descriptions
+                        </li>
+                        <li>
+                            <span class="feature-icon feature-included">✓</span>
+                            Analytics dashboard
+                        </li>
+                        <li>
+                            <span class="feature-icon feature-included">✓</span>
+                            Premium badge display
+                        </li>
+                        <li>
+                            <span class="feature-icon feature-included">✓</span>
+                            Email support
+                        </li>
+                    </ul>
+                    <a href="#" class="plan-button primary" onclick="upgradeToPremium()">Upgrade to Premium</a>
+                </div>
+
+                <!-- Enterprise Plan -->
+                <div class="pricing-card">
+                    <h3 class="plan-name">Enterprise</h3>
+                    <p class="plan-description">For large practices and clinic chains with advanced needs</p>
+                    <div class="plan-price">
+                        <span class="currency">£</span>99
+                    </div>
+                    <p class="plan-period">per month</p>
+                    <ul class="plan-features">
+                        <li>
+                            <span class="feature-icon feature-included">✓</span>
+                            Everything in Premium plan
+                        </li>
+                        <li>
+                            <span class="feature-icon feature-included">✓</span>
+                            Multiple location management
+                        </li>
+                        <li>
+                            <span class="feature-icon feature-included">✓</span>
+                            Advanced analytics & reporting
+                        </li>
+                        <li>
+                            <span class="feature-icon feature-included">✓</span>
+                            Custom branding options
+                        </li>
+                        <li>
+                            <span class="feature-icon feature-included">✓</span>
+                            API access
+                        </li>
+                        <li>
+                            <span class="feature-icon feature-included">✓</span>
+                            Priority customer support
+                        </li>
+                        <li>
+                            <span class="feature-icon feature-included">✓</span>
+                            Dedicated account manager
+                        </li>
+                        <li>
+                            <span class="feature-icon feature-included">✓</span>
+                            Custom integrations
+                        </li>
+                    </ul>
+                    <a href="contact.html" class="plan-button secondary">Contact Sales</a>
+                </div>
+            </div>
+
+            <!-- Comparison Table -->
+            <div class="comparison-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="feature-name">Features</th>
+                            <th>Free</th>
+                            <th>Premium</th>
+                            <th>Enterprise</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="feature-name">Basic listing</td>
+                            <td>✓</td>
+                            <td>✓</td>
+                            <td>✓</td>
+                        </tr>
+                        <tr>
+                            <td class="feature-name">Contact information</td>
+                            <td>✓</td>
+                            <td>✓</td>
+                            <td>✓</td>
+                        </tr>
+                        <tr>
+                            <td class="feature-name">Priority placement</td>
+                            <td>✗</td>
+                            <td>✓</td>
+                            <td>✓</td>
+                        </tr>
+                        <tr>
+                            <td class="feature-name">Photo gallery</td>
+                            <td>✗</td>
+                            <td>Up to 10</td>
+                            <td>Unlimited</td>
+                        </tr>
+                        <tr>
+                            <td class="feature-name">Reviews management</td>
+                            <td>✗</td>
+                            <td>✓</td>
+                            <td>✓</td>
+                        </tr>
+                        <tr>
+                            <td class="feature-name">Analytics dashboard</td>
+                            <td>✗</td>
+                            <td>Basic</td>
+                            <td>Advanced</td>
+                        </tr>
+                        <tr>
+                            <td class="feature-name">Multiple locations</td>
+                            <td>✗</td>
+                            <td>✗</td>
+                            <td>✓</td>
+                        </tr>
+                        <tr>
+                            <td class="feature-name">API access</td>
+                            <td>✗</td>
+                            <td>✗</td>
+                            <td>✓</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="faq-section">
+        <div class="faq-container">
+            <h2 class="section-title">Frequently Asked Questions</h2>
+            
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)">
+                    How does the free plan work?
+                    <span class="faq-icon">▼</span>
+                </button>
+                <div class="faq-answer">
+                    The free plan allows you to create a basic listing for your clinic with essential information like contact details, opening hours, and location. Your listing will appear in search results, but without priority placement or advanced features.
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)">
+                    Can I upgrade or downgrade my plan anytime?
+                    <span class="faq-icon">▼</span>
+                </button>
+                <div class="faq-answer">
+                    Yes, you can upgrade or downgrade your plan at any time. Changes take effect immediately, and billing is prorated accordingly. If you downgrade, you'll retain premium features until the end of your current billing period.
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)">
+                    What payment methods do you accept?
+                    <span class="faq-icon">▼</span>
+                </button>
+                <div class="faq-answer">
+                    We accept all major credit cards (Visa, Mastercard, American Express) and debit cards. Payments are processed securely through Stripe. For Enterprise plans, we also offer invoice billing.
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)">
+                    Is there a setup fee?
+                    <span class="faq-icon">▼</span>
+                </button>
+                <div class="faq-answer">
+                    No, there are no setup fees for any of our plans. You only pay the monthly subscription fee, and you can start using all features immediately after signup.
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)">
+                    How do patient reviews work?
+                    <span class="faq-icon">▼</span>
+                </button>
+                <div class="faq-answer">
+                    Premium and Enterprise plans include review management features. We can import existing Google reviews and provide tools to encourage and manage new patient feedback. You can respond to reviews and showcase positive testimonials.
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)">
+                    What kind of support do you provide?
+                    <span class="faq-icon">▼</span>
+                </button>
+                <div class="faq-answer">
+                    Free plan users have access to our help center and community forum. Premium users get email support with 24-48 hour response times. Enterprise customers receive priority support and a dedicated account manager.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-content">
+                <h2>Ready to grow your practice?</h2>
+                <p>Join thousands of healthcare providers who trust CareGrid to connect them with new patients.</p>
+                <div class="cta-buttons">
+                    <a href="list-clinic.html" class="cta-btn primary">Start Free Today</a>
+                    <a href="contact.html" class="cta-btn secondary">Talk to Sales</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-logo">
+                        <img src="images/logo.svg" alt="CareGrid Logo" class="logo">
+                        <span class="logo-text">CareGrid</span>
+                    </div>
+                    <p>Connecting patients with trusted private healthcare providers across the UK.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>For Patients</h4>
+                    <ul>
+                        <li><a href="#">Find a GP</a></li>
+                        <li><a href="#">Find a Dentist</a></li>
+                        <li><a href="#">Find a Physiotherapist</a></li>
+                        <li><a href="#">Aesthetic Clinics</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>For Clinics</h4>
+                    <ul>
+                        <li><a href="list-clinic.html">List Your Clinic</a></li>
+                        <li><a href="pricing.html">Pricing Plans</a></li>
+                        <li><a href="#">Premium Features</a></li>
+                        <li><a href="#">Success Stories</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <ul>
+                        <li><a href="contact.html">Contact Us</a></li>
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 CareGrid. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+    <script>
+        function toggleFAQ(element) {
+            const answer = element.nextElementSibling;
+            const isActive = answer.classList.contains('active');
+            
+            // Close all FAQ answers
+            document.querySelectorAll('.faq-answer').forEach(ans => {
+                ans.classList.remove('active');
+            });
+            document.querySelectorAll('.faq-question').forEach(q => {
+                q.classList.remove('active');
+            });
+            
+            // Open clicked FAQ if it wasn't active
+            if (!isActive) {
+                answer.classList.add('active');
+                element.classList.add('active');
+            }
+        }
+        
+        function upgradeToPremium() {
+            // This would integrate with Stripe for payment processing
+            alert('Stripe integration would be implemented here for premium upgrade.');
+            // Redirect to Stripe checkout or payment form
+        }
+    </script>
+    <script src="js/auth.js"></script>
+</body>
+</html>

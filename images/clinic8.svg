@@ -1,0 +1,89 @@
+<svg width="300" height="200" viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="buildingGrad8" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#E8F5E8;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#C8E6C9;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="roofGrad8" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2E7D32;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1B5E20;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="300" height="200" fill="#F1F8E9"/>
+  
+  <!-- Ground -->
+  <rect x="0" y="150" width="300" height="50" fill="#E8F5E8"/>
+  
+  <!-- Pediatric Clinic Building -->
+  <rect x="60" y="70" width="180" height="80" fill="url(#buildingGrad8)" stroke="#2E7D32" stroke-width="2" rx="10"/>
+  
+  <!-- Colorful Roof -->
+  <ellipse cx="150" cy="70" rx="95" ry="15" fill="url(#roofGrad8)" stroke="#1B5E20" stroke-width="2"/>
+  
+  <!-- Colorful Entrance -->
+  <rect x="130" y="120" width="40" height="30" fill="#FFEB3B" stroke="#2E7D32" stroke-width="2" rx="5"/>
+  
+  <!-- Rainbow Door -->
+  <rect x="135" y="125" width="30" height="25" fill="#E91E63" stroke="#2E7D32" stroke-width="1" rx="3"/>
+  <rect x="137" y="127" width="26" height="4" fill="#FF5722"/>
+  <rect x="137" y="131" width="26" height="4" fill="#FF9800"/>
+  <rect x="137" y="135" width="26" height="4" fill="#FFEB3B"/>
+  <rect x="137" y="139" width="26" height="4" fill="#4CAF50"/>
+  <rect x="137" y="143" width="26" height="4" fill="#2196F3"/>
+  
+  <!-- Playful Windows -->
+  <circle cx="90" cy="95" r="12" fill="#E3F2FD" stroke="#2E7D32" stroke-width="2"/>
+  <circle cx="210" cy="95" r="12" fill="#FCE4EC" stroke="#2E7D32" stroke-width="2"/>
+  
+  <!-- Window Details -->
+  <path d="M 84 95 Q 90 89 96 95 Q 90 101 84 95" fill="#2196F3" opacity="0.3"/>
+  <path d="M 204 95 Q 210 89 216 95 Q 210 101 204 95" fill="#E91E63" opacity="0.3"/>
+  
+  <!-- Pediatric Sign -->
+  <rect x="85" y="75" width="130" height="10" fill="#FFFFFF" stroke="#2E7D32" stroke-width="1" rx="5"/>
+  <text x="150" y="82" text-anchor="middle" font-family="Arial, sans-serif" font-size="7" fill="#2E7D32" font-weight="bold">CHILDREN'S HEALTH CENTER</text>
+  
+  <!-- Teddy Bear Icon -->
+  <circle cx="75" cy="80" r="4" fill="#8D6E63"/>
+  <circle cx="73" cy="78" r="1.5" fill="#8D6E63"/>
+  <circle cx="77" cy="78" r="1.5" fill="#8D6E63"/>
+  <circle cx="74" cy="81" r="0.5" fill="#424242"/>
+  <circle cx="76" cy="81" r="0.5" fill="#424242"/>
+  <ellipse cx="75" cy="82" rx="1" ry="0.5" fill="#424242"/>
+  
+  <!-- Playground Equipment -->
+  <rect x="20" y="160" width="30" height="20" fill="#FF9800" stroke="#F57C00" stroke-width="1" rx="3"/>
+  <circle cx="35" cy="155" r="8" fill="#4CAF50" stroke="#388E3C" stroke-width="1"/>
+  <rect x="32" y="150" width="6" height="10" fill="#8D6E63"/>
+  
+  <!-- Slide -->
+  <path d="M 45 165 Q 55 155 65 165" fill="#2196F3" stroke="#1976D2" stroke-width="2"/>
+  <rect x="63" y="163" width="4" height="15" fill="#8D6E63"/>
+  
+  <!-- Colorful Flowers -->
+  <circle cx="250" cy="165" r="3" fill="#E91E63"/>
+  <circle cx="255" cy="160" r="3" fill="#9C27B0"/>
+  <circle cx="260" cy="168" r="3" fill="#FF5722"/>
+  <rect x="249" y="168" width="2" height="8" fill="#4CAF50"/>
+  <rect x="254" y="163" width="2" height="8" fill="#4CAF50"/>
+  <rect x="259" y="171" width="2" height="8" fill="#4CAF50"/>
+  
+  <!-- Balloons -->
+  <circle cx="270" cy="120" r="4" fill="#F44336"/>
+  <circle cx="275" cy="115" r="4" fill="#2196F3"/>
+  <circle cx="280" cy="125" r="4" fill="#FFEB3B"/>
+  <line x1="270" y1="124" x2="270" y2="140" stroke="#424242" stroke-width="1"/>
+  <line x1="275" y1="119" x2="275" y2="140" stroke="#424242" stroke-width="1"/>
+  <line x1="280" y1="129" x2="280" y2="140" stroke="#424242" stroke-width="1"/>
+  
+  <!-- Happy Sun -->
+  <circle cx="50" cy="30" r="12" fill="#FFC107"/>
+  <circle cx="47" cy="27" r="1" fill="#FF8F00"/>
+  <circle cx="53" cy="27" r="1" fill="#FF8F00"/>
+  <path d="M 46 33 Q 50 36 54 33" stroke="#FF8F00" stroke-width="1" fill="none"/>
+  
+  <!-- Clouds -->
+  <ellipse cx="200" cy="25" rx="15" ry="6" fill="#FFFFFF" opacity="0.9"/>
+</svg>

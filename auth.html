@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In | CareGrid</title>
+    <meta name="description" content="Sign in to your CareGrid account to manage appointments, save favorites, and access personalized healthcare services.">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Google API -->
+    <script src="https://apis.google.com/js/api.js"></script>
+    
+    <!-- Facebook SDK -->
+    <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js"></script>
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'GA_MEASUREMENT_ID');
+    </script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <img src="images/logo.svg" alt="CareGrid - Healthcare Directory Platform Logo" class="logo">
+                <span class="logo-text">CareGrid</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li class="stakeholder-only"><a href="pricing.html" class="nav-link">Pricing</a></li>
+                <li><a href="contact.html" class="nav-link">Contact</a></li>
+                <li><a href="auth.html" class="nav-link active">Sign In</a></li>
+                
+                <li><a href="list-clinic.html" class="nav-link cta-nav">List Your Clinic</a></li>
+            </ul>
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Authentication Section -->
+    <section class="auth-section">
+        <div class="auth-container">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <h1>Welcome Back</h1>
+                    <p>Sign in to your CareGrid account</p>
+                </div>
+
+                <!-- Sign In Form -->
+                <form id="signInForm" class="auth-form">
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" placeholder="Enter your email address" required>
+                        <span class="error-message" id="emailError"></span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <div class="password-input">
+                            <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                            <button type="button" class="password-toggle" onclick="togglePassword('password')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <span class="error-message" id="passwordError"></span>
+                    </div>
+                    
+                    <div class="form-options">
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="rememberMe" name="rememberMe">
+                            <span class="checkmark"></span>
+                            Remember me
+                        </label>
+                        <a href="#" class="forgot-password" onclick="showPasswordResetWizard()">Forgot your password?</a>
+                    </div>
+                    
+                    <button type="submit" class="auth-btn primary">
+                        <span class="btn-text">Sign In</span>
+                        <span class="btn-loader hidden">
+                            <i class="fas fa-spinner fa-spin"></i>
+                        </span>
+                    </button>
+                    
+                    <div class="divider">
+                        <span>or continue with</span>
+                    </div>
+                    
+                    <div class="social-auth">
+                        <button type="button" class="social-btn google" onclick="signInWithGoogle()">
+                            <i class="fab fa-google"></i>
+                            <span>Google</span>
+                        </button>
+                        <button type="button" class="social-btn facebook" onclick="signInWithFacebook()">
+                            <i class="fab fa-facebook-f"></i>
+                            <span>Facebook</span>
+                        </button>
+                    </div>
+                    
+                    <div class="auth-toggle">
+                        <p>Don't have an account? <a href="signup.html" class="link">Sign up</a></p>
+                    </div>
+                </form>
+
+                <!-- Password Reset Wizard -->
+                <div id="passwordResetWizard" class="auth-form hidden" style="display: none;">
+                    <!-- Step 1: Email Entry -->
+                    <div id="resetStep1" class="reset-step">
+                        <div class="step-indicator">
+                            <span class="step active">1</span>
+                            <span class="step">2</span>
+                            <span class="step">3</span>
+                        </div>
+                        
+                        <form id="forgotPasswordForm">
+                            <div class="form-group">
+                                <label for="resetEmail">Email Address</label>
+                                <input type="email" id="resetEmail" name="email" placeholder="Enter your email address" required>
+                                <span class="error-message" id="resetEmailError"></span>
+                            </div>
+                            
+                            <button type="submit" class="auth-btn primary">
+                                <span class="btn-text">Send Verification Code</span>
+                                <span class="btn-loader hidden">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                </span>
+                            </button>
+                            
+                            <div class="auth-toggle">
+                                <p>Remember your password? <a href="#" class="link" onclick="showSignIn()">Sign in</a></p>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- Step 2: Code Verification -->
+                    <div id="resetStep2" class="reset-step hidden">
+                        <div class="step-indicator">
+                            <span class="step completed">✓</span>
+                            <span class="step active">2</span>
+                            <span class="step">3</span>
+                        </div>
+                        
+                        <form id="verificationForm">
+                            <div class="form-group">
+                                <label for="verificationCode">Verification Code</label>
+                                <input type="text" id="verificationCode" name="code" placeholder="Enter 6-digit code" maxlength="6" required>
+                                <span class="error-message" id="verificationCodeError"></span>
+                                <p class="form-help">We've sent a 6-digit code to <span id="emailDisplay"></span></p>
+                            </div>
+                            
+                            <button type="submit" class="auth-btn primary">
+                                <span class="btn-text">Verify Code</span>
+                                <span class="btn-loader hidden">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                </span>
+                            </button>
+                            
+                            <div class="auth-toggle">
+                                <p>Didn't receive the code? <a href="#" class="link" onclick="resendCode()">Resend code</a></p>
+                                <p><a href="#" class="link" onclick="showResetStep(1)">← Back to email</a></p>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- Step 3: New Password -->
+                    <div id="resetStep3" class="reset-step hidden">
+                        <div class="step-indicator">
+                            <span class="step completed">✓</span>
+                            <span class="step completed">✓</span>
+                            <span class="step active">3</span>
+                        </div>
+                        
+                        <form id="newPasswordForm">
+                            <div class="password-requirements">
+                                <h4>Password Requirements:</h4>
+                                <ul>
+                                    <li id="req-length">At least 8 characters</li>
+                                    <li id="req-uppercase">One uppercase letter</li>
+                                    <li id="req-lowercase">One lowercase letter</li>
+                                    <li id="req-number">One number</li>
+                                    <li id="req-special">One special character (!@#$%^&*)</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="newPassword">New Password</label>
+                                <div class="password-input">
+                                    <input type="password" id="newPassword" name="password" placeholder="Enter new password" required>
+                                    <button type="button" class="password-toggle" onclick="togglePassword('newPassword')">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                <span class="error-message" id="newPasswordError"></span>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="confirmNewPassword">Confirm New Password</label>
+                                <div class="password-input">
+                                    <input type="password" id="confirmNewPassword" name="confirmPassword" placeholder="Confirm new password" required>
+                                    <button type="button" class="password-toggle" onclick="togglePassword('confirmNewPassword')">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                <span class="error-message" id="confirmNewPasswordError"></span>
+                            </div>
+                            
+                            <button type="submit" class="auth-btn primary">
+                                <span class="btn-text">Reset Password</span>
+                                <span class="btn-loader hidden">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                </span>
+                            </button>
+                            
+                            <div class="auth-toggle">
+                                <p><a href="#" class="link" onclick="showResetStep(2)">← Back to verification</a></p>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- Step 4: Success -->
+                    <div id="resetStep4" class="reset-step hidden">
+                        <div class="success-content">
+                            <div class="success-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <h3>Password Changed Successfully!</h3>
+                            <p>Your password has been updated. You can now sign in with your new password.</p>
+                            
+                            <button type="button" class="auth-btn primary" onclick="showSignIn()">
+                                Continue to Sign In
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+
+        </div>
+    </section>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="success-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h3 id="successTitle">Welcome to CareGrid!</h3>
+                <p id="successMessage">Welcome to CareGrid!</p>
+            </div>
+            <div class="modal-actions">
+                <button class="auth-btn primary" onclick="closeSuccessModal(); console.log('Button clicked');">Get Started</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <div class="footer-logo">
+                    <img src="images/logo.svg" alt="CareGrid Logo">
+                    <span>CareGrid</span>
+                </div>
+                <p>Connecting you with quality healthcare providers in your area.</p>
+            </div>
+            
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="#">About</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms of Service</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h4>Support</h4>
+                <ul>
+                    <li><a href="#">Help Center</a></li>
+                    <li><a href="#">Contact Us</a></li>
+                    <li><a href="#">Report Issue</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2024 CareGrid. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="js/api-service.js"></script>
+<script src="js/script.js"></script>
+<script src="js/auth.js"></script>
+    
+    <script>
+        // Google OAuth configuration
+        const GOOGLE_CLIENT_ID = '1035469437281-ch681omnn6q6eghhd82chuam4hgpmv4i.apps.googleusercontent.com'; // Demo client ID for testing
+        
+        // Facebook OAuth configuration
+        const FACEBOOK_APP_ID = 'your-facebook-app-id'; // Replace with your actual Facebook App ID
+        
+        // Initialize Google OAuth
+        function initGoogleAuth() {
+            gapi.load('auth2', function() {
+                gapi.auth2.init({
+                    client_id: GOOGLE_CLIENT_ID
+                }).then(function() {
+                    console.log('Google Auth initialized successfully');
+                }).catch(function(error) {
+                    console.warn('Google Auth initialization failed (expected for localhost):', error);
+                    // Silently handle the error - this is expected for localhost development
+                    // The auth.js file already has fallback simulation functions
+                });
+            });
+        }
+        
+        // Initialize Facebook SDK
+        function initFacebookAuth() {
+            window.fbAsyncInit = function() {
+                FB.init({
+                    appId: FACEBOOK_APP_ID,
+                    cookie: true,
+                    xfbml: true,
+                    version: 'v18.0'
+                });
+            };
+        }
+        
+        // Simulate Google Sign-In for demo purposes
+        function simulateGoogleSignIn() {
+            const userData = {
+                id: 'google_demo_user',
+                email: 'demo.user@gmail.com',
+                name: 'Demo User',
+                profilePicture: 'https://via.placeholder.com/150',
+                provider: 'google',
+                lastLogin: new Date().toISOString()
+            };
+            
+            // Store user data in localStorage
+            localStorage.setItem('currentUser', JSON.stringify(userData));
+            localStorage.setItem('isLoggedIn', 'true');
+            
+            alert('Demo Google sign-in successful! Redirecting to dashboard...');
+            
+            // Redirect to dashboard
+            setTimeout(() => {
+                window.location.href = 'dashboard.html';
+            }, 1000);
+        }
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initGoogleAuth();
+            initFacebookAuth();
+        });
+    </script>
+</body>
+</html>

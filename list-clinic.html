@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="List your clinic on CareGrid - Connect with patients and grow your practice">
+    <meta name="keywords" content="list clinic, healthcare directory, medical practice, patient booking">
+    <title>List Your Clinic - CareGrid</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .form-hero {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            padding: 100px 0 60px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            min-height: 50vh;
+        }
+        
+        .form-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 40% 80%, rgba(255, 255, 255, 0.08) 0%, transparent 30%);
+            z-index: 1;
+        }
+        
+        .form-hero::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="0.5" fill="%23ffffff" opacity="0.03"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>') repeat;
+            z-index: 1;
+        }
+        
+        .form-hero .hero-title {
+            color: #ffffff;
+            font-size: clamp(2.5rem, 5vw, 3.5rem);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+            margin-bottom: 24px;
+            text-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            position: relative;
+            z-index: 2;
+            animation: fadeInUp 0.8s ease-out;
+        }
+        
+        .form-hero .hero-subtitle {
+            color: rgba(255, 255, 255, 0.95);
+            font-size: clamp(1.1rem, 2.5vw, 1.3rem);
+            font-weight: 400;
+            line-height: 1.6;
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .form-container {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .form-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .form-section {
+            padding: 40px 0;
+            background: #ffffff;
+        }
+        
+        .clinic-form {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-top: -40px;
+            position: relative;
+            z-index: 10;
+            max-width: 100%;
+            width: 100%;
+        }
+        
+        .form-step {
+            display: none;
+        }
+        
+        .form-step.active {
+            display: block;
+        }
+        
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 40px;
+            gap: 20px;
+        }
+        
+        .step {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #E1E8ED;
+            color: #5A6C7D;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .step.active {
+            background: #2A6EF3;
+            color: white;
+        }
+        
+        .step.completed {
+            background: #27AE60;
+            color: white;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2C3E50;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #E1E8ED;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+            box-sizing: border-box;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #2A6EF3;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .file-upload {
+            border: 2px dashed #E1E8ED;
+            border-radius: 8px;
+            padding: 40px 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .file-upload:hover {
+            border-color: #2A6EF3;
+            background: #F8FAFE;
+        }
+        
+        .file-upload.dragover {
+            border-color: #2A6EF3;
+            background: #E6F0FF;
+        }
+        
+        .file-upload input {
+            display: none;
+        }
+        
+        .upload-icon {
+            font-size: 3rem;
+            color: #2A6EF3;
+            margin-bottom: 15px;
+        }
+        
+        .upload-icon i {
+            margin-right: 8px;
+        }
+        
+        /* Global icon spacing */
+        i.fas, i.far, i.fab {
+            margin-right: 6px;
+        }
+        
+        .upload-icon i.fas {
+            margin-right: 8px;
+        }
+        
+        /* Spacing for edit/pencil icons in labels */
+        label i.fa-edit,
+        label i.fa-pencil,
+        label i.fa-pencil-alt {
+            margin-right: 8px;
+        }
+        
+        .upload-text {
+            color: #5A6C7D;
+            margin-bottom: 10px;
+        }
+        
+        .upload-hint {
+            font-size: 0.9rem;
+            color: #8A9BA8;
+        }
+        
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .service-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .service-item i {
+            margin-right: 8px;
+            min-width: 20px;
+        }
+        
+        .service-item input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+        }
+        
+        .form-navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid #E1E8ED;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        
+        .btn-primary {
+            background: #2A6EF3;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #1E5AD1;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: #E1E8ED;
+            color: #5A6C7D;
+        }
+        
+        .btn-secondary:hover {
+            background: #D1D8DD;
+        }
+        
+        .btn-success {
+            background: #27AE60;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #219A52;
+        }
+        
+        .success-message {
+            text-align: center;
+            padding: 60px 20px;
+        }
+        
+        .success-icon {
+            margin-bottom: 20px;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .form-hero {
+                padding: 80px 0 40px;
+                min-height: 40vh;
+            }
+            
+            .clinic-form {
+                padding: 20px;
+                margin: 0 10px;
+                margin-top: -30px;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .step-indicator {
+                gap: 15px;
+            }
+            
+            .step {
+                width: 35px;
+                height: 35px;
+                font-size: 14px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .form-container {
+                padding: 0 15px;
+            }
+            
+            .clinic-form {
+                padding: 15px;
+            }
+            
+            .upload-icon {
+                font-size: 2rem;
+            }
+        }
+        
+        .success-icon {
+            font-size: 4rem;
+            color: #27AE60;
+            margin-bottom: 20px;
+        }
+        
+        .benefits-section {
+            padding: 80px 0;
+            background: #F8FAFE;
+        }
+        
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            margin-top: 50px;
+        }
+        
+        .benefit-card {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        .benefit-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+        
+        .benefit-icon::after {
+            content: ' ';
+            margin-left: 8px;
+        }
+        
+        .benefit-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #2C3E50;
+        }
+        
+        .benefit-description {
+            color: #5A6C7D;
+            line-height: 1.6;
+        }
+        
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .clinic-form {
+                padding: 30px 20px;
+            }
+            
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-navigation {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <img src="images/logo.svg" alt="CareGrid - Healthcare Directory Platform Logo" class="logo">
+                <span class="logo-text">CareGrid</span>
+            </div>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li class="stakeholder-only"><a href="pricing.html" class="nav-link">Pricing</a></li>
+                <li><a href="contact.html" class="nav-link">Contact</a></li>
+                <li id="authNavItem"><a href="auth.html" class="nav-link">Sign In</a></li>
+                <li id="userNavItem" style="display: none;">
+                    <div class="user-menu">
+                        <div class="user-avatar" onclick="toggleUserMenu()">
+                            <img src="images/default-avatar.svg" alt="User Avatar" id="userAvatar">
+                            <span id="userName">User</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="user-dropdown" id="userDropdown">
+                            <a href="dashboard.html" class="dropdown-item">
+                                <i class="fas fa-tachometer-alt"></i>
+                                Dashboard
+                            </a>
+                            <a href="#" class="dropdown-item" onclick="logout()">
+                                <i class="fas fa-sign-out-alt"></i>
+                                Logout
+                            </a>
+                        </div>
+                    </div>
+                </li>
+                <li><a href="list-clinic.html" class="nav-link cta-nav active">List Your Clinic</a></li>
+            </ul>
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Form Hero -->
+    <section class="form-hero">
+        <div class="form-container">
+            <h1 class="hero-title">List Your Healthcare Practice</h1>
+            <p class="hero-subtitle">Join CareGrid and connect with patients looking for quality private healthcare. Get started in just a few minutes.</p>
+        </div>
+    </section>
+
+    <!-- Form Section -->
+    <section class="form-section">
+        <div class="form-container">
+            <form class="clinic-form" id="clinicForm">
+                <!-- Step Indicator -->
+                <div class="step-indicator">
+                    <div class="step active" data-step="1">1</div>
+                    <div class="step" data-step="2">2</div>
+                    <div class="step" data-step="3">3</div>
+                    <div class="step" data-step="4">4</div>
+                </div>
+
+                <!-- Step 1: Basic Information -->
+                <div class="form-step active" data-step="1">
+                    <h2>Basic Information</h2>
+                    <p>Let's start with the essential details about your practice.</p>
+                    
+                    <div class="form-group">
+                        <label for="clinicName">Clinic/Practice Name *</label>
+                        <input type="text" id="clinicName" name="clinicName" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="clinicType">Practice Type *</label>
+                            <select id="clinicType" name="clinicType" required>
+                                <option value="">Select practice type</option>
+                                <option value="gp">General Practice (GP)</option>
+                                <option value="dentist">Dental Practice</option>
+                                <option value="physio">Physiotherapy</option>
+                                <option value="aesthetic">Aesthetic Clinic</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="city">City *</label>
+                            <select id="city" name="city" required>
+                                <option value="">Select city</option>
+                                <option value="manchester">Manchester</option>
+                                <option value="bolton">Bolton</option>
+                                <option value="liverpool">Liverpool</option>
+                                <option value="leeds">Leeds</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="address">Full Address *</label>
+                        <textarea id="address" name="address" placeholder="Enter your complete practice address" required></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="phone">Phone Number *</label>
+                            <input type="tel" id="phone" name="phone" placeholder="0161 123 4567" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="email">Email Address *</label>
+                            <input type="email" id="email" name="email" placeholder="info@yourclinic.co.uk" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Services & Specialties -->
+                <div class="form-step" data-step="2">
+                    <h2>Services & Specialties</h2>
+                    <p>Tell us about the services you offer to help patients find you.</p>
+                    
+                    <div class="form-group">
+                        <label>Services Offered *</label>
+                        <div class="services-grid" id="servicesGrid">
+                            <!-- Services will be populated based on clinic type -->
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="specialties">Specialties & Additional Services</label>
+                        <textarea id="specialties" name="specialties" placeholder="Describe any special treatments, certifications, or unique services you offer"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="openingHours">Opening Hours</label>
+                        <textarea id="openingHours" name="openingHours" placeholder="Monday: 9:00 AM - 5:00 PM&#10;Tuesday: 9:00 AM - 5:00 PM&#10;..." rows="6"></textarea>
+                    </div>
+                </div>
+
+                <!-- Step 3: Media & Branding -->
+                <div class="form-step" data-step="3">
+                    <h2>Media & Branding</h2>
+                    <p>Upload your logo and images to make your listing stand out.</p>
+                    
+                    <div class="form-group">
+                        <label>Practice Logo</label>
+                        <div class="file-upload" onclick="document.getElementById('logoUpload').click()">
+                            <div class="upload-icon">📷</div>
+                            <div class="upload-text">Click to upload your logo</div>
+                            <div class="upload-hint">PNG, JPG up to 5MB</div>
+                            <input type="file" id="logoUpload" name="logo" accept="image/*">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Practice Images (Premium Feature)</label>
+                        <div class="file-upload" onclick="document.getElementById('imagesUpload').click()">
+                            <div class="upload-icon"><i class="fas fa-images"></i> </div>
+                            <div class="upload-text">Upload photos of your practice</div>
+                            <div class="upload-hint">Multiple images, PNG/JPG up to 5MB each</div>
+                            <input type="file" id="imagesUpload" name="images" accept="image/*" multiple>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="website">Website URL</label>
+                        <input type="url" id="website" name="website" placeholder="https://www.yourclinic.co.uk">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="description">Practice Description</label>
+                        <textarea id="description" name="description" placeholder="Write a brief description of your practice, your approach to patient care, and what makes you unique" rows="4"></textarea>
+                    </div>
+                </div>
+
+                <!-- Step 4: Plan Selection & Confirmation -->
+                <div class="form-step" data-step="4">
+                    <h2>Choose Your Plan</h2>
+                    <p>Select the plan that best fits your practice needs.</p>
+                    
+                    <div class="plan-selection">
+                        <div class="plan-option">
+                            <input type="radio" id="freePlan" name="plan" value="free" checked>
+                            <label for="freePlan">
+                                <h3>Free Listing</h3>
+                                <p>Basic listing with contact information and location</p>
+                                <strong>£0/month</strong>
+                            </label>
+                        </div>
+                        
+                        <div class="plan-option">
+                            <input type="radio" id="premiumPlan" name="plan" value="premium">
+                            <label for="premiumPlan">
+                                <h3>Premium Listing</h3>
+                                <p>Priority placement, photo gallery, reviews management</p>
+                                <strong>£29/month</strong>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="terms" name="terms" required>
+                            I agree to the <a href="#" target="_blank">Terms of Service</a> and <a href="#" target="_blank">Privacy Policy</a> *
+                        </label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="marketing" name="marketing">
+                            I would like to receive updates and marketing communications from CareGrid
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Success Message -->
+                <div class="form-step" data-step="success" style="display: none;">
+                    <div class="success-message">
+                        <div class="success-icon">✅</div>
+                        <h2>Application Submitted Successfully!</h2>
+                        <p>Thank you for joining CareGrid. We'll review your application and get your listing live within 24 hours.</p>
+                        <p>You'll receive a confirmation email shortly with next steps.</p>
+                        <a href="index.html" class="btn btn-primary">Return to Homepage</a>
+                    </div>
+                </div>
+
+                <!-- Navigation Buttons -->
+                <div class="form-navigation" id="formNavigation">
+                    <button type="button" class="btn btn-secondary" id="prevBtn" onclick="changeStep(-1)" style="display: none;">Previous</button>
+                    <button type="button" class="btn btn-primary" id="nextBtn" onclick="changeStep(1)">Next</button>
+                    <button type="submit" class="btn btn-success" id="submitBtn" style="display: none;">Submit Application</button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <!-- Benefits Section -->
+    <section class="benefits-section">
+        <div class="container">
+            <h2 class="section-title">Why Choose CareGrid?</h2>
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <div class="benefit-icon">🎯</div>
+                    <h3 class="benefit-title">Targeted Reach</h3>
+                    <p class="benefit-description">Connect with patients actively searching for private healthcare in your area.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">📈</div>
+                    <h3 class="benefit-title">Grow Your Practice</h3>
+                    <p class="benefit-description">Increase patient bookings and expand your practice with our proven platform.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">⭐</div>
+                    <h3 class="benefit-title">Build Reputation</h3>
+                    <p class="benefit-description">Showcase patient reviews and build trust with potential new patients.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-logo">
+                        <img src="images/logo.svg" alt="CareGrid Logo" class="logo">
+                        <span class="logo-text">CareGrid</span>
+                    </div>
+                    <p>Connecting patients with trusted private healthcare providers across the UK.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>For Patients</h4>
+                    <ul>
+                        <li><a href="#">Find a GP</a></li>
+                        <li><a href="#">Find a Dentist</a></li>
+                        <li><a href="#">Find a Physiotherapist</a></li>
+                        <li><a href="#">Aesthetic Clinics</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>For Clinics</h4>
+                    <ul>
+                        <li><a href="list-clinic.html">List Your Clinic</a></li>
+                        <li><a href="pricing.html">Pricing Plans</a></li>
+                        <li><a href="#">Premium Features</a></li>
+                        <li><a href="#">Success Stories</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <ul>
+                        <li><a href="contact.html">Contact Us</a></li>
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 CareGrid. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+    <script>
+        let currentStep = 1;
+        const totalSteps = 4;
+        
+        // Services data for different clinic types
+        const servicesData = {
+            gp: ['General Consultations', 'Health Screenings', 'Vaccinations', 'Minor Surgery', 'Travel Clinic', 'Blood Tests', 'ECG', 'Chronic Disease Management'],
+            dentist: ['General Dentistry', 'Cosmetic Dentistry', 'Orthodontics', 'Teeth Whitening', 'Dental Implants', 'Root Canal', 'Emergency Care', 'Oral Surgery'],
+            physio: ['Sports Physiotherapy', 'Manual Therapy', 'Exercise Therapy', 'Massage Therapy', 'Rehabilitation', 'Pain Management', 'Injury Prevention', 'Postural Assessment'],
+            aesthetic: ['Botox', 'Dermal Fillers', 'Chemical Peels', 'Laser Treatments', 'Anti-Aging', 'Body Contouring', 'Skin Rejuvenation', 'Hair Removal']
+        };
+        
+        // Update services based on clinic type
+        document.getElementById('clinicType').addEventListener('change', function() {
+            const clinicType = this.value;
+            const servicesGrid = document.getElementById('servicesGrid');
+            
+            if (clinicType && servicesData[clinicType]) {
+                servicesGrid.innerHTML = '';
+                servicesData[clinicType].forEach(service => {
+                    const serviceItem = document.createElement('div');
+                    serviceItem.className = 'service-item';
+                    serviceItem.innerHTML = `
+                        <input type="checkbox" id="service_${service.replace(/\s+/g, '_')}" name="services[]" value="${service}">
+                        <label for="service_${service.replace(/\s+/g, '_')}">${service}</label>
+                    `;
+                    servicesGrid.appendChild(serviceItem);
+                });
+            } else {
+                servicesGrid.innerHTML = '<p>Please select a practice type to see available services.</p>';
+            }
+        });
+        
+        function changeStep(direction) {
+            const currentStepElement = document.querySelector(`.form-step[data-step="${currentStep}"]`);
+            
+            if (direction === 1) {
+                // Validate current step before proceeding
+                if (!validateStep(currentStep)) {
+                    return;
+                }
+                
+                if (currentStep < totalSteps) {
+                    currentStep++;
+                } else {
+                    // Submit form
+                    submitForm();
+                    return;
+                }
+            } else {
+                if (currentStep > 1) {
+                    currentStep--;
+                }
+            }
+            
+            updateStepDisplay();
+        }
+        
+        function updateStepDisplay() {
+            // Hide all steps
+            document.querySelectorAll('.form-step').forEach(step => {
+                step.classList.remove('active');
+            });
+            
+            // Show current step
+            document.querySelector(`.form-step[data-step="${currentStep}"]`).classList.add('active');
+            
+            // Update step indicators
+            document.querySelectorAll('.step').forEach((step, index) => {
+                const stepNumber = index + 1;
+                step.classList.remove('active', 'completed');
+                
+                if (stepNumber < currentStep) {
+                    step.classList.add('completed');
+                } else if (stepNumber === currentStep) {
+                    step.classList.add('active');
+                }
+            });
+            
+            // Update navigation buttons
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            prevBtn.style.display = currentStep > 1 ? 'inline-block' : 'none';
+            
+            if (currentStep === totalSteps) {
+                nextBtn.style.display = 'none';
+                submitBtn.style.display = 'inline-block';
+            } else {
+                nextBtn.style.display = 'inline-block';
+                submitBtn.style.display = 'none';
+            }
+        }
+        
+        function validateStep(step) {
+            const stepElement = document.querySelector(`.form-step[data-step="${step}"]`);
+            const requiredFields = stepElement.querySelectorAll('[required]');
+            
+            for (let field of requiredFields) {
+                if (!field.value.trim()) {
+                    field.focus();
+                    alert('Please fill in all required fields.');
+                    return false;
+                }
+            }
+            
+            // Additional validation for specific steps
+            if (step === 2) {
+                const checkedServices = stepElement.querySelectorAll('input[name="services[]"]:checked');
+                if (checkedServices.length === 0) {
+                    alert('Please select at least one service.');
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+        
+        function submitForm() {
+            const formData = new FormData(document.getElementById('clinicForm'));
+            
+            // Here you would normally send the data to your backend
+            // For now, we'll simulate a successful submission
+            
+            // Hide form navigation
+            document.getElementById('formNavigation').style.display = 'none';
+            
+            // Hide current step
+            document.querySelector(`.form-step[data-step="${currentStep}"]`).classList.remove('active');
+            
+            // Show success message
+            document.querySelector('.form-step[data-step="success"]').style.display = 'block';
+            
+            // In a real implementation, you would:
+            // 1. Send data to your backend API
+            // 2. Handle payment processing for premium plans
+            // 3. Send confirmation emails
+            // 4. Create the clinic listing
+            
+            console.log('Form submitted with data:', Object.fromEntries(formData));
+        }
+        
+        // File upload handling
+        document.getElementById('logoUpload').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const uploadArea = e.target.closest('.file-upload');
+                uploadArea.querySelector('.upload-text').textContent = `Selected: ${file.name}`;
+            }
+        });
+        
+        document.getElementById('imagesUpload').addEventListener('change', function(e) {
+            const files = e.target.files;
+            if (files.length > 0) {
+                const uploadArea = e.target.closest('.file-upload');
+                uploadArea.querySelector('.upload-text').textContent = `Selected: ${files.length} image(s)`;
+            }
+        });
+        
+        // Initialize form
+        updateStepDisplay();
+    </script>
+    <script src="js/auth.js"></script>
+</body>
+</html>

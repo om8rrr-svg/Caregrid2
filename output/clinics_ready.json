@@ -1,0 +1,66 @@
+[
+  {
+    "name": "Manchester Medical Centre",
+    "category": "GP",
+    "city": "Manchester",
+    "address": "123 Oxford Road",
+    "postcode": "M1 7ED",
+    "phone": "+441612345678",
+    "website": "https://manchestermedical.example.com",
+    "services": [
+      "General Practice",
+      "Health Checks"
+    ],
+    "rating": 0,
+    "reviewsCount": 0,
+    "bookingLink": "",
+    "logoUrl": "",
+    "isClaimed": false,
+    "description": "Manchester Medical Centre is a private gp practice located in Manchester. We offer General Practice, Health Checks. Our experienced team provides high-quality private healthcare services to patients in Manchester and surrounding areas. To book an appointment, visit our website or call us.",
+    "seoTitle": "GP in Manchester | Manchester Medical Centre",
+    "seoDescription": "Professional gp services at Manchester Medical Centre in Manchester. Specialising in general practice. Book your appointment today.",
+    "tags": [
+      "private",
+      "manchester",
+      "gp",
+      "general-practice",
+      "health-checks"
+    ],
+    "latitude": null,
+    "longitude": null,
+    "status": "READY",
+    "notes": "No Google API key for geocoding. Demo domain - website check skipped. "
+  },
+  {
+    "name": "Bolton Dental Practice",
+    "category": "Dentist",
+    "city": "Bolton",
+    "address": "45 High Street",
+    "postcode": "BL1 2AB",
+    "phone": "+441204567890",
+    "website": "https://boltondental.example.com",
+    "services": [
+      "General Dentistry",
+      "Cosmetic Dentistry"
+    ],
+    "rating": 0,
+    "reviewsCount": 0,
+    "bookingLink": "",
+    "logoUrl": "",
+    "isClaimed": false,
+    "description": "Bolton Dental Practice is a private dentist practice located in Bolton. We offer General Dentistry, Cosmetic Dentistry. Our experienced team provides high-quality private healthcare services to patients in Bolton and surrounding areas. To book an appointment, visit our website or call us.",
+    "seoTitle": "Dentist in Bolton | Bolton Dental Practice",
+    "seoDescription": "Professional dentist services at Bolton Dental Practice in Bolton. Specialising in general dentistry. Book your appointment today.",
+    "tags": [
+      "private",
+      "bolton",
+      "dentist",
+      "general-dentistry",
+      "cosmetic-dentistry"
+    ],
+    "latitude": null,
+    "longitude": null,
+    "status": "READY",
+    "notes": "No Google API key for geocoding. Demo domain - website check skipped. "
+  }
+]

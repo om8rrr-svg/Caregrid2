@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Clinic Profile - CareGrid Healthcare Directory">
+    <meta name="keywords" content="clinic, healthcare, medical, profile">
+    <title>Clinic Profile - CareGrid</title>
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <img src="images/logo.svg" alt="CareGrid - Healthcare Directory Platform Logo" class="logo">
+                <span class="logo-text">CareGrid</span>
+            </div>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li class="stakeholder-only"><a href="pricing.html" class="nav-link">Pricing</a></li>
+                <li><a href="contact.html" class="nav-link">Contact</a></li>
+                <li id="authNavItem"><a href="auth.html" class="nav-link">Sign In</a></li>
+                <li id="userNavItem" style="display: none;">
+                    <div class="user-menu">
+                        <div class="user-avatar" onclick="toggleUserMenu()">
+                            <img src="images/default-avatar.svg" alt="User Avatar" id="userAvatar">
+                            <span id="userName">User</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="user-dropdown" id="userDropdown">
+                            <a href="dashboard.html" class="dropdown-item">
+                                <i class="fas fa-tachometer-alt"></i>
+                                Dashboard
+                            </a>
+                            <a href="#" class="dropdown-item" onclick="logout()">
+                                <i class="fas fa-sign-out-alt"></i>
+                                Logout
+                            </a>
+                        </div>
+                    </div>
+                </li>
+                <li><a href="list-clinic.html" class="nav-link cta-nav">List Your Clinic</a></li>
+            </ul>
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Clinic Profile Header -->
+    <section class="clinic-profile-header">
+        <div class="container">
+            <div class="profile-content">
+                <div class="clinic-image-large">
+                    <img src="images/clinic1.svg" alt="Clinic" id="clinicImage">
+                    <div class="image-overlay">
+                        <div class="type-badge">
+                            <i class="fas fa-stethoscope"></i>
+                            <span id="overlayType">General Practitioner</span>
+                        </div>
+                        <div class="premium-badge-image" id="premiumBadge"><i class="fas fa-crown"></i> Premium</div>
+                    </div>
+                </div>
+                <div class="clinic-info">
+                    <h1 id="clinicName">Manchester Medical Centre</h1>
+                    <p class="clinic-type" id="clinicType">General Practitioner</p>
+                    <div class="clinic-rating">
+                        <span class="stars" id="clinicStars">★★★★★</span>
+                        <span class="rating-text" id="clinicRating">4.8 (156 reviews)</span>
+                    </div>
+                    <p class="clinic-address" id="clinicAddress">
+                        <i class="fas fa-map-marker-alt"></i>
+                        123 Oxford Road, Manchester M1 7ED
+                    </p>
+                    <div class="clinic-contact">
+                        <a href="tel:+441234567890" class="contact-btn">
+                            <i class="fas fa-phone"></i> Call Now
+                        </a>
+                        <a href="#" class="website-btn" id="clinicWebsite">
+                            <i class="fas fa-globe"></i>  Visit Website
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Clinic Details -->
+    <section class="clinic-details">
+        <div class="container">
+            <div class="details-grid">
+                <div class="main-content">
+                    <div class="section-card">
+                        <h3>About This Clinic</h3>
+                        <p id="clinicDescription">
+                            Manchester Medical Centre is a leading healthcare provider offering comprehensive medical services. 
+                            Our experienced team of healthcare professionals is dedicated to providing exceptional care in a 
+                            comfortable and modern environment.
+                        </p>
+                    </div>
+
+                    <div class="section-card">
+                        <h3>Services Offered</h3>
+                        <div class="services-grid" id="clinicServices">
+                            <span class="service-tag">General Consultation</span>
+                            <span class="service-tag">Health Screenings</span>
+                            <span class="service-tag">Vaccinations</span>
+                            <span class="service-tag">Minor Surgery</span>
+                        </div>
+                    </div>
+
+                    <div class="section-card">
+                        <h3>Opening Hours</h3>
+                        <div class="hours-grid">
+                            <div class="hour-row">
+                                <span>Monday - Friday</span>
+                                <span>8:00 AM - 6:00 PM</span>
+                            </div>
+                            <div class="hour-row">
+                                <span>Saturday</span>
+                                <span>9:00 AM - 2:00 PM</span>
+                            </div>
+                            <div class="hour-row">
+                                <span>Sunday</span>
+                                <span>Closed</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar">
+                    <div class="section-card">
+                        <h3>Quick Actions</h3>
+                        <div class="action-buttons">
+                            <button class="action-btn primary">
+                                <i class="fas fa-calendar"></i>
+                                Book Appointment
+                            </button>
+                            <button class="action-btn secondary" onclick="getDirections('61 King Street, Manchester M2 4PD')">
+                                <i class="fas fa-directions"></i>
+                                Get Directions
+                            </button>
+                            <button class="action-btn secondary" onclick="shareClinic()">
+                                <i class="fas fa-share"></i>
+                                Share Clinic
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="section-card">
+                        <h3>Contact Information</h3>
+                        <div class="contact-info">
+                            <div class="contact-item">
+                                <i class="fas fa-phone"></i>
+                                <span id="clinicPhone">0161 234 5678</span>
+                            </div>
+                            <div class="contact-item">
+                                <i class="fas fa-envelope"></i>
+                                <span>info@manchestermedical.co.uk</span>
+                            </div>
+                            <div class="contact-item">
+                                <i class="fas fa-clock"></i>
+                                <span>Open Now</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Similar Clinics -->
+    <section class="similar-clinics">
+        <div class="container">
+            <h2 class="section-title">Similar Clinics Nearby</h2>
+            <div class="clinic-grid" id="similarClinics">
+                <!-- Similar clinics will be populated by JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>CareGrid</h4>
+                    <p>Connecting you with quality healthcare providers across the UK.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="pricing.html">Pricing</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>For Clinics</h4>
+                    <ul>
+                        <li><a href="list-clinic.html">List Your Clinic</a></li>
+                        <li><a href="#">Manage Listing</a></li>
+                        <li><a href="#">Analytics</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <ul>
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 CareGrid. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Load clinic data from URL parameters
+        function initializeClinicProfile() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const clinicId = urlParams.get('id');
+            
+            if (clinicId && window.clinicsData) {
+                const clinic = window.clinicsData.find(c => c.id == clinicId);
+                if (clinic) {
+                    loadClinicData(clinic);
+                } else {
+                    console.log('Clinic not found for ID:', clinicId);
+                }
+            } else {
+                console.log('Missing clinicId or clinicsData:', { clinicId, hasData: !!window.clinicsData });
+                // Retry after a short delay if clinicsData isn't loaded yet
+                if (clinicId && !window.clinicsData) {
+                    setTimeout(initializeClinicProfile, 100);
+                }
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', initializeClinicProfile);
+
+        function loadClinicData(clinic) {
+            document.getElementById('clinicName').textContent = clinic.name;
+            document.getElementById('clinicType').textContent = formatType(clinic.type);
+            document.getElementById('clinicAddress').innerHTML = `<i class="fas fa-map-marker-alt"></i> ${clinic.address}`;
+            document.getElementById('clinicPhone').textContent = clinic.phone;
+            document.getElementById('clinicImage').src = clinic.image;
+            document.getElementById('clinicImage').alt = clinic.name;
+            document.getElementById('clinicDescription').textContent = clinic.description || 'No description available.';
+            
+            // Update overlay elements
+            document.getElementById('overlayType').textContent = formatType(clinic.type);
+            const typeIcon = getTypeIcon(clinic.type);
+            document.querySelector('.type-badge i').className = typeIcon;
+            
+            // Show/hide premium badge based on clinic premium status
+            const premiumBadge = document.getElementById('premiumBadge');
+            if (clinic.premium) {
+                premiumBadge.style.display = 'block';
+            } else {
+                premiumBadge.style.display = 'none';
+            }
+            
+            const stars = '★'.repeat(Math.floor(clinic.rating)) + (clinic.rating % 1 >= 0.5 ? '☆' : '');
+            document.getElementById('clinicStars').textContent = stars;
+            document.getElementById('clinicRating').textContent = `${clinic.rating} (${clinic.reviews} reviews)`;
+            
+            if (clinic.website) {
+                document.getElementById('clinicWebsite').href = clinic.website;
+            }
+            
+            // Update services
+            const servicesContainer = document.getElementById('clinicServices');
+            servicesContainer.innerHTML = '';
+            clinic.services.forEach(service => {
+                const serviceTag = document.createElement('span');
+                serviceTag.className = 'service-tag';
+                serviceTag.textContent = service;
+                servicesContainer.appendChild(serviceTag);
+            });
+            
+            // Setup booking button
+            const bookingBtn = document.querySelector('.action-btn.primary');
+            if (bookingBtn) {
+                bookingBtn.addEventListener('click', function() {
+                    window.location.href = `booking.html?clinicId=${clinic.id}`;
+                });
+            }
+            
+            // Update page title
+            document.title = `${clinic.name} - CareGrid`;
+        }
+
+        function formatType(type) {
+            const typeMap = {
+                'gp': 'General Practitioner',
+                'dentist': 'Dentist',
+                'physio': 'Physiotherapist',
+                'aesthetic': 'Aesthetic Clinic'
+            };
+            return typeMap[type] || type;
+        }
+    </script>
+    <script src="js/script.js"></script>
+    <script src="js/auth.js"></script>
+</body>
+</html>

@@ -1,0 +1,5 @@
+name,category,city,status,notes
+City Gp Clinic,Other,Manchester,NEEDS_REVIEW,Category 'GP' mapped to Other. No Google API key for geocoding. Website check failed. 
+Smile Dental,Dentist,Manchester,NEEDS_REVIEW,No Google API key for geocoding. Website check failed. 
+Bolton Physio Centre,Physio,Bolton,NEEDS_REVIEW,No Google API key for geocoding. Website check failed. 
+Aesthetic Glow,Aesthetics,Liverpool,NEEDS_REVIEW,No Google API key for geocoding. Website check failed. 

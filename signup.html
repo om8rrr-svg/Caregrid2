@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up | CareGrid</title>
+    <meta name="description" content="Create your CareGrid account to manage appointments, save favorites, and access personalized healthcare services.">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Google API -->
+    <script src="https://apis.google.com/js/api.js"></script>
+    
+    <!-- Facebook SDK -->
+    <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js"></script>
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'GA_MEASUREMENT_ID');
+    </script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <img src="images/logo.svg" alt="CareGrid - Healthcare Directory Platform Logo" class="logo">
+                <span class="logo-text">CareGrid</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li class="stakeholder-only"><a href="pricing.html" class="nav-link">Pricing</a></li>
+                <li><a href="contact.html" class="nav-link">Contact</a></li>
+                <li><a href="auth.html" class="nav-link">Sign In</a></li>
+
+                <li><a href="list-clinic.html" class="nav-link cta-nav">List Your Clinic</a></li>
+            </ul>
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Authentication Section -->
+    <section class="auth-section">
+        <div class="auth-container">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <h1>Create Your Account</h1>
+                    <p>Join CareGrid and start managing your healthcare</p>
+                </div>
+
+                <!-- Sign Up Form -->
+                <form id="signUpForm" class="auth-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="firstName">First Name</label>
+                            <input type="text" id="firstName" name="firstName" required>
+                            <span class="error-message" id="firstNameError"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="lastName">Last Name</label>
+                            <input type="text" id="lastName" name="lastName" required>
+                            <span class="error-message" id="lastNameError"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="signUpEmail">Email Address</label>
+                        <input type="email" id="signUpEmail" name="email" required>
+                        <span class="error-message" id="signUpEmailError"></span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" name="phone" placeholder="+44 7700 900123" required>
+                        <span class="error-message" id="phoneError"></span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="signUpPassword">Password</label>
+                        <div class="password-input">
+                            <input type="password" id="signUpPassword" name="password" required>
+                            <button type="button" class="password-toggle" onclick="togglePassword('signUpPassword')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="password-strength" id="passwordStrength">
+                            <div class="strength-bar">
+                                <div class="strength-fill"></div>
+                            </div>
+                            <span class="strength-text">Password strength</span>
+                        </div>
+                        <span class="error-message" id="signUpPasswordError"></span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm Password</label>
+                        <div class="password-input">
+                            <input type="password" id="confirmPassword" name="confirmPassword" required>
+                            <button type="button" class="password-toggle" onclick="togglePassword('confirmPassword')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <span class="error-message" id="confirmPasswordError"></span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="agreeTerms" required>
+                            <span class="checkmark"></span>
+                            I agree to the <a href="#" class="link">Terms of Service</a> and <a href="#" class="link">Privacy Policy</a>
+                        </label>
+                        <span class="error-message" id="termsError"></span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="newsletter">
+                            <span class="checkmark"></span>
+                            Subscribe to our newsletter for health tips and updates
+                        </label>
+                    </div>
+                    
+                    <button type="submit" class="auth-btn primary">
+                        <span class="btn-text">Create Account</span>
+                        <span class="btn-loader hidden">
+                            <i class="fas fa-spinner fa-spin"></i>
+                        </span>
+                    </button>
+                    
+                    <div class="auth-divider">
+                        <span>or</span>
+                    </div>
+                    
+                    <div class="social-auth">
+                        <button type="button" class="social-btn google" onclick="signUpWithGoogle()">
+                            <i class="fab fa-google"></i>
+                            <span>Continue with Google</span>
+                        </button>
+                        <button type="button" class="social-btn facebook" onclick="signUpWithFacebook()">
+                            <i class="fab fa-facebook-f"></i>
+                            <span>Continue with Facebook</span>
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Auth Toggle -->
+                <div class="auth-toggle">
+                    <p>Already have an account? <a href="auth.html" class="link">Sign in</a></p>
+                </div>
+            </div>
+
+
+        </div>
+    </section>
+
+
+
+    <!-- Scripts -->
+    <script src="js/api-service.js"></script>
+    <script src="js/script.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        // Initialize auth system for signup page
+        class SignUpAuth {
+            constructor() {
+                this.users = JSON.parse(localStorage.getItem('careGridUsers') || '[]');
+                this.init();
+            }
+            
+            init() {
+                this.bindEvents();
+                this.setupPasswordStrength();
+            }
+            
+            bindEvents() {
+                document.getElementById('signUpForm').addEventListener('submit', (e) => this.handleSignUp(e));
+                document.getElementById('signUpEmail').addEventListener('blur', (e) => this.validateEmail(e.target, 'signUpEmailError'));
+                document.getElementById('phone').addEventListener('blur', (e) => this.validatePhone(e.target));
+                document.getElementById('signUpPassword').addEventListener('input', (e) => this.checkPasswordStrength(e.target));
+                document.getElementById('confirmPassword').addEventListener('blur', (e) => this.validatePasswordMatch());
+            }
+            
+            async handleSignUp(e) {
+                e.preventDefault();
+                
+                const formData = {
+                    firstName: document.getElementById('firstName').value.trim(),
+                    lastName: document.getElementById('lastName').value.trim(),
+                    email: document.getElementById('signUpEmail').value.trim(),
+                    phone: document.getElementById('phone').value.trim(),
+                    password: document.getElementById('signUpPassword').value,
+                    confirmPassword: document.getElementById('confirmPassword').value,
+                    agreeTerms: document.getElementById('agreeTerms').checked,
+                    newsletter: document.getElementById('newsletter').checked
+                };
+                
+                // Clear previous errors
+                this.clearErrors(['firstNameError', 'lastNameError', 'signUpEmailError', 'phoneError', 'signUpPasswordError', 'confirmPasswordError', 'termsError']);
+                
+                // Validate inputs
+                let isValid = true;
+                
+                // Validate required fields
+                if (!formData.firstName) {
+                    this.showError('firstNameError', 'First name is required');
+                    isValid = false;
+                }
+                if (!formData.lastName) {
+                    this.showError('lastNameError', 'Last name is required');
+                    isValid = false;
+                }
+                if (!formData.email) {
+                    this.showError('signUpEmailError', 'Email is required');
+                    isValid = false;
+                } else if (!this.validateEmail(document.getElementById('signUpEmail'), 'signUpEmailError')) {
+                    isValid = false;
+                }
+                if (!formData.phone) {
+                    this.showError('phoneError', 'Phone number is required');
+                    isValid = false;
+                }
+                if (!formData.password) {
+                    this.showError('signUpPasswordError', 'Password is required');
+                    isValid = false;
+                } else if (!this.validatePassword(document.getElementById('signUpPassword'), 'signUpPasswordError')) {
+                    isValid = false;
+                }
+                if (!this.validatePasswordMatch()) isValid = false;
+                if (!formData.agreeTerms) {
+                    this.showError('termsError', 'You must agree to the Terms of Service');
+                    isValid = false;
+                }
+                
+                if (!isValid) {
+                    console.log('Form validation failed');
+                    return;
+                }
+                
+                this.showLoading('signUpForm');
+                
+                try {
+                    // Simulate API call
+                    await this.delay(2000);
+                    
+                    // Check if email already exists
+                    if (this.users.find(u => u.email === formData.email)) {
+                        throw new Error('An account with this email already exists');
+                    }
+                    
+                    // Create new user
+                    const newUser = {
+                        id: Date.now().toString(),
+                        firstName: formData.firstName,
+                        lastName: formData.lastName,
+                        email: formData.email,
+                        phone: formData.phone,
+                        password: formData.password,
+                        createdAt: new Date().toISOString(),
+                        verified: false,
+                        favorites: [],
+                        appointments: []
+                    };
+                    
+                    this.users.push(newUser);
+                    localStorage.setItem('careGridUsers', JSON.stringify(this.users));
+                    
+                    // Link any guest bookings
+                    this.linkGuestBookings(newUser);
+                    
+                    // Auto sign in
+                    localStorage.setItem('careGridCurrentUser', JSON.stringify(newUser));
+                    
+                    // Redirect directly to dashboard
+                    window.location.href = 'dashboard.html';
+                    
+                } catch (error) {
+                    this.showError('signUpEmailError', error.message);
+                } finally {
+                    this.hideLoading('signUpForm');
+                }
+            }
+            
+            linkGuestBookings(user) {
+                const bookings = JSON.parse(localStorage.getItem('careGridBookings') || '[]');
+                let hasLinkedBookings = false;
+                
+                const updatedBookings = bookings.map(booking => {
+                    if (booking.email === user.email && booking.isGuestBooking && !booking.userId) {
+                        hasLinkedBookings = true;
+                        return {
+                            ...booking,
+                            userId: user.id,
+                            isGuestBooking: false
+                        };
+                    }
+                    return booking;
+                });
+                
+                if (hasLinkedBookings) {
+                    localStorage.setItem('careGridBookings', JSON.stringify(updatedBookings));
+                    console.log('Linked guest bookings to new user account');
+                }
+            }
+            
+            validateEmail(input, errorId) {
+                const email = input.value.trim();
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                
+                if (!email) {
+                    this.showError(errorId, 'Email is required');
+                    return false;
+                }
+                
+                if (!emailRegex.test(email)) {
+                    this.showError(errorId, 'Please enter a valid email address');
+                    return false;
+                }
+                
+                this.clearError(errorId);
+                return true;
+            }
+            
+            validatePassword(input, errorId) {
+                const password = input.value;
+                
+                if (!password) {
+                    this.showError(errorId, 'Password is required');
+                    return false;
+                }
+                
+                if (password.length < 8) {
+                    this.showError(errorId, 'Password must be at least 8 characters long');
+                    return false;
+                }
+                
+                this.clearError(errorId);
+                return true;
+            }
+            
+            validatePasswordMatch() {
+                const password = document.getElementById('signUpPassword').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                
+                if (!confirmPassword) {
+                    this.showError('confirmPasswordError', 'Please confirm your password');
+                    return false;
+                }
+                
+                if (password !== confirmPassword) {
+                    this.showError('confirmPasswordError', 'Passwords do not match');
+                    return false;
+                }
+                
+                this.clearError('confirmPasswordError');
+                return true;
+            }
+            
+            validatePhone(input) {
+                const phone = input.value.trim();
+                // UK phone number regex - more flexible to match backend validation
+                const ukPhoneRegex = /^(\+44\s?7\d{3}|\(?07\d{3}\)?)\s?\d{3}\s?\d{3}$|^(\+44\s?[1-9]\d{8,9}|0[1-9]\d{8,9})$/;
+                
+                // Phone is optional, so if empty, it's valid
+                if (!phone) {
+                    this.clearError('phoneError');
+                    return true;
+                }
+                
+                // If phone is provided, validate UK format
+                if (!ukPhoneRegex.test(phone.replace(/[\s\-\(\)]/g, ''))) {
+                    this.showError('phoneError', 'Please enter a valid UK phone number (e.g., 07123456789 or +44 7123 456789)');
+                    return false;
+                }
+                
+                this.clearError('phoneError');
+                return true;
+            }
+            
+            checkPasswordStrength(input) {
+                const password = input.value;
+                const strengthBar = document.querySelector('.strength-fill');
+                const strengthText = document.querySelector('.strength-text');
+                
+                let score = 0;
+                let feedback = '';
+                
+                if (password.length >= 8) score++;
+                if (/[a-z]/.test(password)) score++;
+                if (/[A-Z]/.test(password)) score++;
+                if (/[0-9]/.test(password)) score++;
+                if (/[^A-Za-z0-9]/.test(password)) score++;
+                
+                switch (score) {
+                    case 0:
+                    case 1:
+                        strengthBar.style.width = '20%';
+                        strengthBar.style.backgroundColor = '#e74c3c';
+                        feedback = 'Very weak';
+                        break;
+                    case 2:
+                        strengthBar.style.width = '40%';
+                        strengthBar.style.backgroundColor = '#f39c12';
+                        feedback = 'Weak';
+                        break;
+                    case 3:
+                        strengthBar.style.width = '60%';
+                        strengthBar.style.backgroundColor = '#f1c40f';
+                        feedback = 'Fair';
+                        break;
+                    case 4:
+                        strengthBar.style.width = '80%';
+                        strengthBar.style.backgroundColor = '#27ae60';
+                        feedback = 'Good';
+                        break;
+                    case 5:
+                        strengthBar.style.width = '100%';
+                        strengthBar.style.backgroundColor = '#2ecc71';
+                        feedback = 'Strong';
+                        break;
+                }
+                
+                strengthText.textContent = feedback;
+            }
+            
+            setupPasswordStrength() {
+                // Password strength indicator is already in HTML
+            }
+            
+            showError(errorId, message) {
+                const errorElement = document.getElementById(errorId);
+                if (errorElement) {
+                    errorElement.textContent = message;
+                    errorElement.style.display = 'block';
+                }
+            }
+            
+            clearError(errorId) {
+                const errorElement = document.getElementById(errorId);
+                if (errorElement) {
+                    errorElement.textContent = '';
+                    errorElement.style.display = 'none';
+                }
+            }
+            
+            clearErrors(errorIds) {
+                errorIds.forEach(id => this.clearError(id));
+            }
+            
+            showLoading(formId) {
+                const form = document.getElementById(formId);
+                const btnText = form.querySelector('.btn-text');
+                const btnLoader = form.querySelector('.btn-loader');
+                const submitBtn = form.querySelector('button[type="submit"]');
+                
+                btnText.classList.add('hidden');
+                btnLoader.classList.remove('hidden');
+                submitBtn.disabled = true;
+            }
+            
+            hideLoading(formId) {
+                const form = document.getElementById(formId);
+                const btnText = form.querySelector('.btn-text');
+                const btnLoader = form.querySelector('.btn-loader');
+                const submitBtn = form.querySelector('button[type="submit"]');
+                
+                btnText.classList.remove('hidden');
+                btnLoader.classList.add('hidden');
+                submitBtn.disabled = false;
+            }
+            
+
+            
+            delay(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+        }
+        
+        // Password toggle function
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const icon = input.nextElementSibling.querySelector('i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+        
+        // Google OAuth configuration
+        // Using a demo client ID that allows localhost for testing
+        const GOOGLE_CLIENT_ID = '1035469437281-ch681omnn6q6eghhd82chuam4hgpmv4i.apps.googleusercontent.com';
+        
+        // Note: For production, you need to:
+        // 1. Create your own Google Cloud Project
+        // 2. Generate OAuth 2.0 credentials
+        // 3. Add your domain to authorized origins
+        
+        // Initialize Google OAuth
+        function initGoogleAuth() {
+            gapi.load('auth2', function() {
+                gapi.auth2.init({
+                    client_id: GOOGLE_CLIENT_ID
+                }).then(function() {
+                    console.log('Google Auth initialized successfully');
+                }).catch(function(error) {
+                    console.warn('Google Auth initialization failed (expected for localhost):', error);
+                    // Silently handle the error - this is expected for localhost development
+                    // The auth.js file already has fallback simulation functions
+                });
+            });
+        }
+        
+        // Google Sign-Up function
+        function signUpWithGoogle() {
+            const authInstance = gapi.auth2.getAuthInstance();
+            if (!authInstance) {
+                // Fallback for demo purposes when Google Auth is not properly configured
+                if (confirm('Google OAuth is not properly configured for this domain. Would you like to simulate a Google sign-up for demo purposes?')) {
+                    simulateGoogleSignUp();
+                }
+                return;
+            }
+            
+            authInstance.signIn().then(function(googleUser) {
+                const profile = googleUser.getBasicProfile();
+                const userData = {
+                    id: 'google_' + profile.getId(),
+                    email: profile.getEmail(),
+                    name: profile.getName(),
+                    profilePicture: profile.getImageUrl(),
+                    provider: 'google',
+                    createdAt: new Date().toISOString()
+                };
+                
+                // Store user data in localStorage
+                localStorage.setItem('currentUser', JSON.stringify(userData));
+                localStorage.setItem('isLoggedIn', 'true');
+                
+                // Redirect to dashboard
+                window.location.href = 'dashboard.html';
+            }).catch(function(error) {
+                console.error('Google sign-up error:', error);
+                if (confirm('Google sign-up failed due to configuration issues. Would you like to simulate a Google sign-up for demo purposes?')) {
+                    simulateGoogleSignUp();
+                }
+            });
+        }
+        
+        // Simulate Google Sign-Up for demo purposes
+        function simulateGoogleSignUp() {
+            const userData = {
+                id: 'google_demo_user',
+                email: 'demo.user@gmail.com',
+                name: 'Demo User',
+                profilePicture: 'https://via.placeholder.com/150',
+                provider: 'google',
+                createdAt: new Date().toISOString()
+            };
+            
+            // Store user data in localStorage
+            localStorage.setItem('currentUser', JSON.stringify(userData));
+            localStorage.setItem('isLoggedIn', 'true');
+            
+            alert('Demo Google sign-up successful! Redirecting to dashboard...');
+            
+            // Redirect to dashboard
+            setTimeout(() => {
+                window.location.href = 'dashboard.html';
+            }, 1000);
+        }
+        
+        // Facebook OAuth configuration
+        const FACEBOOK_APP_ID = 'your-facebook-app-id'; // Replace with your actual Facebook App ID
+        
+        // Initialize Facebook SDK
+        function initFacebookAuth() {
+            window.fbAsyncInit = function() {
+                FB.init({
+                    appId: FACEBOOK_APP_ID,
+                    cookie: true,
+                    xfbml: true,
+                    version: 'v18.0'
+                });
+            };
+        }
+        
+        // Facebook Sign-Up function
+        function signUpWithFacebook() {
+            FB.login(function(response) {
+                if (response.authResponse) {
+                    FB.api('/me', {fields: 'name,email,picture'}, function(profile) {
+                        const userData = {
+                            id: 'facebook_' + profile.id,
+                            email: profile.email || '',
+                            name: profile.name,
+                            profilePicture: profile.picture ? profile.picture.data.url : '',
+                            provider: 'facebook',
+                            createdAt: new Date().toISOString()
+                        };
+                        
+                        // Store user data in localStorage
+                        localStorage.setItem('currentUser', JSON.stringify(userData));
+                        localStorage.setItem('isLoggedIn', 'true');
+                        
+                        // Redirect to dashboard
+                        window.location.href = 'dashboard.html';
+                    });
+                } else {
+                    console.error('Facebook sign-up cancelled or failed');
+                    alert('Facebook sign-up was cancelled or failed. Please try again.');
+                }
+            }, {scope: 'email'});
+        }
+        
+
+        
+        // Initialize signup auth system
+        document.addEventListener('DOMContentLoaded', function() {
+            window.signUpAuth = new SignUpAuth();
+            initGoogleAuth();
+            initFacebookAuth();
+        });
+    </script>
+</body>
+</html>
