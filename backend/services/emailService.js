@@ -11,15 +11,31 @@ class EmailService {
     // In production, replace with your actual email service (Gmail, SendGrid, etc.)
     if (process.env.NODE_ENV === 'production') {
       // Production email configuration
+      console.log('📧 Initializing Gmail transporter for production...');
+      console.log('📧 Email service:', process.env.EMAIL_SERVICE);
+      console.log('📧 Email user:', process.env.EMAIL_USER);
+      console.log('📧 Email from:', process.env.EMAIL_FROM);
+      
+      if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
+        console.error('❌ Missing EMAIL_USER or EMAIL_PASSWORD environment variables');
+        console.error('   Please check your .env file configuration');
+        console.error('   See EMAIL_SETUP.md for configuration instructions');
+      }
+      
       this.transporter = nodemailer.createTransport({
         service: process.env.EMAIL_SERVICE || 'gmail',
         auth: {
           user: process.env.EMAIL_USER,
           pass: process.env.EMAIL_PASSWORD
-        }
+        },
+        timeout: 10000, // 10 second timeout
+        connectionTimeout: 10000,
+        greetingTimeout: 5000,
+        socketTimeout: 10000
       });
     } else {
       // Development: Use Ethereal Email for testing
+      console.log('📧 Initializing test email service for development...');
       this.createTestAccount();
     }
   }
@@ -77,9 +93,26 @@ class EmailService {
       };
     } catch (error) {
       console.error('Failed to send verification email:', error);
+      console.error('Email configuration check:');
+      console.error('  EMAIL_USER:', process.env.EMAIL_USER ? 'Set' : 'Missing');
+      console.error('  EMAIL_PASSWORD:', process.env.EMAIL_PASSWORD ? 'Set' : 'Missing');
+      console.error('  EMAIL_SERVICE:', process.env.EMAIL_SERVICE || 'Not set (default: gmail)');
+      console.error('  NODE_ENV:', process.env.NODE_ENV || 'Not set');
+      
+      // Provide more specific error messages
+      let userFriendlyError = 'Failed to send verification email';
+      if (error.code === 'EDNS' || error.code === 'ENOTFOUND') {
+        userFriendlyError = 'Network error: Cannot connect to email server';
+      } else if (error.code === 'EAUTH') {
+        userFriendlyError = 'Email authentication failed. Please check your email credentials.';
+      } else if (error.code === 'ETIMEDOUT' || error.code === 'ETIMEOUT') {
+        userFriendlyError = 'Email service timeout. Please try again.';
+      }
+      
       return {
         success: false,
-        error: error.message
+        error: userFriendlyError,
+        technicalError: error.message
       };
     }
   }
