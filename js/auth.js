@@ -80,8 +80,9 @@ class AuthSystem {
         const token = this.apiService.getStoredToken();
         if (token) {
             try {
-                const userData = await this.apiService.getCurrentUser();
-                this.currentUser = userData.user;
+                const response = await this.apiService.getCurrentUser();
+                // Backend wraps user data in 'data' property via successResponse()
+                this.currentUser = response.data || response;
                 this.redirectToDashboard();
             } catch (error) {
                 console.log('Invalid token, removing:', error);
@@ -124,16 +125,16 @@ class AuthSystem {
             // Call API login endpoint
             const response = await this.apiService.login(email, password);
             
-            console.log('Sign-in successful for:', response.user?.firstName || 'User');
+            console.log('Sign-in successful for:', response.data?.user?.firstName || response.user?.firstName || 'User');
             
-            // Store token and user data
+            // Store token and user data - handle both wrapped and unwrapped responses
             this.apiService.setToken(response.token, rememberMe);
-            this.currentUser = response.user;
+            this.currentUser = response.data?.user || response.user || response.data;
             
             // Dispatch auth state change event
             window.dispatchEvent(new CustomEvent('authStateChanged'));
             
-            this.showSuccessMessage('Welcome back!', `Good to see you again, ${response.user?.firstName || 'User'}!`);
+            this.showSuccessMessage('Welcome back!', `Good to see you again, ${this.currentUser?.firstName || 'User'}!`);
             
             setTimeout(() => {
                 this.redirectAfterAuth();
@@ -180,11 +181,11 @@ class AuthSystem {
                 password: formData.password
             });
             
-            console.log('Sign-up successful for:', response.user?.firstName || 'User');
+            console.log('Sign-up successful for:', response.data?.user?.firstName || response.user?.firstName || 'User');
             
-            // Store token and user data
+            // Store token and user data - handle both wrapped and unwrapped responses
             this.apiService.setToken(response.token, true);
-            this.currentUser = response.user;
+            this.currentUser = response.data?.user || response.user || response.data;
             
             // Dispatch auth state change event
             window.dispatchEvent(new CustomEvent('authStateChanged'));
@@ -386,8 +387,8 @@ class AuthSystem {
             try {
                 const loginResponse = await this.apiService.login(this.resetEmail, password);
                 
-                // Store user data and token
-                this.currentUser = loginResponse.user;
+                // Store user data and token - handle both wrapped and unwrapped responses
+                this.currentUser = loginResponse.data?.user || loginResponse.user || loginResponse.data;
                 
                 // Show success message with navigation options
                 this.showPasswordResetSuccess();
