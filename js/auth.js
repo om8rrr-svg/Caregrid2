@@ -81,7 +81,7 @@ class AuthSystem {
         if (token) {
             try {
                 const userData = await this.apiService.getCurrentUser();
-                this.currentUser = userData.user;
+                this.currentUser = userData.user || userData.data?.user || userData;
                 this.redirectToDashboard();
             } catch (error) {
                 console.log('Invalid token, removing:', error);
@@ -124,11 +124,18 @@ class AuthSystem {
             // Call API login endpoint
             const response = await this.apiService.login(email, password);
             
-            console.log('Sign-in successful for:', response.user?.firstName || 'User');
+            console.log('Sign-in successful for:', response.data?.user?.firstName || response.user?.firstName || 'User');
             
-            // Store token and user data
-            this.apiService.setToken(response.token, rememberMe);
-            this.currentUser = response.user;
+            // Store token and user data - handle both response.token and response.data.token
+            const token = response.token || response.data?.token;
+            const user = response.user || response.data?.user;
+            
+            if (!token) {
+                throw new Error('No token received from server');
+            }
+            
+            this.apiService.setToken(token, rememberMe);
+            this.currentUser = user;
             
             // Dispatch auth state change event
             window.dispatchEvent(new CustomEvent('authStateChanged'));
@@ -180,11 +187,18 @@ class AuthSystem {
                 password: formData.password
             });
             
-            console.log('Sign-up successful for:', response.user?.firstName || 'User');
+            console.log('Sign-up successful for:', response.data?.user?.firstName || response.user?.firstName || 'User');
             
-            // Store token and user data
-            this.apiService.setToken(response.token, true);
-            this.currentUser = response.user;
+            // Store token and user data - handle both response.token and response.data.token
+            const token = response.token || response.data?.token;
+            const user = response.user || response.data?.user;
+            
+            if (!token) {
+                throw new Error('No token received from server');
+            }
+            
+            this.apiService.setToken(token, true);
+            this.currentUser = user;
             
             // Dispatch auth state change event
             window.dispatchEvent(new CustomEvent('authStateChanged'));
