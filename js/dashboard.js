@@ -32,24 +32,33 @@ class Dashboard {
                 // Get user from localStorage first
                 this.currentUser = this.authSystem.getCurrentUser();
                 
-                // Fetch fresh user data from API
-                try {
-                    const response = await this.apiService.getCurrentUser();
-                    this.currentUser = response;
-                    console.log('DEBUG: Fresh user data from API:', this.currentUser);
-                    
-                    // Update the welcome message
-                    this.updateWelcomeMessage();
-                } catch (apiError) {
-                    console.warn('Failed to fetch fresh user data:', apiError);
-                    // Check if token is expired
-                    if (apiError.message && apiError.message.includes('401')) {
-                        console.log('Token expired, redirecting to login');
-                        this.authSystem.logout();
-                        return;
+                // Fetch fresh user data from API if we have a token
+                const token = this.apiService?.getStoredToken();
+                if (token) {
+                    try {
+                        const response = await this.apiService.getCurrentUser();
+                        // Backend wraps user data in 'data' property via successResponse()
+                        this.currentUser = response.data || response;
+                        console.log('DEBUG: Fresh user data from API:', this.currentUser);
+                        
+                        // Update the welcome message
+                        this.updateWelcomeMessage();
+                    } catch (apiError) {
+                        console.warn('Failed to fetch fresh user data:', apiError);
+                        // Check if token is expired or invalid
+                        if (apiError.message && (apiError.message.includes('401') || apiError.message.includes('Authentication failed'))) {
+                            console.log('Token expired or invalid, redirecting to login');
+                            this.authSystem.logout();
+                            return;
+                        }
+                        // Use cached user data if API fails for other reasons
+                        this.updateWelcomeMessage();
                     }
-                    // Use cached user data if API fails
-                    this.updateWelcomeMessage();
+                } else {
+                    // No token but authSystem thinks user is authenticated - clear state
+                    console.log('No token found, clearing auth state');
+                    this.authSystem.logout();
+                    return;
                 }
             } else {
                 // Redirect to login if not authenticated

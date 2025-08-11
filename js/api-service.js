@@ -63,6 +63,14 @@ class APIService {
             console.log('Request config:', config); // Debug log
             const response = await fetch(url, config);
             console.log('Response received:', response.status, response.statusText); // Debug log
+            
+            // Handle 401 Unauthorized gracefully for missing/invalid tokens
+            if (response.status === 401) {
+                // Clear invalid token
+                this.clearAuthData();
+                throw new Error('Authentication failed');
+            }
+            
             const data = await response.json();
 
             if (!response.ok) {
@@ -81,6 +89,7 @@ class APIService {
             
             // For authentication errors, provide clearer messaging
             if (error.message.includes('Authentication failed') || error.message.includes('401')) {
+                // Don't re-throw here to avoid cascading errors
                 throw new Error('Authentication failed');
             }
             
