@@ -91,6 +91,38 @@ caregrid/
 
 ## 🔧 Development
 
+### Backend Setup (Email Functionality)
+
+For password reset emails to work, configure the backend email service:
+
+1. Navigate to the backend directory:
+```bash
+cd backend
+```
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Copy the environment template:
+```bash
+cp .env.example .env
+```
+
+4. Configure your Gmail credentials in `.env`:
+```bash
+EMAIL_USER=your-gmail-address@gmail.com
+EMAIL_PASSWORD=your-google-app-password
+```
+
+5. Test your email configuration:
+```bash
+npm run test-email your-email@example.com
+```
+
+See [EMAIL_SETUP.md](EMAIL_SETUP.md) for detailed email configuration instructions.
+
 ### Local Development
 
 1. Clone the repository:
