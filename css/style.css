@@ -593,13 +593,13 @@ body {
 }
 
 .featured-clinics-header {
-    padding: 50px 0 30px 0;
+    padding: 15px 0 10px 0;
     background: #2A6EF3;
 }
 
 .featured-clinics-header .section-title {
     color: white;
-    margin-bottom: 50px;
+    margin-bottom: 15px;
 }
 
 .featured-clinics-header .filters {
@@ -3720,6 +3720,78 @@ body {
 .modal-header p {
     color: #5A6C7D;
     line-height: 1.5;
+}
+
+.booking-details {
+    margin: 25px 0;
+    text-align: left;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.detail-row:last-child {
+    border-bottom: none;
+}
+
+.detail-row strong {
+    color: #2C3E50;
+    font-weight: 600;
+}
+
+.booking-ref {
+    font-family: 'Courier New', monospace;
+    background: #f8f9fa;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    color: #2A6EF3;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.modal-actions .btn {
+    flex: 1;
+    max-width: 150px;
+    text-align: center;
+    padding: 12px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.modal-actions .btn-primary {
+    background: #2A6EF3;
+    color: white;
+    border: none;
+}
+
+.modal-actions .btn-primary:hover {
+    background: #1e5ad1;
+    transform: translateY(-1px);
+}
+
+.modal-actions .btn-secondary {
+    background: #f8f9fa;
+    color: #6c757d;
+    border: 1px solid #dee2e6;
+}
+
+.modal-actions .btn-secondary:hover {
+    background: #e9ecef;
+    color: #495057;
+    transform: translateY(-1px);
 }
 
 /* Mobile Responsiveness */

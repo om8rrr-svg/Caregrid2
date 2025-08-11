@@ -12,6 +12,115 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        .hour-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .hour-row:last-child {
+            border-bottom: none;
+        }
+        
+        .clinic-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-bottom: 16px;
+        }
+        
+        .clinic-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        }
+        
+        .clinic-image-container {
+            position: relative;
+            height: 150px;
+            overflow: hidden;
+        }
+        
+        .clinic-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .premium-badge-image {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #333;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .clinic-content {
+            padding: 16px;
+        }
+        
+        .clinic-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0 0 4px 0;
+            color: #333;
+        }
+        
+        .clinic-type {
+            color: #666;
+            font-size: 0.9rem;
+            margin: 0 0 8px 0;
+        }
+        
+        .clinic-location {
+            color: #888;
+            font-size: 0.85rem;
+            margin: 0 0 8px 0;
+        }
+        
+        .clinic-rating {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .stars {
+            color: #ffc107;
+            font-size: 0.9rem;
+        }
+        
+        .rating-text {
+             color: #666;
+             font-size: 0.85rem;
+         }
+         
+         .similar-clinics {
+             padding: 60px 0;
+             background: #f8f9fa;
+         }
+         
+         .clinic-grid {
+             display: grid;
+             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+             gap: 24px;
+             margin-top: 32px;
+         }
+         
+         @media (max-width: 768px) {
+             .clinic-grid {
+                 grid-template-columns: 1fr;
+                 gap: 16px;
+             }
+         }
+     </style>
 </head>
 <body>
     <!-- Navigation -->
@@ -81,7 +190,7 @@
                         123 Oxford Road, Manchester M1 7ED
                     </p>
                     <div class="clinic-contact">
-                        <a href="tel:+441234567890" class="contact-btn">
+                        <a href="tel:+441234567890" class="contact-btn" id="clinicCallBtn">
                             <i class="fas fa-phone"></i> Call Now
                         </a>
                         <a href="#" class="website-btn" id="clinicWebsite">
@@ -119,7 +228,7 @@
 
                     <div class="section-card">
                         <h3>Opening Hours</h3>
-                        <div class="hours-grid">
+                        <div class="hours-grid" id="openingHours">
                             <div class="hour-row">
                                 <span>Monday - Friday</span>
                                 <span>8:00 AM - 6:00 PM</span>
@@ -144,7 +253,7 @@
                                 <i class="fas fa-calendar"></i>
                                 Book Appointment
                             </button>
-                            <button class="action-btn secondary" onclick="getDirections('61 King Street, Manchester M2 4PD')">
+                            <button class="action-btn secondary" id="directionsBtn">
                                 <i class="fas fa-directions"></i>
                                 Get Directions
                             </button>
@@ -164,11 +273,11 @@
                             </div>
                             <div class="contact-item">
                                 <i class="fas fa-envelope"></i>
-                                <span>info@manchestermedical.co.uk</span>
+                                <span id="clinicEmail">info@manchestermedical.co.uk</span>
                             </div>
                             <div class="contact-item">
                                 <i class="fas fa-clock"></i>
-                                <span>Open Now</span>
+                                <span id="clinicStatus">Open Now</span>
                             </div>
                         </div>
                     </div>
@@ -227,6 +336,8 @@
     </footer>
 
     <script>
+        let currentClinic = null;
+        
         // Load clinic data from URL parameters
         function initializeClinicProfile() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -235,6 +346,7 @@
             if (clinicId && window.clinicsData) {
                 const clinic = window.clinicsData.find(c => c.id == clinicId);
                 if (clinic) {
+                    currentClinic = clinic;
                     loadClinicData(clinic);
                 } else {
                     console.log('Clinic not found for ID:', clinicId);
@@ -251,13 +363,17 @@
         document.addEventListener('DOMContentLoaded', initializeClinicProfile);
 
         function loadClinicData(clinic) {
+            // Basic clinic information
             document.getElementById('clinicName').textContent = clinic.name;
             document.getElementById('clinicType').textContent = formatType(clinic.type);
             document.getElementById('clinicAddress').innerHTML = `<i class="fas fa-map-marker-alt"></i> ${clinic.address}`;
             document.getElementById('clinicPhone').textContent = clinic.phone;
-            document.getElementById('clinicImage').src = clinic.image;
+            document.getElementById('clinicImage').src = clinic.image || clinic.logoUrl;
             document.getElementById('clinicImage').alt = clinic.name;
-            document.getElementById('clinicDescription').textContent = clinic.description || 'No description available.';
+            
+            // Generate unique description for each clinic
+            const uniqueDescription = generateUniqueDescription(clinic);
+            document.getElementById('clinicDescription').textContent = uniqueDescription;
             
             // Update overlay elements
             document.getElementById('overlayType').textContent = formatType(clinic.type);
@@ -266,31 +382,173 @@
             
             // Show/hide premium badge based on clinic premium status
             const premiumBadge = document.getElementById('premiumBadge');
-            if (clinic.premium) {
+            const isPremium = clinic.premium || clinic.is_premium || clinic.premiumStatus;
+            if (isPremium) {
                 premiumBadge.style.display = 'block';
             } else {
                 premiumBadge.style.display = 'none';
             }
             
+            // Update rating display
             const stars = '★'.repeat(Math.floor(clinic.rating)) + (clinic.rating % 1 >= 0.5 ? '☆' : '');
             document.getElementById('clinicStars').textContent = stars;
-            document.getElementById('clinicRating').textContent = `${clinic.rating} (${clinic.reviews} reviews)`;
+            const reviewCount = clinic.reviews || clinic.reviewCount || clinic.review_count || 0;
+            document.getElementById('clinicRating').textContent = `${clinic.rating} (${reviewCount} reviews)`;
             
+            // Update contact information
             if (clinic.website) {
                 document.getElementById('clinicWebsite').href = clinic.website;
+                document.getElementById('clinicWebsite').style.display = 'inline-block';
+            } else {
+                document.getElementById('clinicWebsite').style.display = 'none';
             }
+            
+            // Update call button
+            document.getElementById('clinicCallBtn').href = `tel:${clinic.phone}`;
+            
+            // Update email
+            const email = clinic.email || generateEmail(clinic);
+            document.getElementById('clinicEmail').textContent = email;
+            
+            // Update status
+            const status = generateStatus(clinic);
+            document.getElementById('clinicStatus').textContent = status;
             
             // Update services
             const servicesContainer = document.getElementById('clinicServices');
             servicesContainer.innerHTML = '';
-            clinic.services.forEach(service => {
+            const services = clinic.services || generateServices(clinic.type);
+            services.forEach(service => {
                 const serviceTag = document.createElement('span');
                 serviceTag.className = 'service-tag';
                 serviceTag.textContent = service;
                 servicesContainer.appendChild(serviceTag);
             });
             
-            // Setup booking button
+            // Update opening hours
+            updateOpeningHours(clinic);
+            
+            // Setup button event listeners
+            setupButtonListeners(clinic);
+            
+            // Load similar clinics
+            loadSimilarClinics(clinic);
+            
+            // Update page title
+            document.title = `${clinic.name} - CareGrid`;
+        }
+        
+        function generateUniqueDescription(clinic) {
+            const descriptions = {
+                'GP': [
+                    `${clinic.name} is a trusted general practice providing comprehensive primary healthcare services. Our experienced team of GPs offers personalized care in a welcoming environment, focusing on preventive medicine and patient wellbeing.`,
+                    `At ${clinic.name}, we pride ourselves on delivering exceptional primary healthcare services. Our qualified general practitioners provide thorough consultations, health screenings, and ongoing care for patients of all ages.`,
+                    `${clinic.name} offers modern general practice services with a patient-centered approach. Our dedicated medical team provides comprehensive healthcare solutions, from routine check-ups to chronic disease management.`
+                ],
+                'Private GP': [
+                    `${clinic.name} provides premium private healthcare services with same-day appointments and extended consultation times. Our experienced doctors offer personalized medical care without the wait.`,
+                    `Experience exceptional private healthcare at ${clinic.name}. We offer comprehensive medical services with flexible appointment times and dedicated attention to your health needs.`
+                ],
+                'Dentist': [
+                    `${clinic.name} is a modern dental practice committed to providing excellent oral healthcare. Our skilled dentists use the latest techniques and technology to ensure comfortable, effective treatments.`,
+                    `At ${clinic.name}, we believe in creating beautiful, healthy smiles. Our experienced dental team offers comprehensive oral care in a relaxed, professional environment.`,
+                    `${clinic.name} combines advanced dental technology with compassionate care. Our qualified dentists provide a full range of treatments to maintain and improve your oral health.`
+                ],
+                'Private Dentist': [
+                    `${clinic.name} offers premium private dental care with state-of-the-art facilities. Our expert dentists provide personalized treatment plans and the highest quality dental services.`,
+                    `Experience luxury dental care at ${clinic.name}. We offer comprehensive private dental services with flexible scheduling and the latest in dental technology.`
+                ],
+                'Physio': [
+                    `${clinic.name} specializes in physiotherapy and rehabilitation services. Our qualified physiotherapists help patients recover from injuries and improve their physical wellbeing through personalized treatment plans.`,
+                    `At ${clinic.name}, we're dedicated to helping you move better and feel stronger. Our experienced physiotherapy team provides expert treatment for sports injuries, chronic pain, and rehabilitation.`,
+                    `${clinic.name} offers comprehensive physiotherapy services using evidence-based treatments. Our skilled therapists work with you to achieve your recovery goals and optimize your physical health.`
+                ],
+                'Private Physiotherapy': [
+                    `${clinic.name} provides premium physiotherapy services with one-on-one attention and flexible scheduling. Our expert therapists offer personalized treatment plans for optimal recovery.`,
+                    `Experience exceptional physiotherapy care at ${clinic.name}. We offer private treatment sessions with advanced techniques and equipment for faster, more effective recovery.`
+                ]
+            };
+            
+            const typeDescriptions = descriptions[clinic.type] || descriptions['GP'];
+            const randomIndex = Math.floor(Math.random() * typeDescriptions.length);
+            return typeDescriptions[randomIndex];
+        }
+        
+        function generateEmail(clinic) {
+            const domain = clinic.name.toLowerCase().replace(/[^a-z0-9]/g, '') + '.co.uk';
+            return `info@${domain}`;
+        }
+        
+        function generateStatus(clinic) {
+            const statuses = ['Open Now', 'Closed', 'Opens at 8:00 AM', 'Closes at 6:00 PM'];
+            const randomIndex = Math.floor(Math.random() * statuses.length);
+            return statuses[randomIndex];
+        }
+        
+        function generateServices(type) {
+            const serviceMap = {
+                'GP': ['General Consultations', 'Health Screenings', 'Vaccinations', 'Minor Surgery'],
+                'Private GP': ['Private Consultations', 'Executive Health Checks', 'Same-day Appointments', 'Specialist Referrals'],
+                'Dentist': ['General Dentistry', 'Teeth Cleaning', 'Fillings', 'Oral Examinations'],
+                'Private Dentist': ['Cosmetic Dentistry', 'Teeth Whitening', 'Dental Implants', 'Orthodontics'],
+                'Physio': ['Manual Therapy', 'Exercise Therapy', 'Sports Rehabilitation', 'Pain Management'],
+                'Private Physiotherapy': ['One-on-One Sessions', 'Sports Injury Treatment', 'Postural Assessment', 'Rehabilitation Programs']
+            };
+            return serviceMap[type] || serviceMap['GP'];
+        }
+        
+        function updateOpeningHours(clinic) {
+            const hoursContainer = document.getElementById('openingHours');
+            const hours = generateOpeningHours(clinic.type);
+            
+            hoursContainer.innerHTML = '';
+            hours.forEach(hour => {
+                const hourRow = document.createElement('div');
+                hourRow.className = 'hour-row';
+                hourRow.innerHTML = `<span>${hour.day}</span><span>${hour.time}</span>`;
+                hoursContainer.appendChild(hourRow);
+            });
+        }
+        
+        function generateOpeningHours(type) {
+            const hourTemplates = {
+                'GP': [
+                    { day: 'Monday - Friday', time: '8:00 AM - 6:00 PM' },
+                    { day: 'Saturday', time: '9:00 AM - 1:00 PM' },
+                    { day: 'Sunday', time: 'Closed' }
+                ],
+                'Private GP': [
+                    { day: 'Monday - Friday', time: '7:00 AM - 8:00 PM' },
+                    { day: 'Saturday', time: '8:00 AM - 4:00 PM' },
+                    { day: 'Sunday', time: '10:00 AM - 2:00 PM' }
+                ],
+                'Dentist': [
+                    { day: 'Monday - Friday', time: '9:00 AM - 5:00 PM' },
+                    { day: 'Saturday', time: '9:00 AM - 2:00 PM' },
+                    { day: 'Sunday', time: 'Closed' }
+                ],
+                'Private Dentist': [
+                    { day: 'Monday - Friday', time: '8:00 AM - 7:00 PM' },
+                    { day: 'Saturday', time: '9:00 AM - 4:00 PM' },
+                    { day: 'Sunday', time: 'By Appointment' }
+                ],
+                'Physio': [
+                    { day: 'Monday - Friday', time: '8:00 AM - 7:00 PM' },
+                    { day: 'Saturday', time: '9:00 AM - 3:00 PM' },
+                    { day: 'Sunday', time: 'Closed' }
+                ],
+                'Private Physiotherapy': [
+                    { day: 'Monday - Friday', time: '7:00 AM - 8:00 PM' },
+                    { day: 'Saturday', time: '8:00 AM - 5:00 PM' },
+                    { day: 'Sunday', time: '10:00 AM - 4:00 PM' }
+                ]
+            };
+            
+            return hourTemplates[type] || hourTemplates['GP'];
+        }
+        
+        function setupButtonListeners(clinic) {
+            // Book appointment button
             const bookingBtn = document.querySelector('.action-btn.primary');
             if (bookingBtn) {
                 bookingBtn.addEventListener('click', function() {
@@ -298,20 +556,183 @@
                 });
             }
             
-            // Update page title
-            document.title = `${clinic.name} - CareGrid`;
+            // Get directions button
+            const directionsBtn = document.getElementById('directionsBtn');
+            if (directionsBtn) {
+                directionsBtn.addEventListener('click', function() {
+                    getDirections(clinic.address);
+                });
+            }
+            
+            // Share clinic button
+            const shareBtn = document.querySelector('.action-btn.secondary[onclick*="shareClinic"]');
+            if (shareBtn) {
+                shareBtn.removeAttribute('onclick');
+                shareBtn.addEventListener('click', function() {
+                    shareClinic();
+                });
+            }
+        }
+        
+        function loadSimilarClinics(clinic) {
+            const similarContainer = document.getElementById('similarClinics');
+            if (!similarContainer || !window.clinicsData) return;
+            
+            // Find similar clinics (same type, different clinic, same city)
+            const similarClinics = window.clinicsData
+                .filter(c => c.id !== clinic.id && c.type === clinic.type && c.city === clinic.city)
+                .slice(0, 3);
+            
+            if (similarClinics.length === 0) {
+                // If no similar clinics in same city, find by type
+                const altSimilar = window.clinicsData
+                    .filter(c => c.id !== clinic.id && c.type === clinic.type)
+                    .slice(0, 3);
+                similarClinics.push(...altSimilar);
+            }
+            
+            similarContainer.innerHTML = '';
+            similarClinics.forEach(similarClinic => {
+                const card = createSimilarClinicCard(similarClinic);
+                similarContainer.appendChild(card);
+            });
+        }
+        
+        function createSimilarClinicCard(clinic) {
+            const card = document.createElement('div');
+            card.className = 'clinic-card';
+            card.style.cursor = 'pointer';
+            
+            card.addEventListener('click', function() {
+                window.location.href = `clinic-profile.html?id=${clinic.id}`;
+            });
+            
+            const stars = '★'.repeat(Math.floor(clinic.rating));
+            const reviewCount = clinic.reviews || clinic.reviewCount || clinic.review_count || 0;
+            
+            card.innerHTML = `
+                <div class="clinic-image-container">
+                    <img src="${clinic.image || clinic.logoUrl}" alt="${clinic.name}" class="clinic-image">
+                    ${(clinic.premium || clinic.is_premium) ? '<div class="premium-badge-image"><i class="fas fa-crown"></i> Premium</div>' : ''}
+                </div>
+                <div class="clinic-content">
+                    <h3 class="clinic-name">${clinic.name}</h3>
+                    <p class="clinic-type">${formatType(clinic.type)}</p>
+                    <p class="clinic-location">${clinic.address}</p>
+                    <div class="clinic-rating">
+                        <span class="stars">${stars}</span>
+                        <span class="rating-text">${clinic.rating} (${reviewCount} reviews)</span>
+                    </div>
+                </div>
+            `;
+            
+            return card;
         }
 
         function formatType(type) {
             const typeMap = {
                 'gp': 'General Practitioner',
+                'GP': 'General Practitioner',
+                'Private GP': 'Private General Practitioner',
                 'dentist': 'Dentist',
+                'Dentist': 'Dentist',
+                'Private Dentist': 'Private Dentist',
                 'physio': 'Physiotherapist',
+                'Physio': 'Physiotherapist',
+                'Private Physiotherapy': 'Private Physiotherapy',
                 'aesthetic': 'Aesthetic Clinic'
             };
             return typeMap[type] || type;
         }
+        
+        function getDirections(address) {
+            const encodedAddress = encodeURIComponent(address);
+            
+            // Check if user is on mobile device
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            
+            if (isMobile) {
+                // Try to open in native maps app
+                const mapsUrl = `maps://maps.google.com/maps?daddr=${encodedAddress}`;
+                const googleMapsUrl = `https://maps.google.com/maps?daddr=${encodedAddress}`;
+                
+                // Try native app first, fallback to web
+                window.location.href = mapsUrl;
+                setTimeout(() => {
+                    window.open(googleMapsUrl, '_blank');
+                }, 500);
+            } else {
+                // Open Google Maps in new tab for desktop
+                const googleMapsUrl = `https://maps.google.com/maps?daddr=${encodedAddress}`;
+                window.open(googleMapsUrl, '_blank');
+            }
+        }
+        
+        function shareClinic() {
+            const clinicName = currentClinic ? currentClinic.name : 'this clinic';
+            const shareData = {
+                title: `${clinicName} - CareGrid`,
+                text: `Check out ${clinicName} on CareGrid`,
+                url: window.location.href
+            };
+            
+            if (navigator.share) {
+                navigator.share(shareData).catch(err => {
+                    console.log('Error sharing:', err);
+                    fallbackShare();
+                });
+            } else {
+                fallbackShare();
+            }
+        }
+        
+        function fallbackShare() {
+            const url = window.location.href;
+            const clinicName = currentClinic ? currentClinic.name : 'this clinic';
+            const text = `Check out ${clinicName} on CareGrid: ${url}`;
+            
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(() => {
+                    alert('Clinic link copied to clipboard!');
+                }).catch(() => {
+                    promptShare(text);
+                });
+            } else {
+                promptShare(text);
+            }
+        }
+        
+        function promptShare(text) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                alert('Clinic link copied to clipboard!');
+            } catch (err) {
+                alert('Please copy this link manually: ' + text);
+            }
+            document.body.removeChild(textArea);
+        }
+        
+        function getTypeIcon(type) {
+            const iconMap = {
+                'gp': 'fas fa-user-md',
+                'GP': 'fas fa-user-md',
+                'Private GP': 'fas fa-user-md',
+                'dentist': 'fas fa-tooth',
+                'Dentist': 'fas fa-tooth',
+                'Private Dentist': 'fas fa-tooth',
+                'physio': 'fas fa-dumbbell',
+                'Physio': 'fas fa-dumbbell',
+                'Private Physiotherapy': 'fas fa-dumbbell',
+                'aesthetic': 'fas fa-spa'
+            };
+            return iconMap[type] || 'fas fa-clinic-medical';
+        }
     </script>
+    <script src="js/api-service.js"></script>
     <script src="js/script.js"></script>
     <script src="js/auth.js"></script>
 </body>

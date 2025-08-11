@@ -72,7 +72,11 @@ class AuthSystem {
     }
     
     async checkExistingAuth() {
-        // Check if user has a valid token
+        // Check if apiService is available and user has a valid token
+        if (!this.apiService || !this.apiService.getStoredToken) {
+            return;
+        }
+        
         const token = this.apiService.getStoredToken();
         if (token) {
             try {
@@ -891,7 +895,7 @@ function showSignIn() {
 }
 
 // Password Reset Wizard Variables
-let currentStep = 1;
+let currentResetStep = 1;
 let resetEmail = '';
 
 function showPasswordResetWizard() {
@@ -949,7 +953,7 @@ function showPasswordResetWizard() {
     if (signInAuthToggle) signInAuthToggle.style.display = 'none';
     
     // Initialize wizard
-    currentStep = 1;
+    currentResetStep = 1;
     updateStepIndicator();
     showStep(1);
 }
@@ -959,9 +963,9 @@ function updateStepIndicator() {
         const step = document.getElementById(`step${i}`);
         if (step) {
             step.classList.remove('active', 'completed');
-            if (i < currentStep) {
+            if (i < currentResetStep) {
                 step.classList.add('completed');
-            } else if (i === currentStep) {
+            } else if (i === currentResetStep) {
                 step.classList.add('active');
             }
         }
@@ -983,7 +987,7 @@ function showStep(stepNumber) {
         currentStepElement.classList.remove('hidden');
     }
     
-    currentStep = stepNumber;
+    currentResetStep = stepNumber;
     updateStepIndicator();
 }
 
@@ -992,15 +996,15 @@ function showResetStep(stepNumber) {
     showStep(stepNumber);
 }
 
-function nextStep() {
-    if (currentStep < 4) {
-        showStep(currentStep + 1);
+function nextResetStep() {
+    if (currentResetStep < 4) {
+        showStep(currentResetStep + 1);
     }
 }
 
 function prevStep() {
-    if (currentStep > 1) {
-        showStep(currentStep - 1);
+    if (currentResetStep > 1) {
+        showStep(currentResetStep - 1);
     }
 }
 
@@ -1086,7 +1090,7 @@ function sendVerificationCode() {
             }
             
             hideError('resetEmailError');
-            nextStep();
+            nextResetStep();
         } else {
             showError('resetEmailError', data.message || 'Failed to send verification code');
         }
@@ -1126,7 +1130,7 @@ function verifyCode() {
         // For demo purposes, accept any 6-digit code
         if (/^\d{6}$/.test(code)) {
             hideError('codeError');
-            nextStep();
+            nextResetStep();
         } else {
             showError('codeError', 'Invalid verification code');
         }
@@ -1201,7 +1205,7 @@ function resetPassword() {
     // Simulate API call
     setTimeout(() => {
         hideError('passwordError');
-        nextStep(); // Go to success step
+        nextResetStep(); // Go to success step
         
         resetButton.disabled = false;
         resetButton.textContent = originalText;

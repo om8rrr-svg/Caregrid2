@@ -18,8 +18,19 @@ const generateBookingReference = () => {
 // Validation rules
 const bookingValidation = [
   body('clinicId')
-    .isUUID()
-    .withMessage('Valid clinic ID is required'),
+    .custom((value) => {
+      // Accept either UUID or numeric frontend ID
+      if (typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value)) {
+        return true; // Valid UUID
+      }
+      if (typeof value === 'string' && /^\d+$/.test(value)) {
+        return true; // Valid numeric ID
+      }
+      if (typeof value === 'number' && Number.isInteger(value) && value > 0) {
+        return true; // Valid numeric ID
+      }
+      throw new Error('Valid clinic ID (UUID or numeric) is required');
+    }),
   body('appointmentDate')
     .isISO8601()
     .toDate()
@@ -58,6 +69,8 @@ const bookingValidation = [
 router.post('/', optionalAuth, bookingValidation, asyncHandler(async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+    console.log('❌ Validation errors:', JSON.stringify(errors.array(), null, 2));
+    console.log('❌ Request body:', JSON.stringify(req.body, null, 2));
     throw new AppError('Validation failed', 400, 'VALIDATION_ERROR');
   }
 
@@ -72,15 +85,30 @@ router.post('/', optionalAuth, bookingValidation, asyncHandler(async (req, res) 
     notes
   } = req.body;
 
-  // Check if clinic exists
-  const clinicResult = await query(
-    'SELECT id, name FROM clinics WHERE id = $1',
-    [clinicId]
-  );
+  // Check if clinic exists - handle both UUID and frontend ID
+  let clinicResult;
+  if (typeof clinicId === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(clinicId)) {
+    // UUID format - direct lookup
+    clinicResult = await query(
+      'SELECT id, name FROM clinics WHERE id = $1',
+      [clinicId]
+    );
+  } else {
+    // Numeric frontend ID - lookup by frontend_id
+    const frontendId = parseInt(clinicId);
+    clinicResult = await query(
+      'SELECT id, name FROM clinics WHERE frontend_id = $1',
+      [frontendId]
+    );
+  }
 
   if (clinicResult.rows.length === 0) {
     throw new AppError('Clinic not found', 404, 'CLINIC_NOT_FOUND');
   }
+
+  // Get the actual clinic UUID from the database result
+  const actualClinicId = clinicResult.rows[0].id;
+  const clinicName = clinicResult.rows[0].name;
 
   // For guest bookings, require guest details
   if (!req.user && (!guestName || !guestEmail)) {
@@ -92,7 +120,7 @@ router.post('/', optionalAuth, bookingValidation, asyncHandler(async (req, res) 
     `SELECT id FROM appointments 
      WHERE clinic_id = $1 AND appointment_date = $2 AND appointment_time = $3 
      AND status IN ('confirmed', 'pending')`,
-    [clinicId, appointmentDate, appointmentTime]
+    [actualClinicId, appointmentDate, appointmentTime]
   );
 
   if (conflictResult.rows.length > 0) {
@@ -105,23 +133,22 @@ router.post('/', optionalAuth, bookingValidation, asyncHandler(async (req, res) 
   
   const result = await query(
     `INSERT INTO appointments (
-      id, reference, user_id, clinic_id, appointment_date, appointment_time,
-      treatment_type, status, guest_name, guest_email, guest_phone, notes
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+      id, reference_number, user_id, clinic_id, appointment_date, appointment_time,
+      status, patient_name, patient_email, patient_phone, notes
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
     RETURNING *`,
     [
       appointmentId,
       reference,
       req.user ? req.user.id : null,
-      clinicId,
+      actualClinicId,
       appointmentDate,
       appointmentTime,
-      treatmentType,
       'confirmed',
-      req.user ? null : guestName,
-      req.user ? null : guestEmail,
-      req.user ? null : guestPhone,
-      notes
+      req.user ? req.user.name : guestName,
+      req.user ? req.user.email : guestEmail,
+      req.user ? req.user.phone : guestPhone,
+      `Treatment: ${treatmentType}${notes ? '. Notes: ' + notes : ''}`
     ]
   );
 

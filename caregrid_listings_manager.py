@@ -10,10 +10,15 @@ import json
 import os
 import re
 from urllib.parse import urlparse
+from urllib.request import Request, urlopen
 from difflib import SequenceMatcher
 from typing import List, Dict, Any, Optional
 import urllib.request
 import urllib.error
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 class CareGridListingsManager:
     def __init__(self):
@@ -419,8 +424,12 @@ class CareGridListingsManager:
         
         for record in ready_records:
             try:
-                # Prepare API payload (remove status and notes)
-                api_record = {k: v for k, v in record.items() if k not in ['status', 'notes']}
+                # Prepare API payload (remove status and notes, map category to type)
+                api_record = {k: v for k, v in record.items() if k not in ['status', 'notes', 'category']}
+                
+                # Map category to type as required by the API
+                if 'category' in record:
+                    api_record['type'] = record['category']
                 
                 # Create request
                 url = f"{api_base.rstrip('/')}/api/clinics"

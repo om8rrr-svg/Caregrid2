@@ -71,7 +71,7 @@
                 <span class="brand-slogan">The grid to your patient care</span>
             </div>
             <h1 class="hero-title animate-fade-up" style="animation-delay: 0.1s;">Premium Private Healthcare</h1>
-            <h2 class="hero-subtitle animate-fade-up" style="animation-delay: 0.2s;">Discover & book exceptional <span id="rotating-text">medical care</span></h2>
+            <h2 class="hero-subtitle animate-fade-up" style="animation-delay: 0.2s;">Discover & book exceptional <span id="rotating-text">Medical Care</span></h2>
             <p class="hero-description animate-fade-up" style="animation-delay: 0.3s;">Connect with elite healthcare professionals and world-class clinics across the UK</p>
             
             <div class="search-container animate-fade-up" id="search" style="animation-delay: 0.4s;">
@@ -225,47 +225,47 @@
             <nav class="location-grid" data-aos="fade-up" data-aos-delay="200" aria-label="Available locations">
                 <button class="location-btn active" data-location="all" onclick="filterByLocation('all')">
                     <span class="location-name">All Locations</span>
-                    <span class="clinic-count">51 clinics</span>
+                    <span class="clinic-count">Loading...</span>
                 </button>
                 <button class="location-btn" data-location="manchester" onclick="filterByLocation('manchester')">
                     <span class="location-name">Manchester</span>
-                    <span class="clinic-count">15 clinics</span>
+                    <span class="clinic-count">Loading...</span>
                 </button>
                 <button class="location-btn" data-location="bolton" onclick="filterByLocation('bolton')">
                     <span class="location-name">Bolton</span>
-                    <span class="clinic-count">1 clinic</span>
+                    <span class="clinic-count">Loading...</span>
                 </button>
                 <button class="location-btn" data-location="liverpool" onclick="filterByLocation('liverpool')">
                     <span class="location-name">Liverpool</span>
-                    <span class="clinic-count">15 clinics</span>
+                    <span class="clinic-count">Loading...</span>
                 </button>
                 <button class="location-btn" data-location="leeds" onclick="filterByLocation('leeds')">
                     <span class="location-name">Leeds</span>
-                    <span class="clinic-count">13 clinics</span>
+                    <span class="clinic-count">Loading...</span>
                 </button>
                 <button class="location-btn" data-location="glasgow" onclick="filterByLocation('glasgow')">
                     <span class="location-name">Glasgow</span>
-                    <span class="clinic-count">13 clinics</span>
+                    <span class="clinic-count">Loading...</span>
                 </button>
                 <button class="location-btn" data-location="birmingham" onclick="filterByLocation('birmingham')">
                     <span class="location-name">Birmingham</span>
-                    <span class="clinic-count">12 clinics</span>
+                    <span class="clinic-count">Loading...</span>
                 </button>
                 <button class="location-btn" data-location="london" onclick="filterByLocation('london')">
                     <span class="location-name">London</span>
-                    <span class="clinic-count">13 clinics</span>
+                    <span class="clinic-count">Loading...</span>
                 </button>
             </nav>
             <!-- Mobile dropdown for locations -->
             <select class="mobile-location-select" onchange="filterByLocation(this.value)" data-aos="fade-up" data-aos-delay="200">
-                <option value="all">All Locations (51 clinics)</option>
-                <option value="manchester">Manchester (15 clinics)</option>
-                <option value="bolton">Bolton (1 clinic)</option>
-                <option value="liverpool">Liverpool (15 clinics)</option>
-                <option value="leeds">Leeds (13 clinics)</option>
-                <option value="glasgow">Glasgow (13 clinics)</option>
-                <option value="birmingham">Birmingham (12 clinics)</option>
-                <option value="london">London (13 clinics)</option>
+                <option value="all">All Locations (Loading...)</option>
+                <option value="manchester">Manchester (Loading...)</option>
+                <option value="bolton">Bolton (Loading...)</option>
+                <option value="liverpool">Liverpool (Loading...)</option>
+                <option value="leeds">Leeds (Loading...)</option>
+                <option value="glasgow">Glasgow (Loading...)</option>
+                <option value="birmingham">Birmingham (Loading...)</option>
+                <option value="london">London (Loading...)</option>
             </select>
         </div>
     </section>
@@ -300,6 +300,7 @@
         
         <div class="featured-clinics-content">
             <div class="container">
+                <div class="results-info" id="resultsInfo" style="margin-bottom: 20px; color: #666; font-size: 14px;"></div>
                 <div class="clinic-grid" id="clinicGrid" data-aos="fade-up" data-aos-delay="300">
                     <!-- Clinic cards will be populated by JavaScript -->
                 </div>

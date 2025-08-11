@@ -208,8 +208,8 @@ class AdvancedSearch {
         
         // Search clinics
         searchData.clinics.forEach(clinic => {
-            if (clinic.name.toLowerCase().includes(queryLower) || 
-                clinic.type.toLowerCase().includes(queryLower)) {
+            if ((clinic.name || '').toLowerCase().includes(queryLower) || 
+                (clinic.type || '').toLowerCase().includes(queryLower)) {
                 suggestions.push({
                     type: 'clinic',
                     title: clinic.name,

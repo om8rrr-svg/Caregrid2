@@ -4,6 +4,7 @@ const { v4: uuidv4 } = require('uuid');
 const { query, transaction } = require('../config/database');
 const { authenticateToken, optionalAuth, requireRole } = require('../middleware/auth');
 const { AppError, asyncHandler, successResponse, paginatedResponse } = require('../middleware/errorHandler');
+const googlePlacesService = require('../services/googlePlacesService');
 
 const router = express.Router();
 
@@ -54,7 +55,7 @@ const clinicValidation = [
 // @access  Public
 router.get('/', optionalAuth, asyncHandler(async (req, res) => {
   const page = parseInt(req.query.page) || 1;
-  const limit = Math.min(parseInt(req.query.limit) || 20, 50); // Max 50 per page
+  const limit = Math.min(parseInt(req.query.limit) || 20, 200); // Max 200 per page
   const offset = (page - 1) * limit;
   
   // Search and filter parameters
@@ -123,7 +124,7 @@ router.get('/', optionalAuth, asyncHandler(async (req, res) => {
     queryParams
   );
   
-  const clinics = result.rows.map(clinic => ({
+  let clinics = result.rows.map(clinic => ({
     id: clinic.id,
     name: clinic.name,
     type: clinic.type,
@@ -136,11 +137,41 @@ router.get('/', optionalAuth, asyncHandler(async (req, res) => {
     website: clinic.website,
     rating: parseFloat(clinic.rating) || 0,
     reviewCount: clinic.review_count,
-    premiumStatus: clinic.premium_status,
+    premiumStatus: clinic.is_premium,
     logoUrl: clinic.logo_url,
     createdAt: clinic.created_at,
     updatedAt: clinic.updated_at
   }));
+  
+  // Enrich with Google Places data if API key is available
+  const includeGoogle = req.query.includeGoogle === 'true';
+  if (includeGoogle && process.env.GOOGLE_PLACES_API_KEY) {
+    try {
+      clinics = await googlePlacesService.enrichClinicsWithGoogleData(clinics);
+      
+      // Update ratings with combined Google + local data
+      clinics = clinics.map(clinic => {
+        const combined = googlePlacesService.getCombinedRating(
+          clinic.rating,
+          clinic.reviewCount,
+          clinic.googleRating,
+          clinic.googleReviewCount
+        );
+        
+        return {
+          ...clinic,
+          rating: combined.combinedRating,
+          reviewCount: combined.combinedReviewCount,
+          ratingSource: combined.source,
+          localRating: parseFloat(clinic.rating) || 0,
+          localReviewCount: clinic.reviewCount || 0
+        };
+      });
+    } catch (error) {
+      console.error('Error enriching with Google data:', error.message);
+      // Continue without Google data if there's an error
+    }
+  }
   
   paginatedResponse(res, clinics, {
     page,
@@ -158,7 +189,7 @@ router.get('/:id', optionalAuth, asyncHandler(async (req, res) => {
   const result = await query(
     `SELECT 
       c.id, c.name, c.type, c.description, c.address, c.city, c.postcode,
-      c.phone, c.email, c.website, c.rating, c.review_count, c.premium_status,
+      c.phone, c.email, c.website, c.rating, c.review_count, c.is_premium,
       c.logo_url, c.created_at, c.updated_at
      FROM clinics c
      WHERE c.id = $1`,

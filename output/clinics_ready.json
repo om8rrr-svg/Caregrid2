@@ -3,9 +3,9 @@
     "name": "Manchester Medical Centre",
     "category": "GP",
     "city": "Manchester",
-    "address": "123 Oxford Road",
+    "address": "123 Oxford Road, Manchester City Centre",
     "postcode": "M1 7ED",
-    "phone": "+441612345678",
+    "phone": "+447123456789",
     "website": "https://manchestermedical.example.com",
     "services": [
       "General Practice",
@@ -35,9 +35,9 @@
     "name": "Bolton Dental Practice",
     "category": "Dentist",
     "city": "Bolton",
-    "address": "45 High Street",
+    "address": "45 High Street, Bolton Town Centre",
     "postcode": "BL1 2AB",
-    "phone": "+441204567890",
+    "phone": "+447987654321",
     "website": "https://boltondental.example.com",
     "services": [
       "General Dentistry",
