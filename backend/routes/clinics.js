@@ -64,120 +64,132 @@ router.get('/', optionalAuth, asyncHandler(async (req, res) => {
   const city = req.query.city;
   const rating = parseFloat(req.query.rating);
   const premiumOnly = req.query.premium === 'true';
-  
-  // Build WHERE clause
-  let whereConditions = [];
-  let queryParams = [];
-  let paramCount = 1;
-  
-  if (search) {
-    whereConditions.push(`(
-      c.name ILIKE $${paramCount} OR 
-      c.type ILIKE $${paramCount} OR 
-      c.description ILIKE $${paramCount} OR
-      c.address ILIKE $${paramCount}
-    )`);
-    queryParams.push(`%${search}%`);
-    paramCount++;
-  }
-  
-  if (type) {
-    whereConditions.push(`c.type ILIKE $${paramCount}`);
-    queryParams.push(`%${type}%`);
-    paramCount++;
-  }
-  
-  if (city) {
-    whereConditions.push(`c.city ILIKE $${paramCount}`);
-    queryParams.push(`%${city}%`);
-    paramCount++;
-  }
-  
-  if (rating) {
-    whereConditions.push(`c.rating >= $${paramCount}`);
-    queryParams.push(rating);
-    paramCount++;
-  }
-  
-  if (premiumOnly) {
-    whereConditions.push('c.is_premium = true');
-  }
-  
-  const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';
-  
-  // Get clinics
-  const result = await query(
-    `SELECT 
-      c.id, c.name, c.type, c.description, c.address, c.city, c.postcode,
-      c.phone, c.email, c.website, c.rating, c.review_count, c.is_premium,
-      c.logo_url, c.created_at, c.updated_at
-     FROM clinics c
-     ${whereClause}
-     ORDER BY c.is_premium DESC, c.rating DESC, c.name ASC
-     LIMIT $${paramCount} OFFSET $${paramCount + 1}`,
-    [...queryParams, limit, offset]
-  );
-  
-  // Get total count
-  const countResult = await query(
-    `SELECT COUNT(*) FROM clinics c ${whereClause}`,
-    queryParams
-  );
-  
-  let clinics = result.rows.map(clinic => ({
-    id: clinic.id,
-    name: clinic.name,
-    type: clinic.type,
-    description: clinic.description,
-    address: clinic.address,
-    city: clinic.city,
-    postcode: clinic.postcode,
-    phone: clinic.phone,
-    email: clinic.email,
-    website: clinic.website,
-    rating: parseFloat(clinic.rating) || 0,
-    reviewCount: clinic.review_count,
-    premiumStatus: clinic.is_premium,
-    logoUrl: clinic.logo_url,
-    createdAt: clinic.created_at,
-    updatedAt: clinic.updated_at
-  }));
-  
-  // Enrich with Google Places data if API key is available
-  const includeGoogle = req.query.includeGoogle === 'true';
-  if (includeGoogle && process.env.GOOGLE_PLACES_API_KEY) {
-    try {
-      clinics = await googlePlacesService.enrichClinicsWithGoogleData(clinics);
-      
-      // Update ratings with combined Google + local data
-      clinics = clinics.map(clinic => {
-        const combined = googlePlacesService.getCombinedRating(
-          clinic.rating,
-          clinic.reviewCount,
-          clinic.googleRating,
-          clinic.googleReviewCount
-        );
-        
-        return {
-          ...clinic,
-          rating: combined.combinedRating,
-          reviewCount: combined.combinedReviewCount,
-          ratingSource: combined.source,
-          localRating: parseFloat(clinic.rating) || 0,
-          localReviewCount: clinic.reviewCount || 0
-        };
-      });
-    } catch (error) {
-      console.error('Error enriching with Google data:', error.message);
-      // Continue without Google data if there's an error
+
+  try {
+    // Build WHERE clause
+    let whereConditions = [];
+    let queryParams = [];
+    let paramCount = 1;
+    
+    if (search) {
+      whereConditions.push(`(
+        c.name ILIKE $${paramCount} OR 
+        c.type ILIKE $${paramCount} OR 
+        c.description ILIKE $${paramCount} OR
+        c.address ILIKE $${paramCount}
+      )`);
+      queryParams.push(`%${search}%`);
+      paramCount++;
     }
+    
+    if (type) {
+      whereConditions.push(`c.type ILIKE $${paramCount}`);
+      queryParams.push(`%${type}%`);
+      paramCount++;
+    }
+    
+    if (city) {
+      whereConditions.push(`c.city ILIKE $${paramCount}`);
+      queryParams.push(`%${city}%`);
+      paramCount++;
+    }
+    
+    if (rating) {
+      whereConditions.push(`c.rating >= $${paramCount}`);
+      queryParams.push(rating);
+      paramCount++;
+    }
+    
+    if (premiumOnly) {
+      whereConditions.push('c.is_premium = true');
+    }
+    
+    const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';
+    
+    // Get clinics
+    const result = await query(
+      `SELECT 
+        c.id, c.name, c.type, c.description, c.address, c.city, c.postcode,
+        c.phone, c.email, c.website, c.rating, c.review_count, c.is_premium,
+        c.logo_url, c.created_at, c.updated_at
+       FROM clinics c
+       ${whereClause}
+       ORDER BY c.is_premium DESC, c.rating DESC, c.name ASC
+       LIMIT $${paramCount} OFFSET $${paramCount + 1}`,
+      [...queryParams, limit, offset]
+    );
+    
+    // Get total count
+    const countResult = await query(
+      `SELECT COUNT(*) FROM clinics c ${whereClause}`,
+      queryParams
+    );
+    
+    let clinics = result.rows.map(clinic => ({
+      id: clinic.id,
+      name: clinic.name,
+      type: clinic.type,
+      description: clinic.description,
+      address: clinic.address,
+      city: clinic.city,
+      postcode: clinic.postcode,
+      phone: clinic.phone,
+      email: clinic.email,
+      website: clinic.website,
+      rating: parseFloat(clinic.rating) || 0,
+      reviewCount: clinic.review_count,
+      premiumStatus: clinic.is_premium,
+      logoUrl: clinic.logo_url,
+      createdAt: clinic.created_at,
+      updatedAt: clinic.updated_at
+    }));
+    
+    // Enrich with Google Places data if API key is available
+    const includeGoogle = req.query.includeGoogle === 'true';
+    if (includeGoogle && process.env.GOOGLE_PLACES_API_KEY) {
+      try {
+        clinics = await googlePlacesService.enrichClinicsWithGoogleData(clinics);
+        
+        // Update ratings with combined Google + local data
+        clinics = clinics.map(clinic => {
+          const combined = googlePlacesService.getCombinedRating(
+            clinic.rating,
+            clinic.reviewCount,
+            clinic.googleRating,
+            clinic.googleReviewCount
+          );
+          
+          return {
+            ...clinic,
+            rating: combined.combinedRating,
+            reviewCount: combined.combinedReviewCount,
+            ratingSource: combined.source,
+            localRating: parseFloat(clinic.rating) || 0,
+            localReviewCount: clinic.reviewCount || 0
+          };
+        });
+      } catch (error) {
+        console.error('Error enriching with Google data:', error.message);
+        // Continue without Google data if there's an error
+      }
+    }
+    
+    paginatedResponse(res, clinics, {
+      page,
+      limit,
+      total: parseInt(countResult.rows[0].count)
+    });
+    
+  } catch (dbError) {
+    console.error('Database error in clinics route:', dbError);
+    
+    // Return empty results when database is unavailable
+    paginatedResponse(res, [], {
+      page,
+      limit,
+      total: 0
+    });
   }
-  
-  paginatedResponse(res, clinics, {
-    page,
-    limit,
-    total: parseInt(countResult.rows[0].count)
-  });
 }));
 
 // @route   GET /api/clinics/:id
