@@ -403,7 +403,7 @@ async function submitBooking() {
             treatmentType: bookingData.serviceType,
             appointmentDate: bookingData.date,
             appointmentTime: bookingData.time,
-            notes: bookingData.notes || '',
+            notes: `Reason: ${bookingData.reason || 'Not specified'}${bookingData.medicalHistory ? '. Medical History: ' + bookingData.medicalHistory : ''}`,
             // Include contact info for guest bookings
             ...(!isAuthenticated && {
                 guestName: `${bookingData.firstName} ${bookingData.lastName}`,
@@ -545,6 +545,10 @@ function closeBookingModal() {
 
 // Format booking date and time for display
 function formatBookingDateTime() {
+    if (!bookingData.date || !bookingData.time) {
+        return 'TBD';
+    }
+    
     const date = new Date(bookingData.date);
     const formattedDate = date.toLocaleDateString('en-GB', {
         weekday: 'long',
@@ -568,7 +572,10 @@ function formatBookingDateTime() {
 // Get selected service name
 function getSelectedServiceName() {
     const serviceSelect = document.getElementById('serviceType');
-    return serviceSelect.options[serviceSelect.selectedIndex].text;
+    if (serviceSelect && serviceSelect.selectedIndex >= 0) {
+        return serviceSelect.options[serviceSelect.selectedIndex].text;
+    }
+    return 'General Consultation';
 }
 
 // Export functions for global access
