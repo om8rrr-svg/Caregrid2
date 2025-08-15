@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Debug - CareGrid</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .debug-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; }
+        button { padding: 10px 20px; margin: 5px; }
+        .result { margin: 10px 0; padding: 10px; background: #f5f5f5; }
+        .error { background: #ffebee; color: #c62828; }
+        .success { background: #e8f5e8; color: #2e7d32; }
+    </style>
+</head>
+<body>
+    <h1>Network Debug Tool</h1>
+    
+    <div class="debug-section">
+        <h3>Test 1: Direct Fetch to Login API</h3>
+        <button onclick="testDirectLogin()">Test Direct Login</button>
+        <div id="directResult" class="result"></div>
+    </div>
+    
+    <div class="debug-section">
+        <h3>Test 2: Check API Service</h3>
+        <button onclick="testAPIService()">Test API Service</button>
+        <div id="apiResult" class="result"></div>
+    </div>
+    
+    <div class="debug-section">
+        <h3>Test 3: Check Auth System</h3>
+        <button onclick="testAuthSystem()">Test Auth System</button>
+        <div id="authResult" class="result"></div>
+    </div>
+    
+    <div class="debug-section">
+        <h3>Test 4: Check Local Storage</h3>
+        <button onclick="checkStorage()">Check Storage</button>
+        <div id="storageResult" class="result"></div>
+    </div>
+
+    <script src="js/api-service.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        function log(elementId, message, isError = false) {
+            const element = document.getElementById(elementId);
+            element.innerHTML += `<div class="${isError ? 'error' : 'success'}">${new Date().toLocaleTimeString()}: ${message}</div>`;
+            console.log(message);
+        }
+
+        async function testDirectLogin() {
+            const resultDiv = document.getElementById('directResult');
+            resultDiv.innerHTML = '';
+            
+            try {
+                log('directResult', 'Starting direct fetch test...');
+                
+                const response = await fetch('http://localhost:3000/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        email: 'test@example.com',
+                        password: 'TestPassword123!'
+                    })
+                });
+                
+                log('directResult', `Response status: ${response.status}`);
+                log('directResult', `Response headers: ${JSON.stringify([...response.headers.entries()])}`);
+                
+                const data = await response.json();
+                log('directResult', `Response data: ${JSON.stringify(data, null, 2)}`);
+                
+                if (response.ok) {
+                    log('directResult', 'Direct login successful!');
+                } else {
+                    log('directResult', 'Direct login failed!', true);
+                }
+            } catch (error) {
+                log('directResult', `Direct login error: ${error.message}`, true);
+                console.error('Direct login error:', error);
+            }
+        }
+
+        async function testAPIService() {
+            const resultDiv = document.getElementById('apiResult');
+            resultDiv.innerHTML = '';
+            
+            try {
+                log('apiResult', 'Testing API Service...');
+                
+                if (typeof window.apiService === 'undefined') {
+                    log('apiResult', 'Creating new APIService instance...');
+                    window.apiService = new APIService();
+                }
+                
+                log('apiResult', 'Calling apiService.login...');
+                const result = await window.apiService.login('test@example.com', 'TestPassword123!');
+                
+                log('apiResult', `API Service result: ${JSON.stringify(result, null, 2)}`);
+                log('apiResult', 'API Service login successful!');
+            } catch (error) {
+                log('apiResult', `API Service error: ${error.message}`, true);
+                console.error('API Service error:', error);
+            }
+        }
+
+        async function testAuthSystem() {
+            const resultDiv = document.getElementById('authResult');
+            resultDiv.innerHTML = '';
+            
+            try {
+                log('authResult', 'Testing Auth System...');
+                
+                if (typeof window.authSystem === 'undefined') {
+                    log('authResult', 'Creating new AuthSystem instance...');
+                    window.authSystem = new AuthSystem();
+                }
+                
+                // Create a mock form event
+                const mockEvent = {
+                    preventDefault: () => {},
+                    target: {
+                        email: { value: 'test@example.com' },
+                        password: { value: 'TestPassword123!' },
+                        rememberMe: { checked: false }
+                    }
+                };
+                
+                log('authResult', 'Calling authSystem.handleSignIn...');
+                await window.authSystem.handleSignIn(mockEvent);
+                
+                log('authResult', 'Auth System login successful!');
+            } catch (error) {
+                log('authResult', `Auth System error: ${error.message}`, true);
+                console.error('Auth System error:', error);
+            }
+        }
+
+        function checkStorage() {
+            const resultDiv = document.getElementById('storageResult');
+            resultDiv.innerHTML = '';
+            
+            try {
+                log('storageResult', 'Checking Local Storage...');
+                
+                const token = localStorage.getItem('authToken');
+                const userData = localStorage.getItem('userData');
+                
+                log('storageResult', `Auth Token: ${token ? 'Present' : 'Not found'}`);
+                if (token) {
+                    log('storageResult', `Token value: ${token}`);
+                }
+                
+                log('storageResult', `User Data: ${userData ? 'Present' : 'Not found'}`);
+                if (userData) {
+                    log('storageResult', `User Data: ${userData}`);
+                }
+                
+                // Check session storage too
+                const sessionToken = sessionStorage.getItem('authToken');
+                const sessionUserData = sessionStorage.getItem('userData');
+                
+                log('storageResult', `Session Token: ${sessionToken ? 'Present' : 'Not found'}`);
+                log('storageResult', `Session User Data: ${sessionUserData ? 'Present' : 'Not found'}`);
+                
+            } catch (error) {
+                log('storageResult', `Storage check error: ${error.message}`, true);
+                console.error('Storage check error:', error);
+            }
+        }
+
+        // Auto-run storage check on page load
+        window.addEventListener('load', () => {
+            checkStorage();
+        });
+    </script>
+</body>
+</html>

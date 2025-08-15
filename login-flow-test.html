@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Flow Test - CareGrid</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; }
+        .result { margin: 10px 0; padding: 10px; background: #f5f5f5; }
+        .success { background: #e8f5e8; color: #2e7d32; }
+        .error { background: #ffebee; color: #c62828; }
+        .warning { background: #fff3e0; color: #f57c00; }
+        button { padding: 10px 20px; margin: 5px; }
+        input { padding: 8px; margin: 5px; width: 200px; }
+        .step { margin: 10px 0; padding: 10px; border-left: 3px solid #ccc; }
+        .step.active { border-left-color: #2196F3; background: #f3f9ff; }
+        .step.success { border-left-color: #4CAF50; background: #f1f8e9; }
+        .step.error { border-left-color: #f44336; background: #ffebee; }
+    </style>
+</head>
+<body>
+    <h1>Complete Login Flow Test</h1>
+    
+    <div class="test-section">
+        <h3>Test Steps</h3>
+        <div id="step1" class="step">Step 1: Check API connectivity</div>
+        <div id="step2" class="step">Step 2: Test direct login API call</div>
+        <div id="step3" class="step">Step 3: Test token storage</div>
+        <div id="step4" class="step">Step 4: Test dashboard authentication</div>
+        <div id="step5" class="step">Step 5: Test redirect flow</div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Manual Login Test</h3>
+        <form id="testForm">
+            <input type="email" id="email" value="test@example.com" placeholder="Email">
+            <input type="password" id="password" value="TestPassword123!" placeholder="Password">
+            <button type="submit">Test Complete Flow</button>
+        </form>
+    </div>
+    
+    <div class="test-section">
+        <h3>Results</h3>
+        <div id="results"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Quick Actions</h3>
+        <button onclick="clearStorage()">Clear Storage</button>
+        <button onclick="checkStorage()">Check Storage</button>
+        <button onclick="testDashboard()">Test Dashboard</button>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.textContent = `${new Date().toLocaleTimeString()}: ${message}`;
+            results.appendChild(div);
+            console.log(message);
+        }
+        
+        function updateStep(stepNum, status) {
+            const step = document.getElementById(`step${stepNum}`);
+            step.className = `step ${status}`;
+            if (status === 'active') {
+                step.textContent = step.textContent.replace('Step', '▶ Step');
+            } else if (status === 'success') {
+                step.textContent = step.textContent.replace('▶ Step', '✓ Step');
+            } else if (status === 'error') {
+                step.textContent = step.textContent.replace('▶ Step', '✗ Step');
+            }
+        }
+        
+        async function runCompleteTest() {
+            log('Starting complete login flow test...', 'info');
+            
+            // Step 1: Check API connectivity
+            updateStep(1, 'active');
+            try {
+                const response = await fetch('http://localhost:3000/api/clinics?limit=1');
+                if (response.ok) {
+                    log('✓ Backend API is reachable', 'success');
+                    updateStep(1, 'success');
+                } else {
+                    throw new Error(`API returned ${response.status}`);
+                }
+            } catch (error) {
+                log(`✗ Backend API unreachable: ${error.message}`, 'error');
+                updateStep(1, 'error');
+                return;
+            }
+            
+            // Step 2: Test direct login API call
+            updateStep(2, 'active');
+            let loginData;
+            try {
+                const response = await fetch('http://localhost:3000/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        email: 'test@example.com',
+                        password: 'TestPassword123!'
+                    })
+                });
+                
+                if (response.ok) {
+                    loginData = await response.json();
+                    log(`✓ Login API successful: ${loginData.success ? 'Success' : 'Failed'}`, 'success');
+                    log(`Token received: ${loginData.token ? 'Yes' : 'No'}`, loginData.token ? 'success' : 'error');
+                    updateStep(2, 'success');
+                } else {
+                    const errorText = await response.text();
+                    throw new Error(`Login failed: ${response.status} - ${errorText}`);
+                }
+            } catch (error) {
+                log(`✗ Login API failed: ${error.message}`, 'error');
+                updateStep(2, 'error');
+                return;
+            }
+            
+            // Step 3: Test token storage
+            updateStep(3, 'active');
+            try {
+                if (loginData && loginData.token) {
+                    localStorage.setItem('authToken', loginData.token);
+                    localStorage.setItem('userData', JSON.stringify(loginData.user));
+                    localStorage.setItem('isLoggedIn', 'true');
+                    
+                    // Verify storage
+                    const storedToken = localStorage.getItem('authToken');
+                    const storedUser = localStorage.getItem('userData');
+                    
+                    if (storedToken && storedUser) {
+                        log('✓ Token and user data stored successfully', 'success');
+                        updateStep(3, 'success');
+                    } else {
+                        throw new Error('Failed to store authentication data');
+                    }
+                } else {
+                    throw new Error('No token received from login');
+                }
+            } catch (error) {
+                log(`✗ Token storage failed: ${error.message}`, 'error');
+                updateStep(3, 'error');
+                return;
+            }
+            
+            // Step 4: Test dashboard authentication
+            updateStep(4, 'active');
+            try {
+                const response = await fetch('http://localhost:3000/api/auth/me', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${loginData.token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    const userData = await response.json();
+                    log(`✓ Dashboard authentication successful: ${userData.email}`, 'success');
+                    updateStep(4, 'success');
+                } else {
+                    throw new Error(`Auth check failed: ${response.status}`);
+                }
+            } catch (error) {
+                log(`✗ Dashboard authentication failed: ${error.message}`, 'error');
+                updateStep(4, 'error');
+                return;
+            }
+            
+            // Step 5: Test redirect flow
+            updateStep(5, 'active');
+            try {
+                log('✓ All authentication steps successful!', 'success');
+                log('Opening dashboard in new tab...', 'info');
+                window.open('dashboard.html', '_blank');
+                updateStep(5, 'success');
+            } catch (error) {
+                log(`✗ Redirect failed: ${error.message}`, 'error');
+                updateStep(5, 'error');
+            }
+        }
+        
+        function clearStorage() {
+            localStorage.clear();
+            sessionStorage.clear();
+            log('✓ Storage cleared', 'success');
+        }
+        
+        function checkStorage() {
+            const token = localStorage.getItem('authToken');
+            const userData = localStorage.getItem('userData');
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+            
+            log(`Auth Token: ${token ? 'Present' : 'Missing'}`, token ? 'success' : 'warning');
+            log(`User Data: ${userData ? 'Present' : 'Missing'}`, userData ? 'success' : 'warning');
+            log(`Is Logged In: ${isLoggedIn}`, isLoggedIn === 'true' ? 'success' : 'warning');
+            
+            if (token) {
+                log(`Token preview: ${token.substring(0, 50)}...`);
+            }
+        }
+        
+        function testDashboard() {
+            log('Opening dashboard for manual test...');
+            window.open('dashboard.html', '_blank');
+        }
+        
+        // Form submission handler
+        document.getElementById('testForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            runCompleteTest();
+        });
+        
+        // Auto-run on page load
+        window.addEventListener('load', function() {
+            log('Login Flow Test initialized', 'info');
+            checkStorage();
+        });
+    </script>
+</body>
+</html>

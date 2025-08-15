@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Test - CareGrid</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test { margin: 10px 0; padding: 10px; border: 1px solid #ddd; }
+        .success { background: #e8f5e8; }
+        .error { background: #ffebee; }
+    </style>
+</head>
+<body>
+    <h1>Simple JavaScript Test</h1>
+    
+    <div id="results"></div>
+    
+    <button onclick="runTests()">Run Tests</button>
+    
+    <script>
+        function addResult(message, isError = false) {
+            const div = document.createElement('div');
+            div.className = `test ${isError ? 'error' : 'success'}`;
+            div.textContent = message;
+            document.getElementById('results').appendChild(div);
+            console.log(message);
+        }
+        
+        function runTests() {
+            document.getElementById('results').innerHTML = '';
+            
+            // Test 1: Basic JavaScript
+            addResult('✓ Basic JavaScript working');
+            
+            // Test 2: Fetch API
+            addResult('✓ Fetch API available: ' + (typeof fetch !== 'undefined'));
+            
+            // Test 3: Local Storage
+            addResult('✓ Local Storage available: ' + (typeof localStorage !== 'undefined'));
+            
+            // Test 4: Console
+            addResult('✓ Console available: ' + (typeof console !== 'undefined'));
+            
+            // Test 5: Try a simple fetch
+            testSimpleFetch();
+        }
+        
+        async function testSimpleFetch() {
+            try {
+                addResult('Testing simple fetch to backend...');
+                
+                const response = await fetch('http://localhost:3000/api/clinics?limit=1');
+                addResult(`✓ Backend reachable: ${response.status}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    addResult(`✓ Backend response: ${data.clinics ? data.clinics.length : 0} clinics`);
+                }
+            } catch (error) {
+                addResult(`✗ Backend fetch error: ${error.message}`, true);
+            }
+            
+            // Test login endpoint
+            testLoginEndpoint();
+        }
+        
+        async function testLoginEndpoint() {
+            try {
+                addResult('Testing login endpoint...');
+                
+                const response = await fetch('http://localhost:3000/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: 'test@example.com',
+                        password: 'TestPassword123!'
+                    })
+                });
+                
+                addResult(`✓ Login endpoint response: ${response.status}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    addResult(`✓ Login successful: ${data.success ? 'Yes' : 'No'}`);
+                    if (data.token) {
+                        addResult(`✓ Token received: ${data.token.substring(0, 20)}...`);
+                    }
+                } else {
+                    const errorData = await response.text();
+                    addResult(`✗ Login failed: ${errorData}`, true);
+                }
+            } catch (error) {
+                addResult(`✗ Login endpoint error: ${error.message}`, true);
+            }
+        }
+        
+        // Auto-run tests on page load
+        window.addEventListener('load', runTests);
+    </script>
+</body>
+</html>

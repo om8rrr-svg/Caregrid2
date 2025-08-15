@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Final Auth Test - CareGrid</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; }
+        .result { margin: 10px 0; padding: 10px; background: #f5f5f5; }
+        .success { background: #e8f5e8; color: #2e7d32; }
+        .error { background: #ffebee; color: #c62828; }
+        .warning { background: #fff3e0; color: #f57c00; }
+        button { padding: 10px 20px; margin: 5px; }
+        input { padding: 8px; margin: 5px; width: 200px; }
+    </style>
+</head>
+<body>
+    <h1>Final Authentication Test</h1>
+    
+    <div class="test-section">
+        <h3>Step 1: Check JavaScript Dependencies</h3>
+        <div id="dependencyResults"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Step 2: Test Login Form</h3>
+        <form id="testLoginForm">
+            <input type="email" id="email" value="test@example.com" placeholder="Email">
+            <input type="password" id="password" value="TestPassword123!" placeholder="Password">
+            <input type="checkbox" id="rememberMe"> Remember me
+            <button type="submit">Test Login</button>
+        </form>
+        <div id="loginResults"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Step 3: Test Dashboard Access</h3>
+        <button onclick="testDashboardAccess()">Test Dashboard Access</button>
+        <div id="dashboardResults"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Step 4: Storage Check</h3>
+        <button onclick="checkStorage()">Check Storage</button>
+        <div id="storageResults"></div>
+    </div>
+
+    <!-- Include the same scripts as auth.html -->
+    <script src="js/api-service.js"></script>
+    <script src="js/auth.js"></script>
+    
+    <script>
+        function log(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.textContent = `${new Date().toLocaleTimeString()}: ${message}`;
+            element.appendChild(div);
+            console.log(message);
+        }
+
+        function checkDependencies() {
+            const results = document.getElementById('dependencyResults');
+            results.innerHTML = '';
+            
+            // Check if APIService is available
+            if (typeof APIService !== 'undefined') {
+                log('dependencyResults', '✓ APIService class is available', 'success');
+                try {
+                    window.testApiService = new APIService();
+                    log('dependencyResults', '✓ APIService instance created successfully', 'success');
+                } catch (error) {
+                    log('dependencyResults', `✗ APIService instantiation failed: ${error.message}`, 'error');
+                }
+            } else {
+                log('dependencyResults', '✗ APIService class not found', 'error');
+            }
+            
+            // Check if AuthSystem is available
+            if (typeof AuthSystem !== 'undefined') {
+                log('dependencyResults', '✓ AuthSystem class is available', 'success');
+                try {
+                    window.testAuthSystem = new AuthSystem();
+                    log('dependencyResults', '✓ AuthSystem instance created successfully', 'success');
+                } catch (error) {
+                    log('dependencyResults', `✗ AuthSystem instantiation failed: ${error.message}`, 'error');
+                }
+            } else {
+                log('dependencyResults', '✗ AuthSystem class not found', 'error');
+            }
+        }
+
+        async function testLogin(event) {
+            event.preventDefault();
+            const results = document.getElementById('loginResults');
+            results.innerHTML = '';
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            log('loginResults', `Testing login with email: ${email}`);
+            
+            try {
+                if (window.testApiService) {
+                    log('loginResults', 'Calling APIService.login...');
+                    const result = await window.testApiService.login(email, password);
+                    log('loginResults', `✓ APIService login successful: ${JSON.stringify(result)}`, 'success');
+                    
+                    // Test AuthSystem handleSignIn
+                    if (window.testAuthSystem) {
+                        log('loginResults', 'Testing AuthSystem.handleSignIn...');
+                        const mockEvent = {
+                            preventDefault: () => {},
+                            target: {
+                                email: { value: email },
+                                password: { value: password },
+                                rememberMe: { checked: document.getElementById('rememberMe').checked }
+                            }
+                        };
+                        
+                        await window.testAuthSystem.handleSignIn(mockEvent);
+                        log('loginResults', '✓ AuthSystem login successful', 'success');
+                    }
+                } else {
+                    log('loginResults', '✗ APIService not available', 'error');
+                }
+            } catch (error) {
+                log('loginResults', `✗ Login failed: ${error.message}`, 'error');
+                console.error('Login error:', error);
+            }
+        }
+
+        function testDashboardAccess() {
+            const results = document.getElementById('dashboardResults');
+            results.innerHTML = '';
+            
+            log('dashboardResults', 'Testing dashboard access...');
+            
+            // Check if user is authenticated
+            const token = localStorage.getItem('authToken');
+            const userData = localStorage.getItem('userData');
+            
+            if (token && userData) {
+                log('dashboardResults', '✓ User appears to be authenticated', 'success');
+                log('dashboardResults', 'Opening dashboard in new tab...', 'success');
+                window.open('dashboard.html', '_blank');
+            } else {
+                log('dashboardResults', '✗ User not authenticated - no token or user data found', 'warning');
+            }
+        }
+
+        function checkStorage() {
+            const results = document.getElementById('storageResults');
+            results.innerHTML = '';
+            
+            const token = localStorage.getItem('authToken');
+            const userData = localStorage.getItem('userData');
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+            
+            log('storageResults', `Auth Token: ${token ? 'Present' : 'Not found'}`);
+            log('storageResults', `User Data: ${userData ? 'Present' : 'Not found'}`);
+            log('storageResults', `Is Logged In: ${isLoggedIn}`);
+            
+            if (token) {
+                log('storageResults', `Token preview: ${token.substring(0, 50)}...`);
+            }
+            
+            if (userData) {
+                try {
+                    const user = JSON.parse(userData);
+                    log('storageResults', `User: ${user.name || user.email || 'Unknown'}`);
+                } catch (error) {
+                    log('storageResults', 'User data is not valid JSON', 'warning');
+                }
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            checkDependencies();
+            
+            // Add form event listener
+            document.getElementById('testLoginForm').addEventListener('submit', testLogin);
+            
+            // Auto-check storage
+            setTimeout(checkStorage, 500);
+        });
+    </script>
+</body>
+</html>

@@ -20,6 +20,10 @@
     <!-- Facebook SDK -->
     <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js"></script>
     
+    <!-- CareGrid JavaScript -->
+    <script src="js/api-service.js"></script>
+    <script src="js/auth.js"></script>
+    
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
     <script>
@@ -306,9 +310,7 @@
     </footer>
 
     <!-- Scripts -->
-    <script src="js/api-service.js"></script>
-<script src="js/script.js"></script>
-<script src="js/auth.js"></script>
+    <script src="js/script.js"></script>
     
     <script>
         // Google OAuth configuration
@@ -371,6 +373,9 @@
         document.addEventListener('DOMContentLoaded', function() {
             initGoogleAuth();
             initFacebookAuth();
+            
+            // Initialize the AuthSystem
+            window.authSystem = new AuthSystem();
         });
     </script>
 </body>
