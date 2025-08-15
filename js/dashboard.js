@@ -42,13 +42,14 @@ class Dashboard {
                     this.updateWelcomeMessage();
                 } catch (apiError) {
                     console.warn('Failed to fetch fresh user data:', apiError);
-                    // Check if token is expired
-                    if (apiError.message && apiError.message.includes('401')) {
-                        console.log('Token expired, redirecting to login');
+                    // Only logout on authentication-related errors, not network failures
+                    if (apiError.message && (apiError.message.includes('401') || apiError.message.includes('Authentication failed'))) {
+                        console.log('Token expired or authentication failed, redirecting to login');
                         this.authSystem.logout();
                         return;
                     }
-                    // Use cached user data if API fails
+                    // For network errors or other issues, use cached user data
+                    console.log('Using cached user data due to API error:', apiError.message);
                     this.updateWelcomeMessage();
                 }
             } else {
@@ -58,7 +59,15 @@ class Dashboard {
             }
         } catch (error) {
             console.error('Authentication check failed:', error);
-            window.location.href = 'auth.html';
+            // Only redirect to auth if there's no stored token or user data
+            if (!this.apiService.getStoredToken() || !this.authSystem.getCurrentUser()) {
+                console.log('No valid authentication data found, redirecting to auth');
+                window.location.href = 'auth.html';
+            } else {
+                console.log('Authentication check failed but user data exists, continuing with cached data');
+                this.currentUser = this.authSystem.getCurrentUser();
+                this.updateWelcomeMessage();
+            }
         }
     }
     

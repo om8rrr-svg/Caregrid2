@@ -2,7 +2,7 @@
 
 class APIService {
     constructor() {
-        this.baseURL = 'http://localhost:3001/api';
+        this.baseURL = 'http://localhost:3000/api';
         this.token = this.getStoredToken();
     }
 

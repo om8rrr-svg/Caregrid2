@@ -84,10 +84,18 @@ class AuthSystem {
                 this.currentUser = userData.user;
                 this.redirectToDashboard();
             } catch (error) {
-                console.log('Invalid token, removing:', error);
-                this.apiService.clearAuthData();
-                // Clear any corrupted auth state
-                this.currentUser = null;
+                console.log('Failed to verify token with server:', error);
+                // Only clear auth data on actual authentication errors (401, 403)
+                // For server errors (500, network issues), keep the token for retry later
+                if (error.message && (error.message.includes('401') || error.message.includes('403') || error.message.includes('Authentication failed'))) {
+                    console.log('Authentication failed, clearing token');
+                    this.apiService.clearAuthData();
+                    this.currentUser = null;
+                } else {
+                    console.log('Server error, keeping token for retry later');
+                    // Still redirect to dashboard if we have a valid-looking token
+                    this.redirectToDashboard();
+                }
             }
         }
     }
@@ -1073,7 +1081,7 @@ function sendVerificationCode() {
     sendButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending Code...';
     
     // Make API call to backend
-    fetch('http://localhost:3001/api/auth/forgot-password', {
+    fetch('http://localhost:3000/api/auth/forgot-password', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'

@@ -2664,7 +2664,7 @@ async function updateLocationCounts() {
     
     // Update total count for 'All Locations'
     try {
-        const totalResponse = await fetch('http://localhost:3001/api/clinics?limit=1000');
+        const totalResponse = await fetch('http://localhost:3000/api/clinics?limit=1000');
         const totalData = await totalResponse.json();
         const totalCount = totalData.pagination?.total || 0;
         
@@ -2686,7 +2686,7 @@ async function updateLocationCounts() {
     for (const location of locations) {
         try {
             // Fetch clinics for this specific location from the API
-            const response = await fetch(`http://localhost:3001/api/clinics?city=${encodeURIComponent(location.city)}&limit=1000`);
+            const response = await fetch(`http://localhost:3000/api/clinics?city=${encodeURIComponent(location.city)}&limit=1000`);
             const data = await response.json();
             const count = data.pagination?.total || 0;
             
