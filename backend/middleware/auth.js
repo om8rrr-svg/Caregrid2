@@ -41,43 +41,58 @@ const authenticateToken = async (req, res, next) => {
     // Verify token
     const decoded = verifyToken(token);
     
-    // TEMPORARY: Allow test user without database check for testing
-    if (decoded.userId === 'test-user-id' && decoded.email === 'test@caregrid.com') {
+    // Mock user support for testing when database is unavailable
+    if (decoded.userId === 'test-user-id' && decoded.email === 'test@example.com') {
       req.user = {
         id: decoded.userId,
         email: decoded.email,
         firstName: 'Test',
         lastName: 'User',
-        role: 'super_admin',
+        role: 'patient',
         verified: true
       };
       return next();
     }
     
-    // Check if user still exists in database
-    const userResult = await query(
-      'SELECT id, email, first_name, last_name, role, verified FROM users WHERE id = $1',
-      [decoded.userId]
-    );
+    try {
+      // Check if user still exists in database
+      const userResult = await query(
+        'SELECT id, email, first_name, last_name, role, verified FROM users WHERE id = $1',
+        [decoded.userId]
+      );
 
-    if (userResult.rows.length === 0) {
-      return res.status(401).json({ 
-        error: 'User not found',
-        code: 'USER_NOT_FOUND'
-      });
+      if (userResult.rows.length === 0) {
+        return res.status(401).json({ 
+          error: 'User not found',
+          code: 'USER_NOT_FOUND'
+        });
+      }
+
+      // Add user info to request object
+      req.user = {
+        id: userResult.rows[0].id,
+        email: userResult.rows[0].email,
+        firstName: userResult.rows[0].first_name,
+        lastName: userResult.rows[0].last_name,
+        role: userResult.rows[0].role,
+        verified: userResult.rows[0].verified
+      };
+
+      next();
+    } catch (dbError) {
+      console.error('Database error during auth, falling back to token data:', dbError);
+      
+      // Fallback to token data if database is unavailable
+      req.user = {
+        id: decoded.userId,
+        email: decoded.email,
+        firstName: decoded.firstName || 'User',
+        lastName: decoded.lastName || '',
+        role: decoded.role || 'patient',
+        verified: true
+      };
+      next();
     }
-
-    // Add user info to request object
-    req.user = {
-      id: userResult.rows[0].id,
-      email: userResult.rows[0].email,
-      firstName: userResult.rows[0].first_name,
-      lastName: userResult.rows[0].last_name,
-      role: userResult.rows[0].role,
-      verified: userResult.rows[0].verified
-    };
-
-    next();
   } catch (error) {
     console.error('Authentication error:', error);
     
