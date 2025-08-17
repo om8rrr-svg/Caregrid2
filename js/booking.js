@@ -294,6 +294,14 @@ function validateCurrentStep() {
                 return false;
             }
             
+            // Validate UK phone number
+            const phone = document.getElementById('phone').value.trim();
+            const phoneRegex = /^(\+44\s?7\d{3}|\(?07\d{3}\)?)\s?\d{3}\s?\d{3}$/;
+            if (!phoneRegex.test(phone)) {
+                alert('Please enter a valid UK mobile number (e.g., +44 7700 900123 or 07700 900123).');
+                return false;
+            }
+            
             bookingData.medicalHistory = document.getElementById('medicalHistory').value.trim();
             return true;
             
@@ -412,6 +420,23 @@ async function submitBooking() {
             })
         };
         
+        // Validate required fields before submission
+        if (!appointmentData.clinicId) {
+            throw new Error('Clinic information is missing');
+        }
+        if (!appointmentData.treatmentType) {
+            throw new Error('Service type is required');
+        }
+        if (!appointmentData.appointmentDate) {
+            throw new Error('Appointment date is required');
+        }
+        if (!appointmentData.appointmentTime) {
+            throw new Error('Appointment time is required');
+        }
+        if (!isAuthenticated && (!appointmentData.guestName || !appointmentData.guestEmail)) {
+            throw new Error('Name and email are required for guest bookings');
+        }
+        
         console.log('Submitting booking:', appointmentData);
         
         // Call API to create appointment
@@ -437,7 +462,25 @@ async function submitBooking() {
         
     } catch (error) {
         console.error('Booking submission failed:', error);
-        alert('Sorry, there was an error creating your appointment. Please try again.');
+        
+        // Provide more specific error messages
+        let errorMessage = 'Sorry, there was an error creating your appointment. Please try again.';
+        
+        if (error.message.includes('Validation failed')) {
+            errorMessage = 'Please check your information and ensure all required fields are filled correctly.';
+        } else if (error.message.includes('TIME_SLOT_UNAVAILABLE')) {
+            errorMessage = 'This time slot is no longer available. Please select a different time.';
+        } else if (error.message.includes('CLINIC_NOT_FOUND')) {
+            errorMessage = 'The selected clinic could not be found. Please try selecting a different clinic.';
+        } else if (error.message.includes('GUEST_DETAILS_REQUIRED')) {
+            errorMessage = 'Please provide your name and email address to complete the booking.';
+        } else if (error.message.includes('Authentication failed')) {
+            errorMessage = 'Your session has expired. Please refresh the page and try again.';
+        } else if (error.message.includes('Network connection failed') || error.message.includes('fetch')) {
+            errorMessage = 'Unable to connect to the booking system. Please check your internet connection and try again.';
+        }
+        
+        alert(errorMessage);
     }
 }
 
