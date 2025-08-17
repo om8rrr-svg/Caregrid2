@@ -526,39 +526,20 @@
                     }
                     console.log('Dashboard: User authenticated:', firstName, lastName);
                     
+                    // Check if this is a demo account and show notice if so
+                    if (currentUser.id === 'demo' || currentUser.email === 'demo@caregrid.com' || currentUser.id === 'fallback' || currentUser.id === 'google_demo_user' || currentUser.email === 'demo.user@gmail.com') {
+                        showDemoNotice();
+                    }
+                    
                     // Initialize dashboard if not already done
                     if (!window.dashboard && window.Dashboard) {
                         console.log('Dashboard: Initializing dashboard...');
                         window.dashboard = new Dashboard();
                     }
                 } else {
-                    // No user found or no token - show demo mode or redirect
-                    console.log('Dashboard: No authentication found');
-                    
-                    // For demo purposes, create a test user session
-                    const demoUser = {
-                        id: 'demo',
-                        firstName: 'Demo',
-                        lastName: 'User',
-                        email: 'demo@caregrid.com'
-                    };
-                    const demoToken = 'demo-token-12345';
-                    
-                    localStorage.setItem('careGridCurrentUser', JSON.stringify(demoUser));
-                    localStorage.setItem('careGridToken', demoToken);
-                    
-                    console.log('Dashboard: Created demo session');
-                    
-                    // Update UI with demo user
-                    if (userName) {
-                        userName.textContent = 'Demo User';
-                    }
-                    if (dashboardUserName) {
-                        dashboardUserName.textContent = 'Demo';
-                    }
-                    
-                    // Show demo notice
-                    showDemoNotice();
+                    // No user found or no token - redirect to auth page
+                    console.log('Dashboard: No authentication found, redirecting to auth page');
+                    window.location.href = 'auth.html';
                 }
             } catch (error) {
                 console.error('Dashboard: Error checking authentication state:', error);

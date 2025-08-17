@@ -291,6 +291,13 @@ class AuthSystem {
             // Show verification form
             this.showResetVerification();
             
+            // Start the resend cooldown timer
+            setTimeout(() => {
+                if (typeof startResendCooldown === 'function') {
+                    startResendCooldown();
+                }
+            }, 100);
+            
             this.showSuccessMessage('Verification Code Sent!', 'Check your email for a 6-digit verification code.');
             
         } catch (error) {
@@ -313,31 +320,35 @@ class AuthSystem {
     }
     
     showPasswordResetSuccess() {
-        // Update the success modal content
-        const successTitle = document.getElementById('successTitle');
-        const successMessage = document.getElementById('successMessage');
-        const modalActions = document.querySelector('.modal-actions');
-        
-        if (successTitle) {
-            successTitle.textContent = 'Password Reset Successful!';
+        // Hide the password reset wizard completely
+        const passwordResetWizard = document.getElementById('passwordResetWizard');
+        if (passwordResetWizard) {
+            passwordResetWizard.style.display = 'none';
+            passwordResetWizard.classList.add('hidden');
         }
         
-        if (successMessage) {
-            successMessage.textContent = 'Your password has been changed and you are now signed in. Where would you like to go?';
+        // Hide all reset steps
+        for (let i = 1; i <= 4; i++) {
+            const step = document.getElementById(`resetStep${i}`);
+            if (step) {
+                step.classList.add('hidden');
+            }
         }
         
-        if (modalActions) {
-            modalActions.innerHTML = `
-                <button class="auth-btn primary" onclick="window.location.href='dashboard.html'">Go to Dashboard</button>
-                <button class="auth-btn secondary" onclick="window.location.href='index.html'" style="margin-left: 10px;">Return to Home</button>
-            `;
-        }
+        // Show success message
+        this.showSuccessMessage('Password Reset Successful!', 'Your password has been changed successfully. You can now sign in with your new password.');
         
-        // Show the modal
-        const modal = document.getElementById('successModal');
-        if (modal) {
-            modal.classList.remove('hidden');
-        }
+        // Automatically redirect to sign-in page after 3 seconds
+        setTimeout(() => {
+            // Close the success modal
+            const modal = document.getElementById('successModal');
+            if (modal) {
+                modal.classList.add('hidden');
+            }
+            
+            // Show the sign-in form
+            showSignIn();
+        }, 3000);
     }
     
     async handleVerification(e) {
@@ -779,6 +790,9 @@ function toggleAuthMode() {
 }
 
 function showSignIn() {
+    // Clear any active resend timer
+    clearResendTimer();
+    
     // Set current mode if authSystem exists
     if (window.authSystem) {
         window.authSystem.currentMode = 'signin';
@@ -1068,105 +1082,103 @@ function closeSuccessModal() {
         modal.classList.add('hidden');
         modal.style.display = 'none'; // Force hide with inline style
         
-        // Also try to redirect manually if needed
-        setTimeout(() => {
-            if (window.authSystem && window.authSystem.currentUser) {
-                window.location.href = 'index.html';
+        // Reset the password reset wizard state
+        currentResetStep = 1;
+        resetEmail = '';
+        
+        // Clear resend timer
+        clearResendTimer();
+        
+        // Hide all reset steps
+        for (let i = 1; i <= 4; i++) {
+            const step = document.getElementById(`resetStep${i}`);
+            if (step) {
+                step.classList.add('hidden');
             }
-        }, 100);
+        }
+        
+        // Hide the password reset wizard
+        const wizard = document.getElementById('passwordResetWizard');
+        if (wizard) {
+            wizard.classList.add('hidden');
+        }
     }
 }
 
 // Password Reset Wizard Step Functions
-function sendVerificationCode() {
-    const emailInput = document.getElementById('resetEmail');
-    const email = emailInput.value.trim();
-    
-    if (!email) {
-        showError('resetEmailError', 'Please enter your email address');
+// Removed duplicate sendVerificationCode function - using AuthSystem.handleForgotPassword instead
+
+let resendTimer = null;
+let resendCooldown = 0;
+
+function resendCode() {
+    // Check if cooldown is active
+    if (resendCooldown > 0) {
         return;
     }
     
-    if (!isValidEmail(email)) {
-        showError('resetEmailError', 'Please enter a valid email address');
-        return;
-    }
-    
-    resetEmail = email;
-    
-    // Show loading state
-    const sendButton = document.querySelector('#resetStep1 .auth-btn');
-    const originalText = sendButton.textContent;
-    sendButton.disabled = true;
-    sendButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending Code...';
-    
-    // Make API call to backend
-    fetch('http://localhost:3000/api/auth/forgot-password', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ email })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Update email display in step 2
-            const emailDisplay = document.getElementById('emailDisplay');
-            if (emailDisplay) {
-                emailDisplay.textContent = email;
+    // Use the AuthSystem instance to resend the verification code
+    if (window.authSystem && window.authSystem.resetEmail) {
+        const fakeEvent = {
+            preventDefault: () => {},
+            target: {
+                resetEmail: { value: window.authSystem.resetEmail }
             }
-            
-            hideError('resetEmailError');
-            nextResetStep();
-        } else {
-            showError('resetEmailError', data.message || 'Failed to send verification code');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showError('resetEmailError', 'Network error. Please try again.');
-    })
-    .finally(() => {
-        sendButton.disabled = false;
-        sendButton.textContent = originalText;
-    });
+        };
+        window.authSystem.handleForgotPassword(fakeEvent);
+        
+        // Start the cooldown timer
+        startResendCooldown();
+    } else {
+        console.error('Cannot resend code: AuthSystem not initialized or email not set');
+    }
 }
 
-function verifyCode() {
-    const codeInput = document.getElementById('verificationCode');
-    const code = codeInput.value.trim();
+function startResendCooldown() {
+    resendCooldown = 60; // 60 seconds cooldown
+    const resendLink = document.querySelector('a[onclick="resendCode()"]');
     
-    if (!code) {
-        showError('codeError', 'Please enter the verification code');
-        return;
-    }
-    
-    if (code.length !== 6) {
-        showError('codeError', 'Verification code must be 6 digits');
-        return;
-    }
-    
-    // Show loading state
-    const verifyButton = document.querySelector('#resetStep2 .auth-btn');
-    const originalText = verifyButton.textContent;
-    verifyButton.disabled = true;
-    verifyButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
-    
-    // Simulate API call
-    setTimeout(() => {
-        // For demo purposes, accept any 6-digit code
-        if (/^\d{6}$/.test(code)) {
-            hideError('codeError');
-            nextResetStep();
-        } else {
-            showError('codeError', 'Invalid verification code');
-        }
+    if (resendLink) {
+        // Disable the link
+        resendLink.style.pointerEvents = 'none';
+        resendLink.style.opacity = '0.5';
         
-        verifyButton.disabled = false;
-        verifyButton.textContent = originalText;
-    }, 1500);
+        // Update the text with countdown
+        const originalText = 'Resend code';
+        
+        resendTimer = setInterval(() => {
+            resendLink.textContent = `Resend code (${resendCooldown}s)`;
+            resendCooldown--;
+            
+            if (resendCooldown < 0) {
+                // Re-enable the link
+                clearInterval(resendTimer);
+                resendLink.textContent = originalText;
+                resendLink.style.pointerEvents = 'auto';
+                resendLink.style.opacity = '1';
+                resendCooldown = 0;
+            }
+        }, 1000);
+    }
 }
+
+function clearResendTimer() {
+    if (resendTimer) {
+        clearInterval(resendTimer);
+        resendTimer = null;
+    }
+    resendCooldown = 0;
+    
+    // Reset the resend link to its original state
+    const resendLink = document.querySelector('a[onclick="resendCode()"]');
+    if (resendLink) {
+        resendLink.textContent = 'Resend code';
+        resendLink.style.pointerEvents = 'auto';
+        resendLink.style.opacity = '1';
+    }
+}
+
+// Removed duplicate verifyCode function - using AuthSystem.handleVerification instead
 
 function validatePassword(password) {
     const requirements = {
@@ -1203,44 +1215,10 @@ function validatePassword(password) {
     return Object.values(requirements).every(req => req);
 }
 
-function resetPassword() {
-    const newPasswordInput = document.getElementById('newPassword');
-    const confirmPasswordInput = document.getElementById('confirmPassword');
-    const newPassword = newPasswordInput.value;
-    const confirmPassword = confirmPasswordInput.value;
-    
-    if (!newPassword) {
-        showError('passwordError', 'Please enter a new password');
-        return;
-    }
-    
-    if (!validatePassword(newPassword)) {
-        showError('passwordError', 'Password does not meet requirements');
-        return;
-    }
-    
-    if (newPassword !== confirmPassword) {
-        showError('passwordError', 'Passwords do not match');
-        return;
-    }
-    
-    // Show loading state
-    const resetButton = document.querySelector('#resetStep3 .auth-btn');
-    const originalText = resetButton.textContent;
-    resetButton.disabled = true;
-    resetButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Resetting Password...';
-    
-    // Simulate API call
-    setTimeout(() => {
-        hideError('passwordError');
-        nextResetStep(); // Go to success step
-        
-        resetButton.disabled = false;
-        resetButton.textContent = originalText;
-    }, 2000);
-}
+// Removed duplicate resetPassword function - using AuthSystem.handleResetPassword instead
 
 function backToSignIn() {
+    clearResendTimer();
     showSignIn();
 }
 

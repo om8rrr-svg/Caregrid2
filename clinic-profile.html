@@ -339,25 +339,50 @@
         let currentClinic = null;
         
         // Load clinic data from URL parameters
-        function initializeClinicProfile() {
+        async function initializeClinicProfile() {
             const urlParams = new URLSearchParams(window.location.search);
             const clinicId = urlParams.get('id');
             
-            if (clinicId && window.clinicsData) {
-                const clinic = window.clinicsData.find(c => c.id == clinicId);
-                if (clinic) {
-                    currentClinic = clinic;
-                    loadClinicData(clinic);
-                } else {
-                    console.log('Clinic not found for ID:', clinicId);
+            if (clinicId) {
+                try {
+                    // Try to get clinic from API first
+                    const response = await window.apiService.getClinicById(clinicId);
+                    const clinic = response.data || response;
+                    
+                    if (clinic) {
+                        currentClinic = clinic;
+                        loadClinicData(clinic);
+                    } else {
+                        console.log('Clinic not found for ID:', clinicId);
+                        showErrorMessage('Clinic not found');
+                    }
+                } catch (error) {
+                    console.error('Failed to load clinic data from API:', error);
+                    
+                    // Fallback to local data if available
+                    if (window.clinicsData) {
+                        const clinic = window.clinicsData.find(c => c.id == clinicId);
+                        if (clinic) {
+                            currentClinic = clinic;
+                            loadClinicData(clinic);
+                        } else {
+                            console.log('Clinic not found in local data for ID:', clinicId);
+                            showErrorMessage('Clinic not found');
+                        }
+                    } else {
+                        console.error('No clinic data available');
+                        showErrorMessage('Unable to load clinic information');
+                    }
                 }
             } else {
-                console.log('Missing clinicId or clinicsData:', { clinicId, hasData: !!window.clinicsData });
-                // Retry after a short delay if clinicsData isn't loaded yet
-                if (clinicId && !window.clinicsData) {
-                    setTimeout(initializeClinicProfile, 100);
-                }
+                console.log('Missing clinicId parameter');
+                showErrorMessage('No clinic specified');
             }
+        }
+        
+        function showErrorMessage(message) {
+            document.getElementById('clinicName').textContent = message;
+            document.getElementById('clinicDescription').textContent = 'Please check the URL and try again.';
         }
         
         document.addEventListener('DOMContentLoaded', initializeClinicProfile);

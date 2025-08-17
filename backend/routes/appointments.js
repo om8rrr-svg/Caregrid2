@@ -160,7 +160,7 @@ router.post('/', optionalAuth, bookingValidation, asyncHandler(async (req, res) 
   successResponse(res, {
     appointment: {
       id: appointment.id,
-      reference: appointment.reference,
+      reference: appointment.reference_number,
       clinicId: appointment.clinic_id,
       clinicName: clinic.name,
       appointmentDate: appointment.appointment_date,

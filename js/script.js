@@ -1940,6 +1940,66 @@ let clinicsData = [
             "General Dentistry",
             "Cosmetic Dentistry"
         ]
+    },
+    {
+        "id": 520,
+        "name": "Vision Express Manchester",
+        "type": "Optician",
+        "location": "Manchester",
+        "address": "Market Street, Manchester M1 1WA",
+        "rating": 4.6,
+        "reviews": 189,
+        "image": "images/clinic1.svg",
+        "premium": true,
+        "phone": "0161 834 9876",
+        "website": "https://visionexpress.com",
+        "description": "Vision Express Manchester is a leading optician providing comprehensive eye care services in the heart of Manchester. Our qualified optometrists offer thorough eye examinations, contact lens fittings, and a wide selection of designer frames to suit every style and budget.",
+        "services": [
+            "Eye Examinations",
+            "Contact Lens Fitting",
+            "Designer Frames",
+            "Prescription Glasses"
+        ]
+    },
+    {
+        "id": 521,
+        "name": "Specsavers Liverpool",
+        "type": "Optician",
+        "location": "Liverpool",
+        "address": "Church Street, Liverpool L1 3AY",
+        "rating": 4.4,
+        "reviews": 267,
+        "image": "images/clinic2.svg",
+        "premium": false,
+        "phone": "0151 709 5432",
+        "website": "https://specsavers.co.uk",
+        "description": "Specsavers Liverpool offers affordable eye care with professional optometry services. Our experienced team provides comprehensive eye tests, hearing tests, and a vast range of glasses and contact lenses at competitive prices.",
+        "services": [
+            "Eye Tests",
+            "Hearing Tests",
+            "Glasses",
+            "Contact Lenses"
+        ]
+    },
+    {
+        "id": 522,
+        "name": "Optical Express London",
+        "type": "Private Optician",
+        "location": "London",
+        "address": "Oxford Street, London W1C 1JN",
+        "rating": 4.7,
+        "reviews": 324,
+        "image": "images/clinic3.svg",
+        "premium": true,
+        "phone": "020 7629 8765",
+        "website": "https://opticalexpress.co.uk",
+        "description": "Optical Express London is a premium eye care clinic specializing in laser eye surgery, advanced eye treatments, and luxury eyewear. Our state-of-the-art facility offers the latest technology in vision correction and comprehensive eye health assessments.",
+        "services": [
+            "Laser Eye Surgery",
+            "Advanced Eye Treatments",
+            "Luxury Eyewear",
+            "Vision Correction"
+        ]
     }
 ];
 
@@ -2004,27 +2064,59 @@ async function initializeApp() {
     await loadClinicsFromAPI();
     
     setupEventListeners();
+    
+    // Handle URL parameters for category filtering
+    handleURLParameters();
+    
     filteredClinics = [...clinicsData];
-    renderClinics();
+    applyFilters();
     await updateLocationCounts();
+}
+
+// Function to handle URL parameters
+function handleURLParameters() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const category = urlParams.get('category');
+    
+    if (category) {
+        // Map URL parameter values to filter values
+        const categoryMap = {
+            'gp': 'Private GP',
+            'dentist': 'Private Dentist', 
+            'physiotherapy': 'Private Physiotherapy',
+            'aesthetics': 'Private Aesthetics',
+            'pharmacy': 'Pharmacy'
+        };
+        
+        const filterValue = categoryMap[category.toLowerCase()];
+        if (filterValue) {
+            currentFilters.category = filterValue;
+            
+            // Update the category dropdown to reflect the selection
+            const categoryFilter = document.getElementById('categoryFilter');
+            if (categoryFilter) {
+                categoryFilter.value = filterValue;
+            }
+        }
+    }
 }
 
 // Load clinics from API
 async function loadClinicsFromAPI() {
     try {
-        // console.log('Attempting to connect to API at:', apiService.baseURL);
+        console.log('Attempting to connect to API at:', apiService.baseURL);
         // Request all clinics with a high limit to get the full dataset
-        // const response = await apiService.getClinics({ limit: 200 });
-        // console.log('API response:', response);
+        const response = await apiService.getClinics({ limit: 200 });
+        console.log('API response:', response);
         
         // Handle different response formats
-        // const clinics = response.data || response;
-        // if (clinics && clinics.length > 0) {
-        //     clinicsData = clinics;
-        //     console.log('✅ Loaded', clinics.length, 'clinics from API');
-        // } else {
-        //     console.warn('API returned empty data, using fallback');
-        // }
+        const clinics = response.data || response;
+        if (clinics && clinics.length > 0) {
+            clinicsData = clinics;
+            console.log('✅ Loaded', clinics.length, 'clinics from API');
+        } else {
+            console.warn('API returned empty data, using fallback');
+        }
     } catch (error) {
         console.warn('❌ Failed to load clinics from API, using fallback data:', error.message);
         // Keep the existing sample data as fallback
@@ -2039,6 +2131,7 @@ function setupEventListeners() {
     if (hamburger && navMenu) {
         hamburger.addEventListener('click', () => {
             navMenu.classList.toggle('active');
+            hamburger.classList.toggle('active');
         });
     }
     
@@ -2102,6 +2195,7 @@ function parseNaturalLanguageQuery(query) {
     // If query is empty, reset filters
     if (!query || query.trim() === '') {
         resetFilters();
+        applyFilters(); // Re-render clinics to remove highlighting
         return;
     }
     
@@ -2314,12 +2408,12 @@ function applyFilters() {
     const categoryFilter = document.getElementById('categoryFilter');
     const locationFilter = document.getElementById('locationFilter');
     
-    // Only update from dropdowns if they exist and weren't set by natural language parsing
-    if (categoryFilter && !currentFilters.category) {
+    // Always update from dropdowns if they exist (allows manual filter changes to override search)
+    if (categoryFilter) {
         currentFilters.category = categoryFilter.value;
     }
     
-    if (locationFilter && !currentFilters.location) {
+    if (locationFilter) {
         currentFilters.location = locationFilter.value;
     }
     
@@ -2331,7 +2425,7 @@ function applyFilters() {
                 'gp': ['GP', 'Private GP'],
                 'dentist': ['Dentist', 'Private Dentist'], 
                 'physio': ['Physio', 'Private Physiotherapy'],
-                'aesthetic': ['Aesthetic'],
+                'optician': ['Optician', 'Private Optician'],
                 'pharmacy': ['Pharmacy']
             };
             const allowedTypes = categoryMap[currentFilters.category] || [];
@@ -2404,11 +2498,33 @@ function applyFilters() {
         return matchesCategory && matchesLocation && matchesSearch && matchesPremium;
     });
     
-    // Apply sorting if specified
+    // Apply sorting - default to premium first, then rating, then name
     if (currentFilters.sortBy === 'rating') {
         filteredClinics.sort((a, b) => (b.rating || 0) - (a.rating || 0));
     } else if (currentFilters.sortBy === 'reviews') {
         filteredClinics.sort((a, b) => (b.reviews || 0) - (a.reviews || 0));
+    } else {
+        // Default sorting: premium first, then by rating, then by name
+        filteredClinics.sort((a, b) => {
+            // First sort by premium status (premium clinics first)
+            const aPremium = a.premium || a.is_premium || false;
+            const bPremium = b.premium || b.is_premium || false;
+            if (aPremium !== bPremium) {
+                return bPremium - aPremium; // true (1) comes before false (0)
+            }
+            
+            // Then sort by rating (higher first)
+            const aRating = a.rating || 0;
+            const bRating = b.rating || 0;
+            if (aRating !== bRating) {
+                return bRating - aRating;
+            }
+            
+            // Finally sort by name (alphabetical)
+            const aName = (a.name || '').toLowerCase();
+            const bName = (b.name || '').toLowerCase();
+            return aName.localeCompare(bName);
+        });
     }
     
     currentPage = 1;
@@ -2489,7 +2605,7 @@ function createClinicCard(clinic) {
     card.addEventListener('click', function(e) {
         // Don't navigate if clicking on action buttons
         if (!e.target.closest('.clinic-actions')) {
-            window.location.href = `clinic-profile.html?id=${clinic.id}`;
+            window.location.href = `clinic-profile.html?id=${clinic.frontendId || clinic.id}`;
         }
     });
     
@@ -2574,7 +2690,9 @@ function getTypeIcon(type) {
         'physio': 'fas fa-dumbbell',
         'Physio': 'fas fa-dumbbell',
         'Private Physiotherapy': 'fas fa-dumbbell',
-        'aesthetic': 'fas fa-spa'
+        'optician': 'fas fa-eye',
+        'Optician': 'fas fa-eye',
+        'Private Optician': 'fas fa-eye'
     };
     return iconMap[type] || 'fas fa-hospital';
 }

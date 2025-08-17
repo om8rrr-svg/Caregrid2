@@ -111,7 +111,7 @@ router.get('/', optionalAuth, asyncHandler(async (req, res) => {
       `SELECT 
         c.id, c.name, c.type, c.description, c.address, c.city, c.postcode,
         c.phone, c.email, c.website, c.rating, c.review_count, c.is_premium,
-        c.logo_url, c.created_at, c.updated_at
+        c.logo_url, c.created_at, c.updated_at, c.frontend_id
        FROM clinics c
        ${whereClause}
        ORDER BY c.is_premium DESC, c.rating DESC, c.name ASC
@@ -127,6 +127,7 @@ router.get('/', optionalAuth, asyncHandler(async (req, res) => {
     
     let clinics = result.rows.map(clinic => ({
       id: clinic.id,
+      frontendId: clinic.frontend_id,
       name: clinic.name,
       type: clinic.type,
       description: clinic.description,
@@ -193,19 +194,24 @@ router.get('/', optionalAuth, asyncHandler(async (req, res) => {
 }));
 
 // @route   GET /api/clinics/:id
-// @desc    Get clinic by ID
+// @desc    Get clinic by ID (supports both UUID and frontend_id)
 // @access  Public
 router.get('/:id', optionalAuth, asyncHandler(async (req, res) => {
   const { id } = req.params;
+  
+  // Check if ID is a number (frontend_id) or UUID (database id)
+  const isNumericId = /^\d+$/.test(id);
+  const whereClause = isNumericId ? 'c.frontend_id = $1' : 'c.id = $1';
+  const queryParam = isNumericId ? parseInt(id, 10) : id;
   
   const result = await query(
     `SELECT 
       c.id, c.name, c.type, c.description, c.address, c.city, c.postcode,
       c.phone, c.email, c.website, c.rating, c.review_count, c.is_premium,
-      c.logo_url, c.created_at, c.updated_at
+      c.logo_url, c.created_at, c.updated_at, c.frontend_id
      FROM clinics c
-     WHERE c.id = $1`,
-    [id]
+     WHERE ${whereClause}`,
+    [queryParam]
   );
   
   if (result.rows.length === 0) {
@@ -226,6 +232,7 @@ router.get('/:id', optionalAuth, asyncHandler(async (req, res) => {
   
   successResponse(res, {
     id: clinic.id,
+    frontendId: clinic.frontend_id,
     name: clinic.name,
     type: clinic.type,
     description: clinic.description,

@@ -108,12 +108,12 @@ class Dashboard {
                 }
             } else {
                 // Redirect to login if not authenticated
-                // window.location.href = 'auth.html';
+                window.location.href = 'auth.html';
                 return;
             }
         } catch (error) {
             console.error('Authentication check failed:', error);
-            // window.location.href = 'auth.html';
+            window.location.href = 'auth.html';
         }
     }
     
@@ -145,6 +145,10 @@ class Dashboard {
 
     isTestUser() {
         return this.currentUser && this.currentUser.email === 'test@example.com';
+    }
+    
+    isDemoUser() {
+        return this.currentUser && (this.currentUser.id === 'demo' || this.currentUser.email === 'demo@caregrid.com' || this.currentUser.id === 'fallback' || this.currentUser.id === 'google_demo_user' || this.currentUser.email === 'demo.user@gmail.com');
     }
     
     updateWelcomeMessage() {
@@ -451,9 +455,9 @@ class Dashboard {
     
     loadDashboardData() {
         console.log('DEBUG loadDashboardData: Starting...');
-        // Use appointments loaded from API or fallback to sample data
+        // Use appointments loaded from API or fallback to sample data for test users only
         if (!this.appointments || this.appointments.length === 0) {
-            this.appointments = this.sampleAppointments;
+            this.appointments = this.isTestUser() ? this.sampleAppointments : [];
         }
         console.log('DEBUG loadDashboardData: Loaded appointments:', this.appointments.length);
         
@@ -537,7 +541,7 @@ class Dashboard {
         
         // Ensure appointments is initialized
         if (!this.appointments || !Array.isArray(this.appointments)) {
-            this.appointments = this.sampleAppointments || [];
+            this.appointments = this.isTestUser() ? (this.sampleAppointments || []) : [];
         }
         
         console.log('DEBUG loadAppointmentsPreview: Total appointments:', this.appointments.length);
@@ -581,7 +585,7 @@ class Dashboard {
         
         // Ensure appointments is initialized
         if (!this.appointments || !Array.isArray(this.appointments)) {
-            this.appointments = this.sampleAppointments || [];
+            this.appointments = this.isTestUser() ? (this.sampleAppointments || []) : [];
         }
         
         let appointments = this.appointments;

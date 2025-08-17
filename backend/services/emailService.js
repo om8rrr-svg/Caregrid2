@@ -7,20 +7,13 @@ class EmailService {
   }
 
   initializeTransporter() {
-    // For development, use Ethereal Email (fake SMTP service)
-    // In production, replace with your actual email service (Gmail, SendGrid, etc.)
-    if (process.env.NODE_ENV === 'production') {
-      // Production email configuration
-      console.log('📧 Initializing Gmail transporter for production...');
+    // Use Gmail if EMAIL_USER is configured, otherwise use Ethereal Email for testing
+    if (process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
+      // Gmail email configuration
+      console.log('📧 Initializing Gmail transporter...');
       console.log('📧 Email service:', process.env.EMAIL_SERVICE);
       console.log('📧 Email user:', process.env.EMAIL_USER);
       console.log('📧 Email from:', process.env.EMAIL_FROM);
-      
-      if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
-        console.error('❌ Missing EMAIL_USER or EMAIL_PASSWORD environment variables');
-        console.error('   Please check your .env file configuration');
-        console.error('   See EMAIL_SETUP.md for configuration instructions');
-      }
       
       this.transporter = nodemailer.createTransport({
         service: process.env.EMAIL_SERVICE || 'gmail',

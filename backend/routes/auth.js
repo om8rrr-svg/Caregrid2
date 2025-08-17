@@ -5,6 +5,7 @@ const { v4: uuidv4 } = require('uuid');
 const { query, transaction } = require('../config/database');
 const { generateToken, generateRefreshToken, verifyToken, authenticateToken } = require('../middleware/auth');
 const { AppError, asyncHandler, successResponse } = require('../middleware/errorHandler');
+const emailService = require('../services/emailService');
 
 const router = express.Router();
 
@@ -85,6 +86,15 @@ router.post('/register', registerValidation, asyncHandler(async (req, res) => {
   // Generate tokens
   const token = generateToken({ userId: user.id, email: user.email });
   const refreshToken = generateRefreshToken({ userId: user.id });
+
+  // Send welcome email
+  try {
+    await emailService.sendWelcomeEmail(user.email, user.first_name);
+    console.log('✅ Welcome email sent to:', user.email);
+  } catch (emailError) {
+    console.error('❌ Failed to send welcome email:', emailError.message);
+    // Don't fail registration if email fails
+  }
 
   // Return user data (without password)
   successResponse(res, {
