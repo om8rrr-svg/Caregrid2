@@ -108,7 +108,7 @@ class AdminDashboard {
         document.documentElement.setAttribute('data-theme', this.theme);
         const themeIcon = document.querySelector('#themeToggle');
         if (themeIcon) {
-            themeIcon.innerHTML = this.theme === 'light' ? '🌙' : '☀️';
+            themeIcon.innerHTML = this.theme === 'light' ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
         }
     }
 
@@ -1196,8 +1196,8 @@ class AdminDashboard {
                         <p class="staff-role">${member.role}</p>
                         <p class="staff-specialties">${member.specialties}</p>
                         <div class="staff-contact">
-                            <span>📧 ${member.email}</span>
-                            <span>📞 ${member.phone}</span>
+                            <span><i class="fas fa-envelope"></i> ${member.email}</span>
+                            <span><i class="fas fa-phone"></i> ${member.phone}</span>
                         </div>
                     </div>
                     <div class="staff-actions">
