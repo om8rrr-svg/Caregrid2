@@ -434,6 +434,12 @@
         function logout() {
             localStorage.removeItem('careGridCurrentUser');
             sessionStorage.removeItem('careGridCurrentUser');
+            localStorage.removeItem('careGridToken');
+            sessionStorage.removeItem('careGridToken');
+            
+            // Dispatch auth state change event to update navigation
+            window.dispatchEvent(new CustomEvent('authStateChanged'));
+            
             window.location.href = 'index.html';
         }
         

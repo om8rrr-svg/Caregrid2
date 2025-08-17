@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CareGrid Dashboard - Fresh Load</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <script>
+        // Force reload of all cached resources
+        const timestamp = Date.now();
+        document.addEventListener('DOMContentLoaded', function() {
+            // Redirect to dashboard with cache-busting parameters
+            window.location.href = `dashboard.html?v=${timestamp}&nocache=true`;
+        });
+    </script>
+</head>
+<body>
+    <p>Loading fresh dashboard...</p>
+</body>
+</html>

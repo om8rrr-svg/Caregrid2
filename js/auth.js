@@ -82,7 +82,12 @@ class AuthSystem {
             try {
                 const userData = await this.apiService.getCurrentUser();
                 this.currentUser = userData.user || userData.data?.user || userData;
-                this.redirectToDashboard();
+                
+                // Only redirect to dashboard if we're currently on the auth page
+                // This prevents redirect loops when dashboard.html includes auth.js
+                if (window.location.pathname.includes('auth.html') || window.location.pathname === '/' || window.location.pathname.endsWith('/')) {
+                    this.redirectToDashboard();
+                }
             } catch (error) {
                 console.log('Invalid token, removing:', error);
                 this.apiService.clearAuthData();
@@ -148,7 +153,16 @@ class AuthSystem {
             
         } catch (error) {
             console.log('Sign-in failed:', error.message);
-            this.showError('passwordError', error.message);
+            
+            // Show specific error messages in appropriate fields
+            if (error.message.includes('No account found') || error.message.includes('email address')) {
+                this.showError('emailError', error.message);
+            } else if (error.message.includes('Incorrect password')) {
+                this.showError('passwordError', error.message);
+            } else {
+                // For generic errors, show in password field as fallback
+                this.showError('passwordError', error.message);
+            }
         } finally {
             this.hideLoading('signInForm');
         }
@@ -1087,7 +1101,7 @@ function sendVerificationCode() {
     sendButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending Code...';
     
     // Make API call to backend
-    fetch('http://localhost:3001/api/auth/forgot-password', {
+    fetch('http://localhost:3000/api/auth/forgot-password', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -1451,6 +1465,12 @@ function toggleUserMenu() {
 function logout() {
     localStorage.removeItem('careGridCurrentUser');
     sessionStorage.removeItem('careGridCurrentUser');
+    localStorage.removeItem('careGridToken');
+    sessionStorage.removeItem('careGridToken');
+    
+    // Dispatch auth state change event to update navigation
+    window.dispatchEvent(new CustomEvent('authStateChanged'));
+    
     window.location.href = 'index.html';
 }
 

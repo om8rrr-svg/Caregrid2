@@ -154,7 +154,7 @@ router.post('/login', loginValidation, asyncHandler(async (req, res) => {
     );
 
     if (result.rows.length === 0) {
-      throw new AppError('Invalid credentials', 401, 'INVALID_CREDENTIALS');
+      throw new AppError('No account found with this email address. Please check your email or sign up for a new account.', 401, 'USER_NOT_FOUND');
     }
 
     const user = result.rows[0];
@@ -162,7 +162,7 @@ router.post('/login', loginValidation, asyncHandler(async (req, res) => {
     // Check password
     const isPasswordValid = await bcrypt.compare(password, user.password_hash);
     if (!isPasswordValid) {
-      throw new AppError('Invalid credentials', 401, 'INVALID_CREDENTIALS');
+      throw new AppError('Incorrect password. Please check your password and try again.', 401, 'INVALID_PASSWORD');
     }
 
     // Generate tokens

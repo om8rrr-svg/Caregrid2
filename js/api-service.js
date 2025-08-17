@@ -71,7 +71,30 @@ class APIService {
                 throw new Error('Authentication failed');
             }
             
-            const data = await response.json();
+            // Handle rate limiting (429) with plain text response
+            if (response.status === 429) {
+                const errorText = await response.text();
+                throw new Error('Too many requests. Please wait a moment and try again.');
+            }
+            
+            // Check if response is JSON before parsing
+            const contentType = response.headers.get('content-type');
+            let data;
+            
+            if (contentType && contentType.includes('application/json')) {
+                data = await response.json();
+            } else {
+                // Handle non-JSON responses (like rate limiting)
+                const textResponse = await response.text();
+                if (!response.ok) {
+                    // Provide user-friendly error message for rate limiting
+                    if (response.status === 429) {
+                        throw new Error('Too many requests. Please wait a moment and try again.');
+                    }
+                    throw new Error(`Server error: ${textResponse || response.statusText}`);
+                }
+                return { message: textResponse };
+            }
 
             if (!response.ok) {
                 throw new Error(data.error || data.message || `HTTP error! status: ${response.status}`);
@@ -91,6 +114,14 @@ class APIService {
             if (error.message.includes('Authentication failed') || error.message.includes('401')) {
                 // Don't re-throw here to avoid cascading errors
                 throw new Error('Authentication failed');
+            }
+            
+            // Pass through specific authentication error messages from backend
+            if (error.message.includes('No account found') || 
+                error.message.includes('Incorrect password') ||
+                error.message.includes('email address') ||
+                error.message.includes('sign up')) {
+                throw error; // Pass the specific error message through
             }
             
             throw error;

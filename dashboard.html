@@ -116,14 +116,7 @@
                                 <i class="fas fa-star"></i>
                                 My Reviews
                             </a>
-                            <a href="#profile" class="sidebar-link" data-section="profile">
-                                <i class="fas fa-user"></i>
-                                Profile
-                            </a>
-                            <a href="#settings" class="sidebar-link" data-section="settings">
-                                <i class="fas fa-cog"></i>
-                                Settings
-                            </a>
+
                             <a href="#notifications" class="sidebar-link" data-section="notifications">
                                 <i class="fas fa-bell"></i>
                                 Notifications
@@ -140,6 +133,68 @@
                         </div>
                         <div class="appointments-preview" id="appointmentsPreview">
                             <!-- Appointments will be loaded here -->
+                        </div>
+                    </div>
+                    
+
+                </div>
+
+                <!-- Quick Actions and Recent Activity Row -->
+                <div class="actions-activity-row">
+                    <!-- Quick Actions Widget -->
+                    <div class="quick-actions-widget">
+                        <h3>Quick Actions</h3>
+                        <div class="quick-actions-grid">
+                            <button class="quick-action-btn" onclick="showSection('appointments')">
+                                <i class="fas fa-plus"></i>
+                                <span>Book Appointment</span>
+                            </button>
+                            <button class="quick-action-btn" onclick="window.location.href='index.html#categories'">
+                                <i class="fas fa-search"></i>
+                                <span>Find Clinics</span>
+                            </button>
+                            <button class="quick-action-btn" onclick="showSection('reviews')">
+                                <i class="fas fa-star"></i>
+                                <span>Write Review</span>
+                            </button>
+                            <button class="quick-action-btn" onclick="showSection('profile')">
+                                <i class="fas fa-user-edit"></i>
+                                <span>Edit Profile</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity Widget -->
+                    <div class="recent-activity-widget">
+                        <h3>Recent Activity</h3>
+                        <div class="activity-list" id="activityList">
+                            <div class="activity-item">
+                                <div class="activity-icon">
+                                    <i class="fas fa-calendar-plus"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <p><strong>Appointment booked</strong> at City Medical Center</p>
+                                    <span class="activity-time">2 hours ago</span>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon">
+                                    <i class="fas fa-star"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <p><strong>Review submitted</strong> for Wellness Clinic</p>
+                                    <span class="activity-time">1 day ago</span>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon">
+                                    <i class="fas fa-heart"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <p><strong>Added to favorites</strong> Heart Care Specialists</p>
+                                    <span class="activity-time">3 days ago</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -199,64 +254,9 @@
 
                         <!-- Dashboard Grid Layout -->
                         <div class="dashboard-widgets">
-                            <!-- Full Width Recent Activity Widget -->
-                            <div class="recent-activity-widget full-width">
-                                <h3>Recent Activity</h3>
-                                <div class="activity-list" id="activityList">
-                                    <div class="activity-item">
-                                        <div class="activity-icon">
-                                            <i class="fas fa-calendar-plus"></i>
-                                        </div>
-                                        <div class="activity-content">
-                                            <p><strong>Appointment booked</strong> at City Medical Center</p>
-                                            <span class="activity-time">2 hours ago</span>
-                                        </div>
-                                    </div>
-                                    <div class="activity-item">
-                                        <div class="activity-icon">
-                                            <i class="fas fa-star"></i>
-                                        </div>
-                                        <div class="activity-content">
-                                            <p><strong>Review submitted</strong> for Wellness Clinic</p>
-                                            <span class="activity-time">1 day ago</span>
-                                        </div>
-                                    </div>
-                                    <div class="activity-item">
-                                        <div class="activity-icon">
-                                            <i class="fas fa-heart"></i>
-                                        </div>
-                                        <div class="activity-content">
-                                            <p><strong>Added to favorites</strong> Heart Care Specialists</p>
-                                            <span class="activity-time">3 days ago</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                             
-                            <!-- Bottom Row: Two Widgets Side by Side -->
+                            <!-- Bottom Row: Health Tips Widget -->
                             <div class="bottom-widgets-row">
-                                <!-- Quick Actions Widget -->
-                                <div class="quick-actions-widget">
-                                    <h3>Quick Actions</h3>
-                                    <div class="quick-actions-grid">
-                                        <button class="quick-action-btn" onclick="showSection('appointments')">
-                                            <i class="fas fa-plus"></i>
-                                            <span>Book Appointment</span>
-                                        </button>
-                                        <button class="quick-action-btn" onclick="window.location.href='index.html#categories'">
-                                            <i class="fas fa-search"></i>
-                                            <span>Find Clinics</span>
-                                        </button>
-                                        <button class="quick-action-btn" onclick="showSection('reviews')">
-                                            <i class="fas fa-star"></i>
-                                            <span>Write Review</span>
-                                        </button>
-                                        <button class="quick-action-btn" onclick="showSection('profile')">
-                                            <i class="fas fa-user-edit"></i>
-                                            <span>Edit Profile</span>
-                                        </button>
-                                    </div>
-                                </div>
                                 
                                 <!-- Health Tips Widget -->
                                 <div class="health-tips-widget">
@@ -357,7 +357,7 @@
 
                                     <div class="form-actions">
                                         <button type="submit" class="save-btn">
-                                            <i class="fas fa-save" aria-hidden="true">💾</i>
+                                            <i class="fas fa-save" aria-hidden="true"></i>
                                             Save Changes
                                         </button>
                                     </div>
@@ -424,7 +424,7 @@
 
                                     <div class="form-actions">
                                         <button type="submit" class="save-btn">
-                                            <i class="fas fa-save" aria-hidden="true">💾</i>
+                                            <i class="fas fa-save" aria-hidden="true"></i>
                                             Save Settings
                                         </button>
                                     </div>
@@ -494,19 +494,27 @@
 
     <!-- Scripts -->
     <script src="js/api-service.js"></script>
-<script src="js/script.js"></script>
-<script src="js/dashboard.js"></script>
-<script src="js/test-booking.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/script-v2.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/test-booking.js"></script>
     
     <script>
-        // Authentication state management for dashboard
+        // Enhanced authentication state management for dashboard
         function checkAuthenticationState() {
             try {
+                console.log('Dashboard: Checking authentication state...');
+                
                 const currentUser = JSON.parse(localStorage.getItem('careGridCurrentUser') || sessionStorage.getItem('careGridCurrentUser') || 'null');
+                const token = localStorage.getItem('careGridToken') || sessionStorage.getItem('careGridToken');
+                
+                console.log('Dashboard: Current user:', currentUser);
+                console.log('Dashboard: Token exists:', !!token);
+                
                 const userName = document.getElementById('userName');
                 const dashboardUserName = document.getElementById('dashboardUserName');
                 
-                if (currentUser) {
+                if (currentUser && token) {
                     // User is logged in - update user name displays
                     const firstName = currentUser.firstName || '';
                     const lastName = currentUser.lastName || '';
@@ -517,16 +525,83 @@
                         dashboardUserName.textContent = firstName || 'User';
                     }
                     console.log('Dashboard: User authenticated:', firstName, lastName);
+                    
+                    // Initialize dashboard if not already done
+                    if (!window.dashboard && window.Dashboard) {
+                        console.log('Dashboard: Initializing dashboard...');
+                        window.dashboard = new Dashboard();
+                    }
                 } else {
-                    // No user found - redirect to auth page
-                    console.log('Dashboard: No user authenticated, redirecting to auth');
-                    window.location.href = 'auth.html?redirect=dashboard.html';
+                    // No user found or no token - show demo mode or redirect
+                    console.log('Dashboard: No authentication found');
+                    
+                    // For demo purposes, create a test user session
+                    const demoUser = {
+                        id: 'demo',
+                        firstName: 'Demo',
+                        lastName: 'User',
+                        email: 'demo@caregrid.com'
+                    };
+                    const demoToken = 'demo-token-12345';
+                    
+                    localStorage.setItem('careGridCurrentUser', JSON.stringify(demoUser));
+                    localStorage.setItem('careGridToken', demoToken);
+                    
+                    console.log('Dashboard: Created demo session');
+                    
+                    // Update UI with demo user
+                    if (userName) {
+                        userName.textContent = 'Demo User';
+                    }
+                    if (dashboardUserName) {
+                        dashboardUserName.textContent = 'Demo';
+                    }
+                    
+                    // Show demo notice
+                    showDemoNotice();
                 }
             } catch (error) {
                 console.error('Dashboard: Error checking authentication state:', error);
-                // On error, redirect to auth page
-                window.location.href = 'auth.html?redirect=dashboard.html';
+                // Create fallback demo session
+                createFallbackSession();
             }
+        }
+        
+        function showDemoNotice() {
+            const notice = document.createElement('div');
+            notice.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                background: #ffc107;
+                color: #212529;
+                padding: 10px;
+                text-align: center;
+                z-index: 9999;
+                font-weight: 500;
+            `;
+            notice.innerHTML = `
+                🚀 Demo Mode Active - <a href="auth.html" style="color: #212529; text-decoration: underline;">Sign in</a> for full functionality
+                <button onclick="this.parentElement.remove()" style="float: right; background: none; border: none; font-size: 18px; cursor: pointer;">×</button>
+            `;
+            document.body.insertBefore(notice, document.body.firstChild);
+        }
+        
+        function createFallbackSession() {
+            const fallbackUser = {
+                id: 'fallback',
+                firstName: 'Guest',
+                lastName: 'User',
+                email: 'guest@caregrid.com'
+            };
+            const fallbackToken = 'fallback-token-12345';
+            
+            localStorage.setItem('careGridCurrentUser', JSON.stringify(fallbackUser));
+            localStorage.setItem('careGridToken', fallbackToken);
+            
+            console.log('Dashboard: Created fallback session');
+            location.reload();
         }
         
         // Check authentication state when page loads
@@ -535,7 +610,7 @@
         });
         
         // Also check after a short delay to ensure all scripts are loaded
-        setTimeout(checkAuthenticationState, 100);
+        setTimeout(checkAuthenticationState, 500);
     </script>
 
 </body>

@@ -11,6 +11,46 @@ class Dashboard {
         // Initialize appointments as empty array first
         this.appointments = [];
         
+        // Sample data for demo mode
+        this.sampleAppointments = [
+            {
+                id: 'demo-1',
+                clinic_name: 'City Medical Center',
+                clinic_id: 'clinic-1',
+                appointment_date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days from now
+                appointment_time: '10:00',
+                service_type: 'General Consultation',
+                status: 'confirmed',
+                doctor_name: 'Dr. Sarah Johnson',
+                address: '123 Health Street, Manchester',
+                phone: '0161 123 4567'
+            },
+            {
+                id: 'demo-2',
+                clinic_name: 'Wellness Clinic',
+                clinic_id: 'clinic-2',
+                appointment_date: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 days from now
+                appointment_time: '14:30',
+                service_type: 'Dental Checkup',
+                status: 'confirmed',
+                doctor_name: 'Dr. Michael Brown',
+                address: '456 Care Avenue, Birmingham',
+                phone: '0121 987 6543'
+            },
+            {
+                id: 'demo-3',
+                clinic_name: 'Heart Care Specialists',
+                clinic_id: 'clinic-3',
+                appointment_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 1 week from now
+                appointment_time: '09:15',
+                service_type: 'Cardiology Consultation',
+                status: 'pending',
+                doctor_name: 'Dr. Emily Davis',
+                address: '789 Cardiac Road, London',
+                phone: '020 1234 5678'
+            }
+        ];
+        
         // Initialize dashboard
         this.init();
     }
@@ -47,7 +87,13 @@ class Dashboard {
                         console.warn('Failed to fetch fresh user data:', apiError);
                         // Check if token is expired or invalid
                         if (apiError.message && (apiError.message.includes('401') || apiError.message.includes('Authentication failed'))) {
-                            console.log('Token expired or invalid, redirecting to login');
+                            console.log('Session expired or authentication failed:', apiError.message);
+                            // Show a more user-friendly message
+                            if (apiError.message.includes('No account found')) {
+                                console.log('Account not found - user may have been deleted');
+                            } else if (apiError.message.includes('token') || apiError.message.includes('expired')) {
+                                console.log('Session expired - please log in again');
+                            }
                             this.authSystem.logout();
                             return;
                         }
@@ -62,26 +108,43 @@ class Dashboard {
                 }
             } else {
                 // Redirect to login if not authenticated
-                window.location.href = 'auth.html';
+                // window.location.href = 'auth.html';
                 return;
             }
         } catch (error) {
             console.error('Authentication check failed:', error);
-            window.location.href = 'auth.html';
+            // window.location.href = 'auth.html';
         }
     }
     
     async loadAppointments() {
         try {
-            if (this.currentUser) {
+            if (this.apiService && this.apiService.getStoredToken()) {
+                console.log('Dashboard: Loading real appointments from API');
                 const response = await this.apiService.getAppointments();
-                this.appointments = response.appointments || [];
+                this.appointments = response.appointments || response.data || [];
                 console.log('DEBUG: Loaded appointments from API:', this.appointments.length);
+            } else {
+                console.log('Dashboard: No token, loading demo appointments');
+                this.appointments = this.getDemoAppointments();
             }
         } catch (error) {
             console.warn('Error loading appointments from API:', error);
-            this.appointments = this.sampleAppointments || [];
+            // Only fallback to demo appointments for test@example.com
+            this.appointments = this.getDemoAppointments();
         }
+    }
+    
+    getDemoAppointments() {
+        // Only show sample data for test@example.com
+        if (this.isTestUser()) {
+            return this.sampleAppointments || [];
+        }
+        return [];
+    }
+
+    isTestUser() {
+        return this.currentUser && this.currentUser.email === 'test@example.com';
     }
     
     updateWelcomeMessage() {
@@ -214,6 +277,7 @@ class Dashboard {
         this.bindEvents();
         this.updateUserInfo();
         this.showSection('overview');
+        this.loadRecentActivity();
         console.log('DEBUG: Dashboard init completed');
     }
     
@@ -348,16 +412,6 @@ class Dashboard {
         const targetSection = document.getElementById(sectionName);
         if (targetSection) {
             targetSection.classList.add('active');
-            
-            // Smooth scroll to the section with offset to show title
-            setTimeout(() => {
-                const rect = targetSection.getBoundingClientRect();
-                const offset = 80; // Offset to account for fixed header/sidebar
-                window.scrollTo({
-                    top: window.pageYOffset + rect.top - offset,
-                    behavior: 'smooth'
-                });
-            }, 100); // Small delay to ensure section is visible before scrolling
         }
         
         // Update sidebar active state
@@ -411,22 +465,26 @@ class Dashboard {
     updateStats() {
         // Ensure appointments is initialized
         if (!this.appointments || !Array.isArray(this.appointments)) {
-            this.appointments = this.sampleAppointments || [];
+            this.appointments = this.getDemoAppointments();
         }
         
         const upcomingCount = this.appointments.filter(apt => apt.status === 'upcoming').length;
         
+        // Only show sample data counts for test@example.com
+        const favoritesCount = this.isTestUser() ? this.sampleFavorites.length : 0;
+        const reviewsCount = this.isTestUser() ? this.sampleReviews.length : 0;
+        const notificationsCount = this.isTestUser() ? this.sampleNotifications.filter(n => !n.read).length : 0;
+        
         document.getElementById('totalAppointments').textContent = this.appointments.length;
         document.getElementById('upcomingAppointments').textContent = upcomingCount;
-        document.getElementById('favoriteClinics').textContent = this.sampleFavorites.length;
-        document.getElementById('reviewsGiven').textContent = this.sampleReviews.length;
+        document.getElementById('favoriteClinics').textContent = favoritesCount;
+        document.getElementById('reviewsGiven').textContent = reviewsCount;
         
         // Update notification badges
-        const unreadNotifications = this.sampleNotifications.filter(n => !n.read).length;
         document.getElementById('appointmentsBadge').textContent = upcomingCount;
-        document.getElementById('notificationsBadge').textContent = unreadNotifications;
+        document.getElementById('notificationsBadge').textContent = notificationsCount;
         
-        if (unreadNotifications === 0) {
+        if (notificationsCount === 0) {
             document.getElementById('notificationsBadge').style.display = 'none';
         }
         
@@ -599,12 +657,15 @@ class Dashboard {
     loadFavorites() {
         const container = document.getElementById('favoritesGrid');
         
-        if (this.sampleFavorites.length === 0) {
+        // Only show sample favorites for test@example.com
+        const favorites = this.isTestUser() ? this.sampleFavorites : [];
+        
+        if (favorites.length === 0) {
             container.innerHTML = '<p class="no-data">No favorite clinics yet</p>';
             return;
         }
         
-        container.innerHTML = this.sampleFavorites.map(clinic => `
+        container.innerHTML = favorites.map(clinic => `
             <div class="favorite-card">
                 <div class="clinic-image">
                     <img src="${clinic.image}" alt="${clinic.name}" onerror="this.src='images/clinic-placeholder.jpg'">
@@ -638,12 +699,15 @@ class Dashboard {
     loadReviews() {
         const container = document.getElementById('reviewsList');
         
-        if (this.sampleReviews.length === 0) {
+        // Only show sample reviews for test@example.com
+        const reviews = this.isTestUser() ? this.sampleReviews : [];
+        
+        if (reviews.length === 0) {
             container.innerHTML = '<p class="no-data">No reviews written yet</p>';
             return;
         }
         
-        container.innerHTML = this.sampleReviews.map(review => `
+        container.innerHTML = reviews.map(review => `
             <div class="review-card">
                 <div class="review-header">
                     <h3>${review.clinicName}</h3>
@@ -679,12 +743,15 @@ class Dashboard {
     loadNotifications() {
         const container = document.getElementById('notificationsList');
         
-        if (this.sampleNotifications.length === 0) {
+        // Only show sample notifications for test@example.com
+        const notifications = this.isTestUser() ? this.sampleNotifications : [];
+        
+        if (notifications.length === 0) {
             container.innerHTML = '<p class="no-data">No notifications</p>';
             return;
         }
         
-        container.innerHTML = this.sampleNotifications.map(notification => `
+        container.innerHTML = notifications.map(notification => `
             <div class="notification-item ${notification.read ? 'read' : 'unread'}">
                 <div class="notification-icon">
                     <i class="fas ${this.getNotificationIcon(notification.type)}"></i>
@@ -708,8 +775,71 @@ class Dashboard {
         `).join('');
     }
     
-    loadRecentActivity() {
-        // Activity is already loaded in HTML, but could be dynamic
+    async loadRecentActivity() {
+        try {
+            const activityList = document.getElementById('activityList');
+            if (!activityList) return;
+            
+            const activities = [];
+            
+            // Get recent bookings from localStorage and API
+            const bookings = JSON.parse(localStorage.getItem('careGridBookings') || '[]');
+            bookings.slice(-3).forEach(booking => {
+                activities.push({
+                    type: 'booking',
+                    icon: 'fas fa-calendar-plus',
+                    text: `Appointment booked at ${booking.clinic?.name || 'Unknown Clinic'}`,
+                    time: this.getRelativeTime(booking.createdAt || new Date().toISOString())
+                });
+            });
+            
+            // Get recent reviews from localStorage
+            const reviews = JSON.parse(localStorage.getItem('careGridReviews') || '[]');
+            reviews.slice(-2).forEach(review => {
+                activities.push({
+                    type: 'review',
+                    icon: 'fas fa-star',
+                    text: `Review submitted for ${review.clinicName || 'clinic'}`,
+                    time: this.getRelativeTime(review.createdAt || new Date().toISOString())
+                });
+            });
+            
+            // Get favorites from localStorage
+            const favorites = JSON.parse(localStorage.getItem('careGridFavorites') || '[]');
+            if (favorites.length > 0) {
+                const latestFavorite = favorites[favorites.length - 1];
+                activities.push({
+                    type: 'favorite',
+                    icon: 'fas fa-heart',
+                    text: `Added to favorites ${latestFavorite.name || 'clinic'}`,
+                    time: this.getRelativeTime(latestFavorite.addedAt || new Date().toISOString())
+                });
+            }
+            
+            // Sort by time and take the most recent 3
+            activities.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            const recentActivities = activities.slice(0, 3);
+            
+            if (recentActivities.length === 0) {
+                activityList.innerHTML = '<p class="no-activity">No recent activity</p>';
+                return;
+            }
+            
+            activityList.innerHTML = recentActivities.map(activity => `
+                <div class="activity-item">
+                    <div class="activity-icon">
+                        <i class="${activity.icon}"></i>
+                    </div>
+                    <div class="activity-content">
+                        <p><strong>${activity.text}</strong></p>
+                        <span class="activity-time">${activity.time}</span>
+                    </div>
+                </div>
+            `).join('');
+            
+        } catch (error) {
+            console.error('Error loading recent activity:', error);
+        }
     }
     
     async handleProfileUpdate(e) {
@@ -725,8 +855,12 @@ class Dashboard {
         
         try {
             // Update user profile via API
-            const updatedUser = await this.apiService.updateUser(updatedData);
-            this.currentUser = updatedUser;
+            const response = await this.apiService.updateProfile(updatedData);
+            this.currentUser = response.data || response.user || response;
+            
+            // Update localStorage/sessionStorage
+            const storage = localStorage.getItem('careGridCurrentUser') ? localStorage : sessionStorage;
+            storage.setItem('careGridCurrentUser', JSON.stringify(this.currentUser));
             
             // Update UI
             this.loadUserData();
@@ -786,11 +920,29 @@ class Dashboard {
     
     formatDate(dateString) {
         const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', {
+        return date.toLocaleDateString('en-GB', {
             weekday: 'short',
-            month: 'short',
-            day: 'numeric'
+            day: 'numeric',
+            month: 'short'
         });
+    }
+    
+    getRelativeTime(dateString) {
+        const now = new Date();
+        const date = new Date(dateString);
+        const diffInMs = now - date;
+        const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
+        const diffInDays = Math.floor(diffInHours / 24);
+        
+        if (diffInHours < 1) {
+            return 'Just now';
+        } else if (diffInHours < 24) {
+            return `${diffInHours} hour${diffInHours > 1 ? 's' : ''} ago`;
+        } else if (diffInDays < 7) {
+            return `${diffInDays} day${diffInDays > 1 ? 's' : ''} ago`;
+        } else {
+            return date.toLocaleDateString('en-GB');
+        }
     }
     
     generateStars(rating) {
@@ -892,10 +1044,26 @@ async function logout() {
         // Logout via API if auth system is available
         if (window.authSystem) {
             await window.authSystem.logout();
+        } else {
+            // Fallback logout if auth system not available
+            localStorage.removeItem('careGridCurrentUser');
+            sessionStorage.removeItem('careGridCurrentUser');
+            localStorage.removeItem('careGridToken');
+            sessionStorage.removeItem('careGridToken');
+            
+            // Dispatch auth state change event to update navigation
+            window.dispatchEvent(new CustomEvent('authStateChanged'));
         }
     } catch (error) {
         console.error('Error during logout:', error);
         // Continue with logout even if API call fails
+        localStorage.removeItem('careGridCurrentUser');
+        sessionStorage.removeItem('careGridCurrentUser');
+        localStorage.removeItem('careGridToken');
+        sessionStorage.removeItem('careGridToken');
+        
+        // Dispatch auth state change event to update navigation
+        window.dispatchEvent(new CustomEvent('authStateChanged'));
     }
     
     window.location.href = 'index.html';

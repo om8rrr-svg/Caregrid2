@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Test | CareGrid</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .test-container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Dashboard Authentication Test</h1>
+        
+        <div class="test-section">
+            <h3>1. Check Authentication State</h3>
+            <button onclick="checkAuth()">Check Authentication</button>
+            <div id="authResult" class="test-result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>2. Test API Service</h3>
+            <button onclick="testAPIService()">Test API Service</button>
+            <div id="apiResult" class="test-result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>3. Test User Data Retrieval</h3>
+            <button onclick="testUserData()">Get Current User</button>
+            <div id="userResult" class="test-result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>4. Test Appointments Loading</h3>
+            <button onclick="testAppointments()">Load Appointments</button>
+            <div id="appointmentsResult" class="test-result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>5. Create Test User Session</h3>
+            <button onclick="createTestSession()">Create Test Session</button>
+            <div id="sessionResult" class="test-result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>6. Go to Dashboard</h3>
+            <button onclick="goToDashboard()">Open Dashboard</button>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="js/api-service.js"></script>
+    <script src="js/auth.js"></script>
+    
+    <script>
+        function showResult(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.innerHTML = message;
+            element.className = `test-result ${type}`;
+        }
+        
+        function checkAuth() {
+            try {
+                const currentUser = JSON.parse(localStorage.getItem('careGridCurrentUser') || sessionStorage.getItem('careGridCurrentUser') || 'null');
+                const token = localStorage.getItem('careGridToken') || sessionStorage.getItem('careGridToken');
+                
+                if (currentUser && token) {
+                    showResult('authResult', `✅ User authenticated: ${currentUser.firstName} ${currentUser.lastName}<br>Token: ${token.substring(0, 20)}...`, 'success');
+                } else if (currentUser) {
+                    showResult('authResult', `⚠️ User data found but no token<br>User: ${JSON.stringify(currentUser)}`, 'error');
+                } else if (token) {
+                    showResult('authResult', `⚠️ Token found but no user data<br>Token: ${token.substring(0, 20)}...`, 'error');
+                } else {
+                    showResult('authResult', '❌ No authentication data found', 'error');
+                }
+            } catch (error) {
+                showResult('authResult', `❌ Error checking auth: ${error.message}`, 'error');
+            }
+        }
+        
+        function testAPIService() {
+            try {
+                if (window.apiService) {
+                    const token = window.apiService.getStoredToken();
+                    showResult('apiResult', `✅ API Service loaded<br>Token: ${token ? token.substring(0, 20) + '...' : 'None'}`, 'success');
+                } else {
+                    showResult('apiResult', '❌ API Service not loaded', 'error');
+                }
+            } catch (error) {
+                showResult('apiResult', `❌ Error testing API: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testUserData() {
+            try {
+                if (!window.apiService) {
+                    showResult('userResult', '❌ API Service not available', 'error');
+                    return;
+                }
+                
+                const token = window.apiService.getStoredToken();
+                if (!token) {
+                    showResult('userResult', '❌ No token available', 'error');
+                    return;
+                }
+                
+                showResult('userResult', '🔄 Loading user data...', 'info');
+                
+                const response = await window.apiService.getCurrentUser();
+                showResult('userResult', `✅ User data loaded:<br>${JSON.stringify(response, null, 2)}`, 'success');
+            } catch (error) {
+                showResult('userResult', `❌ Error loading user: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testAppointments() {
+            try {
+                if (!window.apiService) {
+                    showResult('appointmentsResult', '❌ API Service not available', 'error');
+                    return;
+                }
+                
+                const token = window.apiService.getStoredToken();
+                if (!token) {
+                    showResult('appointmentsResult', '❌ No token available', 'error');
+                    return;
+                }
+                
+                showResult('appointmentsResult', '🔄 Loading appointments...', 'info');
+                
+                const response = await window.apiService.getAppointments();
+                showResult('appointmentsResult', `✅ Appointments loaded:<br>${JSON.stringify(response, null, 2)}`, 'success');
+            } catch (error) {
+                showResult('appointmentsResult', `❌ Error loading appointments: ${error.message}`, 'error');
+            }
+        }
+        
+        function createTestSession() {
+            try {
+                const testUser = {
+                    id: 1,
+                    firstName: 'John',
+                    lastName: 'Doe',
+                    email: 'john.doe@example.com'
+                };
+                const testToken = 'test-token-12345';
+                
+                localStorage.setItem('careGridCurrentUser', JSON.stringify(testUser));
+                localStorage.setItem('careGridToken', testToken);
+                
+                showResult('sessionResult', '✅ Test session created successfully', 'success');
+            } catch (error) {
+                showResult('sessionResult', `❌ Error creating session: ${error.message}`, 'error');
+            }
+        }
+        
+        function goToDashboard() {
+            window.location.href = 'dashboard.html';
+        }
+        
+        // Auto-run initial checks
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+            testAPIService();
+        });
+    </script>
+</body>
+</html>
