@@ -99,7 +99,7 @@
                     <div class="stats-grid">
                         <div class="stat-card">
                             <div class="stat-header">
-                                <div class="stat-icon primary">📅</div>
+                                <div class="stat-icon primary"><i class="fas fa-calendar-alt"></i></div>
                                 <div class="stat-change positive">+12%</div>
                             </div>
                             <div class="stat-value" id="totalBookings">156</div>
@@ -108,7 +108,7 @@
                         
                         <div class="stat-card">
                             <div class="stat-header">
-                                <div class="stat-icon warning">⏳</div>
+                                <div class="stat-icon warning"><i class="fas fa-clock"></i></div>
                                 <div class="stat-change positive">+5</div>
                             </div>
                             <div class="stat-value" id="pendingBookings">23</div>
@@ -117,7 +117,7 @@
                         
                         <div class="stat-card">
                             <div class="stat-header">
-                                <div class="stat-icon success">👥</div>
+                                <div class="stat-icon success"><i class="fas fa-users"></i></div>
                                 <div class="stat-change positive">+8%</div>
                             </div>
                             <div class="stat-value" id="totalPatients">89</div>
@@ -126,10 +126,10 @@
                         
                         <div class="stat-card">
                             <div class="stat-header">
-                                <div class="stat-icon info">💰</div>
+                                <div class="stat-icon info"><i class="fas fa-pound-sign"></i></div>
                                 <div class="stat-change positive">+15%</div>
                             </div>
-                            <div class="stat-value" id="revenue">$12,450</div>
+                            <div class="stat-value" id="revenue">£12,450</div>
                             <div class="stat-label">Monthly Revenue</div>
                         </div>
                     </div>
@@ -151,10 +151,10 @@
                             <h3 class="card-title">Quick Actions</h3>
                         </div>
                         <div class="flex gap-4">
-                            <button class="btn btn-primary" onclick="adminDashboard.showSection('bookings')">📅 Manage Bookings</button>
-                            <button class="btn btn-success" onclick="adminDashboard.showSection('patients')">👥 View Patients</button>
-                            <button class="btn btn-info" onclick="adminDashboard.showSection('analytics')">📊 View Analytics</button>
-                            <button class="btn btn-warning" onclick="adminDashboard.showSection('profile')">⚙️ Clinic Settings</button>
+                            <button class="btn btn-primary" onclick="adminDashboard.showSection('bookings')"><i class="fas fa-calendar-alt"></i> Manage Bookings</button>
+                            <button class="btn btn-success" onclick="adminDashboard.showSection('patients')"><i class="fas fa-users"></i> View Patients</button>
+                            <button class="btn btn-info" onclick="adminDashboard.showSection('analytics')"><i class="fas fa-chart-bar"></i> View Analytics</button>
+                            <button class="btn btn-warning" onclick="adminDashboard.showSection('profile')"><i class="fas fa-cog"></i> Clinic Settings</button>
                         </div>
                     </div>
                 </div>
@@ -165,8 +165,8 @@
                         <div class="card-header">
                             <h3 class="card-title">All Bookings</h3>
                             <div class="flex gap-2">
-                                <button class="btn btn-primary btn-sm">📅 New Booking</button>
-                                <button class="btn btn-outline btn-sm">📊 Export</button>
+                                <button class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> New Booking</button>
+                                <button class="btn btn-outline btn-sm"><i class="fas fa-download"></i> Export</button>
                             </div>
                         </div>
                         <div id="bookingsTable">
@@ -180,7 +180,7 @@
                     <div class="stats-grid">
                         <div class="stat-card">
                             <div class="stat-header">
-                                <div class="stat-icon primary">📈</div>
+                                <div class="stat-icon primary"><i class="fas fa-chart-line"></i></div>
                             </div>
                             <div class="stat-value">85%</div>
                             <div class="stat-label">Booking Rate</div>
@@ -188,7 +188,7 @@
                         
                         <div class="stat-card">
                             <div class="stat-header">
-                                <div class="stat-icon success">⭐</div>
+                                <div class="stat-icon success"><i class="fas fa-star"></i></div>
                             </div>
                             <div class="stat-value">4.8</div>
                             <div class="stat-label">Average Rating</div>
@@ -196,7 +196,7 @@
                         
                         <div class="stat-card">
                             <div class="stat-header">
-                                <div class="stat-icon warning">🕒</div>
+                                <div class="stat-icon warning"><i class="fas fa-clock"></i></div>
                             </div>
                             <div class="stat-value">15min</div>
                             <div class="stat-label">Avg Wait Time</div>
@@ -204,7 +204,7 @@
                         
                         <div class="stat-card">
                             <div class="stat-header">
-                                <div class="stat-icon info">🔄</div>
+                                <div class="stat-icon info"><i class="fas fa-sync-alt"></i></div>
                             </div>
                             <div class="stat-value">92%</div>
                             <div class="stat-label">Return Rate</div>
@@ -232,8 +232,8 @@
                         <div class="card-header">
                             <h3 class="card-title">Patient Records</h3>
                             <div class="flex gap-2">
-                                <button class="btn btn-primary btn-sm">👤 Add Patient</button>
-                                <button class="btn btn-outline btn-sm">📊 Export</button>
+                                <button class="btn btn-primary btn-sm"><i class="fas fa-user-plus"></i> Add Patient</button>
+                                <button class="btn btn-outline btn-sm"><i class="fas fa-download"></i> Export</button>
                             </div>
                         </div>
                         <div id="patientsTable">
@@ -247,19 +247,19 @@
                     <div class="card">
                         <div class="card-header">
                             <h3 class="card-title">Clinic Information</h3>
-                            <button class="btn btn-primary btn-sm">✏️ Edit Profile</button>
+                            <button class="btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit Profile</button>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Clinic Name</label>
-                            <input type="text" class="form-input" value="CareGrid Medical Center" readonly>
+                            <input type="text" class="form-input" value="CareGrid Medical Centre" readonly>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Address</label>
-                            <input type="text" class="form-input" value="123 Healthcare Ave, Medical District" readonly>
+                            <input type="text" class="form-input" value="123 Harley Street, London W1G 6AX" readonly>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Phone</label>
-                            <input type="text" class="form-input" value="+1 (555) 123-4567" readonly>
+                            <input type="text" class="form-input" value="+44 20 7946 0958" readonly>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Email</label>

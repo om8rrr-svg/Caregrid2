@@ -604,11 +604,11 @@ class AdminDashboard {
 
         setTimeout(() => {
             const patients = [
-                { id: 1, name: 'John Doe', email: 'john@email.com', phone: '+1234567890', lastVisit: '2024-01-10', totalVisits: 5 },
-                { id: 2, name: 'Jane Smith', email: 'jane@email.com', phone: '+1234567891', lastVisit: '2024-01-12', totalVisits: 3 },
-                { id: 3, name: 'Mike Johnson', email: 'mike@email.com', phone: '+1234567892', lastVisit: '2024-01-08', totalVisits: 7 },
-                { id: 4, name: 'Sarah Wilson', email: 'sarah@email.com', phone: '+1234567893', lastVisit: '2024-01-14', totalVisits: 2 }
-            ];
+            { id: 1, name: 'John Smith', email: 'john@email.com', phone: '+44 20 7946 0958', lastVisit: '2024-01-10', totalVisits: 5 },
+            { id: 2, name: 'Jane Williams', email: 'jane@email.com', phone: '+44 161 496 0123', lastVisit: '2024-01-12', totalVisits: 3 },
+            { id: 3, name: 'Michael Brown', email: 'mike@email.com', phone: '+44 121 496 0456', lastVisit: '2024-01-08', totalVisits: 7 },
+            { id: 4, name: 'Sarah Jones', email: 'sarah@email.com', phone: '+44 113 496 0789', lastVisit: '2024-01-14', totalVisits: 2 }
+        ];
 
             let tableHTML = `
                 <table class="table">
@@ -657,7 +657,7 @@ class AdminDashboard {
                             <button class="avatar-upload-btn" onclick="adminDashboard.uploadLogo()">📷</button>
                         </div>
                         <div class="profile-info">
-                            <h2>Downtown Medical Center</h2>
+                            <h2>Harley Street Medical Centre</h2>
                             <p class="profile-subtitle">Comprehensive Healthcare Services</p>
                             <div class="profile-stats">
                                 <div class="stat-item">
@@ -691,11 +691,11 @@ class AdminDashboard {
                                     <div class="form-row">
                                         <div class="form-group">
                                             <label class="form-label">Clinic Name *</label>
-                                            <input type="text" class="form-input" name="clinicName" value="Downtown Medical Center" required>
+                                            <input type="text" class="form-input" name="clinicName" value="Harley Street Medical Centre" required>
                                         </div>
                                         <div class="form-group">
                                             <label class="form-label">Phone Number *</label>
-                                            <input type="tel" class="form-input" name="phone" value="+1 (555) 123-4567" required>
+                                            <input type="tel" class="form-input" name="phone" value="+44 20 7946 0958" required>
                                         </div>
                                     </div>
                                     <div class="form-row">
@@ -977,9 +977,9 @@ class AdminDashboard {
 
     // Utility methods
     formatCurrency(amount) {
-        return new Intl.NumberFormat('en-US', {
+        return new Intl.NumberFormat('en-GB', {
             style: 'currency',
-            currency: 'USD'
+            currency: 'GBP'
         }).format(amount);
     }
 
@@ -994,14 +994,14 @@ class AdminDashboard {
     getBookingsData() {
         // Simulate booking data - in real app this would come from API
         return [
-            { id: 1, patient: 'John Doe', email: 'john@email.com', phone: '+1 (555) 123-4567', service: 'General Checkup', date: '2024-01-15', time: '10:00 AM', status: 'confirmed', amount: 150 },
-            { id: 2, patient: 'Jane Smith', email: 'jane@email.com', phone: '+1 (555) 234-5678', service: 'Dental Cleaning', date: '2024-01-15', time: '2:30 PM', status: 'pending', amount: 120 },
-            { id: 3, patient: 'Mike Johnson', email: 'mike@email.com', phone: '+1 (555) 345-6789', service: 'Eye Exam', date: '2024-01-16', time: '4:00 PM', status: 'confirmed', amount: 200 },
-            { id: 4, patient: 'Sarah Wilson', email: 'sarah@email.com', phone: '+1 (555) 456-7890', service: 'Consultation', date: '2024-01-16', time: '11:30 AM', status: 'pending', amount: 100 },
-            { id: 5, patient: 'Tom Brown', email: 'tom@email.com', phone: '+1 (555) 567-8901', service: 'Physical Therapy', date: '2024-01-17', time: '9:00 AM', status: 'cancelled', amount: 180 },
-            { id: 6, patient: 'Emily Davis', email: 'emily@email.com', phone: '+1 (555) 678-9012', service: 'Cardiology', date: '2024-01-18', time: '1:00 PM', status: 'pending', amount: 300 },
-            { id: 7, patient: 'David Lee', email: 'david@email.com', phone: '+1 (555) 789-0123', service: 'Dermatology', date: '2024-01-19', time: '3:30 PM', status: 'confirmed', amount: 250 },
-            { id: 8, patient: 'Lisa Chen', email: 'lisa@email.com', phone: '+1 (555) 890-1234', service: 'Optician', date: '2024-01-20', time: '10:30 AM', status: 'pending', amount: 175 }
+            { id: 1, patient: 'John Smith', email: 'john@email.com', phone: '+44 20 7946 0958', service: 'General Checkup', date: '2024-01-15', time: '10:00', status: 'confirmed', amount: 150 },
+            { id: 2, patient: 'Jane Williams', email: 'jane@email.com', phone: '+44 161 496 0123', service: 'Dental Cleaning', date: '2024-01-15', time: '14:30', status: 'pending', amount: 120 },
+            { id: 3, patient: 'Michael Brown', email: 'mike@email.com', phone: '+44 121 496 0456', service: 'Eye Exam', date: '2024-01-16', time: '16:00', status: 'confirmed', amount: 200 },
+            { id: 4, patient: 'Sarah Jones', email: 'sarah@email.com', phone: '+44 113 496 0789', service: 'Consultation', date: '2024-01-16', time: '11:30', status: 'pending', amount: 100 },
+            { id: 5, patient: 'Thomas Davies', email: 'tom@email.com', phone: '+44 151 496 0321', service: 'Physiotherapy', date: '2024-01-17', time: '09:00', status: 'cancelled', amount: 180 },
+            { id: 6, patient: 'Emily Taylor', email: 'emily@email.com', phone: '+44 114 496 0654', service: 'Cardiology', date: '2024-01-18', time: '13:00', status: 'pending', amount: 300 },
+            { id: 7, patient: 'David Wilson', email: 'david@email.com', phone: '+44 117 496 0987', service: 'Dermatology', date: '2024-01-19', time: '15:30', status: 'confirmed', amount: 250 },
+            { id: 8, patient: 'Lisa Evans', email: 'lisa@email.com', phone: '+44 118 496 0147', service: 'Optometry', date: '2024-01-20', time: '10:30', status: 'pending', amount: 175 }
         ];
     }
 
@@ -1128,8 +1128,8 @@ class AdminDashboard {
                         <h4>${service.name}</h4>
                         <p>${service.description}</p>
                         <div class="service-details">
-                            <span class="service-duration">⏱️ ${service.duration} min</span>
-                            <span class="service-price">💰 $${service.price}</span>
+                            <span class="service-duration"><i class="fas fa-clock"></i> ${service.duration} min</span>
+                            <span class="service-price"><i class="fas fa-pound-sign"></i> £${service.price}</span>
                         </div>
                     </div>
                     <div class="service-actions">
@@ -1180,10 +1180,10 @@ class AdminDashboard {
         const staffList = document.getElementById('staffList');
         if (staffList) {
             const staff = [
-                { id: 1, name: 'Dr. Sarah Johnson', role: 'General Practitioner', email: 'sarah.johnson@clinic.com', phone: '+1 (555) 123-4567', specialties: 'Family Medicine, Preventive Care' },
-                { id: 2, name: 'Dr. Michael Chen', role: 'Cardiologist', email: 'michael.chen@clinic.com', phone: '+1 (555) 234-5678', specialties: 'Cardiology, Internal Medicine' },
-                { id: 3, name: 'Dr. Emily Rodriguez', role: 'Dermatologist', email: 'emily.rodriguez@clinic.com', phone: '+1 (555) 345-6789', specialties: 'Dermatology, Cosmetic Procedures' },
-                { id: 4, name: 'Dr. James Wilson', role: 'Pediatrician', email: 'james.wilson@clinic.com', phone: '+1 (555) 456-7890', specialties: 'Pediatrics, Child Development' }
+                { id: 1, name: 'Dr. Sarah Thompson', role: 'General Practitioner', email: 'sarah.thompson@clinic.com', phone: '+44 20 7946 0958', specialties: 'Family Medicine, Preventive Care' },
+                { id: 2, name: 'Dr. Michael Davies', role: 'Cardiologist', email: 'michael.davies@clinic.com', phone: '+44 161 496 0123', specialties: 'Cardiology, Internal Medicine' },
+                { id: 3, name: 'Dr. Emily Clarke', role: 'Dermatologist', email: 'emily.clarke@clinic.com', phone: '+44 121 496 0456', specialties: 'Dermatology, Cosmetic Procedures' },
+                { id: 4, name: 'Dr. James Roberts', role: 'Paediatrician', email: 'james.roberts@clinic.com', phone: '+44 113 496 0789', specialties: 'Paediatrics, Child Development' }
             ];
             
             staffList.innerHTML = staff.map(member => `
