@@ -107,10 +107,17 @@ class AuthSystem {
                     this.redirectToDashboard();
                 }
             } catch (error) {
-                console.log('Invalid token, removing:', error);
-                this.apiService.clearAuthData();
-                // Clear any corrupted auth state
-                this.currentUser = null;
+                console.log('Error validating token:', error);
+                
+                // Only clear auth data for actual authentication errors (401), not network errors
+                if (error.message.includes('401') || error.message.includes('Authentication failed')) {
+                    console.log('Invalid token, removing:', error);
+                    this.apiService.clearAuthData();
+                    this.currentUser = null;
+                } else {
+                    // For network errors, keep the user logged in
+                    console.log('Network error checking token, keeping user logged in');
+                }
             }
         }
     }
@@ -163,11 +170,11 @@ class AuthSystem {
             // Store user data in localStorage/sessionStorage to match dashboard expectations
             if (user) {
                 if (rememberMe) {
-                    localStorage.setItem('careGridUser', JSON.stringify(user));
-                    sessionStorage.removeItem('careGridUser');
+                    localStorage.setItem('careGridCurrentUser', JSON.stringify(user));
+                    sessionStorage.removeItem('careGridCurrentUser');
                 } else {
-                    sessionStorage.setItem('careGridUser', JSON.stringify(user));
-                    localStorage.removeItem('careGridUser');
+                    sessionStorage.setItem('careGridCurrentUser', JSON.stringify(user));
+                    localStorage.removeItem('careGridCurrentUser');
                 }
             }
 
@@ -1308,7 +1315,8 @@ function signInWithGoogle() {
         };
         
         // Store user data in localStorage
-        localStorage.setItem('currentUser', JSON.stringify(userData));
+        localStorage.setItem('careGridCurrentUser', JSON.stringify(userData));
+        localStorage.setItem('careGridToken', 'google_oauth_token_' + Date.now());
         localStorage.setItem('isLoggedIn', 'true');
         
         // Redirect to dashboard
@@ -1367,7 +1375,8 @@ function signUpWithGoogle() {
         };
         
         // Store user data in localStorage
-        localStorage.setItem('currentUser', JSON.stringify(userData));
+        localStorage.setItem('careGridCurrentUser', JSON.stringify(userData));
+        localStorage.setItem('careGridToken', 'google_signup_token_' + Date.now());
         localStorage.setItem('isLoggedIn', 'true');
         
         // Redirect to dashboard
@@ -1418,7 +1427,8 @@ function signInWithFacebook() {
                 };
                 
                 // Store user data in localStorage
-                localStorage.setItem('currentUser', JSON.stringify(userData));
+                localStorage.setItem('careGridCurrentUser', JSON.stringify(userData));
+                localStorage.setItem('careGridToken', 'facebook_token_' + Date.now());
                 localStorage.setItem('isLoggedIn', 'true');
                 
                 // Redirect to dashboard
@@ -1445,7 +1455,8 @@ function signUpWithFacebook() {
                 };
                 
                 // Store user data in localStorage
-                localStorage.setItem('currentUser', JSON.stringify(userData));
+                localStorage.setItem('careGridCurrentUser', JSON.stringify(userData));
+                localStorage.setItem('careGridToken', 'facebook_signup_token_' + Date.now());
                 localStorage.setItem('isLoggedIn', 'true');
                 
                 // Redirect to dashboard

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Fix Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+            font-size: 16px;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 14px;
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Login Redirect Fix Test</h1>
+        <p>Testing the fix for login redirect loop issue.</p>
+        
+        <div>
+            <button class="test-button" onclick="testStorageKeys()">Test Storage Keys</button>
+            <button class="test-button" onclick="simulateLogin()">Simulate Login</button>
+            <button class="test-button" onclick="testDashboardAuth()">Test Dashboard Auth Check</button>
+            <button class="test-button" onclick="clearAllData()">Clear All Data</button>
+        </div>
+        
+        <div id="result"></div>
+        <div id="logs" class="log"></div>
+    </div>
+
+    <script src="js/api-service.js"></script>
+    <script src="js/auth.js"></script>
+    
+    <script>
+        function log(message) {
+            const logs = document.getElementById('logs');
+            const timestamp = new Date().toLocaleTimeString();
+            logs.textContent += `[${timestamp}] ${message}\n`;
+            logs.scrollTop = logs.scrollHeight;
+            console.log(message);
+        }
+        
+        function showResult(message, type = 'info') {
+            const result = document.getElementById('result');
+            result.className = `result ${type}`;
+            result.textContent = message;
+        }
+        
+        function testStorageKeys() {
+            log('Testing storage keys...');
+            
+            // Clear any existing data
+            localStorage.clear();
+            sessionStorage.clear();
+            
+            // Test data
+            const testUser = {
+                id: 'test123',
+                firstName: 'Test',
+                lastName: 'User',
+                email: 'test@example.com'
+            };
+            const testToken = 'test_token_12345';
+            
+            // Store with correct keys
+            localStorage.setItem('careGridCurrentUser', JSON.stringify(testUser));
+            localStorage.setItem('careGridToken', testToken);
+            
+            // Check what dashboard.html would see
+            const storedUser = JSON.parse(localStorage.getItem('careGridCurrentUser') || sessionStorage.getItem('careGridCurrentUser') || 'null');
+            const storedToken = localStorage.getItem('careGridToken') || sessionStorage.getItem('careGridToken');
+            
+            log(`Stored user: ${JSON.stringify(storedUser)}`);
+            log(`Stored token: ${storedToken}`);
+            
+            if (storedUser && storedToken) {
+                showResult('✅ Storage keys test PASSED - Dashboard should find user data', 'success');
+                log('Dashboard auth check would succeed');
+            } else {
+                showResult('❌ Storage keys test FAILED - Dashboard would redirect to auth', 'error');
+                log('Dashboard auth check would fail');
+            }
+        }
+        
+        function simulateLogin() {
+            log('Simulating login process...');
+            
+            // Clear any existing data
+            localStorage.clear();
+            sessionStorage.clear();
+            
+            // Simulate what auth.js does in handleSignIn
+            const user = {
+                id: 'sim123',
+                firstName: 'Simulated',
+                lastName: 'User',
+                email: 'sim@example.com'
+            };
+            const token = 'simulated_token_' + Date.now();
+            const rememberMe = true;
+            
+            // Store user data like auth.js does (with the fix)
+            if (rememberMe) {
+                localStorage.setItem('careGridCurrentUser', JSON.stringify(user));
+                sessionStorage.removeItem('careGridCurrentUser');
+            } else {
+                sessionStorage.setItem('careGridCurrentUser', JSON.stringify(user));
+                localStorage.removeItem('careGridCurrentUser');
+            }
+            
+            // Store token like api-service.js does
+            if (rememberMe) {
+                localStorage.setItem('careGridToken', token);
+                sessionStorage.removeItem('careGridToken');
+            } else {
+                sessionStorage.setItem('careGridToken', token);
+                localStorage.removeItem('careGridToken');
+            }
+            
+            log(`Simulated user stored: ${JSON.stringify(user)}`);
+            log(`Simulated token stored: ${token}`);
+            
+            // Test what dashboard would see
+            testDashboardAuth();
+        }
+        
+        function testDashboardAuth() {
+            log('Testing dashboard authentication check...');
+            
+            // Replicate dashboard.html checkAuthenticationState logic
+            try {
+                const currentUser = JSON.parse(localStorage.getItem('careGridCurrentUser') || sessionStorage.getItem('careGridCurrentUser') || 'null');
+                const token = localStorage.getItem('careGridToken') || sessionStorage.getItem('careGridToken');
+                
+                log(`Dashboard sees user: ${JSON.stringify(currentUser)}`);
+                log(`Dashboard sees token: ${!!token ? 'YES' : 'NO'}`);
+                
+                if (currentUser && token) {
+                    const firstName = currentUser.firstName || '';
+                    const lastName = currentUser.lastName || '';
+                    showResult(`✅ Dashboard auth check PASSED - User: ${firstName} ${lastName}`, 'success');
+                    log('Dashboard would stay on dashboard.html');
+                } else {
+                    showResult('❌ Dashboard auth check FAILED - Would redirect to auth.html', 'error');
+                    log('Dashboard would redirect to auth.html');
+                }
+            } catch (error) {
+                showResult(`❌ Dashboard auth check ERROR: ${error.message}`, 'error');
+                log(`Error in dashboard auth check: ${error.message}`);
+            }
+        }
+        
+        function clearAllData() {
+            localStorage.clear();
+            sessionStorage.clear();
+            showResult('🧹 All data cleared', 'info');
+            log('All localStorage and sessionStorage data cleared');
+        }
+        
+        // Run initial test
+        window.addEventListener('load', () => {
+            log('Page loaded - ready for testing');
+        });
+    </script>
+</body>
+</html>

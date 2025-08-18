@@ -357,8 +357,9 @@
                 lastLogin: new Date().toISOString()
             };
             
-            // Store user data in localStorage
-            localStorage.setItem('currentUser', JSON.stringify(userData));
+            // Store user data in localStorage with correct keys
+            localStorage.setItem('careGridCurrentUser', JSON.stringify(userData));
+            localStorage.setItem('careGridToken', 'demo_google_token_' + Date.now());
             localStorage.setItem('isLoggedIn', 'true');
             
             alert('Demo Google sign-in successful! Redirecting to dashboard...');

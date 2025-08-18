@@ -75,7 +75,7 @@ class Dashboard {
         }
 
         // Try cached user immediately (no flash)
-        const cached = localStorage.getItem('careGridUser') || sessionStorage.getItem('careGridUser');
+        const cached = localStorage.getItem('careGridCurrentUser') || sessionStorage.getItem('careGridCurrentUser');
         if (cached) {
             try {
                 this.currentUser = JSON.parse(cached);
@@ -89,16 +89,16 @@ class Dashboard {
         try {
             const me = await this.apiService.me(); // GET /auth/me
             const user = me.data || me;
-            localStorage.setItem('careGridUser', JSON.stringify(user));
+            localStorage.setItem('careGridCurrentUser', JSON.stringify(user));
             this.currentUser = user;
             this.updateWelcomeMessage();
         } catch (e) {
             // If it's an auth error, clear and go to login
             if (String(e).startsWith('401')) {
                 localStorage.removeItem('careGridToken');
-                localStorage.removeItem('careGridUser');
+                localStorage.removeItem('careGridCurrentUser');
                 sessionStorage.removeItem('careGridToken');
-                sessionStorage.removeItem('careGridUser');
+                sessionStorage.removeItem('careGridCurrentUser');
                 window.location.replace('auth.html');
                 return;
             }
