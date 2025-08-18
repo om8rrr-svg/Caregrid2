@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Final Login Test - Cache Busted</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px 10px 0;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .step {
+            margin: 20px 0;
+            padding: 15px;
+            border-left: 4px solid #007bff;
+            background: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🔧 Final Login Test - Fixed Version</h1>
+        <p>This test uses the updated API service with production URL and fixed authentication flow.</p>
+        
+        <div class="step">
+            <h3>Step 1: Check Current Auth Status</h3>
+            <button onclick="checkAuthStatus()">Check Auth Status</button>
+            <button onclick="clearAuth()">Clear All Auth Data</button>
+        </div>
+        
+        <div class="step">
+            <h3>Step 2: Test Login with Demo Credentials</h3>
+            <form id="testLoginForm">
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" value="test@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" value="TestPassword123!" required>
+                </div>
+                <button type="submit">🚀 Test Login (Fixed)</button>
+            </form>
+        </div>
+        
+        <div class="step">
+            <h3>Step 3: Test Dashboard Access</h3>
+            <button onclick="testDashboardDirect()">Go to Dashboard</button>
+            <button onclick="testAuthPage()">Go to Auth Page</button>
+        </div>
+        
+        <div id="status"></div>
+    </div>
+
+    <!-- Load API service with cache busting -->
+    <script>
+        // Inline API Service to avoid cache issues
+        class APIService {
+            constructor() {
+                // Use production URL by default
+                this.baseURL = window.API_BASE || 'https://caregrid-backend.onrender.com/api';
+                this.token = this.getStoredToken();
+                console.log('API Service initialized with baseURL:', this.baseURL);
+            }
+
+            getStoredToken() {
+                return localStorage.getItem('careGridToken') || sessionStorage.getItem('careGridToken');
+            }
+
+            setToken(token, remember = false) {
+                this.token = token;
+                if (remember) {
+                    localStorage.setItem('careGridToken', token);
+                    sessionStorage.removeItem('careGridToken');
+                } else {
+                    sessionStorage.setItem('careGridToken', token);
+                    localStorage.removeItem('careGridToken');
+                }
+                this.token = this.getStoredToken();
+            }
+
+            clearAuthData() {
+                this.token = null;
+                localStorage.removeItem('careGridToken');
+                sessionStorage.removeItem('careGridToken');
+                localStorage.removeItem('careGridUser');
+                sessionStorage.removeItem('careGridUser');
+            }
+
+            async makeRequest(endpoint, options = {}) {
+                const url = `${this.baseURL}${endpoint}`;
+                console.log('Making request to:', url);
+                const config = {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    },
+                    credentials: 'omit',
+                    ...options
+                };
+
+                const currentToken = this.getStoredToken();
+                if (currentToken) {
+                    this.token = currentToken;
+                    config.headers.Authorization = `Bearer ${currentToken}`;
+                }
+
+                try {
+                    const response = await fetch(url, config);
+                    console.log('Response received:', response.status, response.statusText);
+                    
+                    if (response.status === 401) {
+                        this.clearAuthData();
+                        throw new Error('401 Authentication failed');
+                    }
+                    
+                    const contentType = response.headers.get('content-type');
+                    let data;
+                    
+                    if (contentType && contentType.includes('application/json')) {
+                        data = await response.json();
+                    } else {
+                        const textResponse = await response.text();
+                        if (!response.ok) {
+                            throw new Error(`Server error: ${textResponse || response.statusText}`);
+                        }
+                        return { message: textResponse };
+                    }
+
+                    if (!response.ok) {
+                        throw new Error(data.error || data.message || `HTTP error! status: ${response.status}`);
+                    }
+
+                    return data;
+                } catch (error) {
+                    console.error('API Request failed:', error);
+                    throw error;
+                }
+            }
+
+            async login(email, password) {
+                const response = await this.makeRequest('/auth/login', {
+                    method: 'POST',
+                    body: JSON.stringify({ email, password })
+                });
+                return response;
+            }
+
+            async me() {
+                return this.makeRequest('/auth/me');
+            }
+        }
+
+        // Initialize API service
+        const apiService = new APIService();
+
+        function showStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.className = `status ${type}`;
+            statusDiv.innerHTML = message;
+        }
+
+        document.getElementById('testLoginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+
+            showStatus('🔄 Attempting login with production API...', 'info');
+
+            try {
+                console.log('Attempting login to:', apiService.baseURL);
+                const res = await apiService.login(email, password);
+                console.log('Login response:', res);
+                
+                const { token, user } = res.data || res;
+
+                if (!token) {
+                    throw new Error('No token received from server');
+                }
+
+                // Store token and user data BEFORE redirect
+                localStorage.setItem('careGridToken', token);
+                localStorage.setItem('careGridUser', JSON.stringify(user || {}));
+
+                showStatus(`✅ Login successful! Token stored. User: ${user?.firstName || user?.name || 'Unknown'}<br><br>🎯 <strong>Fix Applied:</strong> Token stored before redirect to prevent race condition.`, 'success');
+                
+                // Redirect after showing success
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 2000);
+                
+            } catch (err) {
+                console.error('Login failed', err);
+                showStatus(`❌ Login failed: ${err.message}<br><br>🔍 <strong>Debug Info:</strong><br>API URL: ${apiService.baseURL}<br>Error: ${err.stack || 'No stack trace'}`, 'error');
+            }
+        });
+
+        function checkAuthStatus() {
+            const token = localStorage.getItem('careGridToken') || sessionStorage.getItem('careGridToken');
+            const user = localStorage.getItem('careGridUser') || sessionStorage.getItem('careGridUser');
+            
+            let status = '<h3>🔍 Authentication Status:</h3>';
+            status += `<p><strong>API URL:</strong> ${apiService.baseURL}</p>`;
+            status += `<p><strong>Token:</strong> ${token ? '✅ Present' : '❌ Missing'}</p>`;
+            
+            if (user) {
+                try {
+                    const userData = JSON.parse(user);
+                    status += `<p><strong>User:</strong> ✅ ${userData.firstName || userData.name || 'Unknown'} (${userData.email || 'No email'})</p>`;
+                } catch (e) {
+                    status += `<p><strong>User:</strong> ❌ Invalid data</p>`;
+                }
+            } else {
+                status += `<p><strong>User:</strong> ❌ Missing</p>`;
+            }
+            
+            const isAuthenticated = token && user;
+            status += `<p><strong>Status:</strong> ${isAuthenticated ? '✅ Authenticated' : '❌ Not Authenticated'}</p>`;
+            
+            showStatus(status, isAuthenticated ? 'success' : 'warning');
+        }
+
+        function clearAuth() {
+            apiService.clearAuthData();
+            showStatus('🧹 Authentication data cleared', 'info');
+        }
+
+        function testDashboardDirect() {
+            showStatus('🚀 Redirecting to dashboard...', 'info');
+            window.location.href = 'dashboard.html';
+        }
+
+        function testAuthPage() {
+            showStatus('🔐 Redirecting to auth page...', 'info');
+            window.location.href = 'auth.html';
+        }
+
+        // Check initial auth status
+        window.addEventListener('load', () => {
+            checkAuthStatus();
+        });
+    </script>
+</body>
+</html>

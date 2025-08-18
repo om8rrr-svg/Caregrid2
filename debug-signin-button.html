@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Sign-In Button</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .debug-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; }
+        .success { color: green; }
+        .error { color: red; }
+        .warning { color: orange; }
+        #debugLog { background: #f5f5f5; padding: 10px; height: 300px; overflow-y: auto; font-family: monospace; }
+        button { padding: 10px 20px; margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Sign-In Button Debug Tool</h1>
+    
+    <div class="debug-section">
+        <h3>1. Test Form Elements</h3>
+        <button onclick="testFormElements()">Check Form Elements</button>
+        <div id="formElementsResult"></div>
+    </div>
+    
+    <div class="debug-section">
+        <h3>2. Test Event Listeners</h3>
+        <button onclick="testEventListeners()">Check Event Listeners</button>
+        <div id="eventListenersResult"></div>
+    </div>
+    
+    <div class="debug-section">
+        <h3>3. Test API Service</h3>
+        <button onclick="testApiService()">Check API Service</button>
+        <div id="apiServiceResult"></div>
+    </div>
+    
+    <div class="debug-section">
+        <h3>4. Test Manual Sign-In</h3>
+        <input type="email" id="testEmail" placeholder="test@example.com" value="test@example.com">
+        <input type="password" id="testPassword" placeholder="TestPassword123!" value="TestPassword123!">
+        <button onclick="testManualSignIn()">Manual Sign-In Test</button>
+        <div id="manualSignInResult"></div>
+    </div>
+    
+    <div class="debug-section">
+        <h3>Debug Log</h3>
+        <div id="debugLog"></div>
+        <button onclick="clearLog()">Clear Log</button>
+    </div>
+    
+    <!-- Load CareGrid scripts -->
+    <script src="js/api-service.js"></script>
+    <script src="js/auth.js"></script>
+    
+    <script>
+        function addLog(message) {
+            const log = document.getElementById('debugLog');
+            const timestamp = new Date().toLocaleTimeString();
+            log.innerHTML += `[${timestamp}] ${message}\n`;
+            log.scrollTop = log.scrollHeight;
+        }
+        
+        function clearLog() {
+            document.getElementById('debugLog').innerHTML = '';
+        }
+        
+        function testFormElements() {
+            addLog('=== Testing Form Elements ===');
+            const result = document.getElementById('formElementsResult');
+            
+            // Check if we're on auth.html or need to navigate
+            if (window.location.pathname.includes('auth.html')) {
+                const signInForm = document.getElementById('signInForm');
+                const emailInput = document.getElementById('email');
+                const passwordInput = document.getElementById('password');
+                const submitBtn = signInForm?.querySelector('button[type="submit"]');
+                
+                let html = '';
+                html += `<p>Sign-in form: ${signInForm ? '<span class="success">Found</span>' : '<span class="error">Not found</span>'}</p>`;
+                html += `<p>Email input: ${emailInput ? '<span class="success">Found</span>' : '<span class="error">Not found</span>'}</p>`;
+                html += `<p>Password input: ${passwordInput ? '<span class="success">Found</span>' : '<span class="error">Not found</span>'}</p>`;
+                html += `<p>Submit button: ${submitBtn ? '<span class="success">Found</span>' : '<span class="error">Not found</span>'}</p>`;
+                
+                result.innerHTML = html;
+                
+                addLog(`Form found: ${!!signInForm}`);
+                addLog(`Email input found: ${!!emailInput}`);
+                addLog(`Password input found: ${!!passwordInput}`);
+                addLog(`Submit button found: ${!!submitBtn}`);
+            } else {
+                result.innerHTML = '<p class="warning">Not on auth.html page. <a href="auth.html" target="_blank">Open auth.html</a> to test form elements.</p>';
+                addLog('Not on auth.html page');
+            }
+        }
+        
+        function testEventListeners() {
+            addLog('=== Testing Event Listeners ===');
+            const result = document.getElementById('eventListenersResult');
+            
+            let html = '';
+            html += `<p>AuthSystem instance: ${window.authSystem ? '<span class="success">Found</span>' : '<span class="error">Not found</span>'}</p>`;
+            html += `<p>API Service: ${window.apiService ? '<span class="success">Found</span>' : '<span class="error">Not found</span>'}</p>`;
+            
+            if (window.authSystem) {
+                html += `<p>AuthSystem initialized: ${window.authSystem.isInitialized ? '<span class="success">Yes</span>' : '<span class="error">No</span>'}</p>`;
+                html += `<p>Current mode: ${window.authSystem.currentMode || 'Not set'}</p>`;
+            }
+            
+            result.innerHTML = html;
+            
+            addLog(`AuthSystem exists: ${!!window.authSystem}`);
+            addLog(`API Service exists: ${!!window.apiService}`);
+            if (window.authSystem) {
+                addLog(`AuthSystem initialized: ${window.authSystem.isInitialized}`);
+                addLog(`Current mode: ${window.authSystem.currentMode}`);
+            }
+        }
+        
+        function testApiService() {
+            addLog('=== Testing API Service ===');
+            const result = document.getElementById('apiServiceResult');
+            
+            if (!window.apiService) {
+                result.innerHTML = '<p class="error">API Service not found</p>';
+                addLog('API Service not found');
+                return;
+            }
+            
+            let html = '';
+            html += `<p>Base URL: ${window.apiService.baseURL}</p>`;
+            html += `<p>Stored token: ${window.apiService.getStoredToken() ? '<span class="success">Found</span>' : '<span class="warning">None</span>'}</p>`;
+            
+            result.innerHTML = html;
+            
+            addLog(`API Service base URL: ${window.apiService.baseURL}`);
+            addLog(`Stored token: ${window.apiService.getStoredToken() || 'None'}`);
+        }
+        
+        async function testManualSignIn() {
+            addLog('=== Testing Manual Sign-In ===');
+            const result = document.getElementById('manualSignInResult');
+            const email = document.getElementById('testEmail').value;
+            const password = document.getElementById('testPassword').value;
+            
+            if (!window.apiService) {
+                result.innerHTML = '<p class="error">API Service not available</p>';
+                addLog('API Service not available for manual sign-in test');
+                return;
+            }
+            
+            try {
+                addLog(`Attempting login with email: ${email}`);
+                result.innerHTML = '<p class="warning">Attempting login...</p>';
+                
+                const response = await window.apiService.login(email, password);
+                
+                addLog('Login successful!');
+                addLog(`Response: ${JSON.stringify(response, null, 2)}`);
+                result.innerHTML = '<p class="success">Login successful! Check debug log for details.</p>';
+                
+            } catch (error) {
+                addLog(`Login failed: ${error.message}`);
+                addLog(`Error details: ${JSON.stringify(error, null, 2)}`);
+                result.innerHTML = `<p class="error">Login failed: ${error.message}</p>`;
+            }
+        }
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            addLog('=== Debug Tool Loaded ===');
+            addLog('Page loaded successfully');
+            
+            // Wait a bit for scripts to load
+            setTimeout(() => {
+                addLog(`API Service available: ${!!window.apiService}`);
+                addLog(`AuthSystem available: ${!!window.authSystem}`);
+                
+                if (window.authSystem) {
+                    addLog(`AuthSystem initialized: ${window.authSystem.isInitialized}`);
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Dashboard Redirect</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+            font-size: 16px;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 14px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Dashboard Redirect Test</h1>
+        <p>This page tests the login flow and dashboard redirect functionality.</p>
+        
+        <div>
+            <button class="test-button" onclick="testLogin()">Test Login with Demo Account</button>
+            <button class="test-button" onclick="testDashboardAccess()">Test Direct Dashboard Access</button>
+            <button class="test-button" onclick="clearAuthData()">Clear Auth Data</button>
+            <button class="test-button" onclick="checkAuthStatus()">Check Auth Status</button>
+        </div>
+        
+        <div id="result"></div>
+        <div id="logs" class="log"></div>
+    </div>
+
+    <script src="js/api-service.js"></script>
+    <script src="js/auth.js"></script>
+    
+    <script>
+        function log(message) {
+            const logs = document.getElementById('logs');
+            const timestamp = new Date().toLocaleTimeString();
+            logs.innerHTML += `[${timestamp}] ${message}\n`;
+            logs.scrollTop = logs.scrollHeight;
+            console.log(message);
+        }
+        
+        function showResult(message, type = 'info') {
+            const result = document.getElementById('result');
+            result.innerHTML = `<div class="result ${type}">${message}</div>`;
+        }
+        
+        async function testLogin() {
+            log('Starting login test...');
+            showResult('Testing login...', 'info');
+            
+            try {
+                // Clear any existing auth data first
+                if (window.apiService) {
+                    window.apiService.clearAuthData();
+                    log('Cleared existing auth data');
+                }
+                
+                // Attempt login with demo credentials
+                const response = await window.apiService.login('test@example.com', 'TestPassword123!');
+                log(`Login response: ${JSON.stringify(response)}`);
+                
+                if (response && response.token) {
+                    log('Login successful, token received');
+                    showResult('Login successful! Token stored.', 'success');
+                    
+                    // Test dashboard redirect
+                    setTimeout(() => {
+                        log('Redirecting to dashboard...');
+                        window.location.href = 'dashboard.html';
+                    }, 1000);
+                } else {
+                    log('Login failed - no token received');
+                    showResult('Login failed - no token received', 'error');
+                }
+            } catch (error) {
+                log(`Login error: ${error.message}`);
+                showResult(`Login failed: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testDashboardAccess() {
+            log('Testing direct dashboard access...');
+            showResult('Testing dashboard access...', 'info');
+            
+            const token = window.apiService?.getStoredToken();
+            if (token) {
+                log(`Token found: ${token.substring(0, 20)}...`);
+                showResult('Token found, redirecting to dashboard...', 'success');
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 1000);
+            } else {
+                log('No token found');
+                showResult('No authentication token found. Please login first.', 'error');
+            }
+        }
+        
+        function clearAuthData() {
+            log('Clearing all auth data...');
+            if (window.apiService) {
+                window.apiService.clearAuthData();
+                log('Auth data cleared');
+                showResult('Authentication data cleared', 'info');
+            } else {
+                log('API service not available');
+                showResult('API service not available', 'error');
+            }
+        }
+        
+        function checkAuthStatus() {
+            log('Checking authentication status...');
+            
+            const token = window.apiService?.getStoredToken();
+            const authSystem = window.authSystem;
+            
+            log(`Token: ${token ? 'Present' : 'Not found'}`);
+            log(`Auth System: ${authSystem ? 'Available' : 'Not available'}`);
+            
+            if (authSystem) {
+                const isAuth = authSystem.isAuthenticated();
+                const currentUser = authSystem.getCurrentUser();
+                log(`Is Authenticated: ${isAuth}`);
+                log(`Current User: ${currentUser ? JSON.stringify(currentUser) : 'None'}`);
+            }
+            
+            showResult(`Token: ${token ? 'Present' : 'Missing'}, Auth System: ${authSystem ? 'Available' : 'Missing'}`, token ? 'success' : 'error');
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            log('Test page loaded');
+            checkAuthStatus();
+        });
+    </script>
+</body>
+</html>

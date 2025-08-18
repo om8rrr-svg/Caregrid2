@@ -8,12 +8,28 @@ class AdminDashboard {
         this.init();
     }
 
-    init() {
+    async init() {
+        // Check authentication before proceeding
+        if (!this.checkAuthentication()) {
+            return;
+        }
+        
         this.setupEventListeners();
         this.applyTheme();
         this.showSection(this.currentSection);
-        this.loadDashboardData();
+        await this.loadDashboardData();
         this.setupResponsive();
+    }
+
+    checkAuthentication() {
+        // Check if user is authenticated
+        const token = localStorage.getItem('careGridToken') || sessionStorage.getItem('careGridToken');
+        if (!token) {
+            // Redirect to auth page if not authenticated
+            window.location.href = '/auth.html';
+            return false;
+        }
+        return true;
     }
 
     setupEventListeners() {
@@ -1339,13 +1355,17 @@ class AdminDashboard {
 }
 
 // Initialize dashboard when page loads
-const adminDashboard = new AdminDashboard();
-document.addEventListener('DOMContentLoaded', () => {
+let adminDashboard;
+document.addEventListener('DOMContentLoaded', async () => {
     // Initialize admin API service
     window.adminApiService = new AdminAPIService();
     
     // Initialize dashboard
-    adminDashboard.init();
+    adminDashboard = new AdminDashboard();
+    await adminDashboard.init();
+    
+    // Make adminDashboard globally accessible for onclick handlers
+    window.adminDashboard = adminDashboard;
 });
 
 // Export for potential module usage

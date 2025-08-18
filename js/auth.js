@@ -5,14 +5,35 @@ class AuthSystem {
         this.currentMode = 'signin'; // signin, signup, forgot
         this.currentUser = null;
         this.apiService = window.apiService;
+        this.isInitialized = false;
         
-        this.init();
+        // Wait for apiService to be available before initializing
+        if (this.apiService) {
+            this.init();
+        } else {
+            // Wait for apiService to be available
+            const checkApiService = () => {
+                if (window.apiService) {
+                    this.apiService = window.apiService;
+                    this.init();
+                } else {
+                    setTimeout(checkApiService, 10);
+                }
+            };
+            checkApiService();
+        }
     }
     
     async init() {
+        if (this.isInitialized) return;
+        this.isInitialized = true;
+        
         this.bindEvents();
         this.checkAuthState();
         this.setupPasswordStrength();
+        
+        // Only check existing auth once during initialization
+        await this.checkExistingAuth();
     }
     
     async bindEvents() {
@@ -66,9 +87,6 @@ class AuthSystem {
         if (emailInput) {
             emailInput.addEventListener('blur', (e) => this.validateEmail(e.target, 'emailError'));
         }
-        
-        // Check if user is already logged in
-        await this.checkExistingAuth();
     }
     
     async checkExistingAuth() {
@@ -142,14 +160,22 @@ class AuthSystem {
             this.apiService.setToken(token, rememberMe);
             this.currentUser = user;
             
+            // Store user data in localStorage/sessionStorage to match dashboard expectations
+            if (user) {
+                if (rememberMe) {
+                    localStorage.setItem('careGridUser', JSON.stringify(user));
+                    sessionStorage.removeItem('careGridUser');
+                } else {
+                    sessionStorage.setItem('careGridUser', JSON.stringify(user));
+                    localStorage.removeItem('careGridUser');
+                }
+            }
+
             // Dispatch auth state change event
             window.dispatchEvent(new CustomEvent('authStateChanged'));
-            
-            this.showSuccessMessage('Welcome back!', `Good to see you again, ${this.currentUser?.firstName || 'User'}!`);
-            
-            setTimeout(() => {
-                this.redirectAfterAuth();
-            }, 2000);
+
+            // Redirect immediately after storing token and user data
+            window.location.href = 'dashboard.html';
             
         } catch (error) {
             console.log('Sign-in failed:', error.message);
@@ -213,6 +239,12 @@ class AuthSystem {
             
             this.apiService.setToken(token, true);
             this.currentUser = user;
+            
+            // Store user data in localStorage to match dashboard expectations
+            if (user) {
+                localStorage.setItem('careGridCurrentUser', JSON.stringify(user));
+                sessionStorage.removeItem('careGridCurrentUser');
+            }
             
             // Dispatch auth state change event
             window.dispatchEvent(new CustomEvent('authStateChanged'));
@@ -679,8 +711,12 @@ class AuthSystem {
     // Logout method
     async logout() {
         try {
-            await this.apiService.logout();
+            // Clear auth data FIRST to prevent redirect loops
+            this.apiService.clearAuthData();
             this.currentUser = null;
+            
+            // Then try to notify the server
+            await this.apiService.logout();
             
             // Dispatch auth state change event
             window.dispatchEvent(new CustomEvent('authStateChanged'));
@@ -688,9 +724,7 @@ class AuthSystem {
             window.location.href = 'index.html';
         } catch (error) {
             console.error('Logout error:', error);
-            // Force logout even if API call fails
-            this.apiService.clearAuthData();
-            this.currentUser = null;
+            // Auth data already cleared above, just redirect
             
             // Dispatch auth state change event
             window.dispatchEvent(new CustomEvent('authStateChanged'));
@@ -770,7 +804,7 @@ class AuthSystem {
     
     redirectToDashboard() {
         // If user is already logged in, redirect to dashboard
-        window.location.href = 'dashboard.html';
+        //window.location.href = 'dashboard.html';
     }
     
     delay(ms) {
@@ -977,8 +1011,27 @@ function showPasswordResetWizard() {
         signInForm.classList.add('hidden');
     }
     if (passwordResetWizard) {
+        // Remove all classes that might hide the wizard
         passwordResetWizard.classList.remove('hidden');
-        passwordResetWizard.style.display = '';
+        passwordResetWizard.classList.remove('auth-form');
+        
+        // Force display with important styles to override CSS
+        passwordResetWizard.style.display = 'block';
+        passwordResetWizard.style.visibility = 'visible';
+        passwordResetWizard.style.opacity = '1';
+        passwordResetWizard.style.position = 'static';
+        passwordResetWizard.style.left = 'auto';
+        passwordResetWizard.style.top = 'auto';
+        passwordResetWizard.style.width = 'auto';
+        passwordResetWizard.style.height = 'auto';
+        passwordResetWizard.style.overflow = 'visible';
+        passwordResetWizard.style.zIndex = 'auto';
+    }
+    
+    // Remove hidden class from the forgot password form
+    const forgotPasswordForm = document.getElementById('forgotPasswordForm');
+    if (forgotPasswordForm) {
+        forgotPasswordForm.classList.remove('hidden');
     }
     
     // Hide sign-in specific elements
@@ -1259,7 +1312,7 @@ function signInWithGoogle() {
         localStorage.setItem('isLoggedIn', 'true');
         
         // Redirect to dashboard
-        window.location.href = 'dashboard.html';
+        //window.location.href = 'dashboard.html';
     }).catch(function(error) {
         console.error('Google sign-in error:', error);
         if (confirm('Google sign-in failed due to configuration issues. Would you like to simulate a Google sign-in for demo purposes?')) {
@@ -1279,15 +1332,16 @@ function simulateGoogleSignIn() {
         lastLogin: new Date().toISOString()
     };
     
-    // Store user data in localStorage
-    localStorage.setItem('currentUser', JSON.stringify(userData));
+    // Store user data in localStorage with correct keys
+    localStorage.setItem('careGridCurrentUser', JSON.stringify(userData));
+    localStorage.setItem('careGridToken', 'demo_google_token_' + Date.now());
     localStorage.setItem('isLoggedIn', 'true');
     
     alert('Demo Google sign-in successful! Redirecting to dashboard...');
     
     // Redirect to dashboard
     setTimeout(() => {
-        window.location.href = 'dashboard.html';
+        //window.location.href = 'dashboard.html';
     }, 1000);
 }
 
@@ -1317,7 +1371,7 @@ function signUpWithGoogle() {
         localStorage.setItem('isLoggedIn', 'true');
         
         // Redirect to dashboard
-        window.location.href = 'dashboard.html';
+        //window.location.href = 'dashboard.html';
     }).catch(function(error) {
         console.error('Google sign-up error:', error);
         if (confirm('Google sign-up failed due to configuration issues. Would you like to simulate a Google sign-up for demo purposes?')) {
@@ -1337,15 +1391,16 @@ function simulateGoogleSignUp() {
         createdAt: new Date().toISOString()
     };
     
-    // Store user data in localStorage
-    localStorage.setItem('currentUser', JSON.stringify(userData));
+    // Store user data in localStorage with correct keys
+    localStorage.setItem('careGridCurrentUser', JSON.stringify(userData));
+    localStorage.setItem('careGridToken', 'demo_google_signup_token_' + Date.now());
     localStorage.setItem('isLoggedIn', 'true');
     
     alert('Demo Google sign-up successful! Redirecting to dashboard...');
     
     // Redirect to dashboard
     setTimeout(() => {
-        window.location.href = 'dashboard.html';
+        //window.location.href = 'dashboard.html';
     }, 1000);
 }
 
@@ -1367,7 +1422,7 @@ function signInWithFacebook() {
                 localStorage.setItem('isLoggedIn', 'true');
                 
                 // Redirect to dashboard
-                window.location.href = 'dashboard.html';
+                //window.location.href = 'dashboard.html';
             });
         } else {
             console.error('Facebook sign-in cancelled or failed');
@@ -1394,7 +1449,7 @@ function signUpWithFacebook() {
                 localStorage.setItem('isLoggedIn', 'true');
                 
                 // Redirect to dashboard
-                window.location.href = 'dashboard.html';
+                //window.location.href = 'dashboard.html';
             });
         } else {
             console.error('Facebook sign-up cancelled or failed');
@@ -1457,11 +1512,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Always create AuthSystem but make it handle missing elements gracefully
     window.authSystem = new AuthSystem();
     
-    // Check authentication state on page load
+    // Check authentication state for UI updates only (no API calls)
     setTimeout(checkAuthenticationState, 100);
-    
-    // Also check immediately
-    checkAuthenticationState();
     
     // Add backup event listener for modal close button
     const modalCloseBtn = document.querySelector('#successModal .auth-btn.primary');

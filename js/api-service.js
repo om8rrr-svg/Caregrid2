@@ -2,7 +2,8 @@
 
 class APIService {
     constructor() {
-        this.baseURL = 'http://localhost:3000/api';
+        // Use production URL by default, fallback to localhost for development
+        this.baseURL = window.API_BASE || 'https://caregrid-backend.onrender.com/api';
         this.token = this.getStoredToken();
     }
 
@@ -36,6 +37,8 @@ class APIService {
         // Clear any other auth-related data
         localStorage.removeItem('careGridUser');
         sessionStorage.removeItem('careGridUser');
+        localStorage.removeItem('careGridCurrentUser');
+        sessionStorage.removeItem('careGridCurrentUser');
     }
 
     // HTTP request helper
@@ -47,7 +50,7 @@ class APIService {
                 'Content-Type': 'application/json',
                 ...options.headers
             },
-            credentials: 'include',
+            credentials: 'omit', // using Bearer token, not cookies
             ...options
         };
 
@@ -68,7 +71,7 @@ class APIService {
             if (response.status === 401) {
                 // Clear invalid token
                 this.clearAuthData();
-                throw new Error('Authentication failed');
+                throw new Error(`401 Authentication failed`);
             }
             
             // Handle rate limiting (429) with plain text response
@@ -306,6 +309,11 @@ class APIService {
     async healthCheck() {
         const response = await this.makeRequest('/health');
         return response;
+    }
+
+    // Convenience method for /auth/me
+    async me() {
+        return this.makeRequest('/auth/me');
     }
 }
 

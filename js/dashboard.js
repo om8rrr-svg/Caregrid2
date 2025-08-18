@@ -67,53 +67,43 @@ class Dashboard {
     }
     
     async checkAuthentication() {
+        const token = this.apiService?.getStoredToken();
+        if (!token) {
+            // Not logged in: go to login
+            window.location.replace('auth.html');
+            return;
+        }
+
+        // Try cached user immediately (no flash)
+        const cached = localStorage.getItem('careGridUser') || sessionStorage.getItem('careGridUser');
+        if (cached) {
+            try {
+                this.currentUser = JSON.parse(cached);
+                this.updateWelcomeMessage(); // show UI immediately
+            } catch (e) {
+                console.warn('Failed to parse cached user data:', e);
+            }
+        }
+
+        // Then fetch fresh user; only log out on definite 401
         try {
-            if (this.authSystem && this.authSystem.isAuthenticated()) {
-                // Get user from localStorage first
-                this.currentUser = this.authSystem.getCurrentUser();
-                
-                // Fetch fresh user data from API if we have a token
-                const token = this.apiService?.getStoredToken();
-                if (token) {
-                    try {
-                        const response = await this.apiService.getCurrentUser();
-                        // Backend wraps user data in 'data' property via successResponse()
-                        this.currentUser = response.data || response;
-                        console.log('DEBUG: Fresh user data from API:', this.currentUser);
-                        
-                        // Update the welcome message
-                        this.updateWelcomeMessage();
-                    } catch (apiError) {
-                        console.warn('Failed to fetch fresh user data:', apiError);
-                        // Check if token is expired or invalid
-                        if (apiError.message && (apiError.message.includes('401') || apiError.message.includes('Authentication failed'))) {
-                            console.log('Session expired or authentication failed:', apiError.message);
-                            // Show a more user-friendly message
-                            if (apiError.message.includes('No account found')) {
-                                console.log('Account not found - user may have been deleted');
-                            } else if (apiError.message.includes('token') || apiError.message.includes('expired')) {
-                                console.log('Session expired - please log in again');
-                            }
-                            this.authSystem.logout();
-                            return;
-                        }
-                        // Use cached user data if API fails for other reasons
-                        this.updateWelcomeMessage();
-                    }
-                } else {
-                    // No token but authSystem thinks user is authenticated - clear state
-                    console.log('No token found, clearing auth state');
-                    this.authSystem.logout();
-                    return;
-                }
-            } else {
-                // Redirect to login if not authenticated
-                window.location.href = 'auth.html';
+            const me = await this.apiService.me(); // GET /auth/me
+            const user = me.data || me;
+            localStorage.setItem('careGridUser', JSON.stringify(user));
+            this.currentUser = user;
+            this.updateWelcomeMessage();
+        } catch (e) {
+            // If it's an auth error, clear and go to login
+            if (String(e).startsWith('401')) {
+                localStorage.removeItem('careGridToken');
+                localStorage.removeItem('careGridUser');
+                sessionStorage.removeItem('careGridToken');
+                sessionStorage.removeItem('careGridUser');
+                window.location.replace('auth.html');
                 return;
             }
-        } catch (error) {
-            console.error('Authentication check failed:', error);
-            window.location.href = 'auth.html';
+            // Otherwise keep cached user and continue
+            console.warn('Non-auth error fetching /auth/me, continuing:', e);
         }
     }
     

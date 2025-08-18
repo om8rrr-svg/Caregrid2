@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auth Flow Debug - CareGrid</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .step {
+            margin: 20px 0;
+            padding: 15px;
+            border-left: 4px solid #ddd;
+            background: #f9f9f9;
+        }
+        .step.success {
+            border-left-color: #4CAF50;
+            background: #f1f8e9;
+        }
+        .step.error {
+            border-left-color: #f44336;
+            background: #ffebee;
+        }
+        .step.active {
+            border-left-color: #2196F3;
+            background: #e3f2fd;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .form-group {
+            margin: 10px 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Auth Flow Debug Tool</h1>
+        <p>This tool will help debug the authentication flow step by step.</p>
+        
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" value="test@example.com" placeholder="Enter email">
+        </div>
+        
+        <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" value="TestPassword123!" placeholder="Enter password">
+        </div>
+        
+        <button onclick="runFullTest()">🚀 Run Full Auth Test</button>
+        <button onclick="testLogin()">1️⃣ Test Login Only</button>
+        <button onclick="testTokenValidation()">2️⃣ Test Token Validation</button>
+        <button onclick="clearStorage()">🗑️ Clear Storage</button>
+        <button onclick="checkCurrentState()">📊 Check Current State</button>
+        
+        <div id="steps">
+            <div class="step" id="step1">Step 1: Backend Health Check</div>
+            <div class="step" id="step2">Step 2: User Login</div>
+            <div class="step" id="step3">Step 3: Token Storage</div>
+            <div class="step" id="step4">Step 4: Token Validation (/api/auth/me)</div>
+            <div class="step" id="step5">Step 5: Dashboard Access</div>
+        </div>
+        
+        <div class="log" id="log"></div>
+    </div>
+
+    <script>
+        let currentToken = null;
+        let currentUser = null;
+        
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            const prefix = type === 'error' ? '❌' : type === 'success' ? '✅' : type === 'warning' ? '⚠️' : 'ℹ️';
+            logDiv.textContent += `[${timestamp}] ${prefix} ${message}\n`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+        
+        function updateStep(stepNum, status) {
+            const step = document.getElementById(`step${stepNum}`);
+            step.className = `step ${status}`;
+        }
+        
+        function clearLog() {
+            document.getElementById('log').textContent = '';
+        }
+        
+        async function runFullTest() {
+            clearLog();
+            log('🚀 Starting full authentication flow test...');
+            
+            // Reset all steps
+            for (let i = 1; i <= 5; i++) {
+                updateStep(i, '');
+            }
+            
+            // Step 1: Health Check
+            updateStep(1, 'active');
+            try {
+                const healthResponse = await fetch('http://localhost:3000/health');
+                if (healthResponse.ok) {
+                    const healthData = await healthResponse.json();
+                    log(`Backend health: ${healthData.status}`, 'success');
+                    updateStep(1, 'success');
+                } else {
+                    throw new Error(`Health check failed: ${healthResponse.status}`);
+                }
+            } catch (error) {
+                log(`Health check failed: ${error.message}`, 'error');
+                updateStep(1, 'error');
+                return;
+            }
+            
+            // Step 2: Login
+            updateStep(2, 'active');
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const loginResponse = await fetch('http://localhost:3000/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                if (loginResponse.ok) {
+                    const loginData = await loginResponse.json();
+                    currentToken = loginData.token || loginData.data?.token;
+                    currentUser = loginData.user || loginData.data?.user;
+                    
+                    if (currentToken) {
+                        log(`Login successful! Token: ${currentToken.substring(0, 20)}...`, 'success');
+                        log(`User: ${currentUser?.firstName} ${currentUser?.lastName} (${currentUser?.email})`, 'success');
+                        updateStep(2, 'success');
+                    } else {
+                        throw new Error('No token received from login');
+                    }
+                } else {
+                    const errorData = await loginResponse.json();
+                    throw new Error(`Login failed: ${errorData.error || loginResponse.statusText}`);
+                }
+            } catch (error) {
+                log(`Login failed: ${error.message}`, 'error');
+                updateStep(2, 'error');
+                return;
+            }
+            
+            // Step 3: Token Storage
+            updateStep(3, 'active');
+            try {
+                localStorage.setItem('careGridToken', currentToken);
+                localStorage.setItem('careGridCurrentUser', JSON.stringify(currentUser));
+                
+                const storedToken = localStorage.getItem('careGridToken');
+                const storedUser = localStorage.getItem('careGridCurrentUser');
+                
+                if (storedToken && storedUser) {
+                    log('Token and user data stored successfully', 'success');
+                    updateStep(3, 'success');
+                } else {
+                    throw new Error('Failed to store authentication data');
+                }
+            } catch (error) {
+                log(`Token storage failed: ${error.message}`, 'error');
+                updateStep(3, 'error');
+                return;
+            }
+            
+            // Step 4: Token Validation
+            updateStep(4, 'active');
+            try {
+                const authResponse = await fetch('http://localhost:3000/api/auth/me', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${currentToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (authResponse.ok) {
+                    const userData = await authResponse.json();
+                    log(`Token validation successful!`, 'success');
+                    log(`User data from /api/auth/me: ${JSON.stringify(userData, null, 2)}`, 'success');
+                    updateStep(4, 'success');
+                } else {
+                    const errorData = await authResponse.json();
+                    throw new Error(`Token validation failed: ${authResponse.status} - ${errorData.error || authResponse.statusText}`);
+                }
+            } catch (error) {
+                log(`Token validation failed: ${error.message}`, 'error');
+                updateStep(4, 'error');
+                return;
+            }
+            
+            // Step 5: Dashboard Access Test
+            updateStep(5, 'active');
+            try {
+                log('All authentication steps successful!', 'success');
+                log('You can now try accessing dashboard.html', 'success');
+                updateStep(5, 'success');
+            } catch (error) {
+                log(`Dashboard access test failed: ${error.message}`, 'error');
+                updateStep(5, 'error');
+            }
+        }
+        
+        async function testLogin() {
+            clearLog();
+            log('🔐 Testing login only...');
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const response = await fetch('http://localhost:3000/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    log(`Login successful!`, 'success');
+                    log(`Response: ${JSON.stringify(data, null, 2)}`, 'success');
+                    currentToken = data.token || data.data?.token;
+                    currentUser = data.user || data.data?.user;
+                } else {
+                    log(`Login failed: ${data.error || response.statusText}`, 'error');
+                }
+            } catch (error) {
+                log(`Login error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testTokenValidation() {
+            clearLog();
+            log('🔍 Testing token validation...');
+            
+            const token = currentToken || localStorage.getItem('careGridToken');
+            
+            if (!token) {
+                log('No token available. Please login first.', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('http://localhost:3000/api/auth/me', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    log(`Token validation successful!`, 'success');
+                    log(`User data: ${JSON.stringify(data, null, 2)}`, 'success');
+                } else {
+                    log(`Token validation failed: ${response.status} - ${data.error || response.statusText}`, 'error');
+                    log(`Response: ${JSON.stringify(data, null, 2)}`, 'error');
+                }
+            } catch (error) {
+                log(`Token validation error: ${error.message}`, 'error');
+            }
+        }
+        
+        function clearStorage() {
+            localStorage.clear();
+            sessionStorage.clear();
+            currentToken = null;
+            currentUser = null;
+            log('✅ Storage cleared', 'success');
+        }
+        
+        function checkCurrentState() {
+            clearLog();
+            log('📊 Current authentication state:');
+            
+            const token = localStorage.getItem('careGridToken') || sessionStorage.getItem('careGridToken');
+            const user = localStorage.getItem('careGridCurrentUser') || sessionStorage.getItem('careGridCurrentUser');
+            
+            log(`Token: ${token ? 'Present (' + token.substring(0, 20) + '...)' : 'Missing'}`);
+            log(`User Data: ${user ? 'Present' : 'Missing'}`);
+            
+            if (user) {
+                try {
+                    const userData = JSON.parse(user);
+                    log(`User: ${userData.firstName} ${userData.lastName} (${userData.email})`);
+                } catch (e) {
+                    log(`User data parse error: ${e.message}`, 'error');
+                }
+            }
+            
+            log(`Current Token Variable: ${currentToken ? 'Set' : 'Not set'}`);
+            log(`Current User Variable: ${currentUser ? 'Set' : 'Not set'}`);
+        }
+    </script>
+</body>
+</html>

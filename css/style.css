@@ -3706,30 +3706,16 @@ body {
     animation: slideInFromRight 0.4s ease-out;
 }
 
-#passwordResetWizard.hidden,
-#passwordResetWizard.auth-form.hidden,
-.auth-form#passwordResetWizard.hidden {
+#passwordResetWizard.hidden {
     display: none !important;
-    visibility: hidden !important;
-    opacity: 0 !important;
-    position: absolute !important;
-    left: -9999px !important;
-    top: -9999px !important;
-    width: 0 !important;
-    height: 0 !important;
-    overflow: hidden !important;
-    z-index: -1 !important;
-    animation: none !important;
-    transition: none !important;
 }
 
-/* Hide all child elements when passwordResetWizard is hidden */
-#passwordResetWizard.hidden *,
-#passwordResetWizard.auth-form.hidden *,
-.auth-form#passwordResetWizard.hidden * {
+#passwordResetWizard.auth-form.hidden {
     display: none !important;
-    visibility: hidden !important;
-    opacity: 0 !important;
+}
+
+.auth-form#passwordResetWizard.hidden {
+    display: none !important;
 }
 
 .reset-step {
