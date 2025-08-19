@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+
+    <link rel="preload" href="css/style-performance.css" as="style">
+    <link rel="preload" href="css/keyframes-optimized.css" as="style">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard | CareGrid</title>
@@ -10,7 +12,7 @@
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
     
     <!-- Stylesheets -->
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style-performance.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
@@ -495,11 +497,8 @@
     <!-- Scripts -->
     <script src="js/api-service.js"></script>
     <script src="js/auth.js"></script>
-    <script src="js/script-v2.js"></script>
-    <script src="js/dashboard.js"></script>
-    <script src="js/test-booking.js"></script>
-    
-    <script>
+    <script src="js/script.js"></script>
+    <!-- dashboard functionality loaded lazily --><!-- test booking functionality loaded lazily --><script>
         // Enhanced authentication state management for dashboard
         function checkAuthenticationState() {
             try {
@@ -592,7 +591,7 @@
         
         // Also check after a short delay to ensure all scripts are loaded
         setTimeout(checkAuthenticationState, 500);
-    </script>
-
-</body>
+    </script>    <!-- Lazy Loading Script -->
+    <script src="js/lazy-loader.js"></script>
+$1</body>
 </html>

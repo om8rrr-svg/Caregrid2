@@ -148,7 +148,8 @@ class AuthSystem {
             return;
         }
         
-        this.showLoading('signInForm');
+        // Show modern loading overlay
+        this.showModernLoading();
         
         try {
             // Call API login endpoint
@@ -181,11 +182,17 @@ class AuthSystem {
             // Dispatch auth state change event
             window.dispatchEvent(new CustomEvent('authStateChanged'));
 
-            // Redirect immediately after storing token and user data
+            // Wait for loading animation to complete before redirecting
+            await this.delay(2000);
+            
+            // Redirect to dashboard
             window.location.href = 'dashboard.html';
             
         } catch (error) {
             console.log('Sign-in failed:', error.message);
+            
+            // Hide loading overlay
+            this.hideModernLoading();
             
             // Show specific error messages in appropriate fields
             if (error.message.includes('No account found') || error.message.includes('email address')) {
@@ -196,8 +203,6 @@ class AuthSystem {
                 // For generic errors, show in password field as fallback
                 this.showError('passwordError', error.message);
             }
-        } finally {
-            this.hideLoading('signInForm');
         }
     }
     
@@ -780,6 +785,27 @@ class AuthSystem {
         btnText.classList.remove('hidden');
         btnLoader.classList.add('hidden');
         submitBtn.disabled = false;
+    }
+    
+    showModernLoading() {
+        const overlay = document.getElementById('loadingOverlay');
+        if (overlay) {
+            overlay.style.display = 'flex';
+            // Trigger animation
+            setTimeout(() => {
+                overlay.classList.add('active');
+            }, 10);
+        }
+    }
+
+    hideModernLoading() {
+        const overlay = document.getElementById('loadingOverlay');
+        if (overlay) {
+            overlay.classList.remove('active');
+            setTimeout(() => {
+                overlay.style.display = 'none';
+            }, 300);
+        }
     }
     
     showSuccessMessage(title, message) {

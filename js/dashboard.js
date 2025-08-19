@@ -507,10 +507,12 @@ class Dashboard {
                 }
             });
             
-            // Add hover effect
+            // Add smooth hover effect with transition
+            card.style.transition = 'transform 0.3s ease, box-shadow 0.3s ease';
+            
             card.addEventListener('mouseenter', () => {
-                card.style.transform = 'translateY(-2px)';
-                card.style.boxShadow = '0 4px 20px rgba(0,0,0,0.15)';
+                card.style.transform = 'translateY(-1px)';
+                card.style.boxShadow = '0 3px 15px rgba(0,0,0,0.12)';
             });
             
             card.addEventListener('mouseleave', () => {
@@ -1178,8 +1180,9 @@ function clearTestBookings() {
 }
 
 // Initialize dashboard when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     window.dashboard = new Dashboard();
+    await window.dashboard.init();
     
     // Make refresh function globally accessible
     window.refreshDashboardAppointments = refreshDashboardAppointments;

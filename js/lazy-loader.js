@@ -1,0 +1,205 @@
+/**
+ * Lazy Loading Script Manager
+ * Loads JavaScript files only when needed to improve initial page load performance
+ */
+
+class LazyScriptLoader {
+    constructor() {
+        this.loadedScripts = new Set();
+        this.loadingPromises = new Map();
+    }
+
+    /**
+     * Load a script asynchronously
+     * @param {string} src - Script source URL
+     * @param {Object} options - Loading options
+     * @returns {Promise} - Promise that resolves when script is loaded
+     */
+    loadScript(src, options = {}) {
+        // Return existing promise if script is already loading
+        if (this.loadingPromises.has(src)) {
+            return this.loadingPromises.get(src);
+        }
+
+        // Return resolved promise if script is already loaded
+        if (this.loadedScripts.has(src)) {
+            return Promise.resolve();
+        }
+
+        const promise = new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = src;
+            script.async = options.async !== false;
+            script.defer = options.defer || false;
+            
+            if (options.crossorigin) {
+                script.crossOrigin = options.crossorigin;
+            }
+
+            script.onload = () => {
+                this.loadedScripts.add(src);
+                this.loadingPromises.delete(src);
+                resolve();
+            };
+
+            script.onerror = () => {
+                this.loadingPromises.delete(src);
+                reject(new Error(`Failed to load script: ${src}`));
+            };
+
+            document.head.appendChild(script);
+        });
+
+        this.loadingPromises.set(src, promise);
+        return promise;
+    }
+
+    /**
+     * Load multiple scripts in parallel
+     * @param {Array} scripts - Array of script sources or objects with src and options
+     * @returns {Promise} - Promise that resolves when all scripts are loaded
+     */
+    loadScripts(scripts) {
+        const promises = scripts.map(script => {
+            if (typeof script === 'string') {
+                return this.loadScript(script);
+            } else {
+                return this.loadScript(script.src, script.options || {});
+            }
+        });
+        return Promise.all(promises);
+    }
+
+    /**
+     * Load scripts when user interacts with the page
+     * @param {Array} scripts - Scripts to load on interaction
+     * @param {Array} events - Events to listen for (default: ['click', 'scroll', 'keydown'])
+     */
+    loadOnInteraction(scripts, events = ['click', 'scroll', 'keydown']) {
+        const loadScriptsOnce = () => {
+            this.loadScripts(scripts);
+            // Remove event listeners after first interaction
+            events.forEach(event => {
+                document.removeEventListener(event, loadScriptsOnce, { passive: true });
+            });
+        };
+
+        events.forEach(event => {
+            document.addEventListener(event, loadScriptsOnce, { passive: true });
+        });
+    }
+
+    /**
+     * Load scripts when element comes into view
+     * @param {string} selector - CSS selector for trigger element
+     * @param {Array} scripts - Scripts to load when element is visible
+     */
+    loadOnVisible(selector, scripts) {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    this.loadScripts(scripts);
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+
+        const elements = document.querySelectorAll(selector);
+        elements.forEach(el => observer.observe(el));
+    }
+
+    /**
+     * Load scripts after a delay
+     * @param {Array} scripts - Scripts to load
+     * @param {number} delay - Delay in milliseconds
+     */
+    loadAfterDelay(scripts, delay = 2000) {
+        setTimeout(() => {
+            this.loadScripts(scripts);
+        }, delay);
+    }
+
+    /**
+     * Preload scripts (download but don't execute)
+     * @param {Array} scripts - Scripts to preload
+     */
+    preloadScripts(scripts) {
+        scripts.forEach(src => {
+            const link = document.createElement('link');
+            link.rel = 'preload';
+            link.as = 'script';
+            link.href = typeof src === 'string' ? src : src.src;
+            document.head.appendChild(link);
+        });
+    }
+}
+
+// Create global instance
+window.lazyLoader = new LazyScriptLoader();
+
+// Page-specific lazy loading configurations
+const lazyLoadingConfigs = {
+    // Load search functionality only when search input is focused
+    search: {
+        scripts: ['js/search.js'],
+        trigger: 'input[type="search"], .search-input, #searchInput',
+        method: 'focus'
+    },
+    
+    // Load booking functionality when booking section is visible
+    booking: {
+        scripts: ['js/booking.js'],
+        trigger: '.booking-section, .book-appointment',
+        method: 'visible'
+    },
+    
+    // Load dashboard functionality after user interaction
+    dashboard: {
+        scripts: ['js/dashboard.js'],
+        trigger: 'interaction',
+        delay: 1000
+    },
+    
+    // Load test booking on interaction
+    testBooking: {
+        scripts: ['js/test-booking.js'],
+        trigger: 'interaction'
+    }
+};
+
+// Initialize lazy loading based on page content
+function initializeLazyLoading() {
+    // Check which scripts are needed based on page content
+    Object.entries(lazyLoadingConfigs).forEach(([name, config]) => {
+        if (config.trigger === 'interaction') {
+            if (config.delay) {
+                window.lazyLoader.loadAfterDelay(config.scripts, config.delay);
+            } else {
+                window.lazyLoader.loadOnInteraction(config.scripts);
+            }
+        } else if (config.method === 'visible') {
+            window.lazyLoader.loadOnVisible(config.trigger, config.scripts);
+        } else if (config.method === 'focus') {
+            const elements = document.querySelectorAll(config.trigger);
+            if (elements.length > 0) {
+                elements.forEach(el => {
+                    el.addEventListener('focus', () => {
+                        window.lazyLoader.loadScripts(config.scripts);
+                    }, { once: true });
+                });
+            }
+        }
+    });
+}
+
+// Initialize when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeLazyLoading);
+} else {
+    initializeLazyLoading();
+}
+
+// Export for use in other scripts
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = LazyScriptLoader;
+}

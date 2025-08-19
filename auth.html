@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+
+    <link rel="preload" href="css/style-performance.css" as="style">
+    <link rel="preload" href="css/keyframes-optimized.css" as="style">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign In | CareGrid</title>
@@ -10,7 +12,7 @@
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
     
     <!-- Stylesheets -->
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style-performance.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
@@ -33,9 +35,9 @@
         gtag('config', 'GA_MEASUREMENT_ID');
     </script>
 </head>
-<body>
+<body class="auth-page">
     <!-- Navigation -->
-    <nav class="navbar">
+    <nav class="navbar navbar-transparent">
         <div class="nav-container">
             <div class="nav-logo">
                 <img src="images/logo.svg" alt="CareGrid - Healthcare Directory Platform Logo" class="logo">
@@ -57,69 +59,138 @@
         </div>
     </nav>
 
-    <!-- Authentication Section -->
-    <section class="auth-section">
-        <div class="auth-container">
-            <div class="auth-card">
-                <div class="auth-header">
-                    <h1>Welcome Back</h1>
-                    <p>Sign in to your CareGrid account</p>
-                </div>
-
-                <!-- Sign In Form -->
-                <form id="signInForm" class="auth-form">
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" placeholder="Enter your email address" required>
-                        <span class="error-message" id="emailError"></span>
+    <!-- Modern Authentication Section -->
+    <section class="modern-auth-section">
+        <!-- Back Button -->
+        <div class="auth-back-button">
+            <a href="index.html" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                <span>Back to Home</span>
+            </a>
+        </div>
+        
+        <div class="auth-container-modern">
+            <!-- Left Panel - Login Form -->
+            <div class="auth-panel-left animate-fade-up">
+                <div class="auth-content">
+                    <div class="auth-header-modern">
+                        <h1 class="auth-title">Login</h1>
+                        <p class="auth-subtitle">Login</p>
                     </div>
-                    
-                    <div class="form-group">
-                        <label for="password">Password</label>
-                        <div class="password-input">
-                            <input type="password" id="password" name="password" placeholder="Enter your password" required>
-                            <button type="button" class="password-toggle" onclick="togglePassword('password')">
-                                <i class="fas fa-eye"></i>
+
+                    <!-- Sign In Form -->
+                    <form id="signInForm" class="modern-auth-form">
+                        <div class="form-group-modern">
+                            <input type="email" id="email" name="email" placeholder="Email" required class="modern-input">
+                            <span class="error-message" id="emailError"></span>
+                        </div>
+                        
+                        <div class="form-group-modern">
+                            <div class="password-input-modern">
+                                <input type="password" id="password" name="password" placeholder="Password" required class="modern-input">
+                                <button type="button" class="password-toggle-modern" onclick="togglePassword('password')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <span class="error-message" id="passwordError"></span>
+                        </div>
+                        
+                        <div class="form-options-modern">
+                            <label class="checkbox-modern">
+                                <input type="checkbox" id="rememberMe" name="rememberMe">
+                                <span class="checkmark-modern"></span>
+                                Remember me
+                            </label>
+                        </div>
+                        
+                        <button type="submit" class="modern-login-btn">
+                            <span class="btn-text">Login</span>
+                            <span class="btn-loader hidden">
+                                <i class="fas fa-spinner fa-spin"></i>
+                            </span>
+                        </button>
+                        
+                        <div class="auth-links">
+                            <a href="#" class="forgot-link" onclick="showPasswordResetWizard()">Forgot your password?</a>
+                        </div>
+                        
+                        <div class="divider-modern">
+                            <span>or continue with</span>
+                        </div>
+                        
+                        <div class="social-auth-modern">
+                            <button type="button" class="social-btn-modern google" onclick="signInWithGoogle()">
+                                <i class="fab fa-google"></i>
+                                <span>Google</span>
+                            </button>
+                            <button type="button" class="social-btn-modern facebook" onclick="signInWithFacebook()">
+                                <i class="fab fa-facebook-f"></i>
+                                <span>Facebook</span>
                             </button>
                         </div>
-                        <span class="error-message" id="passwordError"></span>
+                        
+                        <div class="business-access">
+                            <button type="button" class="business-btn-modern" onclick="window.location.href='admin-login.html'">
+                                <i class="fas fa-building"></i>
+                                <span>Business Login</span>
+                            </button>
+                        </div>
+                        
+                        <div class="auth-toggle-modern">
+                            <p>Don't have an account? <a href="signup.html" class="signup-link">Sign up</a></p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Right Panel - Illustration -->
+            <div class="auth-panel-right animate-slide-left">
+                <div class="illustration-container">
+                    <div class="illustration-content">
+                        <div class="project-visual">
+                            <div class="chart-container">
+                                <div class="chart-bar" style="height: 60%;"></div>
+                                <div class="chart-bar" style="height: 80%;"></div>
+                                <div class="chart-bar" style="height: 45%;"></div>
+                                <div class="chart-bar" style="height: 90%;"></div>
+                            </div>
+                            <div class="dashboard-elements">
+                                <div class="element-card">
+                                    <i class="fas fa-user-md"></i>
+                                </div>
+                                <div class="element-card">
+                                    <i class="fas fa-calendar-check"></i>
+                                </div>
+                                <div class="element-card">
+                                    <i class="fas fa-heart-pulse"></i>
+                                </div>
+                            </div>
+                            <div class="floating-icons">
+                                <div class="floating-icon" style="--delay: 0s;">
+                                    <i class="fas fa-stethoscope"></i>
+                                </div>
+                                <div class="floating-icon" style="--delay: 1s;">
+                                    <i class="fas fa-pills"></i>
+                                </div>
+                                <div class="floating-icon" style="--delay: 2s;">
+                                    <i class="fas fa-heartbeat"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="illustration-text">
+                            <h2 class="brand-accent">Check Your Project Progress</h2>
+                            <p>Monitor your healthcare journey with comprehensive analytics and personalized insights to optimize your care experience.</p>
+                            <div class="progress-indicators">
+                                <div class="progress-dot active"></div>
+                                <div class="progress-dot"></div>
+                                <div class="progress-dot"></div>
+                            </div>
+                        </div>
                     </div>
-                    
-                    <div class="form-options">
-                        <label class="checkbox-container">
-                            <input type="checkbox" id="rememberMe" name="rememberMe">
-                            <span class="checkmark"></span>
-                            Remember me
-                        </label>
-                        <a href="#" class="forgot-password" onclick="showPasswordResetWizard()">Forgot your password?</a>
-                    </div>
-                    
-                    <button type="submit" class="auth-btn primary">
-                        <span class="btn-text">Sign In</span>
-                        <span class="btn-loader hidden">
-                            <i class="fas fa-spinner fa-spin"></i>
-                        </span>
-                    </button>
-                    
-                    <div class="divider">
-                        <span>or continue with</span>
-                    </div>
-                    
-                    <div class="social-auth">
-                        <button type="button" class="social-btn google" onclick="signInWithGoogle()">
-                            <i class="fab fa-google"></i>
-                            <span>Google</span>
-                        </button>
-                        <button type="button" class="social-btn facebook" onclick="signInWithFacebook()">
-                            <i class="fab fa-facebook-f"></i>
-                            <span>Facebook</span>
-                        </button>
-                    </div>
-                    
-                    <div class="auth-toggle">
-                        <p>Don't have an account? <a href="signup.html" class="link">Sign up</a></p>
-                    </div>
-                </form>
+                </div>
+            </div>
+        </div>
+    </section>
 
                 <!-- Password Reset Wizard -->
                 <div id="passwordResetWizard" class="auth-form hidden" style="display: none;">
@@ -379,5 +450,38 @@
             window.authSystem = new AuthSystem();
         });
     </script>
-</body>
+    
+    <!-- Modern Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay hidden">
+        <div class="loading-container">
+            <div class="loading-animation">
+                <div class="loading-circle">
+                    <div class="loading-circle-inner"></div>
+                </div>
+                <div class="loading-dots">
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                </div>
+            </div>
+            <div class="loading-text">
+                <h2 class="loading-title">Logging you in securely...</h2>
+                <p class="loading-subtitle">Please wait while we verify your credentials</p>
+                <div class="loading-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill"></div>
+                    </div>
+                    <span class="progress-text">0%</span>
+                </div>
+            </div>
+        </div>
+        <div class="loading-background">
+            <div class="floating-shape shape-1"></div>
+            <div class="floating-shape shape-2"></div>
+            <div class="floating-shape shape-3"></div>
+            <div class="floating-shape shape-4"></div>
+        </div>
+    </div>    <!-- Lazy Loading Script -->
+    <script src="js/lazy-loader.js"></script>
+$1</body>
 </html>

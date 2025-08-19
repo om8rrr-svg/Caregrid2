@@ -1,13 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+
+    <link rel="preload" href="css/style-performance.css" as="style">
+    <link rel="preload" href="css/keyframes-optimized.css" as="style">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CareGrid - Find Private Healthcare Near You | Top-Rated Clinics in Manchester, Bolton, Leeds & Liverpool</title>
     <meta name="description" content="Discover trusted private healthcare providers near you. Find top-rated GPs, dentists, physiotherapists, and aesthetic clinics in Manchester, Bolton, Leeds, and Liverpool. Book appointments online.">
     <meta name="keywords" content="private healthcare, GP, dentist, physiotherapy, aesthetic clinic, Manchester, Bolton, Leeds, Liverpool">
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style-performance.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
@@ -184,7 +186,9 @@
     <!-- Categories Section -->
     <section class="categories" id="categories">
         <div class="container">
-            <header>
+            
+    <link rel="preload" href="css/style-performance.css" as="style">
+    <link rel="preload" href="css/keyframes-optimized.css" as="style">
                 <h2 class="section-title" data-aos="fade-up">Browse by Category</h2>
             </header>
             <nav class="category-grid" data-aos="fade-up" data-aos-delay="200" aria-label="Healthcare categories">
@@ -219,7 +223,9 @@
     <!-- Locations Section -->
     <section class="locations">
         <div class="container">
-            <header>
+            
+    <link rel="preload" href="css/style-performance.css" as="style">
+    <link rel="preload" href="css/keyframes-optimized.css" as="style">
                 <h2 class="section-title" data-aos="fade-up">Choose Your Location</h2>
             </header>
             <nav class="location-grid" data-aos="fade-up" data-aos-delay="200" aria-label="Available locations">
@@ -375,8 +381,7 @@
 
     <script src="js/api-service.js"></script>
 <script src="js/script.js"></script>
-<script src="js/search.js"></script>
-<script src="js/auth.js"></script>
+<!-- search functionality loaded lazily --><script src="js/auth.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
     <script>
         AOS.init({
@@ -451,6 +456,7 @@
                 dropdown.classList.remove('show');
             }
         });
-    </script>
-</body>
+    </script>    <!-- Lazy Loading Script -->
+    <script src="js/lazy-loader.js"></script>
+$1</body>
 </html>

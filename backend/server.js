@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const compression = require('compression');
 const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
@@ -14,6 +15,30 @@ const { authenticateToken } = require('./middleware/auth');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Compression middleware - enable gzip compression
+app.use(compression({
+  level: 6, // Compression level (1-9, 6 is optimal)
+  threshold: 1024, // Only compress responses larger than 1KB
+  filter: (req, res) => {
+    // Don't compress if client doesn't support it
+    if (req.headers['x-no-compression']) {
+      return false;
+    }
+    // Don't compress images, videos, or already compressed files
+    const contentType = res.getHeader('content-type');
+    if (contentType && (
+      contentType.includes('image/') ||
+      contentType.includes('video/') ||
+      contentType.includes('application/zip') ||
+      contentType.includes('application/gzip')
+    )) {
+      return false;
+    }
+    // Use compression for all other requests
+    return compression.filter(req, res);
+  }
+}));
 
 // Security middleware
 app.use(helmet());
