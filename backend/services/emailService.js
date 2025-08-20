@@ -268,6 +268,200 @@ class EmailService {
       </html>
     `;
   }
+
+  async sendBookingConfirmation(email, bookingData) {
+    try {
+      const mailOptions = {
+        from: process.env.EMAIL_FROM || '"CareGrid" <noreply@caregrid.com>',
+        to: email,
+        subject: 'Appointment Confirmation - CareGrid',
+        html: this.generateBookingConfirmationTemplate(bookingData)
+      };
+
+      const info = await this.transporter.sendMail(mailOptions);
+      
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('📧 Booking confirmation email sent successfully');
+        console.log('Preview URL:', nodemailer.getTestMessageUrl(info));
+      }
+      
+      return {
+        success: true,
+        messageId: info.messageId,
+        previewUrl: nodemailer.getTestMessageUrl(info)
+      };
+    } catch (error) {
+      console.error('Failed to send booking confirmation email:', error);
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  generateBookingConfirmationTemplate(bookingData) {
+    const { appointment, clinic } = bookingData;
+    
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Appointment Confirmation - CareGrid</title>
+        <style>
+          body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+          }
+          .container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          }
+          .header {
+            text-align: center;
+            margin-bottom: 30px;
+          }
+          .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #2a6ef3;
+            margin-bottom: 10px;
+          }
+          .success-icon {
+            width: 60px;
+            height: 60px;
+            background: #27AE60;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: white;
+            font-size: 1.8rem;
+          }
+          .booking-details {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 25px 0;
+            border-left: 4px solid #2a6ef3;
+          }
+          .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 12px 0;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+          }
+          .detail-row:last-child {
+            border-bottom: none;
+          }
+          .booking-ref {
+            font-weight: bold;
+            color: #2a6ef3;
+            font-size: 1.1rem;
+          }
+          .important-info {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 20px 0;
+            color: #856404;
+          }
+          .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            font-size: 14px;
+            color: #666;
+            text-align: center;
+          }
+          .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #2a6ef3;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+            margin: 10px 5px;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <div class="logo">CareGrid</div>
+            <div class="success-icon">✓</div>
+            <h2 style="color: #2a6ef3; margin: 0;">Appointment Confirmed!</h2>
+            <p style="color: #666; margin: 10px 0 0 0;">Your appointment has been successfully booked</p>
+          </div>
+          
+          <div class="booking-details">
+            <h3 style="margin: 0 0 20px 0; color: #2a6ef3;">Appointment Details</h3>
+            
+            <div class="detail-row">
+              <strong>Booking Reference:</strong>
+              <span class="booking-ref">${appointment.reference}</span>
+            </div>
+            
+            <div class="detail-row">
+              <strong>Clinic:</strong>
+              <span>${clinic.name}</span>
+            </div>
+            
+            <div class="detail-row">
+              <strong>Date & Time:</strong>
+              <span>${new Date(appointment.appointmentDate).toLocaleDateString('en-GB')} at ${appointment.appointmentTime}</span>
+            </div>
+            
+            <div class="detail-row">
+              <strong>Service:</strong>
+              <span>${appointment.treatmentType}</span>
+            </div>
+            
+            ${appointment.notes ? `
+            <div class="detail-row">
+              <strong>Notes:</strong>
+              <span>${appointment.notes}</span>
+            </div>
+            ` : ''}
+          </div>
+          
+          <div class="important-info">
+            <strong>Important Information:</strong>
+            <ul style="margin: 10px 0; padding-left: 20px;">
+              <li>Please arrive 10 minutes before your appointment time</li>
+              <li>Bring a valid form of identification</li>
+              <li>If you need to cancel or reschedule, please contact the clinic at least 24 hours in advance</li>
+            </ul>
+          </div>
+          
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${process.env.FRONTEND_URL || 'https://caregrid.netlify.app'}/dashboard.html" class="btn">
+              View Dashboard
+            </a>
+          </div>
+          
+          <div class="footer">
+            <p>Thank you for choosing CareGrid for your healthcare needs.</p>
+            <p><strong>Need help?</strong> Contact our support team or visit your dashboard to manage your appointments.</p>
+            <p><small>This is an automated message. Please do not reply to this email.</small></p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+  }
 }
 
 module.exports = new EmailService();

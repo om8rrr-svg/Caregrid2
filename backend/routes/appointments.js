@@ -4,6 +4,7 @@ const { v4: uuidv4 } = require('uuid');
 const { query, transaction } = require('../config/database');
 const { authenticateToken, optionalAuth } = require('../middleware/auth');
 const { AppError, asyncHandler, successResponse, paginatedResponse } = require('../middleware/errorHandler');
+const emailService = require('../services/emailService');
 
 const router = express.Router();
 
@@ -157,7 +158,8 @@ router.post('/', optionalAuth, bookingValidation, asyncHandler(async (req, res) 
   // Get clinic details for response
   const clinic = clinicResult.rows[0];
 
-  successResponse(res, {
+  // Prepare appointment data for response
+  const appointmentData = {
     appointment: {
       id: appointment.id,
       reference: appointment.reference_number,
@@ -174,7 +176,33 @@ router.post('/', optionalAuth, bookingValidation, asyncHandler(async (req, res) 
       notes: appointment.notes,
       createdAt: appointment.created_at
     }
-  }, 'Appointment booked successfully', 201);
+  };
+
+  // Send booking confirmation email
+  try {
+    const recipientEmail = req.user ? req.user.email : guestEmail;
+    const bookingData = {
+      appointment: appointmentData.appointment,
+      clinic: clinic
+    };
+    
+    const emailResult = await emailService.sendBookingConfirmation(recipientEmail, bookingData);
+    
+    if (emailResult.success) {
+      console.log('📧 Booking confirmation email sent successfully');
+      if (emailResult.previewUrl) {
+        console.log('📧 Preview URL:', emailResult.previewUrl);
+      }
+    } else {
+      console.error('📧 Failed to send booking confirmation email:', emailResult.error);
+      // Don't fail the booking if email fails - just log the error
+    }
+  } catch (error) {
+    console.error('📧 Error sending booking confirmation email:', error);
+    // Don't fail the booking if email fails - just log the error
+  }
+
+  successResponse(res, appointmentData, 'Appointment booked successfully', 201);
 }));
 
 // @route   GET /api/appointments

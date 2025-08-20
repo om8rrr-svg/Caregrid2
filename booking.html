@@ -395,45 +395,26 @@
                 <!-- Step 3: Personal Information -->
                 <div class="booking-step" id="bookingStep3">
                     <h3>Your Information</h3>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="firstName">First Name</label>
-                            <input type="text" id="firstName" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="lastName">Last Name</label>
-                            <input type="text" id="lastName" required>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="email">Email Address</label>
-                            <input type="email" id="email" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="phone">Phone Number</label>
-                            <input type="tel" id="phone" placeholder="+44 7700 900123" pattern="^(\+44\s?7\d{3}|\(?07\d{3}\)?)\s?\d{3}\s?\d{3}$" title="Please enter a valid UK mobile number" required>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="dateOfBirth">Date of Birth</label>
-                            <input type="date" id="dateOfBirth" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="gender">Gender</label>
-                            <select id="gender" required>
-                                <option value="">Select...</option>
-                                <option value="male">Male</option>
-                                <option value="female">Female</option>
-                                <option value="other">Other</option>
-                                <option value="prefer-not-to-say">Prefer not to say</option>
-                            </select>
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #2A6EF3;">
+                        <h4 style="margin: 0 0 15px 0; color: #2A6EF3; font-size: 1.1rem;">
+                            <i class="fas fa-user-check" style="margin-right: 8px;"></i>
+                            Account Information
+                        </h4>
+                        <p style="margin: 0 0 15px 0; color: #666;">
+                            Your appointment will be booked using the information from your account. 
+                            You can update your profile information in your dashboard after booking if needed.
+                        </p>
+                        <div id="userProfileInfo" style="background: white; padding: 15px; border-radius: 6px; border: 1px solid #e9ecef;">
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; font-size: 0.95rem;">
+                                <div><strong>Name:</strong> <span id="profileName">Loading...</span></div>
+                                <div><strong>Email:</strong> <span id="profileEmail">Loading...</span></div>
+                                <div><strong>Phone:</strong> <span id="profilePhone">Update in profile</span></div>
+                            </div>
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="medicalHistory">Relevant Medical History (Optional)</label>
-                        <textarea id="medicalHistory" rows="3" placeholder="Any relevant medical conditions, allergies, or current medications..."></textarea>
+                        <textarea id="medicalHistory" rows="3" placeholder="Any relevant medical conditions, allergies, or current medications that the clinic should be aware of..."></textarea>
                     </div>
                 </div>
 
@@ -594,7 +575,74 @@
             }, 500);
         });
     </script>
-    <script src="js/auth.js"></script>    <!-- Lazy Loading Script -->
+    <script src="js/auth.js"></script>
+    
+    <!-- Authentication Check for Booking -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wait for auth system to initialize
+            setTimeout(function() {
+                checkBookingAuthentication();
+            }, 100);
+        });
+        
+        function checkBookingAuthentication() {
+            // Check if user is authenticated
+            const authSystem = window.authSystem;
+            const isAuthenticated = authSystem && authSystem.isAuthenticated();
+            
+            if (!isAuthenticated) {
+                // Store current page as redirect target
+                sessionStorage.setItem('authRedirect', window.location.href);
+                
+                // Show authentication required message
+                const bookingForm = document.querySelector('.booking-form');
+                if (bookingForm) {
+                    bookingForm.innerHTML = `
+                        <div style="text-align: center; padding: 60px 40px;">
+                            <div style="width: 80px; height: 80px; background: #ffd700; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 30px; color: #2A6EF3; font-size: 2rem;">
+                                <i class="fas fa-lock"></i>
+                            </div>
+                            <h3 style="color: #2A6EF3; margin-bottom: 20px; font-size: 1.8rem;">Authentication Required</h3>
+                            <p style="color: #666; margin-bottom: 30px; font-size: 1.1rem; line-height: 1.6;">
+                                To book an appointment, you need to sign in to your account or create a new account.
+                                This ensures we can properly manage your appointments and send you confirmations.
+                            </p>
+                            <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                                <a href="auth.html" class="btn btn-primary" style="padding: 15px 30px; font-size: 1.1rem;">
+                                    <i class="fas fa-sign-in-alt" style="margin-right: 8px;"></i>
+                                    Sign In
+                                </a>
+                                <a href="auth.html" class="btn btn-secondary" style="padding: 15px 30px; font-size: 1.1rem;">
+                                    <i class="fas fa-user-plus" style="margin-right: 8px;"></i>
+                                    Create Account
+                                </a>
+                            </div>
+                            <p style="margin-top: 30px; color: #888; font-size: 0.9rem;">
+                                <i class="fas fa-info-circle" style="margin-right: 5px;"></i>
+                                Your booking will be automatically linked to your account after you sign in.
+                            </p>
+                        </div>
+                    `;
+                }
+                
+                // Hide navigation buttons
+                const navButtons = document.getElementById('navigationButtons');
+                if (navButtons) {
+                    navButtons.style.display = 'none';
+                }
+                
+                console.log('User not authenticated - redirecting to sign in');
+                return false;
+            }
+            
+            // User is authenticated, proceed with booking
+            console.log('User authenticated - allowing booking');
+            return true;
+        }
+    </script>
+    
+    <!-- Lazy Loading Script -->
     <script src="js/lazy-loader.js"></script>
 $1</body>
 </html>
