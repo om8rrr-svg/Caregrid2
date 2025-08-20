@@ -182,11 +182,8 @@ class AuthSystem {
             // Dispatch auth state change event
             window.dispatchEvent(new CustomEvent('authStateChanged'));
 
-            // Wait for loading animation to complete before redirecting
-            await this.delay(2000);
-            
-            // Redirect to dashboard
-            window.location.href = 'dashboard.html';
+            // The progress animation will handle the redirect when it reaches 100%
+            // No additional delay needed here
             
         } catch (error) {
             console.log('Sign-in failed:', error.message);
@@ -790,20 +787,36 @@ class AuthSystem {
     showModernLoading() {
         const overlay = document.getElementById('loadingOverlay');
         if (overlay) {
+            // Clear any existing progress animation
+            if (this.progressInterval) {
+                clearInterval(this.progressInterval);
+            }
+            
+            overlay.classList.remove('hidden');
             overlay.style.display = 'flex';
             // Trigger animation
             setTimeout(() => {
-                overlay.classList.add('active');
+                overlay.classList.add('show');
             }, 10);
+            
+            // Start progress bar animation
+            this.startProgressAnimation();
         }
     }
 
     hideModernLoading() {
         const overlay = document.getElementById('loadingOverlay');
         if (overlay) {
-            overlay.classList.remove('active');
+            // Clear progress animation
+            if (this.progressInterval) {
+                clearInterval(this.progressInterval);
+                this.progressInterval = null;
+            }
+            
+            overlay.classList.remove('show');
             setTimeout(() => {
                 overlay.style.display = 'none';
+                overlay.classList.add('hidden');
             }, 300);
         }
     }
@@ -842,6 +855,48 @@ class AuthSystem {
     
     delay(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
+    }
+    
+    startProgressAnimation() {
+        const progressFill = document.querySelector('.progress-fill');
+        const progressText = document.querySelector('.progress-text');
+        
+        if (progressFill && progressText) {
+            // Reset progress to 0
+            progressFill.style.width = '0%';
+            progressText.textContent = '0%';
+            
+            let progress = 0;
+            const duration = 3000; // 3 seconds - shorter duration
+            const interval = 50; // Update every 50ms
+            const increment = (100 / (duration / interval));
+            
+            // Clear any existing interval
+            if (this.progressInterval) {
+                clearInterval(this.progressInterval);
+            }
+            
+            this.progressInterval = setInterval(() => {
+                progress += increment;
+                if (progress >= 100) {
+                    progress = 100;
+                    progressFill.style.width = progress + '%';
+                    progressText.textContent = Math.round(progress) + '%';
+                    
+                    clearInterval(this.progressInterval);
+                    this.progressInterval = null;
+                    
+                    // Redirect immediately when progress reaches 100%
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 200); // Small delay to show 100% briefly
+                    return;
+                }
+                
+                progressFill.style.width = progress + '%';
+                progressText.textContent = Math.round(progress) + '%';
+            }, interval);
+        }
     }
 }
 

@@ -22,11 +22,13 @@ class AdminDashboard {
     }
 
     checkAuthentication() {
-        // Check if user is authenticated
-        const token = localStorage.getItem('careGridToken') || sessionStorage.getItem('careGridToken');
-        if (!token) {
-            // Redirect to auth page if not authenticated
-            window.location.href = '/auth.html';
+        // Check if admin is authenticated
+        const adminToken = localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken');
+        const isAdminLoggedIn = localStorage.getItem('adminLoggedIn') === 'true';
+        
+        if (!adminToken && !isAdminLoggedIn) {
+            // Redirect to admin login page if not authenticated
+            window.location.href = '/admin-login.html';
             return false;
         }
         return true;
@@ -46,6 +48,30 @@ class AdminDashboard {
         const themeToggle = document.getElementById('themeToggle');
         if (themeToggle) {
             themeToggle.addEventListener('click', () => this.toggleTheme());
+        }
+
+        // User profile dropdown
+        const userProfile = document.getElementById('userProfile');
+        const userDropdown = document.getElementById('userDropdown');
+        if (userProfile && userDropdown) {
+            userProfile.addEventListener('click', (e) => {
+                e.stopPropagation();
+                userDropdown.classList.toggle('show');
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', () => {
+                userDropdown.classList.remove('show');
+            });
+        }
+
+        // Logout button
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.logout();
+            });
         }
 
         // Menu toggle
@@ -1351,6 +1377,17 @@ class AdminDashboard {
         if (confirm('Are you sure you want to reset all changes?')) {
             location.reload();
         }
+    }
+
+    logout() {
+        // Clear admin authentication flags
+        localStorage.removeItem('adminLoggedIn');
+        localStorage.removeItem('adminToken');
+        sessionStorage.removeItem('adminLoggedIn');
+        sessionStorage.removeItem('adminToken');
+        
+        // Redirect to admin login page
+        window.location.href = '/admin-login.html';
     }
 }
 

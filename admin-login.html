@@ -43,7 +43,7 @@
         }
 
         .login-illustration {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            background: linear-gradient(135deg, #2A6EF3 0%, #1E5AD1 100%);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -109,27 +109,29 @@
         .logo {
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 40px;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
         }
 
         .logo-icon {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 12px;
+            width: 48px;
+            height: 48px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
             font-size: 20px;
             font-weight: 700;
         }
 
         .logo-text {
-            font-size: 24px;
+            font-size: 1.75rem;
             font-weight: 700;
-            color: #1a202c;
+            background: linear-gradient(135deg, #2A6EF3, #1E5AD1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.025em;
         }
 
         .form-title {
@@ -137,12 +139,16 @@
             font-weight: 700;
             color: #1a202c;
             margin-bottom: 8px;
+            text-align: center;
         }
 
         .form-subtitle {
+            font-size: 1rem;
+            font-weight: 400;
             color: #64748b;
-            margin-bottom: 40px;
-            font-size: 16px;
+            margin: 0.5rem 0 1.5rem 0;
+            text-align: center;
+            line-height: 1.4;
         }
 
         .form-group {
@@ -299,7 +305,7 @@
     <div class="login-container">
         <div class="login-form-section">
             <div class="logo">
-                <div class="logo-icon">C</div>
+                <div class="logo-icon"><img src="images/logo.svg" alt="CareGrid Logo" style="width: 100%; height: 100%; object-fit: contain;"></div>
                 <div class="logo-text">CareGrid</div>
             </div>
             
@@ -369,6 +375,47 @@
             }
         }
 
+        // Loading screen functionality
+        function showLoadingScreen() {
+            const loadingHTML = `
+                <div id="loadingOverlay" style="
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 9999;
+                    color: white;
+                ">
+                    <div style="text-align: center;">
+                        <div style="
+                            width: 60px;
+                            height: 60px;
+                            border: 4px solid rgba(255, 255, 255, 0.3);
+                            border-top: 4px solid white;
+                            border-radius: 50%;
+                            animation: spin 1s linear infinite;
+                            margin: 0 auto 20px;
+                        "></div>
+                        <h2 style="margin: 0 0 10px 0; font-size: 24px; font-weight: 600;">Signing In...</h2>
+                        <p style="margin: 0; opacity: 0.9; font-size: 16px;">Redirecting to Admin Dashboard</p>
+                    </div>
+                </div>
+                <style>
+                    @keyframes spin {
+                        0% { transform: rotate(0deg); }
+                        100% { transform: rotate(360deg); }
+                    }
+                </style>
+            `;
+            document.body.insertAdjacentHTML('beforeend', loadingHTML);
+        }
+
         document.getElementById('adminLoginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
@@ -377,8 +424,17 @@
             
             // Simple validation for demo purposes
             if (email === 'admin@caregrid.com' && password === 'admin123') {
-                // Redirect to admin dashboard
-                window.location.href = 'admin-dashboard.html';
+                // Set admin authentication flags
+                localStorage.setItem('adminLoggedIn', 'true');
+                localStorage.setItem('adminToken', 'admin-session-' + Date.now());
+                
+                // Show loading screen
+                showLoadingScreen();
+                
+                // Simulate authentication process and redirect after delay
+                setTimeout(() => {
+                    window.location.href = 'admin-dashboard.html';
+                }, 2000); // 2 second loading screen
             } else {
                 alert('Invalid credentials. Use admin@caregrid.com / admin123 for demo.');
             }

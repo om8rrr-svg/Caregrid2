@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 
-    <link rel="preload" href="css/style-performance.css" as="style">
-    <link rel="preload" href="css/keyframes-optimized.css" as="style">
+    <link rel="preload" href="css/style.css" as="style">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign In | CareGrid</title>
@@ -12,7 +11,7 @@
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
     
     <!-- Stylesheets -->
-    <link rel="stylesheet" href="css/style-performance.css">
+    <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
@@ -74,8 +73,12 @@
             <div class="auth-panel-left animate-fade-up">
                 <div class="auth-content">
                     <div class="auth-header-modern">
+                        <div class="auth-logo">
+                            <img src="images/logo.svg" alt="CareGrid Logo" class="auth-logo-image">
+                            <span class="auth-logo-text">CareGrid</span>
+                        </div>
                         <h1 class="auth-title">Login</h1>
-                        <p class="auth-subtitle">Login</p>
+                        <p class="auth-subtitle">Welcome back to your healthcare dashboard</p>
                     </div>
 
                     <!-- Sign In Form -->
@@ -105,9 +108,6 @@
                         
                         <button type="submit" class="modern-login-btn">
                             <span class="btn-text">Login</span>
-                            <span class="btn-loader hidden">
-                                <i class="fas fa-spinner fa-spin"></i>
-                            </span>
                         </button>
                         
                         <div class="auth-links">

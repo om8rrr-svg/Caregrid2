@@ -2384,6 +2384,18 @@ function filterByCategory(category) {
     }
     
     applyFilters();
+    
+    // Scroll to locations section
+    const locationsSection = document.querySelector('.locations');
+    if (locationsSection) {
+        setTimeout(() => {
+            locationsSection.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start',
+                inline: 'nearest'
+            });
+        }, 100);
+    }
 }
 
 function filterByLocation(location) {
@@ -2402,6 +2414,18 @@ function filterByLocation(location) {
     }
     
     applyFilters();
+    
+    // Scroll to featured clinics section
+    const featuredClinicsSection = document.querySelector('.featured-clinics');
+    if (featuredClinicsSection) {
+        setTimeout(() => {
+            featuredClinicsSection.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start',
+                inline: 'nearest'
+            });
+        }, 100);
+    }
 }
 
 function applyFilters() {
@@ -3025,8 +3049,8 @@ function initRotatingText() {
     const rotatingText = document.getElementById('rotating-text');
     if (!rotatingText) return;
     
-    const words = ['GPs', 'Dentists', 'Physios', 'Pharmacies'];
-    let currentIndex = 0;
+    const words = ['Medical Care', 'GPs', 'Dentists', 'Physios', 'Pharmacies'];
+    let currentIndex = 1;
     let isAnimating = false;
     
     function rotateText() {
