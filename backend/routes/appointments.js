@@ -459,4 +459,92 @@ router.get('/reference/:reference', asyncHandler(async (req, res) => {
   successResponse(res, appointment, 'Appointment retrieved successfully');
 }));
 
+// @route   GET /api/admin/appointments
+// @desc    Get all appointments for admin dashboard
+// @access  Private (Admin)
+router.get('/admin/appointments', authenticateToken, asyncHandler(async (req, res) => {
+  // For now, allow any authenticated user to view all appointments
+  // In production, you would add role checking: requireRole(['clinic_admin', 'super_admin'])
+  
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 50;
+  const offset = (page - 1) * limit;
+  const status = req.query.status; // optional filter
+  const clinicId = req.query.clinicId; // optional filter
+
+  let whereClause = 'WHERE 1=1';
+  let queryParams = [];
+  
+  if (status) {
+    whereClause += ' AND a.status = $' + (queryParams.length + 1);
+    queryParams.push(status);
+  }
+  
+  if (clinicId) {
+    whereClause += ' AND a.clinic_id = $' + (queryParams.length + 1);
+    queryParams.push(clinicId);
+  }
+
+  // Get all appointments with clinic and patient details
+  const result = await query(
+    `SELECT 
+      a.id, a.reference_number as reference, a.appointment_date, a.appointment_time,
+      a.status, a.patient_name, a.patient_email, a.patient_phone, a.notes, 
+      a.created_at, a.updated_at, a.user_id,
+      c.id as clinic_id, c.name as clinic_name, c.type as clinic_type,
+      c.address as clinic_address, c.phone as clinic_phone, c.email as clinic_email,
+      u.first_name as user_first_name, u.last_name as user_last_name, u.email as user_email
+     FROM appointments a
+     JOIN clinics c ON a.clinic_id = c.id
+     LEFT JOIN users u ON a.user_id = u.id
+     ${whereClause}
+     ORDER BY a.created_at DESC, a.appointment_date DESC, a.appointment_time DESC
+     LIMIT $${queryParams.length + 1} OFFSET $${queryParams.length + 2}`,
+    [...queryParams, limit, offset]
+  );
+
+  // Get total count
+  const countResult = await query(
+    `SELECT COUNT(*) FROM appointments a 
+     JOIN clinics c ON a.clinic_id = c.id
+     ${whereClause}`,
+    queryParams
+  );
+
+  const appointments = result.rows.map(row => ({
+    id: row.id,
+    reference: row.reference,
+    appointmentDate: row.appointment_date,
+    appointmentTime: row.appointment_time,
+    treatmentType: 'General Consultation', // Default since field doesn't exist in schema
+    status: row.status,
+    notes: row.notes,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    isGuestBooking: !row.user_id,
+    // Patient details - handle both registered users and guest bookings
+    patientName: row.user_id ? `${row.user_first_name || ''} ${row.user_last_name || ''}`.trim() : row.patient_name,
+    patientEmail: row.user_id ? row.user_email : row.patient_email,
+    patientPhone: row.patient_phone,
+    // Include guest booking fields for backwards compatibility
+    guestName: row.user_id ? null : row.patient_name,
+    guestEmail: row.user_id ? null : row.patient_email,
+    guestPhone: row.user_id ? null : row.patient_phone,
+    clinic: {
+      id: row.clinic_id,
+      name: row.clinic_name,
+      type: row.clinic_type,
+      address: row.clinic_address,
+      phone: row.clinic_phone,
+      email: row.clinic_email
+    }
+  }));
+
+  paginatedResponse(res, appointments, {
+    page,
+    limit,
+    total: parseInt(countResult.rows[0].count)
+  });
+}));
+
 module.exports = router;

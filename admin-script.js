@@ -250,8 +250,24 @@ class AdminDashboard {
 
         try {
             recentBookingsContainer.innerHTML = '<div class="loading-spinner">Loading recent bookings...</div>';
-            const bookings = await window.adminApiService.getAllBookings();
-            const recentBookings = bookings.slice(0, 5);
+            const apiBookings = await window.adminApiService.getAllBookings();
+            
+            // Transform API response to match expected format and get recent 5
+            const recentBookings = apiBookings.slice(0, 5).map(booking => ({
+                id: booking.id,
+                patient: booking.patientName || booking.guestName || 'Unknown Patient',
+                email: booking.patientEmail || booking.guestEmail || 'No email',
+                phone: booking.patientPhone || booking.guestPhone || 'No phone',
+                service: booking.treatmentType || 'General Consultation',
+                date: booking.appointmentDate,
+                time: booking.appointmentTime,
+                status: booking.status,
+                clinic: booking.clinic?.name || 'Unknown Clinic',
+                reference: booking.reference,
+                notes: booking.notes,
+                isGuest: booking.isGuestBooking
+            }));
+            
             recentBookingsContainer.innerHTML = this.generateBookingsTable(recentBookings);
         } catch (error) {
             console.error('Failed to load recent bookings:', error);
@@ -267,7 +283,24 @@ class AdminDashboard {
             // Show loading state
             bookingsContainer.innerHTML = '<div class="loading"><div class="spinner"></div>Loading bookings...</div>';
             
-            const bookings = await window.adminApiService.getAllBookings();
+            const apiBookings = await window.adminApiService.getAllBookings();
+            
+            // Transform API response to match expected format
+            const bookings = apiBookings.map(booking => ({
+                id: booking.id,
+                patient: booking.patientName || booking.guestName || 'Unknown Patient',
+                email: booking.patientEmail || booking.guestEmail || 'No email',
+                phone: booking.patientPhone || booking.guestPhone || 'No phone',
+                service: booking.treatmentType || 'General Consultation',
+                date: booking.appointmentDate,
+                time: booking.appointmentTime,
+                status: booking.status,
+                clinic: booking.clinic?.name || 'Unknown Clinic',
+                reference: booking.reference,
+                notes: booking.notes,
+                isGuest: booking.isGuestBooking
+            }));
+            
             const bookingsWithFilters = this.createBookingsWithFilters(bookings);
             bookingsContainer.innerHTML = bookingsWithFilters;
         } catch (error) {
@@ -278,7 +311,7 @@ class AdminDashboard {
 
     generateBookingsTable(bookings, showActions = false) {
         const headers = showActions 
-            ? ['Patient', 'Email', 'Service', 'Date', 'Time', 'Status', 'Actions']
+            ? ['Patient', 'Email', 'Phone', 'Service', 'Date', 'Time', 'Status', 'Actions']
             : ['Patient', 'Service', 'Time', 'Status'];
 
         let tableHTML = `
@@ -293,21 +326,26 @@ class AdminDashboard {
 
         bookings.forEach(booking => {
             const statusBadge = this.getStatusBadge(booking.status);
+            const patientDisplay = booking.isGuest ? 
+                `${booking.patient} <span class="badge badge-info badge-sm">Guest</span>` : 
+                booking.patient;
+            
             const actionsHTML = showActions ? `
                 <td>
                     ${booking.status === 'pending' ? `
                         <button class="btn btn-success btn-sm approve-booking" data-booking-id="${booking.id}">Approve</button>
                         <button class="btn btn-danger btn-sm reject-booking" data-booking-id="${booking.id}">Reject</button>
                     ` : `
-                        <button class="btn btn-outline btn-sm">View</button>
+                        <button class="btn btn-outline btn-sm" title="Ref: ${booking.reference || 'N/A'}">View</button>
                     `}
                 </td>
             ` : '';
 
             tableHTML += `
                 <tr>
-                    <td>${booking.patient}</td>
+                    <td>${patientDisplay}</td>
                     ${showActions ? `<td>${booking.email}</td>` : ''}
+                    ${showActions ? `<td>${booking.phone || 'Not provided'}</td>` : ''}
                     <td>${booking.service}</td>
                     ${showActions ? `<td>${booking.date}</td>` : ''}
                     <td>${booking.time}</td>
