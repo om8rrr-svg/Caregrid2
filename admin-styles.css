@@ -1091,12 +1091,11 @@ body {
 
  .stat-card {
    padding: 1rem;
-  }
+ }
   
-  .page-title {
-    font-size: 1.25rem;
-  }
-}
+ .page-title {
+   font-size: 1.25rem;
+ }
 
 /* Loading States */
 .loading {
