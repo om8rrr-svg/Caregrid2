@@ -3,7 +3,8 @@
 
 class AdminAPIService {
     constructor() {
-        this.baseURL = 'http://localhost:3000/api';
+        // Use production URL by default, fallback to localhost for development
+        this.baseURL = window.API_BASE || 'https://caregrid-backend.onrender.com/api';
         this.token = this.getStoredToken();
     }
 
