@@ -9,25 +9,25 @@ class AdminAPIService {
 
     // Token management
     getStoredToken() {
-        return localStorage.getItem('careGridToken') || sessionStorage.getItem('careGridToken');
+        return localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken');
     }
 
     setToken(token, remember = false) {
         this.token = token;
         if (remember) {
-            localStorage.setItem('careGridToken', token);
-            sessionStorage.removeItem('careGridToken');
+            localStorage.setItem('adminToken', token);
+            sessionStorage.removeItem('adminToken');
         } else {
-            sessionStorage.setItem('careGridToken', token);
-            localStorage.removeItem('careGridToken');
+            sessionStorage.setItem('adminToken', token);
+            localStorage.removeItem('adminToken');
         }
         this.token = this.getStoredToken();
     }
 
     removeToken() {
         this.token = null;
-        localStorage.removeItem('careGridToken');
-        sessionStorage.removeItem('careGridToken');
+        localStorage.removeItem('adminToken');
+        sessionStorage.removeItem('adminToken');
     }
 
     // HTTP request helper
