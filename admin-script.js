@@ -54,35 +54,49 @@ class AdminDashboard {
     }
 
     setupEventListeners() {
-        // Navigation
-        document.querySelectorAll('.nav-link').forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                const section = link.getAttribute('data-section');
-                this.showSection(section);
-            });
-        });
-
-        // Theme toggle
-        const themeToggle = document.getElementById('themeToggle');
-        if (themeToggle) {
-            themeToggle.addEventListener('click', () => this.toggleTheme());
-        }
-
-        // User profile dropdown
-        const userProfile = document.getElementById('userProfile');
-        const userDropdown = document.getElementById('userDropdown');
-        if (userProfile && userDropdown) {
-            userProfile.addEventListener('click', (e) => {
-                e.stopPropagation();
-                userDropdown.classList.toggle('show');
+        // Use setTimeout to ensure DOM is fully rendered
+        setTimeout(() => {
+            // Navigation
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const section = link.getAttribute('data-section');
+                    this.showSection(section);
+                });
             });
 
-            // Close dropdown when clicking outside
-            document.addEventListener('click', () => {
-                userDropdown.classList.remove('show');
-            });
-        }
+            // Theme toggle
+             const themeToggle = document.getElementById('themeToggle');
+             if (themeToggle) {
+                 // Remove any existing handlers
+                 themeToggle.onclick = null;
+                 themeToggle.addEventListener('click', (e) => {
+                     e.preventDefault();
+                     e.stopPropagation();
+                     this.toggleTheme();
+                 });
+             }
+
+             // User profile dropdown
+             const userProfile = document.getElementById('userProfile');
+             const userDropdown = document.getElementById('userDropdown');
+             if (userProfile && userDropdown) {
+                 // Remove any existing handlers
+                 userProfile.onclick = null;
+                 userProfile.addEventListener('click', (e) => {
+                     e.preventDefault();
+                     e.stopPropagation();
+                     userDropdown.classList.toggle('show');
+                 });
+
+                 // Close dropdown when clicking outside
+                 document.addEventListener('click', (e) => {
+                     if (!userProfile.contains(e.target)) {
+                         userDropdown.classList.remove('show');
+                     }
+                 });
+             }
+        }, 100);
 
         // Logout button
         const logoutBtn = document.getElementById('logoutBtn');

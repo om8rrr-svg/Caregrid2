@@ -193,6 +193,8 @@ body {
   color: var(--text-primary);
   cursor: pointer;
   transition: all 0.2s ease;
+  z-index: 1001;
+  position: relative;
 }
 
 .theme-toggle:hover {
@@ -212,6 +214,7 @@ body {
   position: relative;
   cursor: pointer;
   transition: all 0.2s ease;
+  z-index: 1001;
 }
 
 .user-profile:hover {
