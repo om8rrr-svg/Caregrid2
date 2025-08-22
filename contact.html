@@ -638,7 +638,7 @@
     <script src="js/script.js"></script>
     <script>
         // Contact form handling
-        document.getElementById('contactForm').addEventListener('submit', function(e) {
+        document.getElementById('contactForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             // Get form data
@@ -661,15 +661,49 @@
                 return;
             }
             
-            // Simulate form submission
-            // In a real implementation, you would send this to your backend
-            console.log('Contact form submitted:', data);
-            
-            // Show success message
-            showMessage('success');
-            
-            // Reset form
-            this.reset();
+            try {
+                // Show loading state
+                const submitButton = this.querySelector('button[type="submit"]');
+                const originalText = submitButton.textContent;
+                submitButton.textContent = 'Sending...';
+                submitButton.disabled = true;
+                
+                // Submit to backend API
+                const response = await fetch('http://localhost:3000/api/contact', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    // Show success message
+                    showMessage('success', 'Thank you for your message! We will get back to you soon.');
+                    
+                    // Reset form
+                    this.reset();
+                } else {
+                    // Show error message
+                    const errorMessage = result.message || result.error || 'Failed to send message. Please try again.';
+                    showMessage('error', errorMessage);
+                }
+                
+                // Restore button state
+                submitButton.textContent = originalText;
+                submitButton.disabled = false;
+                
+            } catch (error) {
+                console.error('Contact form submission error:', error);
+                showMessage('error', 'Network error. Please check your connection and try again.');
+                
+                // Restore button state
+                const submitButton = this.querySelector('button[type="submit"]');
+                submitButton.textContent = 'Send Message';
+                submitButton.disabled = false;
+            }
         });
         
         function showMessage(type, customMessage = null) {

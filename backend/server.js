@@ -10,6 +10,7 @@ const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const clinicRoutes = require('./routes/clinics');
 const appointmentRoutes = require('./routes/appointments');
+const contactRoutes = require('./routes/contact');
 const { errorHandler } = require('./middleware/errorHandler');
 const { authenticateToken } = require('./middleware/auth');
 
@@ -113,6 +114,7 @@ app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/users', authenticateToken, userRoutes);
 app.use('/api/clinics', clinicRoutes);
 app.use('/api/appointments', appointmentRoutes);
+app.use('/api/contact', contactRoutes);
 
 // 404 handler
 app.use('*', (req, res) => {
