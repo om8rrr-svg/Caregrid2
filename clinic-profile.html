@@ -174,21 +174,21 @@
                     <div class="image-overlay">
                         <div class="type-badge">
                             <i class="fas fa-stethoscope"></i>
-                            <span id="overlayType">General Practitioner</span>
+                            <span id="overlayType">Loading...</span>
                         </div>
                         <div class="premium-badge-image" id="premiumBadge"><i class="fas fa-crown"></i> Premium</div>
                     </div>
                 </div>
                 <div class="clinic-info">
-                    <h1 id="clinicName">Manchester Medical Centre</h1>
-                    <p class="clinic-type" id="clinicType">General Practitioner</p>
+                    <h1 id="clinicName">Loading clinic information...</h1>
+                    <p class="clinic-type" id="clinicType">Loading...</p>
                     <div class="clinic-rating">
                         <span class="stars" id="clinicStars">★★★★★</span>
-                        <span class="rating-text" id="clinicRating">4.8 (156 reviews)</span>
+                        <span class="rating-text" id="clinicRating">Loading reviews...</span>
                     </div>
                     <p class="clinic-address" id="clinicAddress">
                         <i class="fas fa-map-marker-alt"></i>
-                        123 Oxford Road, Manchester M1 7ED
+                        Loading address...
                     </p>
                     <div class="clinic-contact">
                         <a href="tel:+441234567890" class="contact-btn" id="clinicCallBtn">
@@ -211,9 +211,7 @@
                     <div class="section-card">
                         <h3>About This Clinic</h3>
                         <p id="clinicDescription">
-                            Manchester Medical Centre is a leading healthcare provider offering comprehensive medical services. 
-                            Our experienced team of healthcare professionals is dedicated to providing exceptional care in a 
-                            comfortable and modern environment.
+                            Loading clinic information...
                         </p>
                     </div>
 
@@ -270,15 +268,15 @@
                         <div class="contact-info">
                             <div class="contact-item">
                                 <i class="fas fa-phone"></i>
-                                <span id="clinicPhone">0161 234 5678</span>
+                                <span id="clinicPhone">Loading...</span>
                             </div>
                             <div class="contact-item">
                                 <i class="fas fa-envelope"></i>
-                                <span id="clinicEmail">info@manchestermedical.co.uk</span>
+                                <span id="clinicEmail">Loading...</span>
                             </div>
                             <div class="contact-item">
                                 <i class="fas fa-clock"></i>
-                                <span id="clinicStatus">Open Now</span>
+                                <span id="clinicStatus">Loading...</span>
                             </div>
                         </div>
                     </div>
@@ -346,6 +344,9 @@
             
             if (clinicId) {
                 try {
+                    // Show loading state
+                    showLoadingState();
+                    
                     // Try to get clinic from API first
                     const response = await window.apiService.getClinicById(clinicId);
                     const clinic = response.data || response;
@@ -381,9 +382,34 @@
             }
         }
         
+        function showLoadingState() {
+            document.getElementById('clinicName').textContent = 'Loading clinic information...';
+            document.getElementById('clinicType').textContent = 'Loading...';
+            document.getElementById('clinicAddress').innerHTML = '<i class="fas fa-map-marker-alt"></i> Loading address...';
+            document.getElementById('clinicPhone').textContent = 'Loading...';
+            document.getElementById('clinicEmail').textContent = 'Loading...';
+            document.getElementById('clinicStatus').textContent = 'Loading...';
+            document.getElementById('overlayType').textContent = 'Loading...';
+            document.getElementById('clinicDescription').textContent = 'Loading clinic information...';
+            document.getElementById('clinicRating').textContent = 'Loading reviews...';
+        }
+        
         function showErrorMessage(message) {
             document.getElementById('clinicName').textContent = message;
+            document.getElementById('clinicType').textContent = '';
+            document.getElementById('clinicAddress').innerHTML = '<i class="fas fa-map-marker-alt"></i> Address not available';
+            document.getElementById('clinicPhone').textContent = 'Phone not available';
+            document.getElementById('clinicEmail').textContent = 'Email not available';
+            document.getElementById('clinicStatus').textContent = 'Status unknown';
+            document.getElementById('overlayType').textContent = '';
             document.getElementById('clinicDescription').textContent = 'Please check the URL and try again.';
+            document.getElementById('clinicRating').textContent = 'No reviews available';
+            
+            // Hide premium badge when there's an error
+            const premiumBadge = document.getElementById('premiumBadge');
+            if (premiumBadge) {
+                premiumBadge.style.display = 'none';
+            }
         }
         
         document.addEventListener('DOMContentLoaded', initializeClinicProfile);
