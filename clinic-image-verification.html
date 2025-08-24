@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clinic Image Verification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .clinic-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .clinic-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .clinic-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .clinic-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .clinic-info {
+            color: #666;
+            font-size: 14px;
+        }
+        .status {
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        .status.success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .status.error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🖼️ Clinic Image Verification</h1>
+        <p>Verifying the 14 successfully matched clinic images</p>
+    </div>
+
+    <div class="clinic-grid" id="clinicGrid">
+        <!-- Clinics will be loaded here -->
+    </div>
+
+    <script src="js/script.js"></script>
+    <script>
+        // List of clinic IDs that were updated with images
+        const updatedClinicIds = [9, 11, 13, 14, 16, 18, 22, 107, 205, 304, 405, 504, 515, 522];
+        
+        function loadUpdatedClinics() {
+            const clinicGrid = document.getElementById('clinicGrid');
+            
+            // Filter to only show updated clinics
+            const updatedClinics = clinicsData.filter(clinic => updatedClinicIds.includes(clinic.id));
+            
+            console.log(`Found ${updatedClinics.length} updated clinics`);
+            
+            updatedClinics.forEach(clinic => {
+                const clinicCard = document.createElement('div');
+                clinicCard.className = 'clinic-card';
+                
+                // Create image element
+                const img = document.createElement('img');
+                img.className = 'clinic-image';
+                img.alt = clinic.name;
+                img.src = clinic.image;
+                
+                // Check if image loads successfully
+                img.onload = function() {
+                    const status = clinicCard.querySelector('.status');
+                    status.textContent = '✅ Image loaded successfully';
+                    status.className = 'status success';
+                };
+                
+                img.onerror = function() {
+                    const status = clinicCard.querySelector('.status');
+                    status.textContent = '❌ Failed to load image';
+                    status.className = 'status error';
+                    img.src = 'images/clinic1.svg'; // Fallback
+                };
+                
+                clinicCard.innerHTML = `
+                    <div class="clinic-name">${clinic.name}</div>
+                    <div class="clinic-info">
+                        <strong>Type:</strong> ${clinic.type}<br>
+                        <strong>Location:</strong> ${clinic.location}<br>
+                        <strong>Image:</strong> ${clinic.image}<br>
+                        <strong>Rating:</strong> ${clinic.rating} ⭐ (${clinic.reviews} reviews)
+                    </div>
+                    <div class="status">Loading...</div>
+                `;
+                
+                // Insert image at the beginning
+                clinicCard.insertBefore(img, clinicCard.firstChild);
+                
+                clinicGrid.appendChild(clinicCard);
+            });
+        }
+        
+        // Load clinics when page loads
+        document.addEventListener('DOMContentLoaded', loadUpdatedClinics);
+    </script>
+</body>
+</html>
