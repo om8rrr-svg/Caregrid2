@@ -38,7 +38,17 @@ services:
       - key: JWT_SECRET
         generateValue: true
       - key: FRONTEND_URL
-        value: https://caregrid-frontend.onrender.com
+        value: https://www.caregrid.co.uk
+      - key: CORS_ORIGIN
+        value: https://www.caregrid.co.uk,https://caregrid.co.uk,http://localhost:3000,http://localhost:8000,http://localhost:8080
+      - key: EMAIL_SERVICE
+        value: gmail
+      - key: EMAIL_USER
+        value: noreply@caregriduk.co.uk
+      - key: EMAIL_PASSWORD
+        value: bycozcsxrffvvazo
+      - key: EMAIL_FROM
+        value: "CareGrid UK" <noreply@caregriduk.co.uk>
 
 databases:
   - name: caregrid-db

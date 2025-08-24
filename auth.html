@@ -392,14 +392,19 @@
         
         // Initialize Google OAuth
         function initGoogleAuth() {
+            if (typeof gapi === 'undefined') {
+                console.warn('Google API not loaded, OAuth will use fallback');
+                return;
+            }
+            
             gapi.load('auth2', function() {
                 gapi.auth2.init({
                     client_id: GOOGLE_CLIENT_ID
                 }).then(function() {
                     console.log('Google Auth initialized successfully');
                 }).catch(function(error) {
-                    console.warn('Google Auth initialization failed (expected for localhost):', error);
-                    // Silently handle the error - this is expected for localhost development
+                    console.warn('Google Auth initialization failed:', error);
+                    // This is expected when OAuth is not properly configured for the domain
                     // The auth.js file already has fallback simulation functions
                 });
             });
@@ -407,6 +412,11 @@
         
         // Initialize Facebook SDK
         function initFacebookAuth() {
+            if (FACEBOOK_APP_ID === 'your-facebook-app-id') {
+                console.warn('Facebook App ID not configured, OAuth will use fallback');
+                return;
+            }
+            
             window.fbAsyncInit = function() {
                 FB.init({
                     appId: FACEBOOK_APP_ID,
