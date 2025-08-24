@@ -44,11 +44,17 @@ class APIService {
     // HTTP request helper
     async makeRequest(endpoint, options = {}) {
         const url = `${this.baseURL}${endpoint}`;
-        console.log('Making request to:', url); // Debug log
         
-        // Add timeout to prevent indefinite loading
+        // Only log in development mode to avoid console spam in production
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            console.log('Making request to:', url);
+        }
+        
+        // Add timeout to prevent indefinite loading - shorter timeout for clinics endpoint
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+        const isClinicRequest = endpoint.includes('/clinics');
+        const timeoutMs = isClinicRequest ? 10000 : 30000; // 10s for clinics, 30s for others
+        const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
         
         const config = {
             headers: {
@@ -69,10 +75,8 @@ class APIService {
         }
 
         try {
-            console.log('Request config:', config); // Debug log
             const response = await fetch(url, config);
             clearTimeout(timeoutId); // Clear timeout on successful response
-            console.log('Response received:', response.status, response.statusText); // Debug log
             
             // Handle 401 Unauthorized gracefully for missing/invalid tokens
             if (response.status === 401) {
@@ -113,8 +117,12 @@ class APIService {
             return data;
         } catch (error) {
             clearTimeout(timeoutId); // Clear timeout on error
-            console.error('API Request failed:', error);
-            console.error('Error details:', error.message, error.stack); // Enhanced debug log
+            
+            // Only log errors in development mode to avoid console spam
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                console.error('API Request failed:', error);
+                console.error('Error details:', error.message);
+            }
             
             // Handle specific error cases
             if (error.name === 'AbortError') {
@@ -122,12 +130,15 @@ class APIService {
             }
             
             if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
-                throw new Error('Network connection failed. Please check if the server is running.');
+                // For clinic requests, don't throw scary errors - let fallback handle it
+                if (isClinicRequest) {
+                    throw new Error('BACKEND_UNAVAILABLE');
+                }
+                throw new Error('Network connection failed. Please check your connection.');
             }
             
             // For authentication errors, provide clearer messaging
             if (error.message.includes('Authentication failed') || error.message.includes('401')) {
-                // Don't re-throw here to avoid cascading errors
                 throw new Error('Authentication failed');
             }
             
@@ -220,8 +231,46 @@ class APIService {
         });
         
         const endpoint = `/clinics${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
-        const response = await this.makeRequest(endpoint);
-        return response;
+        
+        // Try with retry mechanism for clinic requests (backend might be sleeping)
+        return await this.makeRequestWithRetry(endpoint);
+    }
+    
+    // Retry mechanism specifically for critical requests like clinics
+    async makeRequestWithRetry(endpoint, options = {}, maxRetries = 2) {
+        let lastError;
+        
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            try {
+                return await this.makeRequest(endpoint, options);
+            } catch (error) {
+                lastError = error;
+                
+                // Don't retry for certain types of errors
+                if (error.message.includes('Authentication failed') || 
+                    error.message.includes('401') ||
+                    error.message.includes('403') ||
+                    error.message.includes('400')) {
+                    throw error;
+                }
+                
+                // If this is the last attempt, throw the error
+                if (attempt === maxRetries) {
+                    throw error;
+                }
+                
+                // Wait before retrying (exponential backoff)
+                const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000); // Cap at 5 seconds
+                await new Promise(resolve => setTimeout(resolve, delay));
+                
+                // Only log retry attempts in development
+                if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                    console.log(`Retrying request to ${endpoint} (attempt ${attempt + 1}/${maxRetries})`);
+                }
+            }
+        }
+        
+        throw lastError;
     }
 
     async getClinicById(clinicId) {
