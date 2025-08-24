@@ -146,12 +146,12 @@ class AdminAPIService {
         try {
             const queryParams = new URLSearchParams();
             if (filters.status) queryParams.append('status', filters.status);
-            if (filters.clinic) queryParams.append('clinic', filters.clinic);
+            if (filters.clinicId) queryParams.append('clinicId', filters.clinicId);
             if (filters.date) queryParams.append('date', filters.date);
             if (filters.page) queryParams.append('page', filters.page);
             if (filters.limit) queryParams.append('limit', filters.limit);
 
-            const endpoint = `/appointments${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+            const endpoint = `/appointments/admin/appointments${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
             const response = await this.makeRequest(endpoint);
             return response.data || [];
         } catch (error) {
