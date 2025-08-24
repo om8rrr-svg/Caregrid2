@@ -2103,23 +2103,112 @@ function handleURLParameters() {
 
 // Load clinics from API
 async function loadClinicsFromAPI() {
+    // Show loading status
+    showAPIStatus('Loading clinics...', 'info');
+    
     try {
-        console.log('Attempting to connect to API at:', apiService.baseURL);
+        // Only log in development mode
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            console.log('Attempting to connect to API at:', apiService.baseURL);
+        }
+        
         // Request all clinics with a high limit to get the full dataset
         const response = await apiService.getClinics({ limit: 200 });
-        console.log('API response:', response);
         
         // Handle different response formats
         const clinics = response.data || response;
-        if (clinics && clinics.length > 0) {
+        if (clinics && Array.isArray(clinics) && clinics.length > 0) {
             clinicsData = clinics;
-            console.log('✅ Loaded', clinics.length, 'clinics from API');
+            // Only log success in development mode
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                console.log('✅ Loaded', clinics.length, 'clinics from API');
+            }
+            
+            // Show a subtle success indicator for users
+            showAPIStatus('Live data loaded', 'success');
         } else {
-            console.warn('API returned empty data, using fallback');
+            // API returned empty data, use fallback
+            showAPIStatus('Using sample data', 'info');
         }
     } catch (error) {
-        console.warn('❌ Failed to load clinics from API, using fallback data:', error.message);
-        // Keep the existing sample data as fallback
+        // Handle different types of errors gracefully
+        if (error.message === 'BACKEND_UNAVAILABLE') {
+            // Backend is unavailable, use fallback data silently
+            showAPIStatus('Demo mode', 'offline');
+        } else {
+            // Other errors - still use fallback but show different status
+            showAPIStatus('Demo mode', 'offline');
+        }
+        
+        // Only log errors in development mode
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            console.warn('❌ Failed to load clinics from API, using fallback data:', error.message);
+        }
+        
+        // Keep the existing sample data as fallback - this ensures the app works
+        // clinicsData is already populated with sample data from the beginning of the file
+    }
+}
+
+// Show API connection status to users
+function showAPIStatus(message, status) {
+    // Create or update a small status indicator
+    let statusIndicator = document.getElementById('api-status-indicator');
+    if (!statusIndicator) {
+        statusIndicator = document.createElement('div');
+        statusIndicator.id = 'api-status-indicator';
+        statusIndicator.style.cssText = `
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            pointer-events: none;
+        `;
+        document.body.appendChild(statusIndicator);
+    }
+    
+    // Set styles based on status
+    const styles = {
+        success: {
+            background: '#d4edda',
+            color: '#155724',
+            border: '1px solid #c3e6cb'
+        },
+        info: {
+            background: '#cce7ff',
+            color: '#004085', 
+            border: '1px solid #a6d3ff'
+        },
+        offline: {
+            background: '#f8d7da',
+            color: '#721c24',
+            border: '1px solid #f1aeb5'
+        }
+    };
+    
+    const style = styles[status] || styles.info;
+    statusIndicator.style.background = style.background;
+    statusIndicator.style.color = style.color;
+    statusIndicator.style.border = style.border;
+    statusIndicator.textContent = message;
+    
+    // Auto-hide success messages after 3 seconds
+    if (status === 'success') {
+        setTimeout(() => {
+            if (statusIndicator) {
+                statusIndicator.style.opacity = '0';
+                setTimeout(() => {
+                    if (statusIndicator && statusIndicator.parentNode) {
+                        statusIndicator.parentNode.removeChild(statusIndicator);
+                    }
+                }, 300);
+            }
+        }, 3000);
     }
 }
 
