@@ -1,4 +1,4 @@
-const axios = require('axios');
+const axios = require("axios");
 
 /**
  * Google Places API Service
@@ -7,7 +7,7 @@ const axios = require('axios');
 class GooglePlacesService {
   constructor() {
     this.apiKey = process.env.GOOGLE_PLACES_API_KEY;
-    this.baseUrl = 'https://maps.googleapis.com/maps/api/place';
+    this.baseUrl = "https://maps.googleapis.com/maps/api/place";
   }
 
   /**
@@ -18,28 +18,34 @@ class GooglePlacesService {
    */
   async findPlace(name, address) {
     if (!this.apiKey) {
-      console.warn('Google Places API key not configured');
+      console.warn("Google Places API key not configured");
       return null;
     }
 
     try {
       const query = `${name} ${address}`;
-      const response = await axios.get(`${this.baseUrl}/findplacefromtext/json`, {
-        params: {
-          input: query,
-          inputtype: 'textquery',
-          fields: 'place_id,name,rating,user_ratings_total,formatted_address',
-          key: this.apiKey
-        }
-      });
+      const response = await axios.get(
+        `${this.baseUrl}/findplacefromtext/json`,
+        {
+          params: {
+            input: query,
+            inputtype: "textquery",
+            fields: "place_id,name,rating,user_ratings_total,formatted_address",
+            key: this.apiKey,
+          },
+        },
+      );
 
-      if (response.data.status === 'OK' && response.data.candidates.length > 0) {
+      if (
+        response.data.status === "OK" &&
+        response.data.candidates.length > 0
+      ) {
         return response.data.candidates[0];
       }
 
       return null;
     } catch (error) {
-      console.error('Error finding place:', error.message);
+      console.error("Error finding place:", error.message);
       return null;
     }
   }
@@ -51,7 +57,7 @@ class GooglePlacesService {
    */
   async getPlaceDetails(placeId) {
     if (!this.apiKey) {
-      console.warn('Google Places API key not configured');
+      console.warn("Google Places API key not configured");
       return null;
     }
 
@@ -59,18 +65,19 @@ class GooglePlacesService {
       const response = await axios.get(`${this.baseUrl}/details/json`, {
         params: {
           place_id: placeId,
-          fields: 'place_id,name,rating,user_ratings_total,reviews,formatted_address,formatted_phone_number,website',
-          key: this.apiKey
-        }
+          fields:
+            "place_id,name,rating,user_ratings_total,reviews,formatted_address,formatted_phone_number,website",
+          key: this.apiKey,
+        },
       });
 
-      if (response.data.status === 'OK') {
+      if (response.data.status === "OK") {
         return response.data.result;
       }
 
       return null;
     } catch (error) {
-      console.error('Error getting place details:', error.message);
+      console.error("Error getting place details:", error.message);
       return null;
     }
   }
@@ -84,25 +91,25 @@ class GooglePlacesService {
     try {
       // First, find the place
       const place = await this.findPlace(clinic.name, clinic.address);
-      
+
       if (!place || !place.place_id) {
         return {
           googleRating: null,
           googleReviewCount: null,
           googleReviews: [],
-          googlePlaceId: null
+          googlePlaceId: null,
         };
       }
 
       // Get detailed information
       const details = await this.getPlaceDetails(place.place_id);
-      
+
       if (!details) {
         return {
           googleRating: place.rating || null,
           googleReviewCount: place.user_ratings_total || null,
           googleReviews: [],
-          googlePlaceId: place.place_id
+          googlePlaceId: place.place_id,
         };
       }
 
@@ -112,15 +119,19 @@ class GooglePlacesService {
         googleReviews: details.reviews || [],
         googlePlaceId: details.place_id,
         googleWebsite: details.website || null,
-        googlePhone: details.formatted_phone_number || null
+        googlePhone: details.formatted_phone_number || null,
       };
     } catch (error) {
-      console.error('Error getting Google data for clinic:', clinic.name, error.message);
+      console.error(
+        "Error getting Google data for clinic:",
+        clinic.name,
+        error.message,
+      );
       return {
         googleRating: null,
         googleReviewCount: null,
         googleReviews: [],
-        googlePlaceId: null
+        googlePlaceId: null,
       };
     }
   }
@@ -132,26 +143,28 @@ class GooglePlacesService {
    */
   async enrichClinicsWithGoogleData(clinics) {
     if (!this.apiKey) {
-      console.warn('Google Places API key not configured, skipping Google data enrichment');
-      return clinics.map(clinic => ({
+      console.warn(
+        "Google Places API key not configured, skipping Google data enrichment",
+      );
+      return clinics.map((clinic) => ({
         ...clinic,
         googleRating: null,
         googleReviewCount: null,
-        googleReviews: []
+        googleReviews: [],
       }));
     }
 
     const enrichedClinics = [];
-    
+
     for (const clinic of clinics) {
       const googleData = await this.getClinicGoogleData(clinic);
       enrichedClinics.push({
         ...clinic,
-        ...googleData
+        ...googleData,
       });
-      
+
       // Add delay to respect API rate limits
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
     }
 
     return enrichedClinics;
@@ -165,13 +178,18 @@ class GooglePlacesService {
    * @param {number} googleReviewCount - Google review count
    * @returns {Object} Combined rating data
    */
-  getCombinedRating(localRating, localReviewCount, googleRating, googleReviewCount) {
+  getCombinedRating(
+    localRating,
+    localReviewCount,
+    googleRating,
+    googleReviewCount,
+  ) {
     // If no Google data, use local data
     if (!googleRating || !googleReviewCount) {
       return {
         combinedRating: localRating || 0,
         combinedReviewCount: localReviewCount || 0,
-        source: 'local'
+        source: "local",
       };
     }
 
@@ -180,20 +198,20 @@ class GooglePlacesService {
       return {
         combinedRating: googleRating,
         combinedReviewCount: googleReviewCount,
-        source: 'google'
+        source: "google",
       };
     }
 
     // Combine both ratings with weighted average
     const totalReviews = localReviewCount + googleReviewCount;
-    const weightedRating = (
-      (localRating * localReviewCount) + (googleRating * googleReviewCount)
-    ) / totalReviews;
+    const weightedRating =
+      (localRating * localReviewCount + googleRating * googleReviewCount) /
+      totalReviews;
 
     return {
       combinedRating: Math.round(weightedRating * 10) / 10, // Round to 1 decimal
       combinedReviewCount: totalReviews,
-      source: 'combined'
+      source: "combined",
     };
   }
 }

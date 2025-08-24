@@ -1,11 +1,11 @@
-const db = require('../config/database');
-const { v4: uuidv4 } = require('uuid');
+const db = require("../config/database");
+const { v4: uuidv4 } = require("uuid");
 
 class Appointment {
   static generateReferenceNumber() {
     // Generate a 8-character reference number (CG + 6 random chars)
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let result = 'CG';
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let result = "CG";
     for (let i = 0; i < 6; i++) {
       result += chars.charAt(Math.floor(Math.random() * chars.length));
     }
@@ -23,24 +23,25 @@ class Appointment {
       patientName,
       patientEmail,
       patientPhone,
-      notes
+      notes,
     } = appointmentData;
 
     // Generate unique reference number
     let referenceNumber;
     let isUnique = false;
     let attempts = 0;
-    
+
     while (!isUnique && attempts < 10) {
       referenceNumber = this.generateReferenceNumber();
-      const existingQuery = 'SELECT id FROM appointments WHERE reference_number = $1';
+      const existingQuery =
+        "SELECT id FROM appointments WHERE reference_number = $1";
       const existingResult = await db.query(existingQuery, [referenceNumber]);
       isUnique = existingResult.rows.length === 0;
       attempts++;
     }
 
     if (!isUnique) {
-      throw new Error('Unable to generate unique reference number');
+      throw new Error("Unable to generate unique reference number");
     }
 
     const query = `
@@ -54,9 +55,17 @@ class Appointment {
     `;
 
     const values = [
-      referenceNumber, userId, clinicId, serviceId, appointmentDate,
-      appointmentTime, durationMinutes, patientName, patientEmail,
-      patientPhone, notes
+      referenceNumber,
+      userId,
+      clinicId,
+      serviceId,
+      appointmentDate,
+      appointmentTime,
+      durationMinutes,
+      patientName,
+      patientEmail,
+      patientPhone,
+      notes,
     ];
 
     const result = await db.query(query, values);
@@ -77,7 +86,7 @@ class Appointment {
       LEFT JOIN users u ON a.user_id = u.id
       WHERE a.id = $1
     `;
-    
+
     const result = await db.query(query, [id]);
     return result.rows[0] || null;
   }
@@ -96,7 +105,7 @@ class Appointment {
       LEFT JOIN users u ON a.user_id = u.id
       WHERE a.reference_number = $1
     `;
-    
+
     const result = await db.query(query, [referenceNumber]);
     return result.rows[0] || null;
   }
@@ -112,7 +121,7 @@ class Appointment {
       LEFT JOIN clinic_services cs ON a.service_id = cs.id
       WHERE a.user_id = $1
     `;
-    
+
     const values = [userId];
     let paramCount = 2;
 
@@ -139,9 +148,9 @@ class Appointment {
       ORDER BY a.appointment_date DESC, a.appointment_time DESC
       LIMIT $${paramCount} OFFSET $${paramCount + 1}
     `;
-    
+
     values.push(limit, offset);
-    
+
     const result = await db.query(query, values);
     return result.rows;
   }
@@ -157,7 +166,7 @@ class Appointment {
       LEFT JOIN clinic_services cs ON a.service_id = cs.id
       WHERE a.clinic_id = $1
     `;
-    
+
     const values = [clinicId];
     let paramCount = 2;
 
@@ -190,16 +199,22 @@ class Appointment {
       ORDER BY a.appointment_date ASC, a.appointment_time ASC
       LIMIT $${paramCount} OFFSET $${paramCount + 1}
     `;
-    
+
     values.push(limit, offset);
-    
+
     const result = await db.query(query, values);
     return result.rows;
   }
 
   static async updateStatus(id, status, cancellationReason = null) {
-    const validStatuses = ['pending', 'confirmed', 'cancelled', 'completed', 'no_show'];
-    
+    const validStatuses = [
+      "pending",
+      "confirmed",
+      "cancelled",
+      "completed",
+      "no_show",
+    ];
+
     if (!validStatuses.includes(status)) {
       throw new Error(`Invalid status: ${status}`);
     }
@@ -213,22 +228,28 @@ class Appointment {
       WHERE id = $3
       RETURNING *
     `;
-    
+
     const result = await db.query(query, [status, cancellationReason, id]);
     return result.rows[0] || null;
   }
 
   static async update(id, updates) {
     const allowedFields = [
-      'appointment_date', 'appointment_time', 'duration_minutes',
-      'patient_name', 'patient_email', 'patient_phone', 'notes', 'status'
+      "appointment_date",
+      "appointment_time",
+      "duration_minutes",
+      "patient_name",
+      "patient_email",
+      "patient_phone",
+      "notes",
+      "status",
     ];
-    
+
     const updateFields = [];
     const values = [];
     let paramCount = 1;
 
-    Object.keys(updates).forEach(key => {
+    Object.keys(updates).forEach((key) => {
       if (allowedFields.includes(key) && updates[key] !== undefined) {
         updateFields.push(`${key} = $${paramCount}`);
         values.push(updates[key]);
@@ -237,15 +258,15 @@ class Appointment {
     });
 
     if (updateFields.length === 0) {
-      throw new Error('No valid fields to update');
+      throw new Error("No valid fields to update");
     }
 
-    updateFields.push('updated_at = CURRENT_TIMESTAMP');
+    updateFields.push("updated_at = CURRENT_TIMESTAMP");
     values.push(id);
 
     const query = `
       UPDATE appointments 
-      SET ${updateFields.join(', ')}
+      SET ${updateFields.join(", ")}
       WHERE id = $${paramCount}
       RETURNING *
     `;
@@ -255,12 +276,17 @@ class Appointment {
   }
 
   static async delete(id) {
-    const query = 'DELETE FROM appointments WHERE id = $1 RETURNING *';
+    const query = "DELETE FROM appointments WHERE id = $1 RETURNING *";
     const result = await db.query(query, [id]);
     return result.rows[0] || null;
   }
 
-  static async checkAvailability(clinicId, appointmentDate, appointmentTime, excludeId = null) {
+  static async checkAvailability(
+    clinicId,
+    appointmentDate,
+    appointmentTime,
+    excludeId = null,
+  ) {
     let query = `
       SELECT id FROM appointments 
       WHERE clinic_id = $1 
@@ -268,14 +294,14 @@ class Appointment {
         AND appointment_time = $3 
         AND status != 'cancelled'
     `;
-    
+
     const values = [clinicId, appointmentDate, appointmentTime];
-    
+
     if (excludeId) {
-      query += ' AND id != $4';
+      query += " AND id != $4";
       values.push(excludeId);
     }
-    
+
     const result = await db.query(query, values);
     return result.rows.length === 0; // true if available
   }
@@ -296,7 +322,7 @@ class Appointment {
       ORDER BY a.appointment_date ASC, a.appointment_time ASC
       LIMIT $2
     `;
-    
+
     const result = await db.query(query, [userId, limit]);
     return result.rows;
   }
@@ -316,7 +342,7 @@ class Appointment {
       ORDER BY a.appointment_date DESC, a.appointment_time DESC
       LIMIT $2 OFFSET $3
     `;
-    
+
     const result = await db.query(query, [userId, limit, offset]);
     return result.rows;
   }
@@ -333,7 +359,7 @@ class Appointment {
       WHERE clinic_id = $1
         AND appointment_date BETWEEN $2 AND $3
     `;
-    
+
     const result = await db.query(query, [clinicId, fromDate, toDate]);
     return result.rows[0];
   }

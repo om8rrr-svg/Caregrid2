@@ -1,4 +1,4 @@
-const db = require('../config/database');
+const db = require("../config/database");
 
 class Clinic {
   static async create(clinicData) {
@@ -13,7 +13,7 @@ class Clinic {
       email,
       website,
       logoUrl,
-      ownerId
+      ownerId,
     } = clinicData;
 
     const query = `
@@ -26,8 +26,17 @@ class Clinic {
     `;
 
     const values = [
-      name, type, description, address, city, postcode,
-      phone, email, website, logoUrl, ownerId
+      name,
+      type,
+      description,
+      address,
+      city,
+      postcode,
+      phone,
+      email,
+      website,
+      logoUrl,
+      ownerId,
     ];
 
     const result = await db.query(query, values);
@@ -55,7 +64,7 @@ class Clinic {
       LEFT JOIN clinic_reviews r ON c.id = r.clinic_id
       WHERE c.is_active = true
     `;
-    
+
     const values = [];
     let paramCount = 1;
 
@@ -89,9 +98,9 @@ class Clinic {
       ORDER BY c.is_premium DESC, c.rating DESC, c.name ASC
       LIMIT $${paramCount} OFFSET $${paramCount + 1}
     `;
-    
+
     values.push(limit, offset);
-    
+
     const result = await db.query(query, values);
     return result.rows;
   }
@@ -112,7 +121,7 @@ class Clinic {
       ORDER BY c.is_premium DESC, c.rating DESC
       LIMIT $2
     `;
-    
+
     const result = await db.query(query, [`%${searchTerm}%`, limit]);
     return result.rows;
   }
@@ -129,25 +138,31 @@ class Clinic {
 
   static async addService(clinicId, serviceData) {
     const { serviceName, description, price, durationMinutes } = serviceData;
-    
+
     const query = `
       INSERT INTO clinic_services (clinic_id, service_name, description, price, duration_minutes)
       VALUES ($1, $2, $3, $4, $5)
       RETURNING *
     `;
-    
+
     const values = [clinicId, serviceName, description, price, durationMinutes];
     const result = await db.query(query, values);
     return result.rows[0];
   }
 
   static async updateService(serviceId, updates) {
-    const allowedFields = ['service_name', 'description', 'price', 'duration_minutes', 'is_active'];
+    const allowedFields = [
+      "service_name",
+      "description",
+      "price",
+      "duration_minutes",
+      "is_active",
+    ];
     const updateFields = [];
     const values = [];
     let paramCount = 1;
 
-    Object.keys(updates).forEach(key => {
+    Object.keys(updates).forEach((key) => {
       if (allowedFields.includes(key) && updates[key] !== undefined) {
         updateFields.push(`${key} = $${paramCount}`);
         values.push(updates[key]);
@@ -156,14 +171,14 @@ class Clinic {
     });
 
     if (updateFields.length === 0) {
-      throw new Error('No valid fields to update');
+      throw new Error("No valid fields to update");
     }
 
     values.push(serviceId);
 
     const query = `
       UPDATE clinic_services 
-      SET ${updateFields.join(', ')}
+      SET ${updateFields.join(", ")}
       WHERE id = $${paramCount}
       RETURNING *
     `;
@@ -183,14 +198,14 @@ class Clinic {
       ORDER BY r.created_at DESC
       LIMIT $2 OFFSET $3
     `;
-    
+
     const result = await db.query(query, [clinicId, limit, offset]);
     return result.rows;
   }
 
   static async addReview(reviewData) {
     const { clinicId, userId, appointmentId, rating, reviewText } = reviewData;
-    
+
     const query = `
       INSERT INTO clinic_reviews (clinic_id, user_id, appointment_id, rating, review_text)
       VALUES ($1, $2, $3, $4, $5)
@@ -202,13 +217,13 @@ class Clinic {
         created_at = CURRENT_TIMESTAMP
       RETURNING *
     `;
-    
+
     const values = [clinicId, userId, appointmentId, rating, reviewText];
     const result = await db.query(query, values);
-    
+
     // Update clinic rating
     await this.updateRating(clinicId);
-    
+
     return result.rows[0];
   }
 
@@ -222,22 +237,32 @@ class Clinic {
       WHERE id = $1
       RETURNING rating, review_count
     `;
-    
+
     const result = await db.query(query, [clinicId]);
     return result.rows[0];
   }
 
   static async update(id, updates) {
     const allowedFields = [
-      'name', 'type', 'description', 'address', 'city', 'postcode',
-      'phone', 'email', 'website', 'logo_url', 'is_premium', 'is_active'
+      "name",
+      "type",
+      "description",
+      "address",
+      "city",
+      "postcode",
+      "phone",
+      "email",
+      "website",
+      "logo_url",
+      "is_premium",
+      "is_active",
     ];
-    
+
     const updateFields = [];
     const values = [];
     let paramCount = 1;
 
-    Object.keys(updates).forEach(key => {
+    Object.keys(updates).forEach((key) => {
       if (allowedFields.includes(key) && updates[key] !== undefined) {
         updateFields.push(`${key} = $${paramCount}`);
         values.push(updates[key]);
@@ -246,15 +271,15 @@ class Clinic {
     });
 
     if (updateFields.length === 0) {
-      throw new Error('No valid fields to update');
+      throw new Error("No valid fields to update");
     }
 
-    updateFields.push('updated_at = CURRENT_TIMESTAMP');
+    updateFields.push("updated_at = CURRENT_TIMESTAMP");
     values.push(id);
 
     const query = `
       UPDATE clinics 
-      SET ${updateFields.join(', ')}
+      SET ${updateFields.join(", ")}
       WHERE id = $${paramCount}
       RETURNING *
     `;
@@ -271,21 +296,21 @@ class Clinic {
       FROM appointments
       WHERE clinic_id = $1 AND appointment_date = $2 AND status != 'cancelled'
     `;
-    
+
     const result = await db.query(query, [clinicId, date]);
-    const bookedTimes = result.rows.map(row => row.appointment_time);
-    
+    const bookedTimes = result.rows.map((row) => row.appointment_time);
+
     // Generate available slots (9 AM to 5 PM, 30-minute intervals)
     const availableSlots = [];
     for (let hour = 9; hour < 17; hour++) {
       for (let minute = 0; minute < 60; minute += 30) {
-        const timeSlot = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:00`;
+        const timeSlot = `${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}:00`;
         if (!bookedTimes.includes(timeSlot)) {
           availableSlots.push(timeSlot);
         }
       }
     }
-    
+
     return availableSlots;
   }
 
@@ -297,7 +322,7 @@ class Clinic {
       GROUP BY city
       ORDER BY clinic_count DESC, city ASC
     `;
-    
+
     const result = await db.query(query);
     return result.rows;
   }
@@ -310,7 +335,7 @@ class Clinic {
       GROUP BY type
       ORDER BY clinic_count DESC, type ASC
     `;
-    
+
     const result = await db.query(query);
     return result.rows;
   }

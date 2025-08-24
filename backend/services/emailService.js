@@ -1,4 +1,4 @@
-const nodemailer = require('nodemailer');
+const nodemailer = require("nodemailer");
 
 class EmailService {
   constructor() {
@@ -10,25 +10,25 @@ class EmailService {
     // Use Gmail if EMAIL_USER is configured, otherwise use Ethereal Email for testing
     if (process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
       // Gmail email configuration
-      console.log('📧 Initializing Gmail transporter...');
-      console.log('📧 Email service:', process.env.EMAIL_SERVICE);
-      console.log('📧 Email user:', process.env.EMAIL_USER);
-      console.log('📧 Email from:', process.env.EMAIL_FROM);
-      
+      console.log("📧 Initializing Gmail transporter...");
+      console.log("📧 Email service:", process.env.EMAIL_SERVICE);
+      console.log("📧 Email user:", process.env.EMAIL_USER);
+      console.log("📧 Email from:", process.env.EMAIL_FROM);
+
       this.transporter = nodemailer.createTransport({
-        service: process.env.EMAIL_SERVICE || 'gmail',
+        service: process.env.EMAIL_SERVICE || "gmail",
         auth: {
           user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_PASSWORD
+          pass: process.env.EMAIL_PASSWORD,
         },
         timeout: 10000, // 10 second timeout
         connectionTimeout: 10000,
         greetingTimeout: 5000,
-        socketTimeout: 10000
+        socketTimeout: 10000,
       });
     } else {
       // Development: Use Ethereal Email for testing
-      console.log('📧 Initializing test email service for development...');
+      console.log("📧 Initializing test email service for development...");
       this.createTestAccount();
     }
   }
@@ -37,26 +37,26 @@ class EmailService {
     try {
       // Create a test account for development
       const testAccount = await nodemailer.createTestAccount();
-      
+
       this.transporter = nodemailer.createTransport({
-        host: 'smtp.ethereal.email',
+        host: "smtp.ethereal.email",
         port: 587,
         secure: false,
         auth: {
           user: testAccount.user,
-          pass: testAccount.pass
-        }
+          pass: testAccount.pass,
+        },
       });
-      
-      console.log('📧 Email service initialized with test account');
-      console.log('Test account:', testAccount.user);
+
+      console.log("📧 Email service initialized with test account");
+      console.log("Test account:", testAccount.user);
     } catch (error) {
-      console.error('Failed to create test email account:', error);
+      console.error("Failed to create test email account:", error);
       // Fallback: create a simple transporter without authentication
       this.transporter = nodemailer.createTransport({
         streamTransport: true,
-        newline: 'unix',
-        buffer: true
+        newline: "unix",
+        buffer: true,
       });
     }
   }
@@ -66,46 +66,56 @@ class EmailService {
       const mailOptions = {
         from: process.env.EMAIL_FROM || '"CareGrid" <noreply@caregrid.com>',
         to: email,
-        subject: 'Password Reset Verification Code - CareGrid',
-        html: this.generateVerificationEmailTemplate(code)
+        subject: "Password Reset Verification Code - CareGrid",
+        html: this.generateVerificationEmailTemplate(code),
       };
 
       const info = await this.transporter.sendMail(mailOptions);
-      
+
       // Log the result
-      if (process.env.NODE_ENV !== 'production') {
-        console.log('📧 Verification email sent successfully');
-        console.log('Message ID:', info.messageId);
-        console.log('Preview URL:', nodemailer.getTestMessageUrl(info));
+      if (process.env.NODE_ENV !== "production") {
+        console.log("📧 Verification email sent successfully");
+        console.log("Message ID:", info.messageId);
+        console.log("Preview URL:", nodemailer.getTestMessageUrl(info));
       }
-      
+
       return {
         success: true,
         messageId: info.messageId,
-        previewUrl: nodemailer.getTestMessageUrl(info)
+        previewUrl: nodemailer.getTestMessageUrl(info),
       };
     } catch (error) {
-      console.error('Failed to send verification email:', error);
-      console.error('Email configuration check:');
-      console.error('  EMAIL_USER:', process.env.EMAIL_USER ? 'Set' : 'Missing');
-      console.error('  EMAIL_PASSWORD:', process.env.EMAIL_PASSWORD ? 'Set' : 'Missing');
-      console.error('  EMAIL_SERVICE:', process.env.EMAIL_SERVICE || 'Not set (default: gmail)');
-      console.error('  NODE_ENV:', process.env.NODE_ENV || 'Not set');
-      
+      console.error("Failed to send verification email:", error);
+      console.error("Email configuration check:");
+      console.error(
+        "  EMAIL_USER:",
+        process.env.EMAIL_USER ? "Set" : "Missing",
+      );
+      console.error(
+        "  EMAIL_PASSWORD:",
+        process.env.EMAIL_PASSWORD ? "Set" : "Missing",
+      );
+      console.error(
+        "  EMAIL_SERVICE:",
+        process.env.EMAIL_SERVICE || "Not set (default: gmail)",
+      );
+      console.error("  NODE_ENV:", process.env.NODE_ENV || "Not set");
+
       // Provide more specific error messages
-      let userFriendlyError = 'Failed to send verification email';
-      if (error.code === 'EDNS' || error.code === 'ENOTFOUND') {
-        userFriendlyError = 'Network error: Cannot connect to email server';
-      } else if (error.code === 'EAUTH') {
-        userFriendlyError = 'Email authentication failed. Please check your email credentials.';
-      } else if (error.code === 'ETIMEDOUT' || error.code === 'ETIMEOUT') {
-        userFriendlyError = 'Email service timeout. Please try again.';
+      let userFriendlyError = "Failed to send verification email";
+      if (error.code === "EDNS" || error.code === "ENOTFOUND") {
+        userFriendlyError = "Network error: Cannot connect to email server";
+      } else if (error.code === "EAUTH") {
+        userFriendlyError =
+          "Email authentication failed. Please check your email credentials.";
+      } else if (error.code === "ETIMEDOUT" || error.code === "ETIMEOUT") {
+        userFriendlyError = "Email service timeout. Please try again.";
       }
-      
+
       return {
         success: false,
         error: userFriendlyError,
-        technicalError: error.message
+        technicalError: error.message,
       };
     }
   }
@@ -215,26 +225,26 @@ class EmailService {
       const mailOptions = {
         from: process.env.EMAIL_FROM || '"CareGrid" <noreply@caregrid.com>',
         to: email,
-        subject: 'Welcome to CareGrid!',
-        html: this.generateWelcomeEmailTemplate(name)
+        subject: "Welcome to CareGrid!",
+        html: this.generateWelcomeEmailTemplate(name),
       };
 
       const info = await this.transporter.sendMail(mailOptions);
-      
-      if (process.env.NODE_ENV !== 'production') {
-        console.log('📧 Welcome email sent successfully');
-        console.log('Preview URL:', nodemailer.getTestMessageUrl(info));
+
+      if (process.env.NODE_ENV !== "production") {
+        console.log("📧 Welcome email sent successfully");
+        console.log("Preview URL:", nodemailer.getTestMessageUrl(info));
       }
-      
+
       return {
         success: true,
-        messageId: info.messageId
+        messageId: info.messageId,
       };
     } catch (error) {
-      console.error('Failed to send welcome email:', error);
+      console.error("Failed to send welcome email:", error);
       return {
         success: false,
-        error: error.message
+        error: error.message,
       };
     }
   }
@@ -273,27 +283,27 @@ class EmailService {
     try {
       const mailOptions = {
         from: process.env.EMAIL_FROM || '"CareGrid" <noreply@caregrid.com>',
-        to: 'caregriduk@gmail.com',
+        to: "caregriduk@gmail.com",
         subject: `New Contact Form Submission - ${contactData.subject}`,
-        html: this.generateContactFormEmailTemplate(contactData)
+        html: this.generateContactFormEmailTemplate(contactData),
       };
 
       const info = await this.transporter.sendMail(mailOptions);
-      
-      if (process.env.NODE_ENV !== 'production') {
-        console.log('📧 Contact form notification sent successfully');
-        console.log('Preview URL:', nodemailer.getTestMessageUrl(info));
+
+      if (process.env.NODE_ENV !== "production") {
+        console.log("📧 Contact form notification sent successfully");
+        console.log("Preview URL:", nodemailer.getTestMessageUrl(info));
       }
-      
+
       return {
         success: true,
-        messageId: info.messageId
+        messageId: info.messageId,
       };
     } catch (error) {
-      console.error('Failed to send contact form notification:', error);
+      console.error("Failed to send contact form notification:", error);
       return {
         success: false,
-        error: error.message
+        error: error.message,
       };
     }
   }
@@ -325,14 +335,14 @@ class EmailService {
           <div class="info-section">
             <p><span class="info-label">Name:</span> ${contactData.firstName} ${contactData.lastName}</p>
             <p><span class="info-label">Email:</span> ${contactData.email}</p>
-            <p><span class="info-label">Phone:</span> ${contactData.phone || 'Not provided'}</p>
+            <p><span class="info-label">Phone:</span> ${contactData.phone || "Not provided"}</p>
             <p><span class="info-label">Subject:</span> ${contactData.subject}</p>
             <p><span class="info-label">Submitted:</span> ${new Date().toLocaleString()}</p>
           </div>
           
           <div class="message-content">
             <h3>Message:</h3>
-            <p>${contactData.message.replace(/\n/g, '<br>')}</p>
+            <p>${contactData.message.replace(/\n/g, "<br>")}</p>
           </div>
           
           <p><small>This message was sent from the CareGrid contact form.</small></p>

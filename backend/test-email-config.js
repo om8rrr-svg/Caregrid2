@@ -2,144 +2,151 @@
 
 /**
  * CareGrid Email Configuration Test Script
- * 
+ *
  * This script tests the email configuration without requiring a database.
  * Run this script to verify that your Gmail configuration is working.
- * 
+ *
  * Usage:
  *   node test-email-config.js [test-email-address]
- * 
+ *
  * Example:
  *   node test-email-config.js your.email@gmail.com
  */
 
-require('dotenv').config();
+require("dotenv").config();
 
 // Simple email service test that doesn't require database
-const nodemailer = require('nodemailer');
+const nodemailer = require("nodemailer");
 
 // Get test email from command line arguments
-const testEmail = process.argv[2] || 'test@example.com';
+const testEmail = process.argv[2] || "test@example.com";
 
-console.log('🧪 CareGrid Email Configuration Test');
-console.log('=====================================');
-console.log('');
+console.log("🧪 CareGrid Email Configuration Test");
+console.log("=====================================");
+console.log("");
 
 // Check environment variables
-console.log('📋 Environment Configuration:');
-console.log(`   NODE_ENV: ${process.env.NODE_ENV || 'Not set'}`);
-console.log(`   EMAIL_SERVICE: ${process.env.EMAIL_SERVICE || 'Not set (default: gmail)'}`);
-console.log(`   EMAIL_USER: ${process.env.EMAIL_USER || 'NOT SET ❌'}`);
-console.log(`   EMAIL_PASSWORD: ${process.env.EMAIL_PASSWORD ? 'Set ✅' : 'NOT SET ❌'}`);
-console.log(`   EMAIL_FROM: ${process.env.EMAIL_FROM || 'Not set'}`);
-console.log('');
+console.log("📋 Environment Configuration:");
+console.log(`   NODE_ENV: ${process.env.NODE_ENV || "Not set"}`);
+console.log(
+  `   EMAIL_SERVICE: ${process.env.EMAIL_SERVICE || "Not set (default: gmail)"}`,
+);
+console.log(`   EMAIL_USER: ${process.env.EMAIL_USER || "NOT SET ❌"}`);
+console.log(
+  `   EMAIL_PASSWORD: ${process.env.EMAIL_PASSWORD ? "Set ✅" : "NOT SET ❌"}`,
+);
+console.log(`   EMAIL_FROM: ${process.env.EMAIL_FROM || "Not set"}`);
+console.log("");
 
 // Validate configuration
 let configValid = true;
 const errors = [];
 
-if (!process.env.EMAIL_USER || process.env.EMAIL_USER === 'YOUR_GMAIL_ADDRESS@gmail.com') {
-    errors.push('❌ EMAIL_USER is not set or still contains placeholder');
-    configValid = false;
+if (
+  !process.env.EMAIL_USER ||
+  process.env.EMAIL_USER === "YOUR_GMAIL_ADDRESS@gmail.com"
+) {
+  errors.push("❌ EMAIL_USER is not set or still contains placeholder");
+  configValid = false;
 }
 
 if (!process.env.EMAIL_PASSWORD) {
-    errors.push('❌ EMAIL_PASSWORD is not set');
-    configValid = false;
+  errors.push("❌ EMAIL_PASSWORD is not set");
+  configValid = false;
 }
 
 if (!configValid) {
-    console.log('❌ Configuration Errors:');
-    errors.forEach(error => console.log(`   ${error}`));
-    console.log('');
-    console.log('📖 Please check EMAIL_SETUP.md for configuration instructions');
-    process.exit(1);
+  console.log("❌ Configuration Errors:");
+  errors.forEach((error) => console.log(`   ${error}`));
+  console.log("");
+  console.log("📖 Please check EMAIL_SETUP.md for configuration instructions");
+  process.exit(1);
 }
 
-console.log('✅ Basic configuration looks good!');
-console.log('');
+console.log("✅ Basic configuration looks good!");
+console.log("");
 
 // Test email sending
 async function testEmailSending() {
-    console.log('📤 Testing email sending...');
-    
-    try {
-        // Create transporter
-        const transporter = nodemailer.createTransport({
-            service: process.env.EMAIL_SERVICE || 'gmail',
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASSWORD
-            },
-            timeout: 10000,
-            connectionTimeout: 10000,
-            greetingTimeout: 5000,
-            socketTimeout: 10000
-        });
+  console.log("📤 Testing email sending...");
 
-        // Verify SMTP connection
-        console.log('🔍 Verifying SMTP connection...');
-        await transporter.verify();
-        console.log('✅ SMTP connection verified successfully!');
+  try {
+    // Create transporter
+    const transporter = nodemailer.createTransport({
+      service: process.env.EMAIL_SERVICE || "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASSWORD,
+      },
+      timeout: 10000,
+      connectionTimeout: 10000,
+      greetingTimeout: 5000,
+      socketTimeout: 10000,
+    });
 
-        // Generate test verification code
-        const testCode = Math.floor(100000 + Math.random() * 900000).toString();
-        
-        // Email content
-        const mailOptions = {
-            from: process.env.EMAIL_FROM || '"CareGrid Test" <noreply@caregriduk.co.uk>',
-            to: testEmail,
-            subject: '[TEST] Password Reset Verification Code - CareGrid',
-            html: generateTestEmailTemplate(testCode)
-        };
+    // Verify SMTP connection
+    console.log("🔍 Verifying SMTP connection...");
+    await transporter.verify();
+    console.log("✅ SMTP connection verified successfully!");
 
-        console.log(`📧 Sending test email to: ${testEmail}`);
-        console.log(`🔢 Test verification code: ${testCode}`);
-        
-        const info = await transporter.sendMail(mailOptions);
-        
-        console.log('');
-        console.log('🎉 SUCCESS! Test email sent successfully!');
-        console.log(`📧 Message ID: ${info.messageId}`);
-        console.log(`📬 Recipient: ${testEmail}`);
-        console.log(`🔢 Verification Code: ${testCode}`);
-        console.log('');
-        console.log('✅ Your email configuration is working correctly!');
-        console.log('✅ Password reset emails will now be sent via Gmail');
-        
-    } catch (error) {
-        console.log('');
-        console.log('❌ EMAIL SENDING FAILED');
-        console.log(`💥 Error: ${error.message}`);
-        console.log('');
-        
-        // Provide specific troubleshooting tips
-        if (error.code === 'EAUTH') {
-            console.log('🔧 Troubleshooting - Authentication Failed:');
-            console.log('   • Verify your Gmail address is correct');
-            console.log('   • Ensure 2FA is enabled on your Gmail account');
-            console.log('   • Check that the app password is correct (no spaces)');
-            console.log('   • Try generating a new app password');
-        } else if (error.code === 'EDNS' || error.code === 'ENOTFOUND') {
-            console.log('🔧 Troubleshooting - Network Error:');
-            console.log('   • Check your internet connection');
-            console.log('   • Verify DNS can resolve smtp.gmail.com');
-            console.log('   • Check firewall/proxy settings');
-        } else if (error.code === 'ETIMEDOUT' || error.code === 'ETIMEOUT') {
-            console.log('🔧 Troubleshooting - Timeout Error:');
-            console.log('   • Network connection may be slow or unstable');
-            console.log('   • Try again in a few minutes');
-            console.log('   • Check if port 587 (SMTP) is blocked');
-        }
-        
-        console.log('');
-        console.log('📖 For more help, see EMAIL_SETUP.md');
-        process.exit(1);
+    // Generate test verification code
+    const testCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // Email content
+    const mailOptions = {
+      from:
+        process.env.EMAIL_FROM || '"CareGrid Test" <noreply@caregriduk.co.uk>',
+      to: testEmail,
+      subject: "[TEST] Password Reset Verification Code - CareGrid",
+      html: generateTestEmailTemplate(testCode),
+    };
+
+    console.log(`📧 Sending test email to: ${testEmail}`);
+    console.log(`🔢 Test verification code: ${testCode}`);
+
+    const info = await transporter.sendMail(mailOptions);
+
+    console.log("");
+    console.log("🎉 SUCCESS! Test email sent successfully!");
+    console.log(`📧 Message ID: ${info.messageId}`);
+    console.log(`📬 Recipient: ${testEmail}`);
+    console.log(`🔢 Verification Code: ${testCode}`);
+    console.log("");
+    console.log("✅ Your email configuration is working correctly!");
+    console.log("✅ Password reset emails will now be sent via Gmail");
+  } catch (error) {
+    console.log("");
+    console.log("❌ EMAIL SENDING FAILED");
+    console.log(`💥 Error: ${error.message}`);
+    console.log("");
+
+    // Provide specific troubleshooting tips
+    if (error.code === "EAUTH") {
+      console.log("🔧 Troubleshooting - Authentication Failed:");
+      console.log("   • Verify your Gmail address is correct");
+      console.log("   • Ensure 2FA is enabled on your Gmail account");
+      console.log("   • Check that the app password is correct (no spaces)");
+      console.log("   • Try generating a new app password");
+    } else if (error.code === "EDNS" || error.code === "ENOTFOUND") {
+      console.log("🔧 Troubleshooting - Network Error:");
+      console.log("   • Check your internet connection");
+      console.log("   • Verify DNS can resolve smtp.gmail.com");
+      console.log("   • Check firewall/proxy settings");
+    } else if (error.code === "ETIMEDOUT" || error.code === "ETIMEOUT") {
+      console.log("🔧 Troubleshooting - Timeout Error:");
+      console.log("   • Network connection may be slow or unstable");
+      console.log("   • Try again in a few minutes");
+      console.log("   • Check if port 587 (SMTP) is blocked");
     }
+
+    console.log("");
+    console.log("📖 For more help, see EMAIL_SETUP.md");
+    process.exit(1);
+  }
 }
 
 function generateTestEmailTemplate(code) {
-    return `
+  return `
     <!DOCTYPE html>
     <html>
     <head>
@@ -189,10 +196,12 @@ function generateTestEmailTemplate(code) {
 
 // Run the test
 console.log(`🎯 Test target: ${testEmail}`);
-if (testEmail === 'test@example.com') {
-    console.log('💡 Tip: Provide your email address as an argument to receive the test email');
-    console.log('   Example: node test-email-config.js your.email@gmail.com');
+if (testEmail === "test@example.com") {
+  console.log(
+    "💡 Tip: Provide your email address as an argument to receive the test email",
+  );
+  console.log("   Example: node test-email-config.js your.email@gmail.com");
 }
-console.log('');
+console.log("");
 
 testEmailSending();

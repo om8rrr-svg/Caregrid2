@@ -25,73 +25,79 @@ const errorHandler = (err, req, res, next) => {
   error.message = err.message;
 
   // Log error
-  console.error('❌ Error:', {
+  console.error("❌ Error:", {
     message: err.message,
     stack: err.stack,
     url: req.originalUrl,
     method: req.method,
     ip: req.ip,
-    userAgent: req.get('User-Agent')
+    userAgent: req.get("User-Agent"),
   });
 
   // PostgreSQL errors
-  if (err.code === '23505') {
+  if (err.code === "23505") {
     // Duplicate key error
-    const field = err.detail.match(/Key \((.+)\)=/)?.[1] || 'field';
-    error = new AppError(`${field} already exists`, 400, 'DUPLICATE_ENTRY');
+    const field = err.detail.match(/Key \((.+)\)=/)?.[1] || "field";
+    error = new AppError(`${field} already exists`, 400, "DUPLICATE_ENTRY");
   }
 
-  if (err.code === '23503') {
+  if (err.code === "23503") {
     // Foreign key constraint error
-    error = new AppError('Referenced record not found', 400, 'INVALID_REFERENCE');
+    error = new AppError(
+      "Referenced record not found",
+      400,
+      "INVALID_REFERENCE",
+    );
   }
 
-  if (err.code === '23502') {
+  if (err.code === "23502") {
     // Not null constraint error
-    const field = err.column || 'field';
-    error = new AppError(`${field} is required`, 400, 'MISSING_REQUIRED_FIELD');
+    const field = err.column || "field";
+    error = new AppError(`${field} is required`, 400, "MISSING_REQUIRED_FIELD");
   }
 
   // Validation errors
-  if (err.name === 'ValidationError') {
-    const message = Object.values(err.errors).map(val => val.message).join(', ');
-    error = new AppError(message, 400, 'VALIDATION_ERROR');
+  if (err.name === "ValidationError") {
+    const message = Object.values(err.errors)
+      .map((val) => val.message)
+      .join(", ");
+    error = new AppError(message, 400, "VALIDATION_ERROR");
   }
 
   // JWT errors
-  if (err.name === 'JsonWebTokenError') {
-    error = new AppError('Invalid token', 401, 'INVALID_TOKEN');
+  if (err.name === "JsonWebTokenError") {
+    error = new AppError("Invalid token", 401, "INVALID_TOKEN");
   }
 
-  if (err.name === 'TokenExpiredError') {
-    error = new AppError('Token expired', 401, 'TOKEN_EXPIRED');
+  if (err.name === "TokenExpiredError") {
+    error = new AppError("Token expired", 401, "TOKEN_EXPIRED");
   }
 
   // Cast errors (invalid ObjectId, etc.)
-  if (err.name === 'CastError') {
-    error = new AppError('Invalid ID format', 400, 'INVALID_ID');
+  if (err.name === "CastError") {
+    error = new AppError("Invalid ID format", 400, "INVALID_ID");
   }
 
   // Default to 500 server error
   const statusCode = error.statusCode || 500;
-  const message = error.isOperational ? error.message : 'Internal server error';
-  const code = error.code || 'INTERNAL_ERROR';
+  const message = error.isOperational ? error.message : "Internal server error";
+  const code = error.code || "INTERNAL_ERROR";
 
   // Response format
   const response = {
     success: false,
     error: message,
     code: code,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   };
 
   // Add stack trace in development
-  if (process.env.NODE_ENV === 'development') {
+  if (process.env.NODE_ENV === "development") {
     response.stack = err.stack;
     response.details = {
       originalError: err.message,
       url: req.originalUrl,
-      method: req.method
+      method: req.method,
     };
   }
 
@@ -100,22 +106,26 @@ const errorHandler = (err, req, res, next) => {
 
 // 404 handler
 const notFound = (req, res, next) => {
-  const error = new AppError(`Route ${req.originalUrl} not found`, 404, 'ROUTE_NOT_FOUND');
+  const error = new AppError(
+    `Route ${req.originalUrl} not found`,
+    404,
+    "ROUTE_NOT_FOUND",
+  );
   next(error);
 };
 
 // Success response helper
-const successResponse = (res, data, message = 'Success', statusCode = 200) => {
+const successResponse = (res, data, message = "Success", statusCode = 200) => {
   res.status(statusCode).json({
     success: true,
     message,
     data,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 };
 
 // Pagination helper
-const paginatedResponse = (res, data, pagination, message = 'Success') => {
+const paginatedResponse = (res, data, pagination, message = "Success") => {
   res.status(200).json({
     success: true,
     message,
@@ -124,9 +134,9 @@ const paginatedResponse = (res, data, pagination, message = 'Success') => {
       page: pagination.page,
       limit: pagination.limit,
       total: pagination.total,
-      pages: Math.ceil(pagination.total / pagination.limit)
+      pages: Math.ceil(pagination.total / pagination.limit),
     },
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 };
 
@@ -136,5 +146,5 @@ module.exports = {
   errorHandler,
   notFound,
   successResponse,
-  paginatedResponse
+  paginatedResponse,
 };

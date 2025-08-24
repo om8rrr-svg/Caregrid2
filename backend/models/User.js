@@ -1,6 +1,6 @@
-const db = require('../config/database');
-const bcrypt = require('bcryptjs');
-const { v4: uuidv4 } = require('uuid');
+const db = require("../config/database");
+const bcrypt = require("bcryptjs");
+const { v4: uuidv4 } = require("uuid");
 
 class User {
   static async create(userData) {
@@ -10,13 +10,13 @@ class User {
       email,
       phone,
       password,
-      role = 'patient'
+      role = "patient",
     } = userData;
 
     // Hash password
     const saltRounds = 12;
     const passwordHash = await bcrypt.hash(password, saltRounds);
-    
+
     // Generate verification token
     const verificationToken = uuidv4();
 
@@ -26,17 +26,25 @@ class User {
       RETURNING id, first_name, last_name, email, phone, role, verified, created_at
     `;
 
-    const values = [firstName, lastName, email, phone, passwordHash, role, verificationToken];
+    const values = [
+      firstName,
+      lastName,
+      email,
+      phone,
+      passwordHash,
+      role,
+      verificationToken,
+    ];
     const result = await db.query(query, values);
-    
+
     return {
       ...result.rows[0],
-      verificationToken
+      verificationToken,
     };
   }
 
   static async findByEmail(email) {
-    const query = 'SELECT * FROM users WHERE email = $1';
+    const query = "SELECT * FROM users WHERE email = $1";
     const result = await db.query(query, [email]);
     return result.rows[0] || null;
   }
@@ -51,13 +59,14 @@ class User {
   }
 
   static async findByVerificationToken(token) {
-    const query = 'SELECT * FROM users WHERE verification_token = $1';
+    const query = "SELECT * FROM users WHERE verification_token = $1";
     const result = await db.query(query, [token]);
     return result.rows[0] || null;
   }
 
   static async findByResetToken(token) {
-    const query = 'SELECT * FROM users WHERE reset_token = $1 AND reset_token_expires > NOW()';
+    const query =
+      "SELECT * FROM users WHERE reset_token = $1 AND reset_token_expires > NOW()";
     const result = await db.query(query, [token]);
     return result.rows[0] || null;
   }
@@ -87,7 +96,7 @@ class User {
   static async updatePassword(id, newPassword) {
     const saltRounds = 12;
     const passwordHash = await bcrypt.hash(newPassword, saltRounds);
-    
+
     const query = `
       UPDATE users 
       SET password_hash = $1, reset_token = NULL, reset_token_expires = NULL, updated_at = CURRENT_TIMESTAMP
@@ -103,12 +112,12 @@ class User {
   }
 
   static async updateProfile(id, updates) {
-    const allowedFields = ['first_name', 'last_name', 'phone'];
+    const allowedFields = ["first_name", "last_name", "phone"];
     const updateFields = [];
     const values = [];
     let paramCount = 1;
 
-    Object.keys(updates).forEach(key => {
+    Object.keys(updates).forEach((key) => {
       if (allowedFields.includes(key) && updates[key] !== undefined) {
         updateFields.push(`${key} = $${paramCount}`);
         values.push(updates[key]);
@@ -117,15 +126,15 @@ class User {
     });
 
     if (updateFields.length === 0) {
-      throw new Error('No valid fields to update');
+      throw new Error("No valid fields to update");
     }
 
-    updateFields.push('updated_at = CURRENT_TIMESTAMP');
+    updateFields.push("updated_at = CURRENT_TIMESTAMP");
     values.push(id);
 
     const query = `
       UPDATE users 
-      SET ${updateFields.join(', ')}
+      SET ${updateFields.join(", ")}
       WHERE id = $${paramCount}
       RETURNING id, first_name, last_name, email, phone, role, verified, updated_at
     `;
@@ -158,7 +167,8 @@ class User {
   }
 
   static async removeFavorite(userId, clinicId) {
-    const query = 'DELETE FROM user_favorites WHERE user_id = $1 AND clinic_id = $2';
+    const query =
+      "DELETE FROM user_favorites WHERE user_id = $1 AND clinic_id = $2";
     const result = await db.query(query, [userId, clinicId]);
     return result.rowCount > 0;
   }
