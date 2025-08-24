@@ -4,7 +4,22 @@ let selectedTimeSlot = null;
 let bookingData = {};
 
 // Initialize booking system
+document.addEventListener('DOMContentLoaded', function() {
+    // Wait for auth system to initialize before proceeding
+    setTimeout(function() {
+        initializeBookingSystem();
+    }, 150);
+});
+
 function initializeBookingSystem() {
+    // Check authentication before initializing booking
+    const authSystem = window.authSystem;
+    const isAuthenticated = authSystem && authSystem.isAuthenticated();
+    
+    if (!isAuthenticated) {
+        console.log('User not authenticated - booking system not initialized');
+        return;
+    }
     loadClinicData();
     setupDatePicker();
     setupTimeSlots();
@@ -12,14 +27,6 @@ function initializeBookingSystem() {
     
     // Initialize navigation buttons
     updateNavigationButtons();
-}
-
-// Check if DOM is already loaded, otherwise wait for it
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeBookingSystem);
-} else {
-    // DOM is already loaded, initialize immediately
-    initializeBookingSystem();
 }
 
 // Load clinic data from URL parameters
@@ -222,6 +229,11 @@ function nextStep() {
                 updateBookingSummary();
             }
             
+            // Populate user profile info if on step 3
+            if (bookingCurrentStep === 3) {
+                populateUserProfileInfo();
+            }
+            
             updateNavigationButtons();
         } else {
             // Submit booking
@@ -283,34 +295,29 @@ function validateCurrentStep() {
             return true;
             
         case 3:
-            const requiredFields = ['firstName', 'lastName', 'email', 'phone', 'dateOfBirth', 'gender'];
+            // For authenticated users, personal information comes from their profile
+            // We just need to validate medical history if provided
+            const authSystem = window.authSystem;
+            const isAuthenticated = authSystem && authSystem.isAuthenticated();
             
-            for (let field of requiredFields) {
-                const value = document.getElementById(field).value.trim();
-                if (!value) {
-                    alert(`Please fill in the ${field.replace(/([A-Z])/g, ' $1').toLowerCase()} field.`);
-                    return false;
-                }
-                bookingData[field] = value;
-            }
-            
-            // Validate email
-            const email = document.getElementById('email').value;
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                alert('Please enter a valid email address.');
+            if (!isAuthenticated) {
+                alert('You must be signed in to proceed. Please sign in to continue.');
+                window.location.href = 'auth.html';
                 return false;
             }
             
-            // Validate UK phone number
-            const phone = document.getElementById('phone').value.trim();
-            const phoneRegex = /^(\+44\s?7\d{3}|\(?07\d{3}\)?)\s?\d{3}\s?\d{3}$/;
-            if (!phoneRegex.test(phone)) {
-                alert('Please enter a valid UK mobile number (e.g., +44 7700 900123 or 07700 900123).');
-                return false;
-            }
-            
+            // Get medical history (optional field)
             bookingData.medicalHistory = document.getElementById('medicalHistory').value.trim();
+            
+            // Get current user data from auth system
+            const currentUser = authSystem.getCurrentUser();
+            if (currentUser) {
+                bookingData.firstName = currentUser.firstName || currentUser.name?.split(' ')[0] || '';
+                bookingData.lastName = currentUser.lastName || currentUser.name?.split(' ').slice(1).join(' ') || '';
+                bookingData.email = currentUser.email || '';
+                bookingData.phone = currentUser.phone || '';
+            }
+            
             return true;
             
         case 4:
@@ -409,23 +416,24 @@ function updateBookingSummary() {
 // Submit booking
 async function submitBooking() {
     try {
-        // Check if user is authenticated
+        // Check if user is authenticated - this is now required
         const authSystem = window.authSystem;
         const isAuthenticated = authSystem && authSystem.isAuthenticated();
         
-        // Prepare appointment data for API
+        if (!isAuthenticated) {
+            alert('You must be signed in to book an appointment. Please sign in and try again.');
+            window.location.href = 'auth.html';
+            return;
+        }
+        
+        // Prepare appointment data for API (authenticated users only)
         const appointmentData = {
             clinicId: bookingData.clinic.id,
             treatmentType: bookingData.serviceType,
             appointmentDate: bookingData.date,
             appointmentTime: bookingData.time,
-            notes: `Reason: ${bookingData.reason || 'Not specified'}${bookingData.medicalHistory ? '. Medical History: ' + bookingData.medicalHistory : ''}`,
-            // Include contact info for guest bookings
-            ...(!isAuthenticated && {
-                guestName: `${bookingData.firstName} ${bookingData.lastName}`,
-                guestEmail: bookingData.email,
-                guestPhone: bookingData.phone
-            })
+            notes: `Reason: ${bookingData.reason || 'Not specified'}${bookingData.medicalHistory ? '. Medical History: ' + bookingData.medicalHistory : ''}`
+            // No guest data needed - user is authenticated
         };
         
         // Validate required fields before submission
@@ -441,18 +449,15 @@ async function submitBooking() {
         if (!appointmentData.appointmentTime) {
             throw new Error('Appointment time is required');
         }
-        if (!isAuthenticated && (!appointmentData.guestName || !appointmentData.guestEmail)) {
-            throw new Error('Name and email are required for guest bookings');
-        }
         
-        console.log('Submitting booking:', appointmentData);
+        console.log('Submitting booking for authenticated user:', appointmentData);
         
         // Call API to create appointment
         const response = await window.apiService.createAppointment(appointmentData);
         const bookingRef = response.appointment.reference;
         
-        // Show success modal
-        showBookingSuccessModal(bookingRef, isAuthenticated);
+        // Show success modal (only authenticated version)
+        showBookingSuccessModal(bookingRef, true);
         
         // Update step indicator
         document.getElementById('step4').classList.remove('active');
@@ -480,10 +485,11 @@ async function submitBooking() {
             errorMessage = 'This time slot is no longer available. Please select a different time.';
         } else if (error.message.includes('CLINIC_NOT_FOUND')) {
             errorMessage = 'The selected clinic could not be found. Please try selecting a different clinic.';
-        } else if (error.message.includes('GUEST_DETAILS_REQUIRED')) {
-            errorMessage = 'Please provide your name and email address to complete the booking.';
         } else if (error.message.includes('Authentication failed')) {
-            errorMessage = 'Your session has expired. Please refresh the page and try again.';
+            errorMessage = 'Your session has expired. Please sign in again and try booking.';
+            setTimeout(() => {
+                window.location.href = 'auth.html';
+            }, 2000);
         } else if (error.message.includes('Network connection failed') || error.message.includes('fetch')) {
             errorMessage = 'Unable to connect to the booking system. Please check your internet connection and try again.';
         }
@@ -535,7 +541,8 @@ function goToStep(targetStep) {
 
 // Show booking success modal
 function showBookingSuccessModal(bookingRef, isAuthenticated) {
-    // Create modal HTML
+    // Since we now only allow authenticated bookings, we can simplify this
+    // Create modal HTML for authenticated users only
     const modalHTML = `
         <div class="modal" id="bookingSuccessModal">
             <div class="modal-content">
@@ -544,7 +551,7 @@ function showBookingSuccessModal(bookingRef, isAuthenticated) {
                         <i class="fas fa-check"></i>
                     </div>
                     <h3>Booking Confirmed!</h3>
-                    <p>Your appointment has been successfully booked.</p>
+                    <p>Your appointment has been successfully booked and saved to your account.</p>
                 </div>
                 <div class="booking-details">
                     <div class="detail-row">
@@ -564,11 +571,21 @@ function showBookingSuccessModal(bookingRef, isAuthenticated) {
                         <span>${getSelectedServiceName()}</span>
                     </div>
                 </div>
+                <div class="appointment-access-info" style="background: #f8f9fa; padding: 25px; border-radius: 12px; margin: 25px 0; border-left: 4px solid #2A6EF3; line-height: 1.6;">
+                    <h4 style="margin: 0 0 15px 0; color: #2A6EF3; font-size: 1.1rem;">
+                        <i class="fas fa-check-circle" style="margin-right: 8px;"></i>
+                        Confirmation Email Sent
+                    </h4>
+                    <p style="margin: 0; color: #666;">
+                        A confirmation email has been sent to your email address with all the appointment details.
+                        This booking has been automatically added to your dashboard.
+                    </p>
+                </div>
                 <div class="modal-actions">
-                    ${isAuthenticated ? 
-                        '<a href="dashboard.html" class="btn btn-primary">View Dashboard</a>' :
-                        '<a href="auth.html" class="btn btn-primary">Create Account</a>'
-                    }
+                    <a href="dashboard.html" class="btn btn-primary">
+                        <i class="fas fa-tachometer-alt" style="margin-right: 8px;"></i>
+                        View Dashboard
+                    </a>
                     <button class="btn btn-secondary" onclick="closeBookingModal()">Close</button>
                 </div>
             </div>
@@ -627,6 +644,41 @@ function getSelectedServiceName() {
         return serviceSelect.options[serviceSelect.selectedIndex].text;
     }
     return 'General Consultation';
+}
+
+// Populate user profile information in step 3
+function populateUserProfileInfo() {
+    const authSystem = window.authSystem;
+    if (!authSystem || !authSystem.isAuthenticated()) {
+        return;
+    }
+    
+    const currentUser = authSystem.getCurrentUser();
+    if (!currentUser) {
+        return;
+    }
+    
+    // Update profile display elements
+    const profileName = document.getElementById('profileName');
+    const profileEmail = document.getElementById('profileEmail');
+    const profilePhone = document.getElementById('profilePhone');
+    
+    if (profileName) {
+        const fullName = currentUser.name || 
+                        `${currentUser.firstName || ''} ${currentUser.lastName || ''}`.trim() ||
+                        'Not provided';
+        profileName.textContent = fullName;
+    }
+    
+    if (profileEmail) {
+        profileEmail.textContent = currentUser.email || 'Not provided';
+    }
+    
+    if (profilePhone) {
+        profilePhone.textContent = currentUser.phone || 'Update in profile';
+    }
+    
+    console.log('User profile info populated:', currentUser);
 }
 
 // Export functions for global access

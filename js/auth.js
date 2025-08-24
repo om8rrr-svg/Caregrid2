@@ -891,7 +891,7 @@ class AuthSystem {
                     
                     // Redirect immediately when progress reaches 100%
                     setTimeout(() => {
-                        window.location.href = 'dashboard.html';
+                        this.redirectAfterAuth();
                     }, 200); // Small delay to show 100% briefly
                     return;
                 }
