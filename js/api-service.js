@@ -317,6 +317,15 @@ class APIService {
         return response;
     }
 
+    // Contact endpoint
+    async submitContactForm(contactData) {
+        const response = await this.makeRequest('/contact', {
+            method: 'POST',
+            body: JSON.stringify(contactData)
+        });
+        return response;
+    }
+
     // Health check
     async healthCheck() {
         const response = await this.makeRequest('/health');

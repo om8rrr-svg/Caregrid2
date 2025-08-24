@@ -1,5 +1,5 @@
 // Initialize API service
-// const apiService = new APIService(); // Commented out to prevent errors
+const apiService = new APIService();
 
 // Sample clinic data (fallback)
 let clinicsData = [
@@ -2806,8 +2806,7 @@ async function updateLocationCounts() {
     
     // Update total count for 'All Locations'
     try {
-        const totalResponse = await fetch('http://localhost:3000/api/clinics?limit=1000');
-        const totalData = await totalResponse.json();
+        const totalData = await apiService.getClinics({ limit: 1000 });
         const totalCount = totalData.pagination?.total || 0;
         
         const totalCountElement = document.querySelector('[data-location="all"] .clinic-count');
@@ -2828,8 +2827,7 @@ async function updateLocationCounts() {
     for (const location of locations) {
         try {
             // Fetch clinics for this specific location from the API
-            const response = await fetch(`http://localhost:3000/api/clinics?city=${encodeURIComponent(location.city)}&limit=1000`);
-            const data = await response.json();
+            const data = await apiService.getClinics({ city: location.city, limit: 1000 });
             const count = data.pagination?.total || 0;
             
             const countElement = document.querySelector(`[data-location="${location.key}"] .clinic-count`);
