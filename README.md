@@ -24,14 +24,14 @@ CareGrid is a comprehensive healthcare directory platform that helps patients fi
 
 ## 🚀 Live Demo
 
-[View Live Site](https://caregrid.netlify.app) *(will be updated with actual URL)*
+[View Live Site](https://caregrid.vercel.app) *(will be updated with actual URL)*
 
 ## 🛠️ Technology Stack
 
 - **Frontend**: HTML5, CSS3, JavaScript (ES6+)
 - **Styling**: Custom CSS with responsive design
 - **Icons**: SVG graphics
-- **Hosting**: Netlify
+- **Hosting**: Vercel
 - **Version Control**: Git
 
 ## 📁 Project Structure
@@ -143,7 +143,7 @@ npx serve .
 ### Deployment
 
 The site is configured for easy deployment to:
-- **Netlify**: Drag and drop deployment or Git integration
+- **Vercel**: Git integration with automatic deployments
 - **GitHub Pages**: Direct deployment from repository
 - **Vercel**: Zero-config deployment
 

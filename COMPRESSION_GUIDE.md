@@ -21,9 +21,9 @@ This guide explains how to enable gzip and brotli compression for the CareGrid w
 
 ## 🌐 Platform-Specific Configuration
 
-### 1. Netlify (Recommended - Already Configured)
+### 1. Vercel (Recommended - Already Configured)
 
-The `netlify.toml` file has been optimized with:
+The `vercel.json` file has been optimized with:
 - Automatic gzip and brotli compression
 - Asset bundling and minification
 - Optimized caching headers

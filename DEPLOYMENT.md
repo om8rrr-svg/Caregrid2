@@ -4,10 +4,10 @@ This guide covers multiple deployment options for the CareGrid healthcare direct
 
 ## 🚀 Quick Deployment Options
 
-### Option 1: Netlify (Recommended)
+### Option 1: Vercel (Recommended)
 
 #### Method A: Drag & Drop (Fastest)
-1. Visit [netlify.com](https://netlify.com)
+1. Visit [vercel.com](https://vercel.com)
 2. Sign up or log in
 3. Drag the entire `caregrid` folder to the deployment area
 4. Your site will be live instantly with a random URL
@@ -15,8 +15,8 @@ This guide covers multiple deployment options for the CareGrid healthcare direct
 
 #### Method B: Git Integration (Best for updates)
 1. Push your code to GitHub (see GitHub setup below)
-2. Connect your GitHub repository to Netlify
-3. Netlify will auto-deploy on every push to main branch
+2. Connect your GitHub repository to Vercel
+3. Vercel will auto-deploy on every push to main branch
 
 ### Option 2: GitHub Pages
 
@@ -46,7 +46,7 @@ git push -u origin main
 
 ## 🔧 Configuration Files
 
-### Netlify Configuration (`netlify.toml`)
+### Vercel Configuration (`vercel.json`)
 - Already included in the project
 - Configures security headers
 - Sets up caching for static assets
@@ -58,7 +58,7 @@ git push -u origin main
 
 ## 🌐 Custom Domain Setup
 
-### For Netlify:
+### For Vercel:
 1. Go to Site Settings → Domain Management
 2. Add your custom domain
 3. Follow DNS configuration instructions
@@ -86,7 +86,7 @@ git push -u origin main
 
 ## 🔒 Security Headers
 
-The `netlify.toml` file includes security headers:
+The `vercel.json` file includes security headers:
 - X-Frame-Options: DENY
 - X-XSS-Protection: 1; mode=block
 - X-Content-Type-Options: nosniff
@@ -131,7 +131,7 @@ Once connected to Git:
 ## 📞 Support
 
 For deployment issues:
-- Netlify: [docs.netlify.com](https://docs.netlify.com)
+- Vercel: [vercel.com/docs](https://vercel.com/docs)
 - GitHub Pages: [pages.github.com](https://pages.github.com)
 - Vercel: [vercel.com/docs](https://vercel.com/docs)
 

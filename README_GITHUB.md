@@ -22,7 +22,7 @@ A comprehensive healthcare booking platform that connects patients with healthca
 - **Styling**: Custom CSS with responsive design
 - **Storage**: Local Storage for data persistence
 - **Icons**: Custom SVG icons
-- **Deployment**: Static hosting ready (Netlify, GitHub Pages)
+- **Deployment**: Static hosting ready (Vercel, GitHub Pages)
 
 ## 📁 Project Structure
 
@@ -45,7 +45,7 @@ caregrid/
 │   ├── booking.js        # Booking system
 │   └── search.js         # Search functionality
 ├── images/               # Image assets
-└── netlify.toml         # Netlify deployment config
+└── vercel.json          # Vercel deployment config
 ```
 
 ## 🚀 Getting Started
@@ -144,8 +144,8 @@ The project includes several debug and diagnostic pages:
 
 The project is configured for easy deployment:
 
-### Netlify
-- `netlify.toml` configuration included
+### Vercel
+- `vercel.json` configuration included
 - Automatic deployments from Git
 
 ### GitHub Pages

@@ -5,12 +5,12 @@ This guide will help you connect your custom domain **www.caregrid.co.uk** to yo
 ## 🌐 Current Hosting Setup
 
 Based on your project configuration, you have two hosting options:
-1. **Netlify** (Recommended for frontend) - configured via `netlify.toml`
+1. **Vercel** (Recommended for frontend) - configured via `vercel.json`
 2. **Render** (For backend API) - configured via `render.yaml`
 
-## 🚀 Option 1: Netlify Hosting (Recommended)
+## 🚀 Option 1: Vercel Hosting (Recommended)
 
-### Step 1: Deploy to Netlify
+### Step 1: Deploy to Vercel
 
 1. **Push your code to GitHub** (if not already done):
    ```bash
@@ -19,8 +19,8 @@ Based on your project configuration, you have two hosting options:
    git push origin main
    ```
 
-2. **Connect to Netlify**:
-   - Visit [netlify.com](https://netlify.com) and sign up/login
+2. **Connect to Vercel**:
+- Visit [vercel.com](https://vercel.com) and sign up/login
    - Click "New site from Git"
    - Connect your GitHub repository
    - Deploy settings:
@@ -28,13 +28,13 @@ Based on your project configuration, you have two hosting options:
      - Publish directory: `.` (root)
    - Click "Deploy site"
 
-### Step 2: Add Custom Domain in Netlify
+### Step 2: Add Custom Domain in Vercel
 
-1. In your Netlify dashboard, go to **Site Settings** → **Domain Management**
+1. In your Vercel dashboard, go to your project → **Settings** → **Domains**
 2. Click **"Add custom domain"**
 3. Enter: `www.caregrid.co.uk`
 4. Click **"Verify"** and **"Add domain"**
-5. Netlify will also automatically add `caregrid.co.uk` (apex domain)
+5. Vercel will also automatically add `caregrid.co.uk` (apex domain)
 
 ### Step 3: Configure DNS Records
 
@@ -43,7 +43,7 @@ You need to configure DNS records with your domain registrar (where you bought c
 #### For www.caregrid.co.uk (Subdomain):
 - **Type**: CNAME
 - **Host/Name**: www
-- **Value/Target**: `your-site-name.netlify.app` (get this from Netlify)
+- **Value/Target**: `your-project-name.vercel.app` (get this from Vercel)
 
 #### For caregrid.co.uk (Apex Domain):
 Choose one option based on your DNS provider:
@@ -51,7 +51,7 @@ Choose one option based on your DNS provider:
 **Option A - If your provider supports ALIAS/ANAME records (Recommended):**
 - **Type**: ALIAS or ANAME
 - **Host/Name**: @ (or leave empty)
-- **Value/Target**: `apex-loadbalancer.netlify.com`
+- **Value/Target**: `76.76.19.19` (Vercel's IP)
 
 **Option B - If your provider only supports A records:**
 - **Type**: A
@@ -59,7 +59,7 @@ Choose one option based on your DNS provider:
 - **Value/Target**: `75.2.60.5`
 
 ### Step 4: SSL Certificate
-Netlify automatically provides free SSL certificates via Let's Encrypt. Once DNS propagates (up to 48 hours), your site will be available at:
+Vercel automatically provides free SSL certificates. Once DNS propagates (up to 48 hours), your site will be available at:
 - `https://www.caregrid.co.uk`
 - `https://caregrid.co.uk`
 
@@ -80,8 +80,8 @@ Netlify automatically provides free SSL certificates via Let's Encrypt. Once DNS
 ## 📋 DNS Configuration Checklist
 
 ### Required DNS Records:
-- [ ] CNAME record: `www` → `your-site-name.netlify.app`
-- [ ] A record or ALIAS: `@` → `75.2.60.5` or `apex-loadbalancer.netlify.com`
+- [ ] CNAME record: `www` → `your-project-name.vercel.app`
+- [ ] A record or ALIAS: `@` → `76.76.19.19` (Vercel's IP)
 
 ### Common DNS Providers:
 
@@ -126,7 +126,7 @@ After DNS propagates (up to 48 hours):
 1. **"Site not found" error**:
    - Check DNS records are correct
    - Wait for DNS propagation (up to 48 hours)
-   - Verify domain is added in Netlify
+   - Verify domain is added in Vercel
 
 2. **SSL certificate issues**:
    - Wait for automatic provisioning (can take up to 24 hours)
@@ -150,9 +150,9 @@ dig @8.8.8.8 www.caregrid.co.uk
 
 ## 📞 Support Resources
 
-- **Netlify Support**: [docs.netlify.com](https://docs.netlify.com)
+- **Vercel Support**: [vercel.com/docs](https://vercel.com/docs)
 - **DNS Help**: Contact your domain registrar
-- **SSL Issues**: Check Netlify's SSL documentation
+- **SSL Issues**: Check Vercel's SSL documentation
 
 ## 🎯 Next Steps After Domain Setup
 

@@ -520,7 +520,7 @@ class EmailService {
           </div>
           
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${process.env.FRONTEND_URL || 'https://caregrid.netlify.app'}/dashboard.html" class="btn">
+            <a href="${process.env.FRONTEND_URL || 'https://caregrid.vercel.app'}/dashboard.html" class="btn">
               View Dashboard
             </a>
           </div>
