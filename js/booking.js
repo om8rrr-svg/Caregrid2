@@ -4,7 +4,7 @@ let selectedTimeSlot = null;
 let bookingData = {};
 
 // Initialize booking system
-document.addEventListener('DOMContentLoaded', function() {
+function initializeBookingSystem() {
     loadClinicData();
     setupDatePicker();
     setupTimeSlots();
@@ -12,7 +12,15 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize navigation buttons
     updateNavigationButtons();
-});
+}
+
+// Check if DOM is already loaded, otherwise wait for it
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeBookingSystem);
+} else {
+    // DOM is already loaded, initialize immediately
+    initializeBookingSystem();
+}
 
 // Load clinic data from URL parameters
 async function loadClinicData() {

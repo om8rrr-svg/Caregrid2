@@ -31,6 +31,18 @@
   --shadow-large: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
 }
 
+/* Enhanced dark mode icon visibility */
+[data-theme="dark"] .stat-icon {
+  opacity: 1;
+  filter: brightness(1.1) contrast(1.2);
+}
+
+[data-theme="dark"] .stat-icon i {
+  opacity: 1;
+  color: white;
+  text-shadow: 0 0 2px rgba(255, 255, 255, 0.3);
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -62,10 +74,15 @@ body {
   overflow-y: auto;
   z-index: 1000;
   transition: transform 0.3s ease;
+  transform: translateX(0); /* Default visible state */
 }
 
 .sidebar.collapsed {
   transform: translateX(-100%);
+}
+
+.sidebar.open {
+  transform: translateX(0);
 }
 
 .sidebar-header {
@@ -176,6 +193,8 @@ body {
   color: var(--text-primary);
   cursor: pointer;
   transition: all 0.2s ease;
+  z-index: 1001;
+  position: relative;
 }
 
 .theme-toggle:hover {
@@ -195,6 +214,7 @@ body {
   position: relative;
   cursor: pointer;
   transition: all 0.2s ease;
+  z-index: 1001;
 }
 
 .user-profile:hover {
@@ -345,6 +365,14 @@ body {
   align-items: center;
   justify-content: center;
   color: white;
+  font-size: 1.5rem;
+  opacity: 1;
+  transition: all 0.3s ease;
+}
+
+.stat-icon i {
+  opacity: 1;
+  color: inherit;
 }
 
 .stat-icon.primary {
@@ -736,17 +764,7 @@ body {
   box-shadow: var(--shadow-large);
 }
 
-.stat-icon {
-  font-size: 2rem;
-  width: 3rem;
-  height: 3rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--primary-color);
-  border-radius: 0.5rem;
-  opacity: 0.1;
-}
+/* Duplicate stat-icon styles removed - using the primary definition above */
 
 .stat-content {
   flex: 1;
@@ -985,14 +1003,102 @@ body {
     padding: 1rem;
   }
   
-  .stat-card {
-    padding: 1rem;
+  .header {
+    padding: 0.75rem;
   }
   
-  .page-title {
-    font-size: 1.25rem;
+  .content {
+    padding: 0.75rem;
   }
-}
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  
+  .stat-card {
+    padding: 0.75rem;
+    text-align: center;
+  }
+  
+  .stat-value {
+    font-size: 1.5rem;
+  }
+  
+  .stat-label {
+    font-size: 0.75rem;
+  }
+  
+  .table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .table {
+    min-width: 600px;
+  }
+  
+  .btn {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    min-height: 44px;
+  }
+  
+  .form-group {
+    margin-bottom: 1rem;
+  }
+  
+  .form-control {
+    font-size: 16px; /* Prevents zoom on iOS */
+    min-height: 44px;
+  }
+  
+  .modal-content {
+    margin: 1rem;
+    max-height: calc(100vh - 2rem);
+    overflow-y: auto;
+  }
+  
+  .chart-card {
+    padding: 0.75rem;
+  }
+  
+  .chart-container {
+    height: 250px;
+  }
+  
+  .analytics-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  
+  .filter-row {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .search-box {
+    width: 100%;
+  }
+  
+  .user-profile {
+    padding: 0.5rem;
+  }
+  
+  .dropdown-menu {
+     right: 0;
+     left: auto;
+     min-width: 200px;
+   }
+ }
+
+ .stat-card {
+   padding: 1rem;
+ }
+  
+ .page-title {
+   font-size: 1.25rem;
+ }
 
 /* Loading States */
 .loading {
@@ -1329,6 +1435,32 @@ body {
 .hours-inputs input[type="time"]:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+}
+
+.hours-edit-form {
+    padding: 1rem;
+    background: var(--surface-color);
+    border-radius: 8px;
+    border: 2px solid var(--border-color);
+}
+
+.hours-edit-form .form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-header .btn {
+    margin-left: auto;
 }
 
 /* Staff Management */

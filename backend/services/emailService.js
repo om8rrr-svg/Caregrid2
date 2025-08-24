@@ -268,6 +268,79 @@ class EmailService {
       </html>
     `;
   }
+
+  async sendContactFormNotification(contactData) {
+    try {
+      const mailOptions = {
+        from: process.env.EMAIL_FROM || '"CareGrid" <noreply@caregrid.com>',
+        to: 'caregriduk@gmail.com',
+        subject: `New Contact Form Submission - ${contactData.subject}`,
+        html: this.generateContactFormEmailTemplate(contactData)
+      };
+
+      const info = await this.transporter.sendMail(mailOptions);
+      
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('📧 Contact form notification sent successfully');
+        console.log('Preview URL:', nodemailer.getTestMessageUrl(info));
+      }
+      
+      return {
+        success: true,
+        messageId: info.messageId
+      };
+    } catch (error) {
+      console.error('Failed to send contact form notification:', error);
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  generateContactFormEmailTemplate(contactData) {
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>New Contact Form Submission</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { text-align: center; margin-bottom: 30px; background: #f8f9fa; padding: 20px; border-radius: 8px; }
+          .logo { font-size: 28px; font-weight: bold; color: #2a6ef3; }
+          .info-section { background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0; }
+          .info-label { font-weight: bold; color: #2a6ef3; }
+          .message-content { background: #fff; border: 1px solid #ddd; padding: 15px; border-radius: 8px; margin: 15px 0; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <div class="logo">CareGrid</div>
+            <h2>New Contact Form Submission</h2>
+          </div>
+          
+          <div class="info-section">
+            <p><span class="info-label">Name:</span> ${contactData.firstName} ${contactData.lastName}</p>
+            <p><span class="info-label">Email:</span> ${contactData.email}</p>
+            <p><span class="info-label">Phone:</span> ${contactData.phone || 'Not provided'}</p>
+            <p><span class="info-label">Subject:</span> ${contactData.subject}</p>
+            <p><span class="info-label">Submitted:</span> ${new Date().toLocaleString()}</p>
+          </div>
+          
+          <div class="message-content">
+            <h3>Message:</h3>
+            <p>${contactData.message.replace(/\n/g, '<br>')}</p>
+          </div>
+          
+          <p><small>This message was sent from the CareGrid contact form.</small></p>
+        </div>
+      </body>
+      </html>
+    `;
+  }
 }
 
 module.exports = new EmailService();

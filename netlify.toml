@@ -33,6 +33,20 @@
   to = "/.netlify/functions/:splat"
   status = 200
 
+# Redirect apex domain to www subdomain
+[[redirects]]
+  from = "https://caregrid.co.uk/*"
+  to = "https://www.caregrid.co.uk/:splat"
+  status = 301
+  force = true
+
+# Redirect HTTP to HTTPS
+[[redirects]]
+  from = "http://www.caregrid.co.uk/*"
+  to = "https://www.caregrid.co.uk/:splat"
+  status = 301
+  force = true
+
 # Custom headers for security and performance
 [[headers]]
   for = "/*"
