@@ -48,7 +48,7 @@ services:
       - key: EMAIL_PASSWORD
         value: bycozcsxrffvvazo
       - key: EMAIL_FROM
-        value: "CareGrid UK" <noreply@caregriduk.co.uk>
+        value: '"CareGrid UK" <noreply@caregriduk.co.uk>'
 
 databases:
   - name: caregrid-db
