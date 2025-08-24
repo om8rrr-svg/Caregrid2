@@ -43,9 +43,31 @@ app.use(compression({
 
 // Security middleware
 app.use(helmet());
+
+// Dynamic CORS configuration
+const getAllowedOrigins = () => {
+  const corsOrigin = process.env.CORS_ORIGIN || process.env.FRONTEND_URL;
+  
+  if (corsOrigin) {
+    // Split by comma and trim whitespace
+    const origins = corsOrigin.split(',').map(origin => origin.trim());
+    
+    // Handle wildcard patterns
+    return origins.map(origin => {
+      if (origin.includes('*')) {
+        return new RegExp(origin.replace(/\*/g, '.*'));
+      }
+      return origin;
+    });
+  }
+  
+  // Default fallback origins
+  return ['http://localhost:3000', 'http://localhost:8000', 'http://localhost:8080'];
+};
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || ['http://localhost:3000', 'http://localhost:8000', 'http://localhost:8080'],
-  credentials: true
+  origin: getAllowedOrigins(),
+  credentials: false
 }));
 
 // Rate limiting

@@ -45,12 +45,18 @@ class APIService {
     async makeRequest(endpoint, options = {}) {
         const url = `${this.baseURL}${endpoint}`;
         console.log('Making request to:', url); // Debug log
+        
+        // Add timeout to prevent indefinite loading
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+        
         const config = {
             headers: {
                 'Content-Type': 'application/json',
                 ...options.headers
             },
             credentials: 'omit', // using Bearer token, not cookies
+            signal: controller.signal,
             ...options
         };
 
@@ -65,6 +71,7 @@ class APIService {
         try {
             console.log('Request config:', config); // Debug log
             const response = await fetch(url, config);
+            clearTimeout(timeoutId); // Clear timeout on successful response
             console.log('Response received:', response.status, response.statusText); // Debug log
             
             // Handle 401 Unauthorized gracefully for missing/invalid tokens
@@ -105,10 +112,15 @@ class APIService {
 
             return data;
         } catch (error) {
+            clearTimeout(timeoutId); // Clear timeout on error
             console.error('API Request failed:', error);
             console.error('Error details:', error.message, error.stack); // Enhanced debug log
             
             // Handle specific error cases
+            if (error.name === 'AbortError') {
+                throw new Error('Request timed out. Please check your connection and try again.');
+            }
+            
             if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
                 throw new Error('Network connection failed. Please check if the server is running.');
             }

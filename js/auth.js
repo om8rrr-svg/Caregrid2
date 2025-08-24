@@ -182,8 +182,10 @@ class AuthSystem {
             // Dispatch auth state change event
             window.dispatchEvent(new CustomEvent('authStateChanged'));
 
-            // The progress animation will handle the redirect when it reaches 100%
-            // No additional delay needed here
+            // Immediately redirect to dashboard after successful login
+            this.hideModernLoading();
+            window.location.href = 'dashboard.html';
+            return;
             
         } catch (error) {
             console.log('Sign-in failed:', error.message);
@@ -834,7 +836,8 @@ class AuthSystem {
     
     // Check if user is authenticated
     isAuthenticated() {
-        return !!this.currentUser && !!this.apiService.getStoredToken();
+        // Check for token in localStorage or sessionStorage directly
+        return !!(localStorage.getItem('authToken') || sessionStorage.getItem('authToken'));
     }
     
     redirectAfterAuth() {
