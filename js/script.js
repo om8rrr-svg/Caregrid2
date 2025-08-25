@@ -1,6 +1,13 @@
 // Initialize API service
 const apiService = new APIService();
 
+// Unregister any old service workers to prevent cache issues
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(registrations => {
+        registrations.forEach(registration => registration.unregister());
+    });
+}
+
 // Sample clinic data (fallback)
 let clinicsData = [
     {
@@ -2112,8 +2119,11 @@ async function loadClinicsFromAPI() {
             console.log('Attempting to connect to API at:', apiService.baseURL);
         }
         
-        // Request all clinics with a high limit to get the full dataset
-        const response = await apiService.getClinics({ limit: 200 });
+        // Request all clinics with timeout wrapper for graceful degradation
+        const response = await apiService.withTimeout(
+            apiService.getClinics({ limit: 200 }),
+            15000 // 15 second timeout for clinic loading
+        );
         
         // Handle different response formats
         const clinics = response.data || response;
@@ -2135,6 +2145,9 @@ async function loadClinicsFromAPI() {
         if (error.message === 'BACKEND_UNAVAILABLE') {
             // Backend is unavailable, use fallback data silently
             showAPIStatus('Demo mode', 'offline');
+        } else if (error.message === 'timeout') {
+            // Timeout occurred, show user-friendly message and fallback
+            showAPIStatus('Slow connection - using sample data', 'offline');
         } else {
             // Other errors - still use fallback but show different status
             showAPIStatus('Demo mode', 'offline');

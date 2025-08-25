@@ -1,0 +1,24 @@
+User-agent: *
+Allow: /
+
+# Important pages
+Allow: /index.html
+Allow: /features.html
+Allow: /pricing.html
+Allow: /contact.html
+Allow: /auth.html
+Allow: /booking.html
+
+# Admin areas - restricted
+Disallow: /admin-*
+Disallow: /dashboard.html
+Disallow: /debug-*
+Disallow: /test-*
+
+# Static assets
+Allow: /css/
+Allow: /js/
+Allow: /images/
+
+# Sitemap
+Sitemap: https://www.caregrid.co.uk/sitemap.xml
