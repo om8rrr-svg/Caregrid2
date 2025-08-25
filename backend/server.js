@@ -44,58 +44,21 @@ app.use(compression({
 // Security middleware
 app.use(helmet());
 
-// Dynamic CORS configuration
-const getAllowedOrigins = () => {
-  const corsOrigin = process.env.CORS_ORIGIN || process.env.FRONTEND_URL;
-  
-  if (corsOrigin) {
-    // Split by comma and trim whitespace
-    const origins = corsOrigin.split(',').map(origin => origin.trim());
-    
-    // Handle wildcard patterns
-    return origins.map(origin => {
-      if (origin.includes('*')) {
-        return new RegExp(origin.replace(/\*/g, '.*'));
-      }
-      return origin;
-    });
-  }
-  
-  // Default fallback origins including production domains
-  return [
-    'http://localhost:3000', 
-    'http://localhost:8000', 
-    'http://localhost:8080',
-    'https://www.caregrid.co.uk',
-    'https://caregrid.co.uk',
-    'https://caregrid2.vercel.app'
-  ];
-};
+// CORS configuration
+const allowed = (process.env.CORS_ORIGIN || '')
+  .split(',')
+  .map(s => s.trim())
+  .filter(Boolean);
 
 app.use(cors({
-  origin(origin, callback) {
-    const allowedOrigins = getAllowedOrigins();
-    
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    
-    // Check if origin is allowed
-    const isAllowed = allowedOrigins.some(allowedOrigin => {
-      if (allowedOrigin instanceof RegExp) {
-        return allowedOrigin.test(origin);
-      }
-      return allowedOrigin === origin;
-    });
-    
-    if (isAllowed) {
-      return callback(null, true);
-    }
-    
-    return callback(new Error(`Origin ${origin} not allowed by CORS`));
+  origin(origin, cb) {
+    if (!origin) return cb(null, true); // allow curl/postman
+    if (allowed.includes(origin)) return cb(null, true);
+    return cb(new Error(`CORS blocked: ${origin}`));
   },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
+  allowedHeaders: ['Content-Type','Authorization','X-Requested-With'],
+  credentials: false
 }));
 
 // Handle preflight for all routes
@@ -160,6 +123,12 @@ app.get('/health/db', async (req, res) => {
       timestamp: new Date().toISOString()
     });
   }
+});
+
+// API freshness - no stale data for JSON endpoints
+app.use('/api', (req, res, next) => {
+  res.set('Cache-Control', 'no-store');
+  next();
 });
 
 // API routes

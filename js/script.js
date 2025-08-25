@@ -1,3 +1,6 @@
+// Import required functions
+import { buildUrl, withTimeout } from './api-base.js';
+
 // Initialize API service
 const apiService = new APIService();
 
@@ -2906,9 +2909,11 @@ async function updateLocationCounts() {
         { key: 'london', city: 'London' }
     ];
     
-    // Update total count for 'All Locations'
+    // Update total count for 'All Locations' with timeout
     try {
-        const totalData = await apiService.getClinics({ limit: 1000 });
+        const res = await withTimeout(fetch(buildUrl('/api/clinics', { limit: 1000 })), 15000);
+        if (!res.ok) throw new Error('bad status ' + res.status);
+        const totalData = await res.json();
         const totalCount = totalData.pagination?.total || totalData.data?.length || 0;
         
         const totalCountElement = document.querySelector('[data-location="all"] .clinic-count');
@@ -2923,24 +2928,34 @@ async function updateLocationCounts() {
         }
     } catch (error) {
         console.error('Error fetching total clinic count:', error);
-        // Fallback to counting from local fallback data
-        const fallbackCount = clinicsData.length;
+        // graceful fallback
         const totalCountElement = document.querySelector('[data-location="all"] .clinic-count');
         if (totalCountElement) {
-            totalCountElement.textContent = `${fallbackCount} clinics`;
+            totalCountElement.innerHTML = `
+                <div class="muted">Couldn't load cities right now.</div>
+                <div class="chip-row">
+                    <button class="chip" data-location="manchester">Manchester</button>
+                    <button class="chip" data-location="london">London</button>
+                    <button class="chip" data-location="liverpool">Liverpool</button>
+                </div>
+                <button class="btn btn-outline" id="retryCities">Try again</button>
+            `;
+            const retry = document.getElementById('retryCities');
+            if (retry) retry.addEventListener('click', updateLocationCounts);
         }
         
         const mobileAllOption = document.querySelector('.mobile-location-select option[value="all"]');
         if (mobileAllOption) {
-            mobileAllOption.textContent = `All Locations (${fallbackCount} clinics)`;
+            mobileAllOption.textContent = `All Locations (Data unavailable)`;
         }
     }
     
-    // Update individual location counts
+    // Update individual location counts with timeout and fallback
     for (const location of locations) {
         try {
-            // Fetch clinics for this specific location from the API
-            const data = await apiService.getClinics({ city: location.city, limit: 1000 });
+            const res = await withTimeout(fetch(buildUrl('/api/clinics', { city: location.city, limit: 1000 })), 15000);
+            if (!res.ok) throw new Error('bad status ' + res.status);
+            const data = await res.json();
             const count = data.pagination?.total || data.data?.length || 0;
             
             const countElement = document.querySelector(`[data-location="${location.key}"] .clinic-count`);
@@ -2955,20 +2970,19 @@ async function updateLocationCounts() {
             }
         } catch (error) {
             console.error(`Error fetching clinic count for ${location.city}:`, error);
-            // Fallback to counting from local fallback data
-            const fallbackCount = clinicsData.filter(clinic => 
-                clinic.location.toLowerCase() === location.city.toLowerCase()
-            ).length;
-            
+            // graceful fallback for individual cities
             const countElement = document.querySelector(`[data-location="${location.key}"] .clinic-count`);
             if (countElement) {
-                countElement.textContent = `${fallbackCount} ${fallbackCount === 1 ? 'clinic' : 'clinics'}`;
+                countElement.innerHTML = `
+                    <div class="muted">Couldn't load data right now.</div>
+                    <button class="btn btn-outline" onclick="updateLocationCounts()">Try again</button>
+                `;
             }
             
-            // Also update mobile dropdown
+            // Also update mobile dropdown  
             const mobileOption = document.querySelector(`.mobile-location-select option[value="${location.key}"]`);
             if (mobileOption) {
-                mobileOption.textContent = `${location.city} (${fallbackCount} ${fallbackCount === 1 ? 'clinic' : 'clinics'})`;
+                mobileOption.textContent = `${location.city} (Data unavailable)`;
             }
         }
     }

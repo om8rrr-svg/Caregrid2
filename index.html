@@ -82,12 +82,12 @@
                 <li id="authNavItem"><a href="auth.html" class="nav-link">Sign In</a></li>
                 <li id="userNavItem" style="display: none;">
                     <div class="user-menu">
-                        <div class="user-avatar" onclick="toggleUserMenu()">
+                        <div class="user-avatar" onclick="toggleUserMenu()" aria-expanded="false" aria-controls="userDropdown" role="button" tabindex="0">
                             <img src="images/default-avatar.svg" alt="User Avatar" id="userAvatar">
                             <span id="userName">User</span>
                             <i class="fas fa-chevron-down"></i>
                         </div>
-                        <div class="user-dropdown" id="userDropdown">
+                        <div class="user-dropdown" id="userDropdown" hidden>
                             <a href="dashboard.html" class="dropdown-item">
                                 <i class="fas fa-tachometer-alt"></i>
                                 Dashboard
@@ -134,13 +134,13 @@
                 </div>
                 
                 <!-- Advanced Filters Toggle -->
-                <button class="filters-toggle" id="filtersToggle" onclick="toggleAdvancedFilters()">
+                <button class="filters-toggle" id="filtersToggle" onclick="toggleAdvancedFilters()" aria-expanded="false" aria-controls="advancedFilters">
                     <i class="fas fa-sliders-h"></i>
                     Advanced Filters
                 </button>
                 
                 <!-- Advanced Filters Panel -->
-                <div class="advanced-filters" id="advancedFilters">
+                <div class="advanced-filters" id="advancedFilters" hidden>
                     <div class="filters-grid">
                         <div class="filter-group">
                             <label for="availabilityFilter">Availability</label>
@@ -474,7 +474,22 @@
         
         function toggleUserMenu() {
             const dropdown = document.getElementById('userDropdown');
+            const avatar = document.querySelector('.user-avatar');
+            const isOpen = avatar.getAttribute('aria-expanded') === 'true';
+            
+            avatar.setAttribute('aria-expanded', String(!isOpen));
+            dropdown.hidden = isOpen;
             dropdown.classList.toggle('show');
+        }
+        
+        function toggleAdvancedFilters() {
+            const filtersPanel = document.getElementById('advancedFilters');
+            const toggle = document.getElementById('filtersToggle');
+            const isOpen = toggle.getAttribute('aria-expanded') === 'true';
+            
+            toggle.setAttribute('aria-expanded', String(!isOpen));
+            filtersPanel.hidden = isOpen;
+            filtersPanel.classList.toggle('show');
         }
         
         function logout() {
@@ -503,9 +518,7 @@
     <!-- Service Worker Cleanup -->
     <script>
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistrations()
-            .then(regs => regs.forEach(r => r.unregister()))
-            .catch(()=>{});
+      navigator.serviceWorker.getRegistrations().then(rs => rs.forEach(r => r.unregister())).catch(()=>{});
     }
     </script>
 </body>

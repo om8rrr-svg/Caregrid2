@@ -1,4 +1,5 @@
 // Authentication System JavaScript
+import { buildUrl } from './api-base.js';
 
 class AuthSystem {
     constructor() {
@@ -90,35 +91,19 @@ class AuthSystem {
     }
     
     async checkExistingAuth() {
-        // Check if apiService is available and user has a valid token
-        if (!this.apiService || !this.apiService.getStoredToken) {
-            return;
-        }
-        
-        const token = this.apiService.getStoredToken();
-        if (token) {
-            try {
-                const userData = await this.apiService.getCurrentUser();
-                this.currentUser = userData.user || userData.data?.user || userData;
-                
-                // Only redirect to dashboard if we're currently on the auth page
-                // This prevents redirect loops when dashboard.html includes auth.js
-                if (window.location.pathname.includes('auth.html') || window.location.pathname === '/' || window.location.pathname.endsWith('/')) {
-                    this.redirectToDashboard();
-                }
-            } catch (error) {
-                console.log('Error validating token:', error);
-                
-                // Only clear auth data for actual authentication errors (401), not network errors
-                if (error.message.includes('401') || error.message.includes('Authentication failed')) {
-                    console.log('Invalid token, removing:', error);
-                    this.apiService.clearAuthData();
-                    this.currentUser = null;
-                } else {
-                    // For network errors, keep the user logged in
-                    console.log('Network error checking token, keeping user logged in');
-                }
-            }
+        // try to auto-continue only if token exists
+        const t = localStorage.getItem('caregrid_token') || sessionStorage.getItem('caregrid_token');
+        if (!t) return; // show sign-in form normally
+
+        try {
+            const resp = await fetch(buildUrl('/api/auth/me'), {
+                headers: { Authorization: `Bearer ${t}` }
+            });
+            if (resp.ok) {
+                window.location.href = 'dashboard.html';
+            } // else: stay on sign-in and show an inline error
+        } catch (e) {
+            // stay on sign-in; show inline message if needed
         }
     }
 
@@ -165,27 +150,10 @@ class AuthSystem {
                 throw new Error('No token received from server');
             }
             
-            this.apiService.setToken(token, rememberMe);
-            this.currentUser = user;
-            
-            // Store user data in localStorage/sessionStorage to match dashboard expectations
-            if (user) {
-                if (rememberMe) {
-                    localStorage.setItem('careGridCurrentUser', JSON.stringify(user));
-                    sessionStorage.removeItem('careGridCurrentUser');
-                } else {
-                    sessionStorage.setItem('careGridCurrentUser', JSON.stringify(user));
-                    localStorage.removeItem('careGridCurrentUser');
-                }
-            }
-
-            // Dispatch auth state change event
-            window.dispatchEvent(new CustomEvent('authStateChanged'));
-
-            // Immediately redirect to dashboard after successful login
-            this.hideModernLoading();
+            // after successful /auth/login
+            localStorage.setItem('caregrid_token', token);
+            sessionStorage.setItem('caregrid_token', token);
             window.location.href = 'dashboard.html';
-            return;
             
         } catch (error) {
             console.log('Sign-in failed:', error.message);
