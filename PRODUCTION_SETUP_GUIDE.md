@@ -61,7 +61,7 @@ This guide addresses the issues found when deploying CareGrid from local develop
 - [ ] Test health endpoint: `https://caregrid-backend.onrender.com/health`
 - [ ] Check database connectivity
 
-### Frontend (GitHub Pages/Vercel)
+### Frontend (Vercel)
 - [ ] Ensure CNAME points to www.caregrid.co.uk
 - [ ] Verify HTTPS is enabled
 - [ ] Test API connectivity from production domain
@@ -133,7 +133,7 @@ await window.apiService.submitContactForm({...})
 
 2. **Update Frontend**:
    ```bash
-   # Changes are auto-deployed via GitHub Pages
+   # Changes are auto-deployed via Vercel
    git push origin main
    ```
 

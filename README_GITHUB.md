@@ -22,7 +22,7 @@ A comprehensive healthcare booking platform that connects patients with healthca
 - **Styling**: Custom CSS with responsive design
 - **Storage**: Local Storage for data persistence
 - **Icons**: Custom SVG icons
-- **Deployment**: Static hosting ready (Vercel, GitHub Pages)
+- **Deployment**: Vercel-optimized static hosting
 
 ## 📁 Project Structure
 
