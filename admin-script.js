@@ -557,13 +557,7 @@ class AdminDashboard {
                         <button class="btn btn-success btn-sm approve-booking" data-booking-id="${booking.id}">Approve</button>
                         <button class="btn btn-danger btn-sm reject-booking" data-booking-id="${booking.id}">Reject</button>
                     ` : `
-<button
-  class="btn btn-outline btn-sm view-booking"
-  title="Ref: ${booking.reference || 'N/A'}"
-  data-booking-id="${booking.id}"
-  data-patient-name="${booking.patient || ''}">
-  View
-</button>
+                        <button class="btn btn-outline btn-sm view-booking" data-booking-id="${booking.id}" data-patient-name="${booking.patient}">View</button>
                     `}
                 </td>
             ` : '';
