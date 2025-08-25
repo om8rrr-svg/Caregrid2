@@ -168,15 +168,10 @@ class AuthSystem {
             this.apiService.setToken(token, rememberMe);
             this.currentUser = user;
             
-            // Store user data in localStorage/sessionStorage to match dashboard expectations
+            // Store user data in both localStorage and sessionStorage as recommended in problem statement
             if (user) {
-                if (rememberMe) {
-                    localStorage.setItem('careGridCurrentUser', JSON.stringify(user));
-                    sessionStorage.removeItem('careGridCurrentUser');
-                } else {
-                    sessionStorage.setItem('careGridCurrentUser', JSON.stringify(user));
-                    localStorage.removeItem('careGridCurrentUser');
-                }
+                localStorage.setItem('careGridCurrentUser', JSON.stringify(user));
+                sessionStorage.setItem('careGridCurrentUser', JSON.stringify(user));
             }
 
             // Dispatch auth state change event

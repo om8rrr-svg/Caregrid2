@@ -17,13 +17,9 @@ class APIService {
 
     setToken(token, remember = false) {
         this.token = token;
-        if (remember) {
-            localStorage.setItem('careGridToken', token);
-            sessionStorage.removeItem('careGridToken');
-        } else {
-            sessionStorage.setItem('careGridToken', token);
-            localStorage.removeItem('careGridToken');
-        }
+        // Store in both localStorage and sessionStorage as recommended
+        localStorage.setItem('careGridToken', token);
+        sessionStorage.setItem('careGridToken', token);
         // Ensure the instance token is updated
         this.token = this.getStoredToken();
     }

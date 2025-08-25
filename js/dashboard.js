@@ -67,13 +67,20 @@ class Dashboard {
     }
     
     async checkAuthentication() {
-        const token = this.apiService?.getStoredToken();
-        if (!token) {
-            // Not logged in: go to login
-            window.location.replace('auth.html');
-            return;
-        }
-
+        // Use DOM ready check with defer to prevent login loops
+        setTimeout(() => {
+            const token = this.apiService?.getStoredToken();
+            if (!token) {
+                // Not logged in: go to login
+                window.location.replace('auth.html');
+                return;
+            }
+            
+            this.validateAndLoadUser();
+        }, 0);
+    }
+    
+    async validateAndLoadUser() {
         // Try cached user immediately (no flash)
         const cached = localStorage.getItem('careGridCurrentUser') || sessionStorage.getItem('careGridCurrentUser');
         if (cached) {

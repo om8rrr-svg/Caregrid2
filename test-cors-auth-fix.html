@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CareGrid Auth & CORS Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+        button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+        input[type="text"], input[type="password"] { padding: 8px; margin: 5px; width: 200px; }
+        #results { margin-top: 20px; max-height: 300px; overflow-y: auto; background: #f5f5f5; padding: 10px; }
+    </style>
+</head>
+<body>
+    <h1>CareGrid CORS & Auth Test</h1>
+    
+    <div class="test-section">
+        <h2>1. Auth Utils Test</h2>
+        <button onclick="testAuthUtils()">Test Auth Utils Functions</button>
+        <div id="authUtilsResults"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. Backend Health Check</h2>
+        <button onclick="testBackendHealth()">Test Backend Health</button>
+        <div id="healthResults"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. CORS Test</h2>
+        <p>Test CORS with different origins (requires backend running)</p>
+        <button onclick="testCORS()">Test CORS</button>
+        <div id="corsResults"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>4. Token Management Test</h2>
+        <input type="text" id="testToken" placeholder="Test token value" value="test-token-123">
+        <button onclick="testTokenManagement()">Test Token Storage/Retrieval</button>
+        <div id="tokenResults"></div>
+    </div>
+    
+    <div id="results">
+        <h3>Test Results:</h3>
+    </div>
+
+    <!-- Include our auth utils -->
+    <script src="utils/auth-utils.js"></script>
+    <script src="js/api-service.js"></script>
+
+    <script>
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'success' ? 'success' : type === 'error' ? 'error' : 'info';
+            results.innerHTML += `<div class="${className}">[${timestamp}] ${message}</div>`;
+            results.scrollTop = results.scrollHeight;
+        }
+
+        function testAuthUtils() {
+            const resultsDiv = document.getElementById('authUtilsResults');
+            resultsDiv.innerHTML = '';
+            
+            try {
+                // Test if AuthUtils is available
+                if (typeof window.AuthUtils === 'undefined') {
+                    resultsDiv.innerHTML = '<span class="error">❌ AuthUtils not loaded</span>';
+                    log('AuthUtils test failed: Not loaded', 'error');
+                    return;
+                }
+                
+                // Test token functions
+                const testToken = 'test-auth-token-123';
+                window.AuthUtils.setToken(testToken);
+                const retrievedToken = window.AuthUtils.getToken();
+                
+                // Test user functions
+                const testUser = { id: 1, name: 'Test User', email: 'test@example.com' };
+                window.AuthUtils.setUser(testUser);
+                const retrievedUser = window.AuthUtils.getUser();
+                
+                // Test auth check
+                const isAuth = window.AuthUtils.isAuthenticated();
+                
+                let results = `
+                    <div class="success">✅ AuthUtils loaded successfully</div>
+                    <div>Token set/get: ${retrievedToken === testToken ? '✅ Pass' : '❌ Fail'}</div>
+                    <div>User set/get: ${JSON.stringify(retrievedUser) === JSON.stringify(testUser) ? '✅ Pass' : '❌ Fail'}</div>
+                    <div>Is authenticated: ${isAuth ? '✅ Pass' : '❌ Fail'}</div>
+                `;
+                
+                resultsDiv.innerHTML = results;
+                log('AuthUtils test completed successfully', 'success');
+                
+                // Clean up
+                window.AuthUtils.clearToken();
+                window.AuthUtils.clearUser();
+                
+            } catch (error) {
+                resultsDiv.innerHTML = `<span class="error">❌ Error: ${error.message}</span>`;
+                log(`AuthUtils test failed: ${error.message}`, 'error');
+            }
+        }
+
+        function testBackendHealth() {
+            const resultsDiv = document.getElementById('healthResults');
+            resultsDiv.innerHTML = '<div class="info">Testing backend health...</div>';
+            
+            const apiService = new APIService();
+            
+            fetch(apiService.baseURL.replace('/api', '') + '/health')
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                })
+                .then(data => {
+                    resultsDiv.innerHTML = `
+                        <div class="success">✅ Backend health check passed</div>
+                        <div>Status: ${data.status}</div>
+                        <div>Service: ${data.service}</div>
+                        <div>Timestamp: ${data.timestamp}</div>
+                    `;
+                    log('Backend health check passed', 'success');
+                })
+                .catch(error => {
+                    resultsDiv.innerHTML = `<div class="error">❌ Backend health check failed: ${error.message}</div>`;
+                    log(`Backend health check failed: ${error.message}`, 'error');
+                });
+        }
+
+        function testCORS() {
+            const resultsDiv = document.getElementById('corsResults');
+            resultsDiv.innerHTML = '<div class="info">Testing CORS...</div>';
+            
+            const apiService = new APIService();
+            
+            // Test with an OPTIONS request to check CORS headers
+            fetch(apiService.baseURL + '/clinics?limit=1', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => {
+                    const corsHeader = response.headers.get('access-control-allow-origin');
+                    if (response.ok) {
+                        resultsDiv.innerHTML = `
+                            <div class="success">✅ CORS test passed</div>
+                            <div>Response status: ${response.status}</div>
+                            <div>CORS header: ${corsHeader || 'Not set'}</div>
+                        `;
+                        log('CORS test passed', 'success');
+                    } else {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                })
+                .catch(error => {
+                    resultsDiv.innerHTML = `<div class="error">❌ CORS test failed: ${error.message}</div>`;
+                    log(`CORS test failed: ${error.message}`, 'error');
+                });
+        }
+
+        function testTokenManagement() {
+            const resultsDiv = document.getElementById('tokenResults');
+            const testToken = document.getElementById('testToken').value;
+            
+            if (!window.apiService) {
+                window.apiService = new APIService();
+            }
+            
+            try {
+                // Test API service token management
+                window.apiService.setToken(testToken, false);
+                const retrievedToken = window.apiService.getStoredToken();
+                
+                // Test localStorage and sessionStorage
+                const localToken = localStorage.getItem('careGridToken');
+                const sessionToken = sessionStorage.getItem('careGridToken');
+                
+                let results = `
+                    <div class="success">✅ Token management test completed</div>
+                    <div>Set token: ${testToken}</div>
+                    <div>Retrieved token: ${retrievedToken}</div>
+                    <div>LocalStorage: ${localToken ? '✅ Stored' : '❌ Not stored'}</div>
+                    <div>SessionStorage: ${sessionToken ? '✅ Stored' : '❌ Not stored'}</div>
+                    <div>Match test: ${retrievedToken === testToken ? '✅ Pass' : '❌ Fail'}</div>
+                `;
+                
+                resultsDiv.innerHTML = results;
+                log('Token management test completed', 'success');
+                
+            } catch (error) {
+                resultsDiv.innerHTML = `<span class="error">❌ Error: ${error.message}</span>`;
+                log(`Token management test failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            log('CareGrid Auth & CORS Test page loaded', 'info');
+            if (typeof window.AuthUtils !== 'undefined') {
+                log('AuthUtils loaded successfully', 'success');
+            } else {
+                log('AuthUtils not loaded', 'error');
+            }
+        });
+    </script>
+</body>
+</html>

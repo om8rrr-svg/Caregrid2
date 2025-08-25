@@ -45,29 +45,24 @@ app.use(compression({
 app.use(helmet());
 
 // Dynamic CORS configuration
-const getAllowedOrigins = () => {
-  const corsOrigin = process.env.CORS_ORIGIN || process.env.FRONTEND_URL;
-  
-  if (corsOrigin) {
-    // Split by comma and trim whitespace
-    const origins = corsOrigin.split(',').map(origin => origin.trim());
-    
-    // Handle wildcard patterns
-    return origins.map(origin => {
-      if (origin.includes('*')) {
-        return new RegExp(origin.replace(/\*/g, '.*'));
-      }
-      return origin;
-    });
-  }
-  
-  // Default fallback origins
-  return ['http://localhost:3000', 'http://localhost:8000', 'http://localhost:8080'];
-};
+const parseOrigins = (val) =>
+  (val || '').split(',').map(s => s.trim()).filter(Boolean);
 
+const allowedOrigins = parseOrigins(process.env.CORS_ORIGIN);
+
+// dynamic origin check so multiple domains work
 app.use(cors({
-  origin: getAllowedOrigins(),
-  credentials: false
+  origin: (origin, cb) => {
+    if (!origin) return cb(null, true);                    // allow curl/postman
+    const ok = allowedOrigins.some(o =>
+      o === origin || (o.startsWith('https://') && origin.endsWith(o.replace('https://', '')))
+    );
+    cb(ok ? null : new Error('CORS blocked'), ok);
+  },
+  methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
+  allowedHeaders: ['Content-Type','Authorization'],
+  credentials: true,                                      // if you ever send cookies
+  maxAge: 86400
 }));
 
 // Rate limiting
