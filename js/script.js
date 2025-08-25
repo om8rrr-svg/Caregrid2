@@ -2909,7 +2909,7 @@ async function updateLocationCounts() {
     // Update total count for 'All Locations'
     try {
         const totalData = await apiService.getClinics({ limit: 1000 });
-        const totalCount = totalData.pagination?.total || 0;
+        const totalCount = totalData.pagination?.total || totalData.data?.length || 0;
         
         const totalCountElement = document.querySelector('[data-location="all"] .clinic-count');
         if (totalCountElement) {
@@ -2923,6 +2923,17 @@ async function updateLocationCounts() {
         }
     } catch (error) {
         console.error('Error fetching total clinic count:', error);
+        // Fallback to counting from local fallback data
+        const fallbackCount = clinicsData.length;
+        const totalCountElement = document.querySelector('[data-location="all"] .clinic-count');
+        if (totalCountElement) {
+            totalCountElement.textContent = `${fallbackCount} clinics`;
+        }
+        
+        const mobileAllOption = document.querySelector('.mobile-location-select option[value="all"]');
+        if (mobileAllOption) {
+            mobileAllOption.textContent = `All Locations (${fallbackCount} clinics)`;
+        }
     }
     
     // Update individual location counts
@@ -2930,7 +2941,7 @@ async function updateLocationCounts() {
         try {
             // Fetch clinics for this specific location from the API
             const data = await apiService.getClinics({ city: location.city, limit: 1000 });
-            const count = data.pagination?.total || 0;
+            const count = data.pagination?.total || data.data?.length || 0;
             
             const countElement = document.querySelector(`[data-location="${location.key}"] .clinic-count`);
             if (countElement) {
@@ -2944,10 +2955,20 @@ async function updateLocationCounts() {
             }
         } catch (error) {
             console.error(`Error fetching clinic count for ${location.city}:`, error);
-            // Fallback to showing 0 clinics if API call fails
+            // Fallback to counting from local fallback data
+            const fallbackCount = clinicsData.filter(clinic => 
+                clinic.location.toLowerCase() === location.city.toLowerCase()
+            ).length;
+            
             const countElement = document.querySelector(`[data-location="${location.key}"] .clinic-count`);
             if (countElement) {
-                countElement.textContent = '0 clinics';
+                countElement.textContent = `${fallbackCount} ${fallbackCount === 1 ? 'clinic' : 'clinics'}`;
+            }
+            
+            // Also update mobile dropdown
+            const mobileOption = document.querySelector(`.mobile-location-select option[value="${location.key}"]`);
+            if (mobileOption) {
+                mobileOption.textContent = `${location.city} (${fallbackCount} ${fallbackCount === 1 ? 'clinic' : 'clinics'})`;
             }
         }
     }

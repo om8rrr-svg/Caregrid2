@@ -3,22 +3,23 @@ Allow: /
 
 # Important pages
 Allow: /index.html
-Allow: /features.html
 Allow: /pricing.html
 Allow: /contact.html
+Allow: /list-clinic.html
 Allow: /auth.html
-Allow: /booking.html
 
-# Admin areas - restricted
+# Block admin and debugging pages
 Disallow: /admin-*
-Disallow: /dashboard.html
 Disallow: /debug-*
 Disallow: /test-*
+Disallow: /*-debug.html
+Disallow: /*-test.html
 
-# Static assets
-Allow: /css/
-Allow: /js/
-Allow: /images/
+# Block backend configuration files
+Disallow: /*.json
+Disallow: /*.md
+Disallow: /*.py
+Disallow: /*.sh
 
-# Sitemap
+# Sitemap location
 Sitemap: https://www.caregrid.co.uk/sitemap.xml
