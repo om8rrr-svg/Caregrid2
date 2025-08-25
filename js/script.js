@@ -2906,72 +2906,98 @@ async function updateLocationCounts() {
         { key: 'london', city: 'London' }
     ];
     
-    // Update total count for 'All Locations'
-    try {
-        const totalData = await apiService.getClinics({ limit: 1000 });
-        const totalCount = totalData.pagination?.total || totalData.data?.length || 0;
-        
-        const totalCountElement = document.querySelector('[data-location="all"] .clinic-count');
-        if (totalCountElement) {
-            totalCountElement.textContent = `${totalCount} clinics`;
+    // Helper function to update location count in UI
+    function updateLocationCountUI(locationKey, city, count) {
+        const countElement = document.querySelector(`[data-location="${locationKey}"] .clinic-count`);
+        if (countElement) {
+            countElement.textContent = `${count} ${count === 1 ? 'clinic' : 'clinics'}`;
         }
         
         // Also update mobile dropdown
-        const mobileAllOption = document.querySelector('.mobile-location-select option[value="all"]');
-        if (mobileAllOption) {
-            mobileAllOption.textContent = `All Locations (${totalCount} clinics)`;
-        }
-    } catch (error) {
-        console.error('Error fetching total clinic count:', error);
-        // Fallback to counting from local fallback data
-        const fallbackCount = clinicsData.length;
-        const totalCountElement = document.querySelector('[data-location="all"] .clinic-count');
-        if (totalCountElement) {
-            totalCountElement.textContent = `${fallbackCount} clinics`;
-        }
-        
-        const mobileAllOption = document.querySelector('.mobile-location-select option[value="all"]');
-        if (mobileAllOption) {
-            mobileAllOption.textContent = `All Locations (${fallbackCount} clinics)`;
+        const mobileOption = document.querySelector(`.mobile-location-select option[value="${locationKey}"]`);
+        if (mobileOption) {
+            mobileOption.textContent = `${city} (${count} ${count === 1 ? 'clinic' : 'clinics'})`;
         }
     }
     
-    // Update individual location counts
-    for (const location of locations) {
-        try {
-            // Fetch clinics for this specific location from the API
-            const data = await apiService.getClinics({ city: location.city, limit: 1000 });
-            const count = data.pagination?.total || data.data?.length || 0;
-            
-            const countElement = document.querySelector(`[data-location="${location.key}"] .clinic-count`);
-            if (countElement) {
-                countElement.textContent = `${count} ${count === 1 ? 'clinic' : 'clinics'}`;
-            }
-            
-            // Also update mobile dropdown
-            const mobileOption = document.querySelector(`.mobile-location-select option[value="${location.key}"]`);
-            if (mobileOption) {
-                mobileOption.textContent = `${location.city} (${count} ${count === 1 ? 'clinic' : 'clinics'})`;
-            }
-        } catch (error) {
-            console.error(`Error fetching clinic count for ${location.city}:`, error);
-            // Fallback to counting from local fallback data
-            const fallbackCount = clinicsData.filter(clinic => 
-                clinic.location.toLowerCase() === location.city.toLowerCase()
-            ).length;
-            
-            const countElement = document.querySelector(`[data-location="${location.key}"] .clinic-count`);
-            if (countElement) {
-                countElement.textContent = `${fallbackCount} ${fallbackCount === 1 ? 'clinic' : 'clinics'}`;
-            }
-            
-            // Also update mobile dropdown
-            const mobileOption = document.querySelector(`.mobile-location-select option[value="${location.key}"]`);
-            if (mobileOption) {
-                mobileOption.textContent = `${location.city} (${fallbackCount} ${fallbackCount === 1 ? 'clinic' : 'clinics'})`;
-            }
-        }
+    // First, set all locations to fallback counts immediately to avoid "Loading..." state
+    // Update total count for 'All Locations'
+    const totalFallbackCount = clinicsData.length;
+    const totalCountElement = document.querySelector('[data-location="all"] .clinic-count');
+    if (totalCountElement) {
+        totalCountElement.textContent = `${totalFallbackCount} clinics`;
     }
+    const mobileAllOption = document.querySelector('.mobile-location-select option[value="all"]');
+    if (mobileAllOption) {
+        mobileAllOption.textContent = `All Locations (${totalFallbackCount} clinics)`;
+    }
+    
+    // Set individual location fallback counts immediately
+    for (const location of locations) {
+        const fallbackCount = clinicsData.filter(clinic => 
+            clinic.location.toLowerCase() === location.city.toLowerCase()
+        ).length;
+        updateLocationCountUI(location.key, location.city, fallbackCount);
+    }
+    
+    // Now try to get real counts from API with short timeout, but don't block on failures
+    const updatePromises = [];
+    
+    // Update total count from API (with timeout)
+    updatePromises.push(
+        Promise.resolve().then(async () => {
+            try {
+                const totalData = await apiService.withTimeout(
+                    apiService.getClinics({ limit: 1000 }), 
+                    5000 // 5 second timeout for total count
+                );
+                const totalCount = totalData.pagination?.total || totalData.data?.length || 0;
+                
+                if (totalCount > 0) {
+                    const totalCountElement = document.querySelector('[data-location="all"] .clinic-count');
+                    if (totalCountElement) {
+                        totalCountElement.textContent = `${totalCount} clinics`;
+                    }
+                    const mobileAllOption = document.querySelector('.mobile-location-select option[value="all"]');
+                    if (mobileAllOption) {
+                        mobileAllOption.textContent = `All Locations (${totalCount} clinics)`;
+                    }
+                }
+            } catch (error) {
+                // Silently fail - we already have fallback counts set
+                if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                    console.log('Using fallback count for total locations');
+                }
+            }
+        })
+    );
+    
+    // Update individual location counts from API (concurrent with timeouts)
+    for (const location of locations) {
+        updatePromises.push(
+            Promise.resolve().then(async () => {
+                try {
+                    const data = await apiService.withTimeout(
+                        apiService.getClinics({ city: location.city, limit: 1000 }), 
+                        5000 // 5 second timeout per location
+                    );
+                    const count = data.pagination?.total || data.data?.length || 0;
+                    
+                    if (count >= 0) { // Even 0 is valid, update UI
+                        updateLocationCountUI(location.key, location.city, count);
+                    }
+                } catch (error) {
+                    // Silently fail - we already have fallback counts set
+                    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                        console.log(`Using fallback count for ${location.city}`);
+                    }
+                }
+            })
+        );
+    }
+    
+    // Wait for all API calls to complete or timeout (but don't block the UI)
+    await Promise.allSettled(updatePromises);
 }
 
 // Utility functions
