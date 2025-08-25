@@ -7,6 +7,7 @@
     <title>CareGrid - Find Private Healthcare Near You | Top-Rated Clinics in Manchester, Bolton, Leeds & Liverpool</title>
     <meta name="description" content="Discover trusted private healthcare providers near you. Find top-rated GPs, dentists, physiotherapists, and aesthetic clinics in Manchester, Bolton, Leeds, and Liverpool. Book appointments online.">
     <meta name="keywords" content="private healthcare, GP, dentist, physiotherapy, aesthetic clinic, Manchester, Bolton, Leeds, Liverpool">
+    <link rel="canonical" href="https://www.caregrid.co.uk/">
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -20,6 +21,50 @@
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
         gtag('config', 'GA_MEASUREMENT_ID');
+    </script>
+
+    <!-- JSON-LD Schema Markup -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "CareGrid",
+      "description": "Healthcare directory platform connecting patients with trusted private healthcare providers across the UK",
+      "url": "https://www.caregrid.co.uk",
+      "logo": "https://www.caregrid.co.uk/images/logo.svg",
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "telephone": "+44-161-234-5678",
+        "contactType": "customer service",
+        "email": "hello@caregrid.co.uk",
+        "availableLanguage": "English"
+      },
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "123 Healthcare Street",
+        "addressLocality": "Manchester",
+        "postalCode": "M1 2AB",
+        "addressCountry": "GB"
+      },
+      "sameAs": [
+        "https://www.facebook.com/caregrid",
+        "https://www.twitter.com/caregrid"
+      ]
+    }
+    </script>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "CareGrid",
+      "url": "https://www.caregrid.co.uk",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://www.caregrid.co.uk/?search={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
     </script>
 </head>
 <body>
@@ -226,35 +271,35 @@
             <nav class="location-grid" data-aos="fade-up" data-aos-delay="200" aria-label="Available locations">
                 <button class="location-btn active" data-location="all" onclick="filterByLocation('all')">
                     <span class="location-name">All Locations</span>
-                    <span class="clinic-count">Loading...</span>
+                    <span class="clinic-count" aria-live="polite">Loading...</span>
                 </button>
                 <button class="location-btn" data-location="manchester" onclick="filterByLocation('manchester')">
                     <span class="location-name">Manchester</span>
-                    <span class="clinic-count">Loading...</span>
+                    <span class="clinic-count" aria-live="polite">Loading...</span>
                 </button>
                 <button class="location-btn" data-location="bolton" onclick="filterByLocation('bolton')">
                     <span class="location-name">Bolton</span>
-                    <span class="clinic-count">Loading...</span>
+                    <span class="clinic-count" aria-live="polite">Loading...</span>
                 </button>
                 <button class="location-btn" data-location="liverpool" onclick="filterByLocation('liverpool')">
                     <span class="location-name">Liverpool</span>
-                    <span class="clinic-count">Loading...</span>
+                    <span class="clinic-count" aria-live="polite">Loading...</span>
                 </button>
                 <button class="location-btn" data-location="leeds" onclick="filterByLocation('leeds')">
                     <span class="location-name">Leeds</span>
-                    <span class="clinic-count">Loading...</span>
+                    <span class="clinic-count" aria-live="polite">Loading...</span>
                 </button>
                 <button class="location-btn" data-location="glasgow" onclick="filterByLocation('glasgow')">
                     <span class="location-name">Glasgow</span>
-                    <span class="clinic-count">Loading...</span>
+                    <span class="clinic-count" aria-live="polite">Loading...</span>
                 </button>
                 <button class="location-btn" data-location="birmingham" onclick="filterByLocation('birmingham')">
                     <span class="location-name">Birmingham</span>
-                    <span class="clinic-count">Loading...</span>
+                    <span class="clinic-count" aria-live="polite">Loading...</span>
                 </button>
                 <button class="location-btn" data-location="london" onclick="filterByLocation('london')">
                     <span class="location-name">London</span>
-                    <span class="clinic-count">Loading...</span>
+                    <span class="clinic-count" aria-live="polite">Loading...</span>
                 </button>
             </nav>
             <!-- Mobile dropdown for locations -->

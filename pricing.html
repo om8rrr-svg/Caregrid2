@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pricing - CareGrid</title>
+    <meta name="description" content="Simple, transparent pricing for healthcare providers. Start free or upgrade to premium for enhanced features. No setup fees.">
+    <link rel="canonical" href="https://www.caregrid.co.uk/pricing.html">
     <link rel="stylesheet" href="css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -546,7 +548,7 @@
             <h2 class="section-title">Frequently Asked Questions</h2>
             
             <div class="faq-item">
-                <button class="faq-question" onclick="toggleFAQ(this)">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
                     How does the free plan work?
                     <span class="faq-icon">▼</span>
                 </button>
@@ -556,7 +558,7 @@
             </div>
             
             <div class="faq-item">
-                <button class="faq-question" onclick="toggleFAQ(this)">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
                     Can I upgrade or downgrade my plan anytime?
                     <span class="faq-icon">▼</span>
                 </button>
@@ -566,7 +568,7 @@
             </div>
             
             <div class="faq-item">
-                <button class="faq-question" onclick="toggleFAQ(this)">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
                     What payment methods do you accept?
                     <span class="faq-icon">▼</span>
                 </button>
@@ -576,7 +578,7 @@
             </div>
             
             <div class="faq-item">
-                <button class="faq-question" onclick="toggleFAQ(this)">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
                     Is there a setup fee?
                     <span class="faq-icon">▼</span>
                 </button>
@@ -586,7 +588,7 @@
             </div>
             
             <div class="faq-item">
-                <button class="faq-question" onclick="toggleFAQ(this)">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
                     How do patient reviews work?
                     <span class="faq-icon">▼</span>
                 </button>
@@ -596,7 +598,7 @@
             </div>
             
             <div class="faq-item">
-                <button class="faq-question" onclick="toggleFAQ(this)">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
                     What kind of support do you provide?
                     <span class="faq-icon">▼</span>
                 </button>
@@ -680,12 +682,14 @@
             });
             document.querySelectorAll('.faq-question').forEach(q => {
                 q.classList.remove('active');
+                q.setAttribute('aria-expanded', 'false');
             });
             
             // Open clicked FAQ if it wasn't active
             if (!isActive) {
                 answer.classList.add('active');
                 element.classList.add('active');
+                element.setAttribute('aria-expanded', 'true');
             }
         }
         
