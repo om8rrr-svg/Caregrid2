@@ -10,6 +10,38 @@ class APIService {
         this.healthCheckInterval = 60000; // Check every minute
     }
 
+    // Build complete API URL with parameters - single source of truth
+    buildUrl(path, params = {}) {
+        // Get the API base URL (prefer window flag, then environment, then default)
+        const API_BASE = window.__API_BASE__ ||
+                         (typeof process !== 'undefined' && (process.env.NEXT_PUBLIC_API_BASE || process.env.API_BASE)) ||
+                         'https://caregrid-backend.onrender.com';
+        
+        // Create URL ensuring proper path concatenation
+        const cleanPath = path.replace(/^\//, ''); // Remove leading slash
+        const baseUrl = API_BASE.endsWith('/') ? API_BASE : API_BASE + '/';
+        const url = new URL(cleanPath, baseUrl);
+        
+        // Add query parameters
+        Object.entries(params).forEach(([key, value]) => {
+            if (value != null && value !== '') {
+                url.searchParams.set(key, value);
+            }
+        });
+        
+        return url.toString();
+    }
+
+    // Timeout wrapper for requests with fallback handling
+    withTimeout(promise, ms = 15000) {
+        return Promise.race([
+            promise,
+            new Promise((_, reject) => 
+                setTimeout(() => reject(new Error('timeout')), ms)
+            )
+        ]);
+    }
+
     // Token management
     getStoredToken() {
         return localStorage.getItem('careGridToken') || sessionStorage.getItem('careGridToken');
@@ -46,7 +78,8 @@ class APIService {
 
     // HTTP request helper
     async makeRequest(endpoint, options = {}) {
-        const url = `${this.baseURL}${endpoint}`;
+        // Use buildUrl for consistent API base handling
+        const url = this.buildUrl(endpoint);
         
         // Only log in development mode to avoid console spam in production
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
@@ -288,7 +321,7 @@ class APIService {
             }
         });
         
-        const endpoint = `/clinics${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+        const endpoint = `/api/clinics${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
         
         // Try with retry mechanism for clinic requests (backend might be sleeping)
         return await this.makeRequestWithRetry(endpoint);

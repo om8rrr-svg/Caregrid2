@@ -61,14 +61,45 @@ const getAllowedOrigins = () => {
     });
   }
   
-  // Default fallback origins
-  return ['http://localhost:3000', 'http://localhost:8000', 'http://localhost:8080'];
+  // Default fallback origins including production domains
+  return [
+    'http://localhost:3000', 
+    'http://localhost:8000', 
+    'http://localhost:8080',
+    'https://www.caregrid.co.uk',
+    'https://caregrid.co.uk',
+    'https://caregrid2.vercel.app'
+  ];
 };
 
 app.use(cors({
-  origin: getAllowedOrigins(),
-  credentials: false
+  origin(origin, callback) {
+    const allowedOrigins = getAllowedOrigins();
+    
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    // Check if origin is allowed
+    const isAllowed = allowedOrigins.some(allowedOrigin => {
+      if (allowedOrigin instanceof RegExp) {
+        return allowedOrigin.test(origin);
+      }
+      return allowedOrigin === origin;
+    });
+    
+    if (isAllowed) {
+      return callback(null, true);
+    }
+    
+    return callback(new Error(`Origin ${origin} not allowed by CORS`));
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
 }));
+
+// Handle preflight for all routes
+app.options('*', cors());
 
 // Rate limiting
 const limiter = rateLimit({

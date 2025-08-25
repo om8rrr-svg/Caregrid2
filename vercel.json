@@ -23,7 +23,7 @@
   ],
   "headers": [
     {
-      "source": "/(.*)\\.(css|js|mjs|png|jpg|jpeg|gif|svg|webp|ico|woff|woff2|ttf)",
+      "source": "/(.*)\\.(js|css|png|jpg|jpeg|gif|svg|woff|woff2|ico|webp|avif)",
       "headers": [
         {
           "key": "Cache-Control",
@@ -36,7 +36,7 @@
       "headers": [
         {
           "key": "Cache-Control",
-          "value": "no-store"
+          "value": "public, max-age=0, must-revalidate"
         },
         {
           "key": "X-Content-Type-Options",
@@ -44,11 +44,19 @@
         },
         {
           "key": "X-Frame-Options",
-          "value": "DENY"
+          "value": "SAMEORIGIN"
         },
         {
           "key": "X-XSS-Protection",
           "value": "1; mode=block"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "geolocation=(), microphone=(), camera=()"
         }
       ]
     }
