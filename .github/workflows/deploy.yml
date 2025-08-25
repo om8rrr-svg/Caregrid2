@@ -1,4 +1,4 @@
-name: Deploy to Render
+name: Deploy Backend to Render
 
 on:
   push:
@@ -8,8 +8,6 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 jobs:
   deploy-backend:
@@ -43,51 +41,7 @@ jobs:
       run: |
         if [ -n "$RENDER_DEPLOY_HOOK" ]; then
           curl -X POST "$RENDER_DEPLOY_HOOK"
-          echo "✅ Deployment triggered on Render"
+          echo "✅ Backend deployment triggered on Render"
         else
           echo "⚠️ RENDER_DEPLOY_HOOK not configured"
         fi
-
-  deploy-frontend:
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup Pages
-      uses: actions/configure-pages@v4
-      
-    - name: Create CNAME file
-      run: echo "www.caregrid.co.uk" > CNAME
-      
-    - name: Verify frontend files
-      run: |
-        ls -la
-        echo "Checking for index.html..."
-        test -f index.html && echo "✅ index.html found" || echo "❌ index.html missing"
-        echo "Checking for CSS files..."
-        test -d css && echo "✅ CSS directory found" || echo "❌ CSS directory missing"
-        echo "Checking for JS files..."
-        test -d js && echo "✅ JS directory found" || echo "❌ JS directory missing"
-      
-    - name: Upload artifact
-      uses: actions/upload-pages-artifact@v3
-      with:
-        path: './'
-        exclude: |
-          backend/
-          .github/
-          .git/
-          node_modules/
-          *.md
-          .gitignore
-          .env*
-        
-    - name: Deploy to GitHub Pages
-      id: deployment
-      uses: actions/deploy-pages@v4

@@ -1,16 +1,32 @@
 {
   "rewrites": [
     {
+      "source": "/admin-dashboard",
+      "destination": "/admin-dashboard.html"
+    },
+    {
       "source": "/admin-dashboard.html",
       "destination": "/admin-dashboard.html"
+    },
+    {
+      "source": "/booking",
+      "destination": "/booking.html"
     },
     {
       "source": "/booking.html",
       "destination": "/booking.html"
     },
     {
+      "source": "/auth",
+      "destination": "/auth.html"
+    },
+    {
       "source": "/auth.html",
       "destination": "/auth.html"
+    },
+    {
+      "source": "/dashboard",
+      "destination": "/dashboard.html"
     },
     {
       "source": "/dashboard.html",
@@ -19,6 +35,13 @@
     {
       "source": "/(.*)",
       "destination": "/index.html"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/admin",
+      "destination": "/admin-dashboard.html",
+      "permanent": false
     }
   ],
   "headers": [
