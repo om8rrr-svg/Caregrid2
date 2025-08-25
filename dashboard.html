@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 
-    <link rel="preload" href="css/style.css" as="style">
+    <link rel="preload" href="css/style.css?v=2025082509" as="style">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard | CareGrid</title>
@@ -11,7 +11,7 @@
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
     
     <!-- Stylesheets -->
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=2025082509">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
@@ -494,9 +494,9 @@
     </footer>
 
     <!-- Scripts -->
-    <script src="js/api-service.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/script.js"></script>
+    <script src="js/api-service.js?v=2025082509"></script>
+    <script src="js/auth.js?v=2025082509"></script>
+    <script src="js/script.js?v=2025082509"></script>
     <!-- dashboard functionality loaded lazily --><!-- test booking functionality loaded lazily --><script>
         // Enhanced authentication state management for dashboard
         function checkAuthenticationState() {
@@ -591,6 +591,15 @@
         // Also check after a short delay to ensure all scripts are loaded
         setTimeout(checkAuthenticationState, 500);
     </script>    <!-- Lazy Loading Script -->
-    <script src="js/lazy-loader.js"></script>
-$1</body>
+    <script src="js/lazy-loader.js?v=2025082509"></script>
+    
+    <!-- Service Worker Cleanup -->
+    <script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations()
+            .then(regs => regs.forEach(r => r.unregister()))
+            .catch(()=>{});
+    }
+    </script>
+</body>
 </html>

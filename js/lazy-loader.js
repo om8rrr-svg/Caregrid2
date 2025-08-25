@@ -7,6 +7,19 @@ class LazyScriptLoader {
     constructor() {
         this.loadedScripts = new Set();
         this.loadingPromises = new Map();
+        this.cacheVersion = '2025082509'; // Cache busting version
+    }
+
+    /**
+     * Add cache busting version to script URL
+     * @param {string} src - Script source URL
+     * @returns {string} - URL with version parameter
+     */
+    addCacheVersion(src) {
+        if (src.includes('http') || src.includes('?')) {
+            return src; // Don't modify external URLs or URLs with params
+        }
+        return `${src}?v=${this.cacheVersion}`;
     }
 
     /**
@@ -16,19 +29,22 @@ class LazyScriptLoader {
      * @returns {Promise} - Promise that resolves when script is loaded
      */
     loadScript(src, options = {}) {
+        // Add cache busting version to local scripts
+        const versionedSrc = this.addCacheVersion(src);
+        
         // Return existing promise if script is already loading
-        if (this.loadingPromises.has(src)) {
-            return this.loadingPromises.get(src);
+        if (this.loadingPromises.has(versionedSrc)) {
+            return this.loadingPromises.get(versionedSrc);
         }
 
         // Return resolved promise if script is already loaded
-        if (this.loadedScripts.has(src)) {
+        if (this.loadedScripts.has(versionedSrc)) {
             return Promise.resolve();
         }
 
         const promise = new Promise((resolve, reject) => {
             const script = document.createElement('script');
-            script.src = src;
+            script.src = versionedSrc;
             script.async = options.async !== false;
             script.defer = options.defer || false;
             
@@ -37,20 +53,20 @@ class LazyScriptLoader {
             }
 
             script.onload = () => {
-                this.loadedScripts.add(src);
-                this.loadingPromises.delete(src);
+                this.loadedScripts.add(versionedSrc);
+                this.loadingPromises.delete(versionedSrc);
                 resolve();
             };
 
             script.onerror = () => {
-                this.loadingPromises.delete(src);
-                reject(new Error(`Failed to load script: ${src}`));
+                this.loadingPromises.delete(versionedSrc);
+                reject(new Error(`Failed to load script: ${versionedSrc}`));
             };
 
             document.head.appendChild(script);
         });
 
-        this.loadingPromises.set(src, promise);
+        this.loadingPromises.set(versionedSrc, promise);
         return promise;
     }
 
