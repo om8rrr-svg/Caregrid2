@@ -2498,7 +2498,17 @@ body {
     
     .hero-subtitle {
         font-size: 1rem;
+        text-align: center;
     }
+    
+    #rotating-text {
+         display: inline-block;
+         text-align: center;
+         width: 100%;
+         margin: 0 auto;
+         position: relative;
+         padding-left: 30px;
+     }
     
     .hero-description {
         font-size: 0.9rem;
