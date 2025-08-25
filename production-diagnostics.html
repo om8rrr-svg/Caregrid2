@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CareGrid Production Diagnostics</title>
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+            background: #f5f5f5;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .test-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .test-card { 
+            background: white; 
+            padding: 20px; 
+            border-radius: 12px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-card h3 { margin-top: 0; color: #333; }
+        .status { padding: 8px 12px; border-radius: 6px; font-weight: 500; margin: 5px 0; }
+        .success { background: #d4edda; color: #155724; }
+        .warning { background: #fff3cd; color: #856404; }
+        .error { background: #f8d7da; color: #721c24; }
+        .loading { background: #e2e3e5; color: #383d41; }
+        button { 
+            background: #007bff; 
+            color: white; 
+            border: none; 
+            padding: 10px 15px; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #6c757d; cursor: not-allowed; }
+        .details { 
+            font-size: 0.9em; 
+            color: #666; 
+            margin-top: 10px; 
+            padding: 10px; 
+            background: #f8f9fa; 
+            border-radius: 4px;
+        }
+        .timestamp { font-size: 0.8em; color: #999; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 CareGrid Production Diagnostics</h1>
+            <p>Test all critical functionality and check for production issues</p>
+            <button onclick="runAllTests()">🚀 Run All Tests</button>
+        </div>
+
+        <div class="test-grid">
+            <!-- Backend Health Test -->
+            <div class="test-card">
+                <h3>🏥 Backend Health</h3>
+                <button onclick="testBackendHealth()">Test Backend</button>
+                <div id="backendStatus" class="status loading">Not tested yet</div>
+                <div id="backendDetails" class="details" style="display: none;"></div>
+            </div>
+
+            <!-- Authentication Test -->
+            <div class="test-card">
+                <h3>🔐 Authentication System</h3>
+                <button onclick="testAuthentication()">Test Auth</button>
+                <button onclick="testDemoLogin()">Demo Login</button>
+                <div id="authStatus" class="status loading">Not tested yet</div>
+                <div id="authDetails" class="details" style="display: none;"></div>
+            </div>
+
+            <!-- Contact Form Test -->
+            <div class="test-card">
+                <h3>📧 Contact Form</h3>
+                <button onclick="testContactForm()">Test Contact</button>
+                <div id="contactStatus" class="status loading">Not tested yet</div>
+                <div id="contactDetails" class="details" style="display: none;"></div>
+            </div>
+
+            <!-- Booking System Test -->
+            <div class="test-card">
+                <h3>📅 Booking System</h3>
+                <button onclick="testBookingSystem()">Test Booking</button>
+                <div id="bookingStatus" class="status loading">Not tested yet</div>
+                <div id="bookingDetails" class="details" style="display: none;"></div>
+            </div>
+
+            <!-- OAuth Test -->
+            <div class="test-card">
+                <h3>🔗 OAuth Integration</h3>
+                <button onclick="testOAuth()">Test OAuth</button>
+                <div id="oauthStatus" class="status loading">Not tested yet</div>
+                <div id="oauthDetails" class="details" style="display: none;"></div>
+            </div>
+
+            <!-- Environment Test -->
+            <div class="test-card">
+                <h3>🌍 Environment</h3>
+                <button onclick="testEnvironment()">Check Environment</button>
+                <div id="envStatus" class="status loading">Not tested yet</div>
+                <div id="envDetails" class="details" style="display: none;"></div>
+            </div>
+        </div>
+
+        <div style="margin-top: 30px; text-align: center; color: #666;">
+            <p class="timestamp">Last updated: <span id="lastUpdate"></span></p>
+        </div>
+    </div>
+
+    <script src="js/api-service.js"></script>
+    <script>
+        function updateTimestamp() {
+            document.getElementById('lastUpdate').textContent = new Date().toLocaleString();
+        }
+
+        function setStatus(elementId, type, message, details = null) {
+            const statusEl = document.getElementById(elementId);
+            const detailsEl = document.getElementById(elementId.replace('Status', 'Details'));
+            
+            statusEl.className = `status ${type}`;
+            statusEl.textContent = message;
+            
+            if (details && detailsEl) {
+                detailsEl.innerHTML = details;
+                detailsEl.style.display = 'block';
+            }
+            updateTimestamp();
+        }
+
+        async function testBackendHealth() {
+            setStatus('backendStatus', 'loading', '🔄 Testing backend health...');
+            
+            try {
+                const startTime = Date.now();
+                const isHealthy = await window.apiService.isBackendHealthy();
+                const responseTime = Date.now() - startTime;
+                
+                if (isHealthy) {
+                    setStatus('backendStatus', 'success', '✅ Backend is healthy and responsive', 
+                        `Response time: ${responseTime}ms<br>Backend URL: ${window.apiService.baseURL}`);
+                } else {
+                    setStatus('backendStatus', 'warning', '⚠️ Backend unavailable, using fallbacks', 
+                        `Fallback mode active<br>Local data and demo mode available`);
+                }
+            } catch (error) {
+                setStatus('backendStatus', 'error', '❌ Backend test failed', 
+                    `Error: ${error.message}<br>Check backend deployment and configuration`);
+            }
+        }
+
+        async function testAuthentication() {
+            setStatus('authStatus', 'loading', '🔄 Testing authentication system...');
+            
+            try {
+                // Test user registration with demo data
+                const signupResponse = await window.apiService.register({
+                    firstName: 'Test',
+                    lastName: 'User',
+                    email: `test.${Date.now()}@demo.com`,
+                    password: 'password123'
+                });
+                
+                setStatus('authStatus', 'success', '✅ Authentication system working', 
+                    `Registration test passed<br>Response: ${signupResponse.message || 'Success'}`);
+                    
+            } catch (error) {
+                if (error.message.includes('Demo') || error.message.includes('fallback')) {
+                    setStatus('authStatus', 'warning', '⚠️ Auth using fallback mode', 
+                        `Backend unavailable, using demo authentication<br>Error: ${error.message}`);
+                } else {
+                    setStatus('authStatus', 'error', '❌ Authentication failed', 
+                        `Error: ${error.message}<br>Check backend auth endpoints`);
+                }
+            }
+        }
+
+        async function testDemoLogin() {
+            setStatus('authStatus', 'loading', '🔄 Testing demo login...');
+            
+            try {
+                const loginResponse = await window.apiService.login('demo@test.com', 'password123');
+                setStatus('authStatus', 'success', '✅ Demo login successful', 
+                    `Demo authentication working<br>Token received: ${loginResponse.data?.token ? 'Yes' : 'No'}`);
+            } catch (error) {
+                setStatus('authStatus', 'error', '❌ Demo login failed', 
+                    `Error: ${error.message}`);
+            }
+        }
+
+        async function testContactForm() {
+            setStatus('contactStatus', 'loading', '🔄 Testing contact form...');
+            
+            try {
+                const contactResponse = await window.apiService.submitContactForm({
+                    firstName: 'Test',
+                    lastName: 'User',
+                    email: 'test@demo.com',
+                    subject: 'Test Message',
+                    message: 'This is a test message to verify contact form functionality.'
+                });
+                
+                setStatus('contactStatus', 'success', '✅ Contact form working', 
+                    `Message submitted successfully<br>Response: ${contactResponse.message}`);
+                    
+            } catch (error) {
+                setStatus('contactStatus', 'error', '❌ Contact form failed', 
+                    `Error: ${error.message}<br>Check email service configuration`);
+            }
+        }
+
+        async function testBookingSystem() {
+            setStatus('bookingStatus', 'loading', '🔄 Testing booking system...');
+            
+            try {
+                const bookingResponse = await window.apiService.createAppointment({
+                    clinicId: 'test-clinic-1',
+                    appointmentDate: '2024-02-15',
+                    appointmentTime: '10:00',
+                    treatmentType: 'General Consultation',
+                    guestName: 'Test User',
+                    guestEmail: 'test@demo.com',
+                    guestPhone: '+44 7700 900123',
+                    notes: 'Test booking for diagnostics'
+                });
+                
+                setStatus('bookingStatus', 'success', '✅ Booking system working', 
+                    `Booking created successfully<br>Reference: ${bookingResponse.appointment?.reference || 'Generated'}`);
+                    
+            } catch (error) {
+                setStatus('bookingStatus', 'error', '❌ Booking system failed', 
+                    `Error: ${error.message}<br>Check appointment endpoints`);
+            }
+        }
+
+        async function testOAuth() {
+            setStatus('oauthStatus', 'loading', '🔄 Checking OAuth configuration...');
+            
+            try {
+                const googleAvailable = typeof gapi !== 'undefined';
+                const facebookAvailable = typeof FB !== 'undefined';
+                const domain = window.location.hostname;
+                
+                let status = 'warning';
+                let message = '⚠️ OAuth partially configured';
+                let details = `Current domain: ${domain}<br>`;
+                
+                if (googleAvailable) {
+                    details += 'Google API: Available<br>';
+                } else {
+                    details += 'Google API: Not loaded<br>';
+                }
+                
+                if (facebookAvailable) {
+                    details += 'Facebook SDK: Available<br>';
+                } else {
+                    details += 'Facebook SDK: Not loaded<br>';
+                }
+                
+                details += '<br>Note: OAuth may need domain-specific configuration for production';
+                
+                if (!googleAvailable && !facebookAvailable) {
+                    status = 'error';
+                    message = '❌ OAuth not available';
+                } else if (domain === 'localhost' || domain === '127.0.0.1') {
+                    status = 'success';
+                    message = '✅ OAuth available (localhost)';
+                }
+                
+                setStatus('oauthStatus', status, message, details);
+                
+            } catch (error) {
+                setStatus('oauthStatus', 'error', '❌ OAuth test failed', 
+                    `Error: ${error.message}`);
+            }
+        }
+
+        async function testEnvironment() {
+            setStatus('envStatus', 'loading', '🔄 Checking environment...');
+            
+            try {
+                const env = {
+                    domain: window.location.hostname,
+                    protocol: window.location.protocol,
+                    apiBase: window.apiService?.baseURL,
+                    userAgent: navigator.userAgent.includes('Mobile') ? 'Mobile' : 'Desktop',
+                    localStorage: typeof localStorage !== 'undefined',
+                    sessionStorage: typeof sessionStorage !== 'undefined',
+                    fetch: typeof fetch !== 'undefined'
+                };
+                
+                let issues = [];
+                if (env.protocol !== 'https:' && env.domain !== 'localhost') {
+                    issues.push('Not using HTTPS');
+                }
+                if (!env.localStorage) {
+                    issues.push('localStorage not available');
+                }
+                if (!env.fetch) {
+                    issues.push('Fetch API not available');
+                }
+                
+                const status = issues.length === 0 ? 'success' : 'warning';
+                const message = issues.length === 0 ? '✅ Environment looks good' : `⚠️ ${issues.length} potential issues`;
+                
+                const details = `
+                    Domain: ${env.domain}<br>
+                    Protocol: ${env.protocol}<br>
+                    API Base: ${env.apiBase}<br>
+                    Device: ${env.userAgent}<br>
+                    Storage: ${env.localStorage ? 'Available' : 'Not available'}<br>
+                    ${issues.length > 0 ? '<br>Issues: ' + issues.join(', ') : ''}
+                `;
+                
+                setStatus('envStatus', status, message, details);
+                
+            } catch (error) {
+                setStatus('envStatus', 'error', '❌ Environment test failed', 
+                    `Error: ${error.message}`);
+            }
+        }
+
+        async function runAllTests() {
+            const tests = [
+                testEnvironment,
+                testBackendHealth, 
+                testAuthentication, 
+                testContactForm, 
+                testBookingSystem, 
+                testOAuth
+            ];
+            
+            for (let i = 0; i < tests.length; i++) {
+                await tests[i]();
+                // Small delay between tests
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+        }
+
+        // Initialize
+        updateTimestamp();
+    </script>
+</body>
+</html>
