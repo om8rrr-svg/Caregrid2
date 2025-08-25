@@ -110,9 +110,10 @@
             const resultsDiv = document.getElementById('healthResults');
             resultsDiv.innerHTML = '<div class="info">Testing backend health...</div>';
             
-            const apiService = new APIService();
+            // Test local backend instead of production
+            const localBackendURL = 'http://localhost:3000';
             
-            fetch(apiService.baseURL.replace('/api', '') + '/health')
+            fetch(localBackendURL + '/health')
                 .then(response => {
                     if (response.ok) {
                         return response.json();
@@ -139,10 +140,11 @@
             const resultsDiv = document.getElementById('corsResults');
             resultsDiv.innerHTML = '<div class="info">Testing CORS...</div>';
             
-            const apiService = new APIService();
+            // Test local backend instead of production
+            const localBackendURL = 'http://localhost:3000/api';
             
             // Test with an OPTIONS request to check CORS headers
-            fetch(apiService.baseURL + '/clinics?limit=1', {
+            fetch(localBackendURL + '/clinics?limit=1', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
