@@ -4,34 +4,21 @@ This guide covers multiple deployment options for the CareGrid healthcare direct
 
 ## 🚀 Quick Deployment Options
 
-### Option 1: Vercel (Recommended)
+### Option 1: Vercel (Primary & Recommended)
 
-#### Method A: Drag & Drop (Fastest)
-1. Visit [vercel.com](https://vercel.com)
-2. Sign up or log in
-3. Drag the entire `caregrid` folder to the deployment area
-4. Your site will be live instantly with a random URL
-5. Optionally customize the domain name in site settings
-
-#### Method B: Git Integration (Best for updates)
+#### Method A: Automatic Deployment via GitHub (Recommended)
 1. Push your code to GitHub (see GitHub setup below)
 2. Connect your GitHub repository to Vercel
-3. Vercel will auto-deploy on every push to main branch
+3. Configure the required Vercel secrets (see Configuration section)
+4. Every push to main branch will automatically deploy to Vercel
+5. Zero configuration needed - uses existing `vercel.json`
 
-### Option 2: GitHub Pages
-
-1. Create a new repository on GitHub
-2. Push your code to the repository
-3. Go to repository Settings → Pages
-4. Select "Deploy from a branch" → "main" → "/ (root)"
-5. Your site will be available at `https://yourusername.github.io/repository-name`
-
-### Option 3: Vercel
-
+#### Method B: Manual Deployment (For testing)
 1. Visit [vercel.com](https://vercel.com)
-2. Import your GitHub repository
-3. Deploy with zero configuration
-4. Get instant HTTPS and global CDN
+2. Sign up or log in
+3. Import your GitHub repository
+4. Deploy with the pre-configured `vercel.json` settings
+5. Get instant HTTPS and global CDN
 
 ## 📁 GitHub Repository Setup
 
@@ -47,27 +34,35 @@ git push -u origin main
 ## 🔧 Configuration Files
 
 ### Vercel Configuration (`vercel.json`)
-- Already included in the project
-- Configures security headers
-- Sets up caching for static assets
-- Handles 404 redirects
+- ✅ Already included and optimized in the project
+- ✅ Configures security headers for production
+- ✅ Sets up intelligent caching for static assets
+- ✅ Handles SPA routing with proper redirects
 
-### GitHub Pages
-- No additional configuration needed
-- Works out of the box with static HTML/CSS/JS
+### Required Vercel Secrets
+For automatic deployment via GitHub Actions, add these secrets to your GitHub repository:
+- `VERCEL_TOKEN`: Your Vercel account token
+- `VERCEL_ORG_ID`: Your Vercel organization ID
+- `VERCEL_PROJECT_ID`: Your Vercel project ID
+
+### Environment Variables
+Set in Vercel dashboard for production:
+```
+NEXT_PUBLIC_API_BASE=https://caregrid-backend.onrender.com
+```
 
 ## 🌐 Custom Domain Setup
 
-### For Vercel:
-1. Go to Site Settings → Domain Management
-2. Add your custom domain
-3. Follow DNS configuration instructions
-4. SSL certificate is automatically provided
+### For Vercel (Primary Platform):
+1. Go to Vercel Dashboard → Your Project → Settings → Domains
+2. Add your custom domain (e.g., www.caregrid.co.uk)
+3. Follow DNS configuration instructions provided by Vercel
+4. SSL certificate is automatically provided and managed
+5. Supports automatic redirects from apex domain to www subdomain
 
-### For GitHub Pages:
-1. Add a `CNAME` file with your domain
-2. Configure DNS with your domain provider
-3. Enable HTTPS in repository settings
+### DNS Configuration for Vercel:
+- **CNAME record**: `www` → `your-project-name.vercel.app`
+- **A record**: `@` → `76.76.19.19` (Vercel's IP)
 
 ## 📊 Performance Optimization
 
@@ -122,19 +117,21 @@ Add to `<head>` section of all HTML files:
 
 ## 🔄 Continuous Deployment
 
-Once connected to Git:
+With Vercel integration:
 1. Make changes locally
 2. Commit and push to main branch
-3. Site automatically rebuilds and deploys
-4. Changes are live within minutes
+3. GitHub Actions automatically triggers Vercel deployment
+4. Changes are live within 30-60 seconds
+5. Automatic preview deployments for all branches
+6. Rollback capabilities through Vercel dashboard
 
 ## 📞 Support
 
 For deployment issues:
-- Vercel: [vercel.com/docs](https://vercel.com/docs)
-- GitHub Pages: [pages.github.com](https://pages.github.com)
-- Vercel: [vercel.com/docs](https://vercel.com/docs)
+- **Vercel**: [vercel.com/docs](https://vercel.com/docs)
+- **Backend (Render)**: [render.com/docs](https://render.com/docs)
+- **GitHub Actions**: [docs.github.com/actions](https://docs.github.com/actions)
 
 ---
 
-**Next Steps**: Choose your preferred deployment method and follow the corresponding instructions above.
+**Next Steps**: Follow the Vercel deployment method above for the fastest and most reliable hosting solution.

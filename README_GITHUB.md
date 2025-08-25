@@ -142,15 +142,20 @@ The project includes several debug and diagnostic pages:
 
 ## 🚀 Deployment
 
-The project is configured for easy deployment:
+The project is configured for automatic deployment to Vercel:
 
-### Vercel
-- `vercel.json` configuration included
-- Automatic deployments from Git
+### Vercel (Primary Platform)
+- ✅ `vercel.json` configuration included
+- ✅ Automatic deployments from GitHub
+- ✅ Environment variables support
+- ✅ Custom domain configuration
+- ✅ Preview deployments for PRs
 
-### GitHub Pages
-- Static files ready for GitHub Pages
-- No build process required
+### Auto-Deployment Setup
+- Backend: Render (for API services)
+- Frontend: Vercel (static files)
+- Trigger: Every push to main branch
+- Setup Guide: [VERCEL_AUTO_DEPLOY_SETUP.md](VERCEL_AUTO_DEPLOY_SETUP.md)
 
 ## 🤝 Contributing
 

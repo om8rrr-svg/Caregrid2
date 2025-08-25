@@ -142,10 +142,13 @@ npx serve .
 
 ### Deployment
 
-The site is configured for easy deployment to:
-- **Vercel**: Git integration with automatic deployments
-- **GitHub Pages**: Direct deployment from repository
-- **Vercel**: Zero-config deployment
+The site is configured for automatic deployment to Vercel:
+- **Primary**: Vercel with automatic GitHub integration
+- **Backend**: Render for API services
+- **Auto-deploy**: Every push to main branch triggers deployment
+- **Preview**: Automatic preview deployments for pull requests
+
+See [VERCEL_AUTO_DEPLOY_SETUP.md](VERCEL_AUTO_DEPLOY_SETUP.md) for detailed setup instructions.
 
 ## 📋 Future Enhancements
 

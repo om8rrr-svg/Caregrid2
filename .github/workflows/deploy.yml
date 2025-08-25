@@ -1,4 +1,4 @@
-name: Deploy to Render
+name: Deploy to Render and Vercel
 
 on:
   push:
@@ -8,8 +8,6 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 jobs:
   deploy-backend:
@@ -52,18 +50,12 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      name: vercel-production
+      url: ${{ steps.deployment.outputs.url }}
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      
-    - name: Setup Pages
-      uses: actions/configure-pages@v4
-      
-    - name: Create CNAME file
-      run: echo "www.caregrid.co.uk" > CNAME
       
     - name: Verify frontend files
       run: |
@@ -74,20 +66,15 @@ jobs:
         test -d css && echo "✅ CSS directory found" || echo "❌ CSS directory missing"
         echo "Checking for JS files..."
         test -d js && echo "✅ JS directory found" || echo "❌ JS directory missing"
+        echo "Checking for vercel.json..."
+        test -f vercel.json && echo "✅ vercel.json found" || echo "❌ vercel.json missing"
       
-    - name: Upload artifact
-      uses: actions/upload-pages-artifact@v3
-      with:
-        path: './'
-        exclude: |
-          backend/
-          .github/
-          .git/
-          node_modules/
-          *.md
-          .gitignore
-          .env*
-        
-    - name: Deploy to GitHub Pages
+    - name: Deploy to Vercel
       id: deployment
-      uses: actions/deploy-pages@v4
+      uses: amondnet/vercel-action@v25
+      with:
+        vercel-token: ${{ secrets.VERCEL_TOKEN }}
+        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+        vercel-args: '--prod'
+        working-directory: ./
