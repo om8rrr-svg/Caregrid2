@@ -1,9 +1,19 @@
 // API Service for CareGrid Backend Communication
+// Import the centralized API base configuration
+if (typeof buildUrl === 'undefined') {
+    // Fallback if api-base.js not loaded
+    const API_BASE = window.__API_BASE__ || 'https://caregrid-backend.onrender.com';
+    window.buildUrl = function(path, params = {}) {
+        const url = new URL(path.replace(/^\//, ''), API_BASE.endsWith('/') ? API_BASE : API_BASE + '/');
+        Object.entries(params).forEach(([k, v]) => v != null && url.searchParams.set(k, v));
+        return url.toString();
+    };
+}
 
 class APIService {
     constructor() {
-        // Use production URL by default, fallback to localhost for development
-        this.baseURL = window.API_BASE || 'https://caregrid-backend.onrender.com/api';
+        // Use the centralized API base configuration
+        this.baseURL = window.__API_BASE__ || 'https://caregrid-backend.onrender.com';
         this.token = this.getStoredToken();
         this.backendHealthy = null; // Track backend health
         this.lastHealthCheck = 0;
@@ -46,7 +56,8 @@ class APIService {
 
     // HTTP request helper
     async makeRequest(endpoint, options = {}) {
-        const url = `${this.baseURL}${endpoint}`;
+        // Use buildUrl to ensure proper URL construction
+        const url = buildUrl(`/api${endpoint}`, {});
         
         // Only log in development mode to avoid console spam in production
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
@@ -281,17 +292,108 @@ class APIService {
 
     // Clinic endpoints
     async getClinics(filters = {}) {
-        const queryParams = new URLSearchParams();
-        Object.keys(filters).forEach(key => {
-            if (filters[key]) {
-                queryParams.append(key, filters[key]);
-            }
-        });
-        
-        const endpoint = `/clinics${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+        // Use buildUrl to construct the URL with query parameters
+        const url = buildUrl('/api/clinics', filters);
         
         // Try with retry mechanism for clinic requests (backend might be sleeping)
-        return await this.makeRequestWithRetry(endpoint);
+        return await this.makeRequestWithRetryForUrl(url);
+    }
+    
+    // Retry mechanism specifically for critical requests like clinics (URL version)
+    async makeRequestWithRetryForUrl(url, options = {}, maxRetries = 2) {
+        let lastError;
+        
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            try {
+                // Add timeout to prevent indefinite loading
+                const controller = new AbortController();
+                const timeoutMs = 10000; // 10s for clinic requests
+                const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+                
+                const config = {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    },
+                    credentials: 'omit',
+                    signal: controller.signal,
+                    ...options
+                };
+
+                // Add authorization header if token exists
+                const currentToken = this.getStoredToken();
+                if (currentToken) {
+                    this.token = currentToken;
+                    config.headers.Authorization = `Bearer ${currentToken}`;
+                }
+
+                const response = await fetch(url, config);
+                clearTimeout(timeoutId);
+                
+                // Handle the response the same way as makeRequest
+                if (response.status === 401) {
+                    this.clearAuthData();
+                    throw new Error(`401 Authentication failed`);
+                }
+                
+                if (response.status === 429) {
+                    throw new Error('Too many requests. Please wait a moment and try again.');
+                }
+                
+                const contentType = response.headers.get('content-type');
+                let data;
+                
+                if (contentType && contentType.includes('application/json')) {
+                    data = await response.json();
+                } else {
+                    const textResponse = await response.text();
+                    if (!response.ok) {
+                        if (response.status === 429) {
+                            throw new Error('Too many requests. Please wait a moment and try again.');
+                        }
+                        throw new Error(`Server error: ${textResponse || response.statusText}`);
+                    }
+                    return { message: textResponse };
+                }
+
+                if (!response.ok) {
+                    throw new Error(data.error || data.message || `HTTP error! status: ${response.status}`);
+                }
+
+                return data;
+                
+            } catch (error) {
+                lastError = error;
+                
+                // Don't retry for certain types of errors
+                if (error.message.includes('Authentication failed') || 
+                    error.message.includes('401') ||
+                    error.message.includes('403') ||
+                    error.message.includes('400')) {
+                    throw error;
+                }
+                
+                // If this is the last attempt, throw the error
+                if (attempt === maxRetries) {
+                    // For clinic requests, throw a special error that can be handled gracefully
+                    if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+                        throw new Error('BACKEND_UNAVAILABLE');
+                    }
+                    throw error;
+                }
+                
+                // Wait before retrying (exponential backoff)
+                const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000); // Cap at 5 seconds
+                await new Promise(resolve => setTimeout(resolve, delay));
+                
+                // Only log retry attempts in development
+                if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                    console.log(`Retrying request to ${url} (attempt ${attempt + 1}/${maxRetries})`);
+                }
+            }
+        }
+        
+        throw lastError;
     }
     
     // Retry mechanism specifically for critical requests like clinics
