@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 
-    <link rel="preload" href="css/style.css" as="style">
+    <link rel="preload" href="css/style.css?v=2025082509" as="style">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CareGrid - Find Private Healthcare Near You | Top-Rated Clinics in Manchester, Bolton, Leeds & Liverpool</title>
     <meta name="description" content="Discover trusted private healthcare providers near you. Find top-rated GPs, dentists, physiotherapists, and aesthetic clinics in Manchester, Bolton, Leeds, and Liverpool. Book appointments online.">
     <meta name="keywords" content="private healthcare, GP, dentist, physiotherapy, aesthetic clinic, Manchester, Bolton, Leeds, Liverpool">
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=2025082509">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
@@ -374,9 +374,9 @@
         </div>
     </footer>
 
-    <script src="js/api-service.js"></script>
-<script src="js/script.js"></script>
-<!-- search functionality loaded lazily --><script src="js/auth.js"></script>
+    <script src="js/api-service.js?v=2025082509"></script>
+<script src="js/script.js?v=2025082509"></script>
+<!-- search functionality loaded lazily --><script src="js/auth.js?v=2025082509"></script>
     <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
     <script>
         AOS.init({
@@ -452,6 +452,15 @@
             }
         });
     </script>    <!-- Lazy Loading Script -->
-    <script src="js/lazy-loader.js"></script>
-$1</body>
+    <script src="js/lazy-loader.js?v=2025082509"></script>
+    
+    <!-- Service Worker Cleanup -->
+    <script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations()
+            .then(regs => regs.forEach(r => r.unregister()))
+            .catch(()=>{});
+    }
+    </script>
+</body>
 </html>
