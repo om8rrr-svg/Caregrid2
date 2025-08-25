@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vercel Deployment Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; }
+        button { padding: 10px 20px; margin: 10px; }
+        pre { background: #f5f5f5; padding: 10px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🚀 CareGrid Vercel Deployment Test</h1>
+    
+    <div class="test-section">
+        <h2>Environment Configuration Test</h2>
+        <p>This page tests if your CareGrid deployment is correctly configured for Vercel.</p>
+        
+        <div id="envTest">
+            <h3>1. API Base URL Configuration:</h3>
+            <div id="apiBaseTest"></div>
+            
+            <h3>2. JavaScript Module Loading:</h3>
+            <div id="moduleTest"></div>
+            
+            <h3>3. Backend Connectivity:</h3>
+            <div id="backendTest"></div>
+            <button onclick="testBackendConnection()">Test Backend Connection</button>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>Deployment Information</h2>
+        <div id="deploymentInfo"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Expected Configuration</h2>
+        <p>For proper Vercel deployment, ensure:</p>
+        <ul>
+            <li><strong>Environment Variable:</strong> <code>NEXT_PUBLIC_API_BASE=https://caregrid-backend.onrender.com</code></li>
+            <li><strong>Custom Domain:</strong> www.caregrid.co.uk</li>
+            <li><strong>SPA Routing:</strong> Configured in vercel.json</li>
+            <li><strong>Backend CORS:</strong> Includes Vercel domain</li>
+        </ul>
+    </div>
+
+    <!-- Load API scripts for testing -->
+    <script type="module" src="js/api-base.js"></script>
+    <script src="js/api-service.js"></script>
+
+    <script>
+        // Test API Base Configuration
+        function testAPIBase() {
+            const apiBaseTest = document.getElementById('apiBaseTest');
+            
+            // Check if window.__API_BASE__ is set
+            if (window.__API_BASE__) {
+                apiBaseTest.innerHTML += `<div class="success">✅ API Base URL: ${window.__API_BASE__}</div>`;
+            } else {
+                apiBaseTest.innerHTML += `<div class="error">❌ API Base URL not configured</div>`;
+            }
+            
+            // Check environment variable
+            if (typeof process !== 'undefined' && process.env && process.env.NEXT_PUBLIC_API_BASE) {
+                apiBaseTest.innerHTML += `<div class="success">✅ Environment Variable: ${process.env.NEXT_PUBLIC_API_BASE}</div>`;
+            } else {
+                apiBaseTest.innerHTML += `<div class="info">ℹ️ Environment variable not accessible (normal for client-side)</div>`;
+            }
+        }
+
+        // Test module loading
+        function testModules() {
+            const moduleTest = document.getElementById('moduleTest');
+            
+            if (typeof buildUrl === 'function') {
+                moduleTest.innerHTML += `<div class="success">✅ buildUrl function loaded</div>`;
+            } else {
+                moduleTest.innerHTML += `<div class="error">❌ buildUrl function not loaded</div>`;
+            }
+            
+            if (window.apiService) {
+                moduleTest.innerHTML += `<div class="success">✅ APIService instance created</div>`;
+            } else {
+                moduleTest.innerHTML += `<div class="error">❌ APIService not available</div>`;
+            }
+        }
+
+        // Test backend connection
+        async function testBackendConnection() {
+            const backendTest = document.getElementById('backendTest');
+            backendTest.innerHTML = '<div class="info">🔄 Testing backend connection...</div>';
+            
+            try {
+                const apiBase = window.__API_BASE__ || 'https://caregrid-backend.onrender.com';
+                const healthUrl = `${apiBase}/health`;
+                
+                const response = await fetch(healthUrl, {
+                    method: 'GET',
+                    mode: 'cors'
+                });
+                
+                if (response.ok) {
+                    const data = await response.text();
+                    backendTest.innerHTML = `<div class="success">✅ Backend connected successfully</div>
+                        <div class="info">Response: ${data}</div>`;
+                } else {
+                    backendTest.innerHTML = `<div class="error">❌ Backend responded with status: ${response.status}</div>`;
+                }
+            } catch (error) {
+                backendTest.innerHTML = `<div class="error">❌ Backend connection failed: ${error.message}</div>
+                    <div class="info">Note: This might be due to CORS settings or backend sleeping.</div>`;
+            }
+        }
+
+        // Display deployment info
+        function showDeploymentInfo() {
+            const deploymentInfo = document.getElementById('deploymentInfo');
+            
+            const info = {
+                'Current URL': window.location.href,
+                'Protocol': window.location.protocol,
+                'Hostname': window.location.hostname,
+                'Port': window.location.port || 'default',
+                'User Agent': navigator.userAgent.slice(0, 100) + '...'
+            };
+            
+            let html = '<pre>';
+            for (const [key, value] of Object.entries(info)) {
+                html += `${key}: ${value}\n`;
+            }
+            html += '</pre>';
+            
+            deploymentInfo.innerHTML = html;
+        }
+
+        // Run tests when page loads
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                testAPIBase();
+                testModules();
+                showDeploymentInfo();
+            }, 500); // Wait for modules to load
+        });
+    </script>
+</body>
+</html>
