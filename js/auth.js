@@ -1527,3 +1527,22 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+// Make functions globally accessible for onclick handlers
+window.showSignIn = showSignIn;
+window.showSignUp = showSignUp;
+window.showForgotPassword = showForgotPassword;
+window.showPasswordResetWizard = showPasswordResetWizard;
+window.togglePassword = togglePassword;
+window.closeSuccessModal = closeSuccessModal;
+window.resendCode = resendCode;
+window.backToSignIn = backToSignIn;
+window.signInWithGoogle = signInWithGoogle;
+window.signUpWithGoogle = signUpWithGoogle;
+window.signInWithFacebook = signInWithFacebook;
+window.signUpWithFacebook = signUpWithFacebook;
+window.toggleUserMenu = toggleUserMenu;
+window.logout = logout;
+window.toggleAuthMode = toggleAuthMode;
+window.nextResetStep = nextResetStep;
+window.prevStep = prevStep;
