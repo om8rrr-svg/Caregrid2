@@ -1546,3 +1546,4 @@ window.logout = logout;
 window.toggleAuthMode = toggleAuthMode;
 window.nextResetStep = nextResetStep;
 window.prevStep = prevStep;
+window.checkAuthenticationState = checkAuthenticationState;
