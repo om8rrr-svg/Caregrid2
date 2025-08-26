@@ -882,78 +882,7 @@ function toggleAuthMode() {
     }
 }
 
-function showSignIn() {
-    // Clear any active resend timer
-    clearResendTimer();
-    
-    // Set current mode if authSystem exists
-    if (window.authSystem) {
-        window.authSystem.currentMode = 'signin';
-    }
-    
-    // Reset header text and styling
-    const authHeader = document.querySelector('.auth-header h1');
-    const authSubtext = document.querySelector('.auth-header p');
-    const authHeaderContainer = document.querySelector('.auth-header');
-    
-    if (authHeader) {
-        authHeader.textContent = 'Welcome Back';
-        authHeader.style.color = '';
-        authHeader.style.fontSize = '';
-    }
-    if (authSubtext) {
-        authSubtext.textContent = 'Sign in to your CareGrid account';
-        authSubtext.style.color = '';
-        authSubtext.style.fontWeight = '';
-    }
-    if (authHeaderContainer) {
-        authHeaderContainer.style.background = '';
-        authHeaderContainer.style.padding = '';
-        authHeaderContainer.style.borderRadius = '';
-        authHeaderContainer.style.marginBottom = '';
-        authHeaderContainer.style.border = '';
-    }
-    
-    // Toggle forms
-    const signInForm = document.getElementById('signInForm');
-    const forgotPasswordForm = document.getElementById('forgotPasswordForm');
-    const resetVerificationForm = document.getElementById('resetVerificationForm');
-    const passwordResetWizard = document.getElementById('passwordResetWizard');
-    
-    // Force hide password reset wizard first
-    if (passwordResetWizard) {
-        passwordResetWizard.classList.add('hidden');
-        passwordResetWizard.style.display = 'none';
-        passwordResetWizard.style.visibility = 'hidden';
-        passwordResetWizard.style.opacity = '0';
-        passwordResetWizard.style.position = 'absolute';
-        passwordResetWizard.style.left = '-9999px';
-        passwordResetWizard.style.top = '-9999px';
-    }
-    
-    if (signInForm) signInForm.classList.remove('hidden');
-    if (forgotPasswordForm) forgotPasswordForm.classList.add('hidden');
-    if (resetVerificationForm) resetVerificationForm.classList.add('hidden');
-    
-    // Restore sign-in specific elements
-    if (signInForm) {
-        const passwordGroup = signInForm.querySelector('#password').closest('.form-group');
-        const formOptions = signInForm.querySelector('.form-options');
-        const authDivider = signInForm.querySelector('.divider');
-        const socialAuth = signInForm.querySelector('.social-auth');
-        const signInAuthToggle = signInForm.querySelector('.auth-toggle');
-        
-        if (passwordGroup) passwordGroup.style.display = '';
-        if (formOptions) formOptions.style.display = '';
-        if (authDivider) authDivider.style.display = '';
-        if (socialAuth) socialAuth.style.display = '';
-        if (signInAuthToggle) signInAuthToggle.style.display = '';
-    }
-    
-    // Show auth toggle if it exists
-    const authToggle = document.querySelector('.auth-toggle');
-    if (authToggle) authToggle.style.display = 'block';
-}
+
 
 function showSignUp() {
     const authSystem = window.authSystem;
