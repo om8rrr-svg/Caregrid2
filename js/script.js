@@ -2928,25 +2928,16 @@ async function updateLocationCounts() {
         }
     } catch (error) {
         console.error('Error fetching total clinic count:', error);
-        // graceful fallback
+        // Use local fallback data
+        const totalCount = clinicsData.length;
         const totalCountElement = document.querySelector('[data-location="all"] .clinic-count');
         if (totalCountElement) {
-            totalCountElement.innerHTML = `
-                <div class="muted">Couldn't load cities right now.</div>
-                <div class="chip-row">
-                    <button class="chip" data-location="manchester">Manchester</button>
-                    <button class="chip" data-location="london">London</button>
-                    <button class="chip" data-location="liverpool">Liverpool</button>
-                </div>
-                <button class="btn btn-outline" id="retryCities">Try again</button>
-            `;
-            const retry = document.getElementById('retryCities');
-            if (retry) retry.addEventListener('click', updateLocationCounts);
+            totalCountElement.textContent = `${totalCount} clinics`;
         }
         
         const mobileAllOption = document.querySelector('.mobile-location-select option[value="all"]');
         if (mobileAllOption) {
-            mobileAllOption.textContent = `All Locations (Data unavailable)`;
+            mobileAllOption.textContent = `All Locations (${totalCount} clinics)`;
         }
     }
     
@@ -2970,19 +2961,20 @@ async function updateLocationCounts() {
             }
         } catch (error) {
             console.error(`Error fetching clinic count for ${location.city}:`, error);
-            // graceful fallback for individual cities
+            // Use local fallback data
+            const count = clinicsData.filter(clinic => 
+                clinic.location && clinic.location.toLowerCase() === location.city.toLowerCase()
+            ).length;
+            
             const countElement = document.querySelector(`[data-location="${location.key}"] .clinic-count`);
             if (countElement) {
-                countElement.innerHTML = `
-                    <div class="muted">Couldn't load data right now.</div>
-                    <button class="btn btn-outline" onclick="updateLocationCounts()">Try again</button>
-                `;
+                countElement.textContent = `${count} ${count === 1 ? 'clinic' : 'clinics'}`;
             }
             
             // Also update mobile dropdown  
             const mobileOption = document.querySelector(`.mobile-location-select option[value="${location.key}"]`);
             if (mobileOption) {
-                mobileOption.textContent = `${location.city} (Data unavailable)`;
+                mobileOption.textContent = `${location.city} (${count} ${count === 1 ? 'clinic' : 'clinics'})`;
             }
         }
     }
