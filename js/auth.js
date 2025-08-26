@@ -1547,3 +1547,4 @@ window.toggleAuthMode = toggleAuthMode;
 window.nextResetStep = nextResetStep;
 window.prevStep = prevStep;
 window.checkAuthenticationState = checkAuthenticationState;
+window.AuthSystem = AuthSystem;
