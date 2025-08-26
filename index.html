@@ -426,12 +426,27 @@
     <script type="module" src="js/auth.js?v=2025082510"></script>
     <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
     <script>
-        AOS.init({
-            duration: 800,
-            easing: 'ease-out',
-            once: true,
-            offset: 100
-        });
+        // Initialize AOS with fallback
+        function initializeAOS() {
+            if (typeof AOS !== 'undefined') {
+                AOS.init({
+                    duration: 800,
+                    easing: 'ease-out',
+                    once: true,
+                    offset: 100
+                });
+            } else {
+                console.log('AOS library not available, animations disabled');
+            }
+        }
+        
+        // Try to initialize AOS, with fallback if library fails to load
+        if (typeof AOS !== 'undefined') {
+            initializeAOS();
+        } else {
+            // Wait a bit for the library to load, then try again
+            setTimeout(initializeAOS, 500);
+        }
         
         // Check authentication state on page load
         document.addEventListener('DOMContentLoaded', function() {
