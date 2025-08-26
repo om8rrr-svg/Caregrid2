@@ -1,25 +1,3 @@
 User-agent: *
 Allow: /
-
-# Important pages
-Allow: /index.html
-Allow: /pricing.html
-Allow: /contact.html
-Allow: /list-clinic.html
-Allow: /auth.html
-
-# Block admin and debugging pages
-Disallow: /admin-*
-Disallow: /debug-*
-Disallow: /test-*
-Disallow: /*-debug.html
-Disallow: /*-test.html
-
-# Block backend configuration files
-Disallow: /*.json
-Disallow: /*.md
-Disallow: /*.py
-Disallow: /*.sh
-
-# Sitemap location
 Sitemap: https://www.caregrid.co.uk/sitemap.xml

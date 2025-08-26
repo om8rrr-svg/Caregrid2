@@ -1,0 +1,10 @@
+name: Smoke test
+on: [push]
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Health
+        run: curl -sSf https://caregrid-backend.onrender.com/health
+      - name: Clinics
+        run: curl -sSf "https://caregrid-backend.onrender.com/api/clinics?limit=1"
