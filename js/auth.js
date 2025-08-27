@@ -1275,6 +1275,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Social authentication functions (placeholder)
 function signInWithGoogle() {
+    // Check if Google API is loaded first
+    if (typeof gapi === 'undefined') {
+        // Fallback for demo purposes when Google API is not loaded
+        if (confirm('Google OAuth is not available. Would you like to simulate a Google sign-in for demo purposes?')) {
+            simulateGoogleSignIn();
+        }
+        return;
+    }
+    
     const authInstance = gapi.auth2.getAuthInstance();
     if (!authInstance) {
         // Fallback for demo purposes when Google Auth is not properly configured
@@ -1335,6 +1344,15 @@ function simulateGoogleSignIn() {
 }
 
 function signUpWithGoogle() {
+    // Check if Google API is loaded first
+    if (typeof gapi === 'undefined') {
+        // Fallback for demo purposes when Google API is not loaded
+        if (confirm('Google OAuth is not available. Would you like to simulate a Google sign-up for demo purposes?')) {
+            simulateGoogleSignUp();
+        }
+        return;
+    }
+    
     const authInstance = gapi.auth2.getAuthInstance();
     if (!authInstance) {
         // Fallback for demo purposes when Google Auth is not properly configured
@@ -1395,6 +1413,15 @@ function simulateGoogleSignUp() {
 }
 
 function signInWithFacebook() {
+    // Check if Facebook SDK is loaded first
+    if (typeof FB === 'undefined') {
+        // Fallback for demo purposes when Facebook SDK is not loaded
+        if (confirm('Facebook OAuth is not available. Would you like to simulate a Facebook sign-in for demo purposes?')) {
+            simulateFacebookSignIn();
+        }
+        return;
+    }
+    
     FB.login(function(response) {
         if (response.authResponse) {
             FB.api('/me', {fields: 'name,email,picture'}, function(profile) {
@@ -1413,16 +1440,28 @@ function signInWithFacebook() {
                 localStorage.setItem('isLoggedIn', 'true');
                 
                 // Redirect to dashboard
-                //window.location.href = 'dashboard.html';
+                window.location.href = 'dashboard.html';
             });
         } else {
             console.error('Facebook sign-in cancelled or failed');
-            alert('Facebook sign-in was cancelled or failed. Please try again.');
+            // Offer simulation as fallback
+            if (confirm('Facebook sign-in was cancelled or failed. Would you like to simulate a Facebook sign-in for demo purposes?')) {
+                simulateFacebookSignIn();
+            }
         }
     }, {scope: 'email'});
 }
 
 function signUpWithFacebook() {
+    // Check if Facebook SDK is loaded first
+    if (typeof FB === 'undefined') {
+        // Fallback for demo purposes when Facebook SDK is not loaded
+        if (confirm('Facebook OAuth is not available. Would you like to simulate a Facebook sign-up for demo purposes?')) {
+            simulateFacebookSignUp();
+        }
+        return;
+    }
+    
     FB.login(function(response) {
         if (response.authResponse) {
             FB.api('/me', {fields: 'name,email,picture'}, function(profile) {
@@ -1441,11 +1480,14 @@ function signUpWithFacebook() {
                 localStorage.setItem('isLoggedIn', 'true');
                 
                 // Redirect to dashboard
-                //window.location.href = 'dashboard.html';
+                window.location.href = 'dashboard.html';
             });
         } else {
             console.error('Facebook sign-up cancelled or failed');
-            alert('Facebook sign-up was cancelled or failed. Please try again.');
+            // Offer simulation as fallback
+            if (confirm('Facebook sign-up was cancelled or failed. Would you like to simulate a Facebook sign-up for demo purposes?')) {
+                simulateFacebookSignUp();
+            }
         }
     }, {scope: 'email'});
 }
@@ -1526,6 +1568,54 @@ function simulateAppleSignUp() {
     localStorage.setItem('isLoggedIn', 'true');
     
     alert('Demo Apple sign-up successful! Redirecting to dashboard...');
+    
+    // Redirect to dashboard
+    setTimeout(() => {
+        window.location.href = 'dashboard.html';
+    }, 1000);
+}
+
+// Simulate Facebook Sign-In for demo purposes
+function simulateFacebookSignIn() {
+    const userData = {
+        id: 'facebook_demo_user',
+        email: 'demo.user@facebook.com',
+        name: 'Facebook Demo User',
+        profilePicture: 'https://via.placeholder.com/150',
+        provider: 'facebook',
+        lastLogin: new Date().toISOString()
+    };
+    
+    // Store user data in localStorage with correct keys
+    localStorage.setItem('careGridCurrentUser', JSON.stringify(userData));
+    localStorage.setItem('careGridToken', 'demo_facebook_token_' + Date.now());
+    localStorage.setItem('isLoggedIn', 'true');
+    
+    alert('Demo Facebook sign-in successful! Redirecting to dashboard...');
+    
+    // Redirect to dashboard
+    setTimeout(() => {
+        window.location.href = 'dashboard.html';
+    }, 1000);
+}
+
+// Simulate Facebook Sign-Up for demo purposes
+function simulateFacebookSignUp() {
+    const userData = {
+        id: 'facebook_demo_user',
+        email: 'demo.user@facebook.com',
+        name: 'Facebook Demo User',
+        profilePicture: 'https://via.placeholder.com/150',
+        provider: 'facebook',
+        createdAt: new Date().toISOString()
+    };
+    
+    // Store user data in localStorage with correct keys
+    localStorage.setItem('careGridCurrentUser', JSON.stringify(userData));
+    localStorage.setItem('careGridToken', 'demo_facebook_signup_token_' + Date.now());
+    localStorage.setItem('isLoggedIn', 'true');
+    
+    alert('Demo Facebook sign-up successful! Redirecting to dashboard...');
     
     // Redirect to dashboard
     setTimeout(() => {
