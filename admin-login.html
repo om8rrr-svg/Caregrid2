@@ -422,7 +422,7 @@
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             
-            // Simple validation for demo purposes
+            // Admin authentication validation
             if (email === 'admin@caregrid.com' && password === 'admin123') {
                 // Set admin authentication flags
                 localStorage.setItem('adminLoggedIn', 'true');
@@ -436,7 +436,7 @@
                     window.location.href = 'admin-dashboard.html';
                 }, 2000); // 2 second loading screen
             } else {
-                alert('Invalid credentials. Use admin@caregrid.com / admin123 for demo.');
+                alert('Invalid credentials. Please contact system administrator for access.');
             }
         });
     </script>

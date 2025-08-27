@@ -114,3 +114,23 @@ jspm_packages/
 
 # DynamoDB Local files
 .dynamodb/
+
+# Production: Hide test, debug, and diagnostic files
+test-*.html
+debug-*.html
+*-test.html
+*-debug.html
+production-diagnostics.html
+caregrid-diagnostics.html
+admin-dashboard.html
+admin-login.html
+*-diagnostics.html
+*.test.js
+*.spec.js
+test_*.py
+*_test.py
+configure_api_mode.sh
+demo_api_publishing.sh
+live_test_setup.sh
+validate-fixes.sh
+vercel-readiness-check.sh

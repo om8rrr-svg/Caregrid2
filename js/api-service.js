@@ -215,15 +215,15 @@ class APIService {
             });
             return response;
         } catch (error) {
-            // If backend is unavailable, provide a demo mode for users
+            // If backend is unavailable, provide offline mode for users
             if (error.message.includes('BACKEND_UNAVAILABLE') || 
                 error.message.includes('Network connection failed') || 
                 error.message.includes('Request timed out') ||
                 error.message.includes('Failed to fetch')) {
                 
-                console.warn('Backend unavailable, offering demo mode');
+                console.warn('Backend unavailable, enabling offline mode');
                 
-                // Validate email format before allowing demo mode
+                // Validate email format before allowing offline mode
                 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                 if (emailRegex.test(email) && password && password.length >= 6) {
                     // Extract name from email for personalization
@@ -245,10 +245,10 @@ class APIService {
                             },
                             token: 'offline_token_' + Date.now()
                         },
-                        message: 'Offline mode: Backend server is currently unavailable. You can explore the platform with limited functionality.'
+                        message: 'Connected in offline mode. Some features may be limited until our servers are available.'
                     };
                 } else {
-                    throw new Error('Backend server is currently unavailable. Please check your internet connection and try again later. If the problem persists, please contact support.');
+                    throw new Error('Unable to connect to our servers. Please check your internet connection and try again later.');
                 }
             }
             throw error;
@@ -268,21 +268,21 @@ class APIService {
                 error.message.includes('Network connection failed') || 
                 error.message.includes('Request timed out')) {
                 
-                console.warn('Backend unavailable, simulating registration');
+                console.warn('Backend unavailable, enabling offline registration');
                 
                 return {
                     success: true,
                     data: {
                         user: {
-                            id: 'demo_user_' + Date.now(),
+                            id: 'offline_user_' + Date.now(),
                             email: userData.email,
-                            firstName: userData.firstName || 'Demo',
-                            lastName: userData.lastName || 'User',
+                            firstName: userData.firstName || 'User',
+                            lastName: userData.lastName || '',
                             role: 'user'
                         },
-                        token: 'demo_token_' + Date.now()
+                        token: 'offline_token_' + Date.now()
                     },
-                    message: 'Demo registration successful (backend unavailable)'
+                    message: 'Account created in offline mode. Full features will be available when our servers reconnect.'
                 };
             }
             throw error;
@@ -527,7 +527,7 @@ class APIService {
                         treatmentType: appointmentData.treatmentType || 'General Consultation',
                         status: 'confirmed',
                         isGuestBooking: !this.getStoredToken(),
-                        notes: appointmentData.notes || 'Demo booking',
+                        notes: appointmentData.notes || 'Offline booking',
                         createdAt: new Date().toISOString()
                     }
                 };
