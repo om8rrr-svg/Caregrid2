@@ -303,11 +303,25 @@ class Dashboard {
         document.getElementById('reviewsGiven').textContent = reviewsCount;
         
         // Update notification badges
-        document.getElementById('appointmentsBadge').textContent = upcomingCount;
-        document.getElementById('notificationsBadge').textContent = notificationsCount;
+        const appointmentsBadge = document.getElementById('appointmentsBadge');
+        const notificationsBadge = document.getElementById('notificationsBadge');
         
-        if (notificationsCount === 0) {
-            document.getElementById('notificationsBadge').style.display = 'none';
+        if (appointmentsBadge) {
+            appointmentsBadge.textContent = upcomingCount;
+            if (upcomingCount === 0) {
+                appointmentsBadge.style.display = 'none';
+            } else {
+                appointmentsBadge.style.display = 'inline-block';
+            }
+        }
+        
+        if (notificationsBadge) {
+            notificationsBadge.textContent = notificationsCount;
+            if (notificationsCount === 0) {
+                notificationsBadge.style.display = 'none';
+            } else {
+                notificationsBadge.style.display = 'inline-block';
+            }
         }
         
         // Add click functionality to stats cards
@@ -374,7 +388,19 @@ class Dashboard {
         console.log('DEBUG loadAppointmentsPreview: Upcoming appointments:', upcomingAppointments);
         
         if (upcomingAppointments.length === 0) {
-            container.innerHTML = `<p class="no-data">No upcoming appointments</p>`;
+            container.innerHTML = `
+                <div class="no-data">
+                    <div class="no-data-icon">
+                        <i class="fas fa-calendar-plus"></i>
+                    </div>
+                    <h4>No upcoming appointments</h4>
+                    <p>You don't have any appointments booked yet. Start by finding a clinic and booking your first appointment!</p>
+                    <a href="index.html#categories" class="action-btn primary">
+                        <i class="fas fa-search"></i>
+                        Find Clinics
+                    </a>
+                </div>
+            `;
             return;
         }
         
@@ -420,7 +446,51 @@ class Dashboard {
         }
         
         if (appointments.length === 0) {
-            container.innerHTML = '<p class="no-data">No appointments found</p>';
+            let message = '';
+            let actionButton = `
+                <a href="index.html#categories" class="action-btn primary">
+                    <i class="fas fa-search"></i>
+                    Find Clinics
+                </a>
+            `;
+            
+            switch(filter) {
+                case 'upcoming':
+                    message = `
+                        <h4>No upcoming appointments</h4>
+                        <p>You don't have any upcoming appointments. Ready to book your next visit?</p>
+                    `;
+                    break;
+                case 'past':
+                case 'completed':
+                    message = `
+                        <h4>No completed appointments</h4>
+                        <p>You haven't completed any appointments yet. Once you visit a clinic, your appointment history will appear here.</p>
+                    `;
+                    break;
+                case 'cancelled':
+                    message = `
+                        <h4>No cancelled appointments</h4>
+                        <p>You don't have any cancelled appointments. That's great - it means you've kept all your bookings!</p>
+                    `;
+                    actionButton = '';
+                    break;
+                default:
+                    message = `
+                        <h4>No appointments booked yet</h4>
+                        <p>You haven't booked any appointments yet. Start by finding a clinic and scheduling your first visit!</p>
+                    `;
+            }
+            
+            container.innerHTML = `
+                <div class="no-data">
+                    <div class="no-data-icon">
+                        <i class="fas fa-calendar-times"></i>
+                    </div>
+                    ${message}
+                    ${actionButton}
+                </div>
+            `;
             return;
         }
         
@@ -485,7 +555,19 @@ class Dashboard {
         const favorites = [];
         
         if (favorites.length === 0) {
-            container.innerHTML = '<p class="no-data">No favorite clinics yet. Start exploring and add clinics to your favorites!</p>';
+            container.innerHTML = `
+                <div class="no-data">
+                    <div class="no-data-icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <h4>No favorite clinics yet</h4>
+                    <p>You haven't added any clinics to your favorites yet. As you explore healthcare providers, add the ones you like to your favorites for quick access!</p>
+                    <a href="index.html#categories" class="action-btn primary">
+                        <i class="fas fa-search"></i>
+                        Find Clinics
+                    </a>
+                </div>
+            `;
             return;
         }
         
@@ -527,7 +609,19 @@ class Dashboard {
         const reviews = [];
         
         if (reviews.length === 0) {
-            container.innerHTML = '<p class="no-data">No reviews written yet. Visit a clinic and share your experience!</p>';
+            container.innerHTML = `
+                <div class="no-data">
+                    <div class="no-data-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <h4>No reviews written yet</h4>
+                    <p>You haven't written any reviews yet. After visiting a clinic, share your experience to help other patients make informed decisions!</p>
+                    <a href="index.html#categories" class="action-btn primary">
+                        <i class="fas fa-search"></i>
+                        Find Clinics
+                    </a>
+                </div>
+            `;
             return;
         }
         
@@ -571,7 +665,15 @@ class Dashboard {
         const notifications = [];
         
         if (notifications.length === 0) {
-            container.innerHTML = '<p class="no-data">No new notifications</p>';
+            container.innerHTML = `
+                <div class="no-data">
+                    <div class="no-data-icon">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <h4>No notifications</h4>
+                    <p>You're all caught up! Notifications about appointments, reminders, and updates will appear here.</p>
+                </div>
+            `;
             return;
         }
         
@@ -645,7 +747,15 @@ class Dashboard {
             const recentActivities = activities.slice(0, 3);
             
             if (recentActivities.length === 0) {
-                activityList.innerHTML = '<p class="no-activity">No recent activity</p>';
+                activityList.innerHTML = `
+                    <div class="no-activity">
+                        <div class="no-activity-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <p>No recent activity</p>
+                        <span>Your recent bookings, reviews, and favorites will appear here</span>
+                    </div>
+                `;
                 return;
             }
             
