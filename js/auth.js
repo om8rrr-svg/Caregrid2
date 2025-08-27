@@ -58,7 +58,10 @@ class AuthSystem {
                 this.handleForgotPassword(e);
             });
         } else {
-            console.log('forgotPasswordForm not found during binding');
+            // forgotPasswordForm not found - this is expected on dashboard page
+            if (window.location.pathname.includes('auth.html')) {
+                console.warn('forgotPasswordForm not found on auth page - this should be investigated');
+            }
         }
         
         // Debug: Add direct button click listener

@@ -45,7 +45,7 @@ app.use(compression({
 app.use(helmet());
 
 // CORS configuration
-const allowed = (process.env.CORS_ORIGIN || '')
+const allowed = (process.env.CORS_ORIGIN || 'http://localhost:3000,http://localhost:8000,https://caregrid2-ddk7.vercel.app,https://caregrid2.vercel.app')
   .split(',')
   .map(s => s.trim())
   .filter(Boolean);
