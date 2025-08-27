@@ -424,8 +424,9 @@ class APIService {
                 
                 // If this is the last attempt, throw the error
                 if (attempt === maxRetries) {
-                    // For clinic requests, throw a special error that can be handled gracefully
-                    if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+                    // Handle CORS errors specifically
+                    if (error.message.includes('CORS') || 
+                        (error.name === 'TypeError' && error.message.includes('Failed to fetch'))) {
                         throw new Error('BACKEND_UNAVAILABLE');
                     }
                     throw error;
