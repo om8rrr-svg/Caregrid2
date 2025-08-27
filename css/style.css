@@ -6164,8 +6164,8 @@ body.stakeholder .nav-menu .stakeholder-only {
 /* Auth Back Button */
 .auth-back-button {
     position: absolute;
-    top: 2rem;
-    left: 2rem;
+    top: 1rem;
+    left: 1.5rem;
     z-index: 1000;
 }
 
@@ -6201,8 +6201,8 @@ body.stakeholder .nav-menu .stakeholder-only {
 
 @media (max-width: 768px) {
     .auth-back-button {
-        top: 1rem;
-        left: 1rem;
+        top: 0.5rem;
+        left: 0.75rem;
     }
     
     .back-btn {
