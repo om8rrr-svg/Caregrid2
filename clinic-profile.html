@@ -700,6 +700,55 @@
         function getDirections(address) {
             const encodedAddress = encodeURIComponent(address);
             
+            // Check if geolocation is available
+            if ('geolocation' in navigator) {
+                // Request user's current location
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        // Success: Got user's location
+                        const userLat = position.coords.latitude;
+                        const userLng = position.coords.longitude;
+                        openMapsWithLocation(encodedAddress, userLat, userLng);
+                    },
+                    function(error) {
+                        // Error or permission denied: Fall back to destination-only directions
+                        console.log('Geolocation error:', error.message);
+                        openMapsWithoutLocation(encodedAddress);
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 300000 // 5 minutes
+                    }
+                );
+            } else {
+                // Geolocation not supported: Fall back to destination-only directions
+                openMapsWithoutLocation(encodedAddress);
+            }
+        }
+        
+        function openMapsWithLocation(encodedAddress, userLat, userLng) {
+            // Check if user is on mobile device
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            
+            if (isMobile) {
+                // Try to open in native maps app with current location as start point
+                const mapsUrl = `maps://maps.google.com/maps?saddr=${userLat},${userLng}&daddr=${encodedAddress}`;
+                const googleMapsUrl = `https://maps.google.com/maps/dir/${userLat},${userLng}/${encodedAddress}`;
+                
+                // Try native app first, fallback to web
+                window.location.href = mapsUrl;
+                setTimeout(() => {
+                    window.open(googleMapsUrl, '_blank');
+                }, 500);
+            } else {
+                // Open Google Maps in new tab for desktop with directions from current location
+                const googleMapsUrl = `https://maps.google.com/maps/dir/${userLat},${userLng}/${encodedAddress}`;
+                window.open(googleMapsUrl, '_blank');
+            }
+        }
+        
+        function openMapsWithoutLocation(encodedAddress) {
             // Check if user is on mobile device
             const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
             
