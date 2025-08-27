@@ -331,7 +331,7 @@ background: #27AE60;color: white;padding: 12px 20px;border: none;border-radius: 
  .visit-btn:hover{
 background: #219A52}
  .contact-btn{
-background: transparent;color: #2A6EF3;border: 2px solid #2A6EF3;padding: 10px 20px;border-radius: 8px;text-decoration: none;font-weight: 600;transition:all .3s ease;cursor: pointer;min-width: 120px;text-align: center}
+background: transparent;color: #2A6EF3;border: 2px solid #2A6EF3;padding: 8px 15px;border-radius: 8px;text-decoration: none;font-weight: 600;transition:all .3s ease;cursor: pointer;min-width: 100px;text-align: center}
  .contact-btn:hover{
 background: #2A6EF3;color: white}
  .website-btn{
