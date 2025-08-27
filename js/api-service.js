@@ -2,7 +2,7 @@
 // Import the centralized API base configuration
 if (typeof buildUrl === 'undefined') {
     // Fallback if api-base.js not loaded
-    const API_BASE = window.__API_BASE__ || 'https://caregrid-backend.onrender.com';
+    const API_BASE = window.__API_BASE__ || 'http://localhost:3000';
     window.buildUrl = function(path, params = {}) {
         const url = new URL(path.replace(/^\//, ''), API_BASE.endsWith('/') ? API_BASE : API_BASE + '/');
         Object.entries(params).forEach(([k, v]) => v != null && url.searchParams.set(k, v));
@@ -13,7 +13,7 @@ if (typeof buildUrl === 'undefined') {
 class APIService {
     constructor() {
         // Use the centralized API base configuration
-        this.baseURL = window.__API_BASE__ || 'https://caregrid-backend.onrender.com';
+        this.baseURL = window.__API_BASE__ || 'http://localhost:3000';
         this.token = this.getStoredToken();
         this.backendHealthy = null; // Track backend health
         this.lastHealthCheck = 0;
@@ -25,7 +25,7 @@ class APIService {
         // Get the API base URL (prefer window flag, then environment, then default)
         const API_BASE = window.__API_BASE__ ||
                          (typeof process !== 'undefined' && (process.env.NEXT_PUBLIC_API_BASE || process.env.API_BASE)) ||
-                         'https://caregrid-backend.onrender.com';
+                         'http://localhost:3000';
         
         // Create URL ensuring proper path concatenation
         const cleanPath = path.replace(/^\//, ''); // Remove leading slash

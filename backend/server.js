@@ -54,6 +54,13 @@ app.use(cors({
   origin(origin, cb) {
     if (!origin) return cb(null, true); // allow curl/postman
     if (allowed.includes(origin)) return cb(null, true);
+    
+    // Allow localhost for development
+    if (process.env.NODE_ENV !== 'production' && 
+        origin && (origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:'))) {
+      return cb(null, true);
+    }
+    
     return cb(new Error(`CORS blocked: ${origin}`));
   },
   methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
