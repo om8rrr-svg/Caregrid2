@@ -162,7 +162,7 @@ class AuthSystem {
             
             // Show offline mode message if applicable
             if (user?.isOfflineMode && response.message) {
-                alert(response.message);
+                this.showSuccessMessage('Offline Mode', response.message);
             }
             
             window.location.href = 'dashboard.html';
