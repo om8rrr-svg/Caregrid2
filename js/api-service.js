@@ -172,12 +172,18 @@ class APIService {
             
             // Handle specific error cases
             if (error.name === 'AbortError') {
+                // For auth requests, let fallback handle timeout gracefully
+                const isAuthRequest = endpoint.includes('/auth');
+                if (isAuthRequest) {
+                    throw new Error('BACKEND_UNAVAILABLE');
+                }
                 throw new Error('Request timed out. Please check your connection and try again.');
             }
             
             if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
-                // For clinic requests, don't throw scary errors - let fallback handle it
-                if (isClinicRequest) {
+                // For clinic requests or auth requests, let fallback handle it gracefully
+                const isAuthRequest = endpoint.includes('/auth');
+                if (isClinicRequest || isAuthRequest) {
                     throw new Error('BACKEND_UNAVAILABLE');
                 }
                 throw new Error('Network connection failed. Please check your connection.');
@@ -209,29 +215,40 @@ class APIService {
             });
             return response;
         } catch (error) {
-            // If backend is unavailable, provide a demo mode for testing
+            // If backend is unavailable, provide a demo mode for users
             if (error.message.includes('BACKEND_UNAVAILABLE') || 
                 error.message.includes('Network connection failed') || 
-                error.message.includes('Request timed out')) {
+                error.message.includes('Request timed out') ||
+                error.message.includes('Failed to fetch')) {
                 
                 console.warn('Backend unavailable, offering demo mode');
                 
-                // Only enable demo mode for specific test accounts
-                if (email.includes('demo') || email.includes('test')) {
+                // Validate email format before allowing demo mode
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (emailRegex.test(email) && password && password.length >= 6) {
+                    // Extract name from email for personalization
+                    const emailPrefix = email.split('@')[0];
+                    const firstName = emailPrefix.split('.')[0] || 'User';
+                    const lastName = emailPrefix.split('.')[1] || '';
+                    
                     return {
                         success: true,
                         data: {
                             user: {
-                                id: 'demo_user_' + Date.now(),
+                                id: 'offline_user_' + Date.now(),
                                 email: email,
-                                firstName: 'Demo',
-                                lastName: 'User',
-                                role: 'user'
+                                firstName: firstName.charAt(0).toUpperCase() + firstName.slice(1),
+                                lastName: lastName.charAt(0).toUpperCase() + lastName.slice(1),
+                                role: 'patient',
+                                verified: true,
+                                isOfflineMode: true
                             },
-                            token: 'demo_token_' + Date.now()
+                            token: 'offline_token_' + Date.now()
                         },
-                        message: 'Demo login successful (backend unavailable)'
+                        message: 'Offline mode: Backend server is currently unavailable. You can explore the platform with limited functionality.'
                     };
+                } else {
+                    throw new Error('Backend server is currently unavailable. Please check your internet connection and try again later. If the problem persists, please contact support.');
                 }
             }
             throw error;
