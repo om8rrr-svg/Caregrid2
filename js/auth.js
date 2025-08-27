@@ -92,7 +92,7 @@ class AuthSystem {
     
     async checkExistingAuth() {
         // try to auto-continue only if token exists
-        const t = localStorage.getItem('caregrid_token') || sessionStorage.getItem('caregrid_token');
+        const t = localStorage.getItem('careGridToken') || sessionStorage.getItem('careGridToken');
         if (!t) return; // show sign-in form normally
 
         try {
@@ -150,9 +150,21 @@ class AuthSystem {
                 throw new Error('No token received from server');
             }
             
+            // Store user data for dashboard
+            if (user) {
+                localStorage.setItem('careGridCurrentUser', JSON.stringify(user));
+                sessionStorage.removeItem('careGridCurrentUser');
+            }
+            
             // after successful /auth/login
-            localStorage.setItem('caregrid_token', token);
-            sessionStorage.setItem('caregrid_token', token);
+            localStorage.setItem('careGridToken', token);
+            sessionStorage.setItem('careGridToken', token);
+            
+            // Show offline mode message if applicable
+            if (user?.isOfflineMode && response.message) {
+                alert(response.message);
+            }
+            
             window.location.href = 'dashboard.html';
             
         } catch (error) {
@@ -805,7 +817,7 @@ class AuthSystem {
     // Check if user is authenticated
     isAuthenticated() {
         // Check for token in localStorage or sessionStorage directly
-        return !!(localStorage.getItem('authToken') || sessionStorage.getItem('authToken'));
+        return !!(localStorage.getItem('careGridToken') || sessionStorage.getItem('careGridToken'));
     }
     
     redirectAfterAuth() {
