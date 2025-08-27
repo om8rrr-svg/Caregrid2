@@ -1450,6 +1450,115 @@ function signUpWithFacebook() {
     }, {scope: 'email'});
 }
 
+// Device detection functions
+function isIOSDevice() {
+    return /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+           (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+}
+
+function isiPhoneDevice() {
+    return /iPhone/.test(navigator.userAgent);
+}
+
+// Apple Sign-In functions
+function signInWithApple() {
+    if (!isIOSDevice()) {
+        alert('Apple Sign-In is only available on iOS devices.');
+        return;
+    }
+    
+    // For now, use simulation since Apple Sign-In requires proper domain setup
+    if (confirm('Apple Sign-In requires proper domain configuration. Would you like to simulate an Apple sign-in for demo purposes?')) {
+        simulateAppleSignIn();
+    }
+}
+
+function signUpWithApple() {
+    if (!isIOSDevice()) {
+        alert('Apple Sign-In is only available on iOS devices.');
+        return;
+    }
+    
+    // For now, use simulation since Apple Sign-In requires proper domain setup
+    if (confirm('Apple Sign-In requires proper domain configuration. Would you like to simulate an Apple sign-up for demo purposes?')) {
+        simulateAppleSignUp();
+    }
+}
+
+// Simulate Apple Sign-In for demo purposes
+function simulateAppleSignIn() {
+    const userData = {
+        id: 'apple_demo_user',
+        email: 'demo.user@icloud.com',
+        name: 'Apple Demo User',
+        profilePicture: '', // Apple doesn't always provide profile pictures
+        provider: 'apple',
+        lastLogin: new Date().toISOString()
+    };
+    
+    // Store user data in localStorage with correct keys
+    localStorage.setItem('careGridCurrentUser', JSON.stringify(userData));
+    localStorage.setItem('careGridToken', 'demo_apple_token_' + Date.now());
+    localStorage.setItem('isLoggedIn', 'true');
+    
+    alert('Demo Apple sign-in successful! Redirecting to dashboard...');
+    
+    // Redirect to dashboard
+    setTimeout(() => {
+        window.location.href = 'dashboard.html';
+    }, 1000);
+}
+
+// Simulate Apple Sign-Up for demo purposes
+function simulateAppleSignUp() {
+    const userData = {
+        id: 'apple_demo_user',
+        email: 'demo.user@icloud.com',
+        name: 'Apple Demo User',
+        profilePicture: '', // Apple doesn't always provide profile pictures
+        provider: 'apple',
+        createdAt: new Date().toISOString()
+    };
+    
+    // Store user data in localStorage
+    localStorage.setItem('careGridCurrentUser', JSON.stringify(userData));
+    localStorage.setItem('careGridToken', 'apple_signup_token_' + Date.now());
+    localStorage.setItem('isLoggedIn', 'true');
+    
+    alert('Demo Apple sign-up successful! Redirecting to dashboard...');
+    
+    // Redirect to dashboard
+    setTimeout(() => {
+        window.location.href = 'dashboard.html';
+    }, 1000);
+}
+
+// Function to show/hide Apple Sign-In buttons based on device
+function toggleAppleSignInButtons() {
+    const appleButtons = document.querySelectorAll('.social-btn.apple, .social-btn-modern.apple');
+    const isIOS = isIOSDevice();
+    
+    appleButtons.forEach(button => {
+        if (isIOS) {
+            button.style.display = 'flex';
+        } else {
+            button.style.display = 'none';
+        }
+    });
+    
+    // Adjust grid layout for social buttons if Apple button is hidden
+    const socialContainers = document.querySelectorAll('.social-auth, .social-auth-modern');
+    socialContainers.forEach(container => {
+        if (isIOS) {
+            // Show all three buttons in a grid
+            container.style.gridTemplateColumns = '1fr 1fr 1fr';
+        } else {
+            // Show only two buttons
+            container.style.gridTemplateColumns = '1fr 1fr';
+        }
+    });
+}
+
 // Global authentication state checker
 function checkAuthenticationState() {
     try {
@@ -1507,6 +1616,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Check authentication state for UI updates only (no API calls)
     setTimeout(checkAuthenticationState, 100);
     
+    // Toggle Apple Sign-In buttons based on device
+    setTimeout(toggleAppleSignInButtons, 100);
+    
     // Add backup event listener for modal close button
     const modalCloseBtn = document.querySelector('#successModal .auth-btn.primary');
     if (modalCloseBtn) {
@@ -1541,6 +1653,9 @@ window.signInWithGoogle = signInWithGoogle;
 window.signUpWithGoogle = signUpWithGoogle;
 window.signInWithFacebook = signInWithFacebook;
 window.signUpWithFacebook = signUpWithFacebook;
+window.signInWithApple = signInWithApple;
+window.signUpWithApple = signUpWithApple;
+window.toggleAppleSignInButtons = toggleAppleSignInButtons;
 window.toggleUserMenu = toggleUserMenu;
 window.logout = logout;
 window.toggleAuthMode = toggleAuthMode;
