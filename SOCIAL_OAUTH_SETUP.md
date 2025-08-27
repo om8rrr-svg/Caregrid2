@@ -64,7 +64,22 @@ If you want to test the integration immediately, you can use this demo Google Cl
    - For production: `https://yourdomain.com/`
 5. Copy the App ID from the app dashboard
 
-### 4. Configure the Application
+### 4. Apple Sign-In Setup (Automatic for iOS devices)
+
+Apple Sign-In is automatically available for iPhone and iOS users without additional configuration. The application:
+
+1. **Detects iOS devices** using `navigator.userAgent`
+2. **Shows Apple button** only for iPhone/iPad users
+3. **Hides Apple button** for non-iOS devices
+4. **Provides demo functionality** for testing purposes
+
+**Note**: For production Apple Sign-In implementation, you would need:
+- Apple Developer account
+- Proper domain verification
+- Apple Sign-In service configuration
+- Real implementation replacing the demo simulation
+
+### 5. Configure the Application
 
 1. Replace `'your-google-client-id.apps.googleusercontent.com'` in the following files with your actual Google Client ID:
    - `signup.html` (line ~500)
@@ -74,10 +89,12 @@ If you want to test the integration immediately, you can use this demo Google Cl
    - `signup.html` (line ~540)
    - `auth.html` (line ~191)
 
-### 5. Test the Integration
+3. Apple Sign-In requires no additional configuration as it uses device detection and demo simulation.
+
+### 6. Test the Integration
 
 1. Open the signup or sign-in page
-2. Click the "Continue with Google" or "Continue with Facebook" button
+2. Click the "Continue with Google", "Continue with Facebook", or "Continue with Apple" button (Apple only visible on iOS)
 3. Complete the authentication flow
 4. Verify that user data is stored and redirection works
 
@@ -85,9 +102,12 @@ If you want to test the integration immediately, you can use this demo Google Cl
 
 - **Google Sign-Up/Sign-In**: Users can create accounts or sign in using their Google credentials
 - **Facebook Sign-Up/Sign-In**: Users can create accounts or sign in using their Facebook credentials
+- **Apple Sign-Up/Sign-In**: iPhone/iOS users can create accounts or sign in using Apple ID (with device detection)
+- **Device Detection**: Automatically shows/hides Apple Sign-In based on iOS device detection
 - **User Data Storage**: Social profile information is stored in localStorage
 - **Automatic Redirection**: Users are redirected to the dashboard after successful authentication
 - **Error Handling**: Proper error messages for failed authentication attempts
+- **Responsive Layout**: Social buttons adapt from 2-column to 3-column layout when Apple button is shown
 
 ## User Data Structure
 
@@ -119,6 +139,19 @@ When a user signs up/in with social providers, the following data is stored:
 }
 ```
 
+**Apple Provider:**
+```javascript
+{
+  id: 'apple_demo_user', // demo implementation
+  email: 'user@icloud.com',
+  name: 'User Name',
+  profilePicture: '', // Apple typically doesn't provide profile pictures
+  provider: 'apple',
+  createdAt: '2024-01-01T00:00:00.000Z' // for sign-up
+  lastLogin: '2024-01-01T00:00:00.000Z' // for sign-in
+}
+```
+
 ## Security Notes
 
 - The Google Client ID and Facebook App ID are public and safe to include in client-side code
@@ -139,3 +172,8 @@ When a user signs up/in with social providers, the following data is stored:
 - **Authentication popup blocked**: Check browser popup settings
 - **Invalid App ID**: Verify the App ID matches your Facebook Developer Console configuration
 - **Email not provided**: User may have denied email permission during Facebook login
+
+**Apple OAuth:**
+- **"Apple Sign-In is only available on iOS devices"**: This message appears when non-iOS users try to use Apple Sign-In
+- **Button not visible**: Apple Sign-In button only appears on iPhone/iPad devices due to device detection
+- **Demo simulation**: Current implementation uses simulation for testing; production requires Apple Developer setup
