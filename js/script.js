@@ -2168,6 +2168,11 @@ async function loadClinicsFromAPI() {
 
 // Show API connection status to users
 function showAPIStatus(message, status) {
+    // Don't show status indicator on auth pages to avoid visual clutter
+    if (document.body.classList.contains('auth-page')) {
+        return;
+    }
+    
     // Create or update a small status indicator
     let statusIndicator = document.getElementById('api-status-indicator');
     if (!statusIndicator) {
