@@ -240,11 +240,12 @@ class AuthSystem {
             // Dispatch auth state change event
             window.dispatchEvent(new CustomEvent('authStateChanged'));
             
-            this.showSuccessMessage('Account Created!', 'Welcome to CareGrid! Your account has been created successfully.');
+            this.showSuccessMessage('Account Created Successfully!', 'Welcome to CareGrid! Your account has been created and you will receive a welcome email shortly. Logging you in securely...');
             
+            // Show a more specific loading message while redirecting
             setTimeout(() => {
-                this.redirectAfterAuth();
-            }, 2000);
+                window.location.href = 'dashboard.html';
+            }, 3000); // Increased time to let user read the message
             
         } catch (error) {
             console.log('Sign-up failed:', error.message);
@@ -536,6 +537,28 @@ class AuthSystem {
         if (!emailRegex.test(email)) {
             this.showError(errorId, 'Please enter a valid email address');
             return false;
+        }
+        
+        // Additional validation to match backend
+        const domain = email.split('@')[1];
+        if (domain) {
+            // Block common spam/temporary email domains
+            const blockedDomains = [
+                'tempmail.org', '10minutemail.com', 'guerrillamail.com', 
+                'mailinator.com', 'yopmail.com', 'throwaway.email',
+                'temp-mail.org', 'emailondeck.com', 'sharklasers.com'
+            ];
+            
+            if (blockedDomains.includes(domain.toLowerCase())) {
+                this.showError(errorId, 'Please use a valid email address. Temporary email services are not allowed.');
+                return false;
+            }
+            
+            // Ensure email has a valid TLD
+            if (!domain.includes('.') || domain.split('.').pop().length < 2) {
+                this.showError(errorId, 'Please provide a valid email address with a proper domain.');
+                return false;
+            }
         }
         
         this.clearError(errorId);

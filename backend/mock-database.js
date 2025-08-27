@@ -152,6 +152,33 @@ class MockDatabase {
             };
         }
         
+        // User registration - check if user exists
+        if (sql.includes('SELECT id FROM users WHERE email')) {
+            return {
+                rows: [], // No existing user found
+                rowCount: 0
+            };
+        }
+        
+        // User registration - insert new user
+        if (sql.includes('INSERT INTO users')) {
+            const newUser = {
+                id: params[0], // userId
+                first_name: params[1],
+                last_name: params[2],
+                email: params[3],
+                phone: params[4],
+                role: params[6] || 'patient',
+                verified: params[7] || false,
+                created_at: new Date()
+            };
+            
+            return {
+                rows: [newUser],
+                rowCount: 1
+            };
+        }
+        
         // Default response
         return {
             rows: [],
