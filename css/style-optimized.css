@@ -1705,6 +1705,20 @@ color: white !important;background: #2a6ef3 !important}
 content: '→';font-size: 0.875rem;color: white !important}
  .no-data{
 text-align: center;color: #666;font-style: italic;padding: 2rem}
+ .no-data h4{
+color: #333;margin: 1rem 0 0.5rem 0;font-weight: 600;font-style: normal}
+ .no-data p{
+margin: 0.5rem 0 1.5rem 0;font-style: normal;line-height: 1.5}
+ .no-data-icon{
+font-size: 3rem;color: #ddd;margin-bottom: 1rem}
+ .no-activity{
+text-align: center;color: #666;padding: 2rem}
+ .no-activity-icon{
+font-size: 2rem;color: #ddd;margin-bottom: 1rem}
+ .no-activity p{
+margin: 0 0 0.5rem 0;font-weight: 500}
+ .no-activity span{
+font-size: 0.9rem;color: #999}
  @media (max-width: 768px){
 .dashboard-container{
 flex-direction: column;padding: 1rem;gap: 1rem}
