@@ -4,7 +4,7 @@
 export const API_BASE =
   (typeof window !== 'undefined' && window.__API_BASE__) ||
   (typeof process !== 'undefined' && (process.env.NEXT_PUBLIC_API_BASE || process.env.API_BASE)) ||
-  'https://caregrid-backend.onrender.com';
+  'http://localhost:3000';
 
 export function buildUrl(path, params = {}) {
   const base = API_BASE.endsWith('/') ? API_BASE : API_BASE + '/';
