@@ -22,6 +22,28 @@ const registerValidation = [
   body('email')
     .isEmail()
     .normalizeEmail()
+    .custom(async (email) => {
+      // Additional email validation to prevent spam/invalid emails
+      const domain = email.split('@')[1];
+      
+      // Block common spam/temporary email domains
+      const blockedDomains = [
+        'tempmail.org', '10minutemail.com', 'guerrillamail.com', 
+        'mailinator.com', 'yopmail.com', 'throwaway.email',
+        'temp-mail.org', 'emailondeck.com', 'sharklasers.com'
+      ];
+      
+      if (blockedDomains.includes(domain.toLowerCase())) {
+        throw new Error('Please use a valid email address. Temporary email services are not allowed.');
+      }
+      
+      // Ensure email has a valid TLD
+      if (!domain.includes('.') || domain.split('.').pop().length < 2) {
+        throw new Error('Please provide a valid email address with a proper domain.');
+      }
+      
+      return true;
+    })
     .withMessage('Please provide a valid email'),
   body('phone')
     .optional()
@@ -498,5 +520,41 @@ router.post('/verify-email', asyncHandler(async (req, res) => {
   // For now, just return success
   successResponse(res, null, 'Email verified successfully');
 }));
+
+// @route   POST /api/auth/test-welcome-email
+// @desc    Test welcome email sending (development only)
+// @access  Public
+if (process.env.NODE_ENV !== 'production') {
+  router.post('/test-welcome-email', [
+    body('email').isEmail().normalizeEmail().withMessage('Please provide a valid email'),
+    body('name').trim().isLength({ min: 1 }).withMessage('Name is required')
+  ], asyncHandler(async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      const errorMessages = errors.array().map(error => error.msg).join(', ');
+      throw new AppError(errorMessages, 400, 'VALIDATION_ERROR');
+    }
+
+    const { email, name } = req.body;
+
+    try {
+      const result = await emailService.sendWelcomeEmail(email, name);
+      
+      if (result.success) {
+        successResponse(res, {
+          messageId: result.messageId,
+          message: 'Welcome email sent successfully'
+        }, 'Welcome email sent');
+      } else {
+        throw new AppError('Failed to send welcome email', 500, 'EMAIL_ERROR');
+      }
+    } catch (error) {
+      console.error('Test welcome email failed:', error);
+      throw new AppError(error.message || 'Failed to send welcome email', 500, 'EMAIL_ERROR');
+    }
+  }));
+}
+
+module.exports = router;
 
 module.exports = router;

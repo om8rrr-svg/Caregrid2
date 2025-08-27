@@ -51,11 +51,11 @@ const allowed = (process.env.CORS_ORIGIN || 'http://localhost:3000,http://localh
   .filter(Boolean);
 
 app.use(cors({
-  origin(origin, cb) {
+  origin: process.env.NODE_ENV === 'production' ? function(origin, cb) {
     if (!origin) return cb(null, true); // allow curl/postman
     if (allowed.includes(origin)) return cb(null, true);
     return cb(new Error(`CORS blocked: ${origin}`));
-  },
+  } : true, // Allow all origins in development
   methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
   allowedHeaders: ['Content-Type','Authorization','X-Requested-With'],
   credentials: false
