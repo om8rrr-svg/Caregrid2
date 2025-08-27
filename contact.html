@@ -339,16 +339,21 @@
         @media (max-width: 768px) {
             .contact-grid {
                 grid-template-columns: 1fr;
-                gap: 40px;
+                gap: 20px;
             }
             
             .contact-grid::before {
                 display: none;
             }
             
-            .contact-form,
+            .contact-form {
+                background: #F8FAFE;
+                padding: 25px 20px;
+                box-shadow: none;
+            }
+            
             .contact-info {
-                padding: 30px 20px;
+                padding: 25px 20px;
             }
             
             .form-row {
@@ -357,6 +362,16 @@
             
             .contact-hero {
                 padding: 100px 0 40px;
+            }
+            
+            .faq-section {
+                padding: 60px 0;
+            }
+            
+            .faq-item {
+                background: #F8FAFE;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+                margin-bottom: 15px;
             }
         }
     </style>
