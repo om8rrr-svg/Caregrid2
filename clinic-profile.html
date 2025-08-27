@@ -121,6 +121,22 @@
                  gap: 16px;
              }
          }
+         
+         /* Status indicator styles */
+         .status-open {
+             color: #28a745 !important;
+             font-weight: 600;
+         }
+         
+         .status-closed {
+             color: #dc3545 !important;
+             font-weight: 600;
+         }
+         
+         .status-opening-soon {
+             color: #ffc107 !important;
+             font-weight: 600;
+         }
      </style>
 </head>
 <body>
@@ -462,9 +478,11 @@
             const email = clinic.email || generateEmail(clinic);
             document.getElementById('clinicEmail').textContent = email;
             
-            // Update status
+            // Update status with real-time checking
             const status = generateStatus(clinic);
-            document.getElementById('clinicStatus').textContent = status;
+            const statusElement = document.getElementById('clinicStatus');
+            statusElement.textContent = status.text;
+            statusElement.className = status.class;
             
             // Update services
             const servicesContainer = document.getElementById('clinicServices');
@@ -488,6 +506,21 @@
             
             // Update page title
             document.title = `${clinic.name} - CareGrid`;
+            
+            // Setup auto-refresh for status (every minute)
+            setupStatusAutoRefresh(clinic);
+        }
+        
+        function setupStatusAutoRefresh(clinic) {
+            // Update status every minute
+            setInterval(() => {
+                const status = generateStatus(clinic);
+                const statusElement = document.getElementById('clinicStatus');
+                if (statusElement) {
+                    statusElement.textContent = status.text;
+                    statusElement.className = status.class;
+                }
+            }, 60000); // 60 seconds
         }
         
         function generateUniqueDescription(clinic) {
@@ -532,9 +565,145 @@
         }
         
         function generateStatus(clinic) {
-            const statuses = ['Open Now', 'Closed', 'Opens at 8:00 AM', 'Closes at 6:00 PM'];
-            const randomIndex = Math.floor(Math.random() * statuses.length);
-            return statuses[randomIndex];
+            return getRealtimeStatus(clinic);
+        }
+        
+        function getRealtimeStatus(clinic) {
+            const now = new Date();
+            const currentDay = now.getDay(); // 0 = Sunday, 1 = Monday, etc.
+            const currentTime = now.getHours() * 100 + now.getMinutes(); // e.g., 14:30 = 1430
+            
+            // Get opening hours for the clinic type
+            const openingHours = generateOpeningHours(clinic.type);
+            
+            // Find today's hours
+            let todayHours = null;
+            
+            for (const hour of openingHours) {
+                if (isToday(hour.day, currentDay)) {
+                    todayHours = hour;
+                    break;
+                }
+            }
+            
+            if (!todayHours || todayHours.time === 'Closed') {
+                return { text: 'Closed Today', class: 'status-closed' };
+            }
+            
+            if (todayHours.time === 'By Appointment') {
+                return { text: 'By Appointment', class: 'status-opening-soon' };
+            }
+            
+            // Parse opening hours (e.g., "8:00 AM - 6:00 PM")
+            const timeRange = parseTimeRange(todayHours.time);
+            if (!timeRange) {
+                return { text: 'Hours Unknown', class: 'status-opening-soon' };
+            }
+            
+            const { openTime, closeTime } = timeRange;
+            
+            // Check if currently open
+            if (currentTime >= openTime && currentTime < closeTime) {
+                const closeHour = Math.floor(closeTime / 100);
+                const closeMin = closeTime % 100;
+                const closeTimeStr = formatTime12Hour(closeHour, closeMin);
+                return { text: `Open - Closes ${closeTimeStr}`, class: 'status-open' };
+            }
+            
+            // Check if opening soon (within next 2 hours)
+            if (currentTime < openTime && (openTime - currentTime) <= 200) {
+                const openHour = Math.floor(openTime / 100);
+                const openMin = openTime % 100;
+                const openTimeStr = formatTime12Hour(openHour, openMin);
+                return { text: `Opens ${openTimeStr}`, class: 'status-opening-soon' };
+            }
+            
+            // Otherwise closed
+            if (currentTime < openTime) {
+                const openHour = Math.floor(openTime / 100);
+                const openMin = openTime % 100;
+                const openTimeStr = formatTime12Hour(openHour, openMin);
+                return { text: `Opens ${openTimeStr}`, class: 'status-closed' };
+            } else {
+                // Find tomorrow's opening time
+                const tomorrowDay = (currentDay + 1) % 7;
+                let tomorrowHours = null;
+                
+                for (const hour of openingHours) {
+                    if (isToday(hour.day, tomorrowDay)) {
+                        tomorrowHours = hour;
+                        break;
+                    }
+                }
+                
+                if (tomorrowHours && tomorrowHours.time !== 'Closed') {
+                    const tomorrowRange = parseTimeRange(tomorrowHours.time);
+                    if (tomorrowRange) {
+                        const openHour = Math.floor(tomorrowRange.openTime / 100);
+                        const openMin = tomorrowRange.openTime % 100;
+                        const openTimeStr = formatTime12Hour(openHour, openMin);
+                        return { text: `Closed - Opens ${openTimeStr} Tomorrow`, class: 'status-closed' };
+                    }
+                }
+                
+                return { text: 'Closed', class: 'status-closed' };
+            }
+        }
+        
+        function isToday(dayString, currentDay) {
+            const dayMap = {
+                'Monday': 1, 'Tuesday': 2, 'Wednesday': 3, 'Thursday': 4, 
+                'Friday': 5, 'Saturday': 6, 'Sunday': 0
+            };
+            
+            // Handle ranges like "Monday - Friday"
+            if (dayString.includes(' - ')) {
+                const [startDay, endDay] = dayString.split(' - ');
+                const startDayNum = dayMap[startDay.trim()];
+                const endDayNum = dayMap[endDay.trim()];
+                
+                if (startDayNum <= endDayNum) {
+                    return currentDay >= startDayNum && currentDay <= endDayNum;
+                } else {
+                    // Handle wrap-around (e.g., Friday - Monday)
+                    return currentDay >= startDayNum || currentDay <= endDayNum;
+                }
+            }
+            
+            return dayMap[dayString] === currentDay;
+        }
+        
+        function parseTimeRange(timeStr) {
+            // Parse "8:00 AM - 6:00 PM" format
+            const match = timeStr.match(/(\d{1,2}):(\d{2})\s*(AM|PM)\s*-\s*(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+            if (!match) return null;
+            
+            const [, openHour, openMin, openAmPm, closeHour, closeMin, closeAmPm] = match;
+            
+            const openTime24 = convertTo24Hour(parseInt(openHour), parseInt(openMin), openAmPm);
+            const closeTime24 = convertTo24Hour(parseInt(closeHour), parseInt(closeMin), closeAmPm);
+            
+            return {
+                openTime: openTime24,
+                closeTime: closeTime24
+            };
+        }
+        
+        function convertTo24Hour(hour, minute, ampm) {
+            let hour24 = hour;
+            if (ampm.toUpperCase() === 'PM' && hour !== 12) {
+                hour24 += 12;
+            } else if (ampm.toUpperCase() === 'AM' && hour === 12) {
+                hour24 = 0;
+            }
+            return hour24 * 100 + minute;
+        }
+        
+        function formatTime12Hour(hour, minute) {
+            const ampm = hour >= 12 ? 'PM' : 'AM';
+            const displayHour = hour === 0 ? 12 : (hour > 12 ? hour - 12 : hour);
+            const displayMinute = minute.toString().padStart(2, '0');
+            return `${displayHour}:${displayMinute} ${ampm}`;
         }
         
         function generateServices(type) {
