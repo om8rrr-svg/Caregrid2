@@ -1289,19 +1289,13 @@ document.addEventListener('DOMContentLoaded', function() {
 function signInWithGoogle() {
     // Check if Google API is loaded first
     if (typeof gapi === 'undefined') {
-        // Fallback for demo purposes when Google API is not loaded
-        if (confirm('Google OAuth is not available. Would you like to simulate a Google sign-in for demo purposes?')) {
-            simulateGoogleSignIn();
-        }
+        showError('Google Sign-In is temporarily unavailable. Please try again later or use email sign-in.');
         return;
     }
     
     const authInstance = gapi.auth2.getAuthInstance();
     if (!authInstance) {
-        // Fallback for demo purposes when Google Auth is not properly configured
-        if (confirm('Google OAuth is not properly configured for this domain. Would you like to simulate a Google sign-in for demo purposes?')) {
-            simulateGoogleSignIn();
-        }
+        showError('Google Sign-In service is not ready. Please try again in a moment.');
         return;
     }
     
@@ -1325,52 +1319,21 @@ function signInWithGoogle() {
         //window.location.href = 'dashboard.html';
     }).catch(function(error) {
         console.error('Google sign-in error:', error);
-        if (confirm('Google sign-in failed due to configuration issues. Would you like to simulate a Google sign-in for demo purposes?')) {
-            simulateGoogleSignIn();
-        }
+        showError('Google sign-in failed. Please try again or use email sign-in.');
     });
 }
 
-// Simulate Google Sign-In for demo purposes
-function simulateGoogleSignIn() {
-    const userData = {
-        id: 'google_demo_user',
-        email: 'demo.user@gmail.com',
-        name: 'Demo User',
-        profilePicture: 'https://via.placeholder.com/150',
-        provider: 'google',
-        lastLogin: new Date().toISOString()
-    };
-    
-    // Store user data in localStorage with correct keys
-    localStorage.setItem('careGridCurrentUser', JSON.stringify(userData));
-    localStorage.setItem('careGridToken', 'demo_google_token_' + Date.now());
-    localStorage.setItem('isLoggedIn', 'true');
-    
-    alert('Demo Google sign-in successful! Redirecting to dashboard...');
-    
-    // Redirect to dashboard
-    setTimeout(() => {
-        //window.location.href = 'dashboard.html';
-    }, 1000);
-}
 
 function signUpWithGoogle() {
     // Check if Google API is loaded first
     if (typeof gapi === 'undefined') {
-        // Fallback for demo purposes when Google API is not loaded
-        if (confirm('Google OAuth is not available. Would you like to simulate a Google sign-up for demo purposes?')) {
-            simulateGoogleSignUp();
-        }
+        showError('Google Sign-Up is temporarily unavailable. Please try again later or use email sign-up.');
         return;
     }
     
     const authInstance = gapi.auth2.getAuthInstance();
     if (!authInstance) {
-        // Fallback for demo purposes when Google Auth is not properly configured
-        if (confirm('Google OAuth is not properly configured for this domain. Would you like to simulate a Google sign-up for demo purposes?')) {
-            simulateGoogleSignUp();
-        }
+        showError('Google Sign-Up service is not ready. Please try again in a moment.');
         return;
     }
     
@@ -1394,43 +1357,16 @@ function signUpWithGoogle() {
         //window.location.href = 'dashboard.html';
     }).catch(function(error) {
         console.error('Google sign-up error:', error);
-        if (confirm('Google sign-up failed due to configuration issues. Would you like to simulate a Google sign-up for demo purposes?')) {
-            simulateGoogleSignUp();
-        }
+        showError('Google sign-up failed. Please try again or use email sign-up.');
     });
 }
 
-// Simulate Google Sign-Up for demo purposes
-function simulateGoogleSignUp() {
-    const userData = {
-        id: 'google_demo_user',
-        email: 'demo.user@gmail.com',
-        name: 'Demo User',
-        profilePicture: 'https://via.placeholder.com/150',
-        provider: 'google',
-        createdAt: new Date().toISOString()
-    };
-    
-    // Store user data in localStorage with correct keys
-    localStorage.setItem('careGridCurrentUser', JSON.stringify(userData));
-    localStorage.setItem('careGridToken', 'demo_google_signup_token_' + Date.now());
-    localStorage.setItem('isLoggedIn', 'true');
-    
-    alert('Demo Google sign-up successful! Redirecting to dashboard...');
-    
-    // Redirect to dashboard
-    setTimeout(() => {
-        //window.location.href = 'dashboard.html';
-    }, 1000);
-}
+
 
 function signInWithFacebook() {
     // Check if Facebook SDK is loaded first
     if (typeof FB === 'undefined') {
-        // Fallback for demo purposes when Facebook SDK is not loaded
-        if (confirm('Facebook OAuth is not available. Would you like to simulate a Facebook sign-in for demo purposes?')) {
-            simulateFacebookSignIn();
-        }
+        showError('Facebook Sign-In is temporarily unavailable. Please try again later or use email sign-in.');
         return;
     }
     
@@ -1456,10 +1392,7 @@ function signInWithFacebook() {
             });
         } else {
             console.error('Facebook sign-in cancelled or failed');
-            // Offer simulation as fallback
-            if (confirm('Facebook sign-in was cancelled or failed. Would you like to simulate a Facebook sign-in for demo purposes?')) {
-                simulateFacebookSignIn();
-            }
+            showError('Facebook sign-in was cancelled or failed. Please try again or use email sign-in.');
         }
     }, {scope: 'email'});
 }
@@ -1467,10 +1400,7 @@ function signInWithFacebook() {
 function signUpWithFacebook() {
     // Check if Facebook SDK is loaded first
     if (typeof FB === 'undefined') {
-        // Fallback for demo purposes when Facebook SDK is not loaded
-        if (confirm('Facebook OAuth is not available. Would you like to simulate a Facebook sign-up for demo purposes?')) {
-            simulateFacebookSignUp();
-        }
+        showError('Facebook Sign-Up is temporarily unavailable. Please try again later or use email sign-up.');
         return;
     }
     
@@ -1496,10 +1426,7 @@ function signUpWithFacebook() {
             });
         } else {
             console.error('Facebook sign-up cancelled or failed');
-            // Offer simulation as fallback
-            if (confirm('Facebook sign-up was cancelled or failed. Would you like to simulate a Facebook sign-up for demo purposes?')) {
-                simulateFacebookSignUp();
-            }
+            showError('Facebook sign-up was cancelled or failed. Please try again or use email sign-up.');
         }
     }, {scope: 'email'});
 }
@@ -1517,123 +1444,29 @@ function isiPhoneDevice() {
 // Apple Sign-In functions
 function signInWithApple() {
     if (!isIOSDevice()) {
-        alert('Apple Sign-In is only available on iOS devices.');
+        showError('Apple Sign-In is only available on iOS devices. Please use email sign-in.');
         return;
     }
     
-    // For now, use simulation since Apple Sign-In requires proper domain setup
-    if (confirm('Apple Sign-In requires proper domain configuration. Would you like to simulate an Apple sign-in for demo purposes?')) {
-        simulateAppleSignIn();
-    }
+    showError('Apple Sign-In is coming soon. Please use email sign-in for now.');
 }
 
 function signUpWithApple() {
     if (!isIOSDevice()) {
-        alert('Apple Sign-In is only available on iOS devices.');
+        showError('Apple Sign-In is only available on iOS devices. Please use email sign-up.');
         return;
     }
     
-    // For now, use simulation since Apple Sign-In requires proper domain setup
-    if (confirm('Apple Sign-In requires proper domain configuration. Would you like to simulate an Apple sign-up for demo purposes?')) {
-        simulateAppleSignUp();
-    }
+    showError('Apple Sign-In is coming soon. Please use email sign-up for now.');
 }
 
-// Simulate Apple Sign-In for demo purposes
-function simulateAppleSignIn() {
-    const userData = {
-        id: 'apple_demo_user',
-        email: 'demo.user@icloud.com',
-        name: 'Apple Demo User',
-        profilePicture: '', // Apple doesn't always provide profile pictures
-        provider: 'apple',
-        lastLogin: new Date().toISOString()
-    };
-    
-    // Store user data in localStorage with correct keys
-    localStorage.setItem('careGridCurrentUser', JSON.stringify(userData));
-    localStorage.setItem('careGridToken', 'demo_apple_token_' + Date.now());
-    localStorage.setItem('isLoggedIn', 'true');
-    
-    alert('Demo Apple sign-in successful! Redirecting to dashboard...');
-    
-    // Redirect to dashboard
-    setTimeout(() => {
-        window.location.href = 'dashboard.html';
-    }, 1000);
-}
 
-// Simulate Apple Sign-Up for demo purposes
-function simulateAppleSignUp() {
-    const userData = {
-        id: 'apple_demo_user',
-        email: 'demo.user@icloud.com',
-        name: 'Apple Demo User',
-        profilePicture: '', // Apple doesn't always provide profile pictures
-        provider: 'apple',
-        createdAt: new Date().toISOString()
-    };
-    
-    // Store user data in localStorage
-    localStorage.setItem('careGridCurrentUser', JSON.stringify(userData));
-    localStorage.setItem('careGridToken', 'apple_signup_token_' + Date.now());
-    localStorage.setItem('isLoggedIn', 'true');
-    
-    alert('Demo Apple sign-up successful! Redirecting to dashboard...');
-    
-    // Redirect to dashboard
-    setTimeout(() => {
-        window.location.href = 'dashboard.html';
-    }, 1000);
-}
 
-// Simulate Facebook Sign-In for demo purposes
-function simulateFacebookSignIn() {
-    const userData = {
-        id: 'facebook_demo_user',
-        email: 'demo.user@facebook.com',
-        name: 'Facebook Demo User',
-        profilePicture: 'https://via.placeholder.com/150',
-        provider: 'facebook',
-        lastLogin: new Date().toISOString()
-    };
-    
-    // Store user data in localStorage with correct keys
-    localStorage.setItem('careGridCurrentUser', JSON.stringify(userData));
-    localStorage.setItem('careGridToken', 'demo_facebook_token_' + Date.now());
-    localStorage.setItem('isLoggedIn', 'true');
-    
-    alert('Demo Facebook sign-in successful! Redirecting to dashboard...');
-    
-    // Redirect to dashboard
-    setTimeout(() => {
-        window.location.href = 'dashboard.html';
-    }, 1000);
-}
 
-// Simulate Facebook Sign-Up for demo purposes
-function simulateFacebookSignUp() {
-    const userData = {
-        id: 'facebook_demo_user',
-        email: 'demo.user@facebook.com',
-        name: 'Facebook Demo User',
-        profilePicture: 'https://via.placeholder.com/150',
-        provider: 'facebook',
-        createdAt: new Date().toISOString()
-    };
-    
-    // Store user data in localStorage with correct keys
-    localStorage.setItem('careGridCurrentUser', JSON.stringify(userData));
-    localStorage.setItem('careGridToken', 'demo_facebook_signup_token_' + Date.now());
-    localStorage.setItem('isLoggedIn', 'true');
-    
-    alert('Demo Facebook sign-up successful! Redirecting to dashboard...');
-    
-    // Redirect to dashboard
-    setTimeout(() => {
-        window.location.href = 'dashboard.html';
-    }, 1000);
-}
+
+
+
+
 
 // Function to show/hide Apple Sign-In buttons based on device
 function toggleAppleSignInButtons() {

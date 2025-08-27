@@ -11,46 +11,6 @@ class Dashboard {
         // Initialize appointments as empty array first
         this.appointments = [];
         
-        // Sample data for demo mode
-        this.sampleAppointments = [
-            {
-                id: 'demo-1',
-                clinic_name: 'City Medical Center',
-                clinic_id: 'clinic-1',
-                appointment_date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days from now
-                appointment_time: '10:00',
-                service_type: 'General Consultation',
-                status: 'confirmed',
-                doctor_name: 'Dr. Sarah Johnson',
-                address: '123 Health Street, Manchester',
-                phone: '0161 123 4567'
-            },
-            {
-                id: 'demo-2',
-                clinic_name: 'Wellness Clinic',
-                clinic_id: 'clinic-2',
-                appointment_date: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 days from now
-                appointment_time: '14:30',
-                service_type: 'Dental Checkup',
-                status: 'confirmed',
-                doctor_name: 'Dr. Michael Brown',
-                address: '456 Care Avenue, Birmingham',
-                phone: '0121 987 6543'
-            },
-            {
-                id: 'demo-3',
-                clinic_name: 'Heart Care Specialists',
-                clinic_id: 'clinic-3',
-                appointment_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 1 week from now
-                appointment_time: '09:15',
-                service_type: 'Cardiology Consultation',
-                status: 'pending',
-                doctor_name: 'Dr. Emily Davis',
-                address: '789 Cardiac Road, London',
-                phone: '020 1234 5678'
-            }
-        ];
-        
         // Initialize dashboard
         this.init();
     }
@@ -110,35 +70,22 @@ class Dashboard {
     async loadAppointments() {
         try {
             if (this.apiService && this.apiService.getStoredToken()) {
-                console.log('Dashboard: Loading real appointments from API');
+                console.log('Dashboard: Loading appointments from API');
                 const response = await this.apiService.getAppointments();
                 this.appointments = response.appointments || response.data || [];
                 console.log('DEBUG: Loaded appointments from API:', this.appointments.length);
             } else {
-                console.log('Dashboard: No token, loading demo appointments');
-                this.appointments = this.getDemoAppointments();
+                console.log('Dashboard: No token, no appointments to load');
+                this.appointments = [];
             }
         } catch (error) {
             console.warn('Error loading appointments from API:', error);
-            // Only fallback to demo appointments for test@example.com
-            this.appointments = this.getDemoAppointments();
+            this.appointments = [];
         }
-    }
-    
-    getDemoAppointments() {
-        // Only show sample data for test@example.com
-        if (this.isTestUser()) {
-            return this.sampleAppointments || [];
-        }
-        return [];
-    }
-
-    isTestUser() {
-        return this.currentUser && this.currentUser.email === 'test@example.com';
     }
     
     isDemoUser() {
-        return this.currentUser && (this.currentUser.id === 'demo' || this.currentUser.email === 'demo@caregrid.com' || this.currentUser.id === 'fallback' || this.currentUser.id === 'google_demo_user' || this.currentUser.email === 'demo.user@gmail.com');
+        return false; // No demo users in production
     }
     
     updateWelcomeMessage() {
@@ -153,147 +100,28 @@ class Dashboard {
     }
     
     initializeUI() {
-        // Keep sample data as fallback for demo purposes
-        this.sampleAppointments = [
-            {
-                id: '1',
-                clinicName: 'City Medical Center',
-                clinicType: 'General Practice',
-                date: '2024-01-15',
-                time: '10:00 AM',
-                status: 'upcoming',
-                doctor: 'Dr. Sarah Johnson',
-                address: '123 Main St, Downtown',
-                phone: '+1 (555) 123-4567'
-            },
-            {
-                id: '2',
-                clinicName: 'Heart Care Specialists',
-                clinicType: 'Cardiology',
-                date: '2024-01-20',
-                time: '2:30 PM',
-                status: 'upcoming',
-                doctor: 'Dr. Michael Chen',
-                address: '456 Oak Ave, Uptown',
-                phone: '+1 (555) 234-5678'
-            },
-            {
-                id: '3',
-                clinicName: 'Wellness Clinic',
-                clinicType: 'Family Medicine',
-                date: '2024-01-25',
-                time: '9:15 AM',
-                status: 'upcoming',
-                doctor: 'Dr. Emily Rodriguez',
-                address: '789 Pine St, Midtown',
-                phone: '+1 (555) 345-6789'
-            },
-            {
-                id: '4',
-                clinicName: 'Dental Excellence',
-                clinicType: 'Dentistry',
-                date: '2024-01-05',
-                time: '11:00 AM',
-                status: 'completed',
-                doctor: 'Dr. Robert Kim',
-                address: '321 Elm St, Downtown',
-                phone: '+1 (555) 456-7890'
-            }
-        ];
-        
-        this.sampleFavorites = [
-            {
-                id: '1',
-                name: 'City Medical Center',
-                type: 'General Practice',
-                rating: 4.8,
-                address: '123 Main St, Downtown',
-                phone: '+1 (555) 123-4567',
-                image: 'images/clinic1.jpg'
-            },
-            {
-                id: '2',
-                name: 'Heart Care Specialists',
-                type: 'Cardiology',
-                rating: 4.9,
-                address: '456 Oak Ave, Uptown',
-                phone: '+1 (555) 234-5678',
-                image: 'images/clinic2.jpg'
-            }
-        ];
-        
-        this.sampleReviews = [
-            {
-                id: '1',
-                clinicName: 'Wellness Clinic',
-                rating: 5,
-                comment: 'Excellent service and very professional staff. Dr. Rodriguez was thorough and caring.',
-                date: '2024-01-10',
-                helpful: 12
-            },
-            {
-                id: '2',
-                clinicName: 'Dental Excellence',
-                rating: 4,
-                comment: 'Good dental care, clean facility. Wait time was a bit long but worth it.',
-                date: '2024-01-08',
-                helpful: 8
-            }
-        ];
-        
-        this.sampleNotifications = [
-            {
-                id: '1',
-                type: 'appointment',
-                title: 'Appointment Reminder',
-                message: 'Your appointment with Dr. Sarah Johnson is tomorrow at 10:00 AM',
-                time: '2 hours ago',
-                read: false
-            },
-            {
-                id: '2',
-                type: 'review',
-                title: 'Review Request',
-                message: 'How was your visit to Dental Excellence? Share your experience.',
-                time: '1 day ago',
-                read: false
-            },
-            {
-                id: '3',
-                type: 'system',
-                title: 'Profile Updated',
-                message: 'Your profile information has been successfully updated.',
-                time: '3 days ago',
-                read: true
-            }
-        ];
-        
         this.bindEvents();
         this.updateUserInfo();
         this.showSection('overview');
         this.loadRecentActivity();
-        console.log('DEBUG: Dashboard init completed');
+        console.log('Dashboard initialization completed');
     }
     
     updateUserInfo() {
-        console.log('DEBUG: Dashboard updateUserInfo started');
+        console.log('Dashboard updateUserInfo started');
         // Check if user is logged in
         if (!this.currentUser) {
-            // Create a demo user for testing if no user is logged in
-            this.currentUser = {
-                firstName: 'Demo',
-                lastName: 'User',
-                email: 'demo@caregrid.com',
-                phone: '+44 7700 900123'
-            };
-            console.log('No user found, using demo user');
+            // No user logged in - redirect to auth
+            console.log('No user found, redirecting to authentication');
+            window.location.replace('auth.html');
+            return;
         }
         
         this.loadUserData();
-        console.log('DEBUG: About to call loadDashboardData');
+        console.log('About to call loadDashboardData');
         this.loadDashboardData();
         this.updateStats();
-        console.log('DEBUG: Dashboard updateUserInfo completed');
+        console.log('Dashboard updateUserInfo completed');
     }
     
 
@@ -444,30 +272,30 @@ class Dashboard {
     }
     
     loadDashboardData() {
-        console.log('DEBUG loadDashboardData: Starting...');
-        // Use appointments loaded from API or fallback to sample data for test users only
-        if (!this.appointments || this.appointments.length === 0) {
-            this.appointments = this.isTestUser() ? this.sampleAppointments : [];
+        console.log('loadDashboardData: Starting...');
+        // Use appointments loaded from API
+        if (!this.appointments || !Array.isArray(this.appointments)) {
+            this.appointments = [];
         }
-        console.log('DEBUG loadDashboardData: Loaded appointments:', this.appointments.length);
+        console.log('loadDashboardData: Loaded appointments:', this.appointments.length);
         
         this.loadAppointmentsPreview();
         this.loadRecentActivity();
-        console.log('DEBUG loadDashboardData: Completed');
+        console.log('loadDashboardData: Completed');
     }
     
     updateStats() {
         // Ensure appointments is initialized
         if (!this.appointments || !Array.isArray(this.appointments)) {
-            this.appointments = this.getDemoAppointments();
+            this.appointments = [];
         }
         
         const upcomingCount = this.appointments.filter(apt => apt.status === 'upcoming').length;
         
-        // Only show sample data counts for test@example.com
-        const favoritesCount = this.isTestUser() ? this.sampleFavorites.length : 0;
-        const reviewsCount = this.isTestUser() ? this.sampleReviews.length : 0;
-        const notificationsCount = this.isTestUser() ? this.sampleNotifications.filter(n => !n.read).length : 0;
+        // Show real data counts only
+        const favoritesCount = 0; // Will be loaded from API when available
+        const reviewsCount = 0; // Will be loaded from API when available
+        const notificationsCount = 0; // Will be loaded from API when available
         
         document.getElementById('totalAppointments').textContent = this.appointments.length;
         document.getElementById('upcomingAppointments').textContent = upcomingCount;
@@ -533,11 +361,11 @@ class Dashboard {
         
         // Ensure appointments is initialized
         if (!this.appointments || !Array.isArray(this.appointments)) {
-            this.appointments = this.isTestUser() ? (this.sampleAppointments || []) : [];
+            this.appointments = [];
         }
         
-        console.log('DEBUG loadAppointmentsPreview: Total appointments:', this.appointments.length);
-        console.log('DEBUG loadAppointmentsPreview: All appointments:', this.appointments);
+        console.log('loadAppointmentsPreview: Total appointments:', this.appointments.length);
+        console.log('loadAppointmentsPreview: All appointments:', this.appointments);
         
         const upcomingAppointments = this.appointments
             .filter(apt => apt.status === 'upcoming')
@@ -577,7 +405,7 @@ class Dashboard {
         
         // Ensure appointments is initialized
         if (!this.appointments || !Array.isArray(this.appointments)) {
-            this.appointments = this.isTestUser() ? (this.sampleAppointments || []) : [];
+            this.appointments = [];
         }
         
         let appointments = this.appointments;
@@ -653,11 +481,11 @@ class Dashboard {
     loadFavorites() {
         const container = document.getElementById('favoritesGrid');
         
-        // Only show sample favorites for test@example.com
-        const favorites = this.isTestUser() ? this.sampleFavorites : [];
+        // Load favorites from API when available
+        const favorites = [];
         
         if (favorites.length === 0) {
-            container.innerHTML = '<p class="no-data">No favorite clinics yet</p>';
+            container.innerHTML = '<p class="no-data">No favorite clinics yet. Start exploring and add clinics to your favorites!</p>';
             return;
         }
         
@@ -695,11 +523,11 @@ class Dashboard {
     loadReviews() {
         const container = document.getElementById('reviewsList');
         
-        // Only show sample reviews for test@example.com
-        const reviews = this.isTestUser() ? this.sampleReviews : [];
+        // Load reviews from API when available
+        const reviews = [];
         
         if (reviews.length === 0) {
-            container.innerHTML = '<p class="no-data">No reviews written yet</p>';
+            container.innerHTML = '<p class="no-data">No reviews written yet. Visit a clinic and share your experience!</p>';
             return;
         }
         
@@ -739,11 +567,11 @@ class Dashboard {
     loadNotifications() {
         const container = document.getElementById('notificationsList');
         
-        // Only show sample notifications for test@example.com
-        const notifications = this.isTestUser() ? this.sampleNotifications : [];
+        // Load notifications from API when available
+        const notifications = [];
         
         if (notifications.length === 0) {
-            container.innerHTML = '<p class="no-data">No notifications</p>';
+            container.innerHTML = '<p class="no-data">No new notifications</p>';
             return;
         }
         
@@ -904,14 +732,14 @@ class Dashboard {
     }
     
     clearTestBookings() {
-        // Reset appointments to sample data
-        this.appointments = this.sampleAppointments;
+        // Clear all appointments 
+        this.appointments = [];
         this.loadDashboardData();
         
         // Show success message
-        this.showSuccessMessage('Dashboard reset to sample data.');
+        this.showSuccessMessage('All appointments cleared.');
         
-        console.log('Dashboard reset to sample data.');
+        console.log('All appointments cleared.');
     }
     
     formatDate(dateString) {
@@ -1112,7 +940,7 @@ async function cancelAppointment(appointmentId) {
                 
                 alert('Appointment cancelled successfully!');
             } else {
-                // Fallback to localStorage for demo purposes
+                // Handle cancellation through local bookings if available
                 const bookings = JSON.parse(localStorage.getItem('careGridBookings') || '[]');
                 const updatedBookings = bookings.filter(booking => booking.reference !== appointmentId);
                 localStorage.setItem('careGridBookings', JSON.stringify(updatedBookings));

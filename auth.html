@@ -390,7 +390,7 @@
     
     <script>
         // Google OAuth configuration
-        const GOOGLE_CLIENT_ID = '1035469437281-ch681omnn6q6eghhd82chuam4hgpmv4i.apps.googleusercontent.com'; // Demo client ID for testing
+        const GOOGLE_CLIENT_ID = '1035469437281-ch681omnn6q6eghhd82chuam4hgpmv4i.apps.googleusercontent.com'; // OAuth client ID
         
         // Facebook OAuth configuration
         const FACEBOOK_APP_ID = 'your-facebook-app-id'; // Replace with your actual Facebook App ID
@@ -432,29 +432,7 @@
             };
         }
         
-        // Simulate Google Sign-In for demo purposes
-        function simulateGoogleSignIn() {
-            const userData = {
-                id: 'google_demo_user',
-                email: 'demo.user@gmail.com',
-                name: 'Demo User',
-                profilePicture: 'https://via.placeholder.com/150',
-                provider: 'google',
-                lastLogin: new Date().toISOString()
-            };
-            
-            // Store user data in localStorage with correct keys
-            localStorage.setItem('careGridCurrentUser', JSON.stringify(userData));
-            localStorage.setItem('careGridToken', 'demo_google_token_' + Date.now());
-            localStorage.setItem('isLoggedIn', 'true');
-            
-            alert('Demo Google sign-in successful! Redirecting to dashboard...');
-            
-            // Redirect to dashboard
-            setTimeout(() => {
-                window.location.href = 'dashboard.html';
-            }, 1000);
-        }
+        // Google Sign-In functions are handled by auth.js
         
         // Initialize when page loads
         document.addEventListener('DOMContentLoaded', function() {
