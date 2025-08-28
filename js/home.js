@@ -1,32 +1,28 @@
 // Home page functionality - cities and featured clinics loading
-import { buildUrl, withTimeout } from './api-base.js';
+import { fetchJson } from './api-base.js';
 
 async function loadCities() {
-  const container = document.getElementById('citiesContainer'); // adjust selector
+  const el = document.getElementById('citiesContainer'); // adjust to your DOM
+  if (!el) return;
+  
+  el.innerHTML = '<div class="muted">Loading…</div>';
+
   try {
-    const res = await withTimeout(fetch(buildUrl('/api/clinics', { limit: 200 })), 15000);
-    if (!res.ok) throw new Error('bad status ' + res.status);
-    const { data } = await res.json();
+    const rsp = await fetchJson('/api/clinics', { params: { limit: 250 } });
+    const items = rsp.data || rsp || [];
+    const cities = [...new Set(items.map(c => c.city).filter(Boolean))].sort();
 
-    // compute unique cities
-    const cities = [...new Set((data || []).map(c => c.city).filter(Boolean))].sort();
-
-    container.innerHTML = cities.map(c =>
-      `<button class="chip" data-city="${c}">${c}</button>`
-    ).join('');
+    if (!cities.length) {
+      el.innerHTML = `<div class="muted">No cities yet. Try again later.</div>`;
+      return;
+    }
+    el.innerHTML = cities.map(c => `<button class="chip" data-city="${c}">${c}</button>`).join('');
   } catch (e) {
-    // graceful fallback
-    container.innerHTML = `
-      <div class="muted">Couldn't load cities right now.</div>
-      <div class="chip-row">
-        <button class="chip" data-city="Manchester">Manchester</button>
-        <button class="chip" data-city="London">London</button>
-        <button class="chip" data-city="Liverpool">Liverpool</button>
-      </div>
+    el.innerHTML = `
+      <div class="muted">Couldn't load cities (${e.message}).</div>
       <button class="btn btn-outline" id="retryCities">Try again</button>
     `;
-    const retry = document.getElementById('retryCities');
-    if (retry) retry.addEventListener('click', loadCities);
+    document.getElementById('retryCities')?.addEventListener('click', loadCities);
   }
 }
 
@@ -44,9 +40,8 @@ async function loadCitiesWithFallback() {
 
   // Update total count for 'All Locations' with timeout
   try {
-    const res = await withTimeout(fetch(buildUrl('/api/clinics', { limit: 1000 })), 15000);
-    if (!res.ok) throw new Error('bad status ' + res.status);
-    const { data } = await res.json();
+    const rsp = await fetchJson('/api/clinics', { params: { limit: 1000 } });
+    const data = rsp.data || rsp || [];
     const totalCount = data?.length || 0;
     
     const totalCountElement = document.querySelector('[data-location="all"] .clinic-count');
@@ -79,9 +74,8 @@ async function loadCitiesWithFallback() {
   // Update individual location counts with fallback
   for (const location of locations) {
     try {
-      const res = await withTimeout(fetch(buildUrl('/api/clinics', { city: location.city, limit: 1000 })), 15000);
-      if (!res.ok) throw new Error('bad status ' + res.status);
-      const { data } = await res.json();
+      const rsp = await fetchJson('/api/clinics', { params: { city: location.city, limit: 1000 } });
+      const data = rsp.data || rsp || [];
       const count = data?.length || 0;
       
       const countElement = document.querySelector(`[data-location="${location.key}"] .clinic-count`);
@@ -113,8 +107,10 @@ async function loadCitiesWithFallback() {
   }
 }
 
-// Initialize on DOM ready
-document.addEventListener('DOMContentLoaded', loadCitiesWithFallback);
+document.addEventListener('DOMContentLoaded', () => {
+  loadCities();
+  loadCitiesWithFallback();
+});
 
 // Export for global access
 if (typeof window !== 'undefined') {

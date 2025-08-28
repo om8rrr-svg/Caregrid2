@@ -1,6 +1,4 @@
-// Centralized API Base Configuration for CareGrid
-// This ensures all API calls use the correct base URL and never relative URLs
-
+// js/api-base.js
 export const API_BASE =
   (typeof window !== 'undefined' && window.__API_BASE__) ||
   (typeof process !== 'undefined' && (process.env.NEXT_PUBLIC_API_BASE || process.env.API_BASE)) ||
@@ -13,16 +11,29 @@ export function buildUrl(path, params = {}) {
   return url.toString();
 }
 
-export function withTimeout(promise, ms = 15000) {
-  return Promise.race([
-    promise,
-    new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms))
-  ]);
+export async function fetchJson(path, { params, method = 'GET', headers = {}, body, timeoutMs = 30000 } = {}) {
+  const url = buildUrl(path, params);
+  const ac = new AbortController();
+  const t = setTimeout(() => ac.abort(), timeoutMs);
+
+  const res = await fetch(url, {
+    method,
+    headers: { 'Content-Type': 'application/json', ...headers },
+    body: body ? JSON.stringify(body) : undefined,
+    signal: ac.signal
+  }).catch(err => { throw new Error(`network_error:${err.message}`); });
+
+  clearTimeout(t);
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    throw new Error(`http_${res.status}:${text.slice(0, 200)}`);
+  }
+  return res.json().catch(() => ({}));
 }
 
 // Set global window variables for access from other scripts
 if (typeof window !== 'undefined') {
   window.__API_BASE__ = API_BASE;
   window.buildUrl = buildUrl;
-  window.withTimeout = withTimeout;
+  window.fetchJson = fetchJson;
 }

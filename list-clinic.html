@@ -517,7 +517,7 @@
     <!-- Form Section -->
     <section class="form-section">
         <div class="form-container">
-            <form class="clinic-form" id="clinicForm">
+            <form class="clinic-form" id="listClinicForm">
                 <!-- Step Indicator -->
                 <div class="step-indicator">
                     <div class="step active" data-step="1">1</div>
@@ -697,6 +697,14 @@
                     <button type="submit" class="btn btn-success" id="submitBtn" style="display: none;">Submit Application</button>
                 </div>
             </form>
+            
+            <div id="listClinicSuccess" style="display:none">
+                <div class="success-message">
+                    <h3>Application Submitted Successfully!</h3>
+                    <p>Thank you for your interest in listing your clinic on CareGrid. We'll review your application and get back to you within 2-3 business days.</p>
+                </div>
+            </div>
+            <div id="listClinicFail" class="error" style="display:none"></div>
         </div>
     </section>
 
@@ -934,6 +942,8 @@
         // Initialize form
         updateStepDisplay();
     </script>
+    <script type="module" src="js/api-base.js"></script>
+    <script type="module" src="js/list-clinic.js"></script>
     <script type="module" src="js/auth.js"></script>    <!-- Lazy Loading Script -->
     <script src="js/lazy-loader.js"></script>
 $1</body>

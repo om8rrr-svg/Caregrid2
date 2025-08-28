@@ -1,102 +1,64 @@
-// Authentication System JavaScript
-import { buildUrl } from './api-base.js';
+import { fetchJson } from './api-base.js';
 
-class AuthSystem {
-    constructor() {
-        this.currentMode = 'signin'; // signin, signup, forgot
-        this.currentUser = null;
-        this.apiService = window.apiService;
-        this.isInitialized = false;
-        
-        // Wait for apiService to be available before initializing
-        if (this.apiService) {
-            this.init();
-        } else {
-            // Wait for apiService to be available
-            const checkApiService = () => {
-                if (window.apiService) {
-                    this.apiService = window.apiService;
-                    this.init();
-                } else {
-                    setTimeout(checkApiService, 10);
-                }
-            };
-            checkApiService();
-        }
+const UI = {
+  progress: () => document.getElementById('authProgress'),
+  error: () => document.getElementById('authError')
+};
+
+function token() {
+  return localStorage.getItem('caregrid_token') || sessionStorage.getItem('caregrid_token');
+}
+
+async function validateTokenAndRedirect() {
+  const t = token();
+  if (!t) return; // No token, stay on page
+
+  try {
+    await fetchJson('/api/auth/me', {
+      headers: { Authorization: `Bearer ${t}` },
+      timeoutMs: 15000
+    });
+    window.location.href = '/dashboard.html';
+  } catch {
+    // invalid token—clear and stay
+    localStorage.removeItem('caregrid_token');
+    sessionStorage.removeItem('caregrid_token');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Hide progress on initial render
+  if (UI.progress()) UI.progress().style.display = 'none';
+  if (UI.error()) UI.error().style.display = 'none';
+  validateTokenAndRedirect();
+
+  // Handle form submit
+  const form = document.getElementById('signinForm');
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (UI.error()) UI.error().style.display = 'none';
+    if (UI.progress()) UI.progress().style.display = 'block';
+
+    const email = form.querySelector('input[name="email"]')?.value?.trim();
+    const password = form.querySelector('input[name="password"]')?.value;
+
+    try {
+      const rsp = await fetchJson('/api/auth/login', { method: 'POST', body: { email, password } });
+      const t = rsp.token || rsp.accessToken;
+      if (!t) throw new Error('missing_token');
+      localStorage.setItem('caregrid_token', t);
+      window.location.href = '/dashboard.html';
+    } catch (err) {
+      if (UI.progress()) UI.progress().style.display = 'none';
+      if (UI.error()) {
+        UI.error().textContent = 'Login failed. Check your email/password.';
+        UI.error().style.display = 'block';
+      }
     }
-    
-    async init() {
-        if (this.isInitialized) return;
-        this.isInitialized = true;
-        
-        this.bindEvents();
-        this.checkAuthState();
-        this.setupPasswordStrength();
-        
-        // Only check existing auth once during initialization
-        await this.checkExistingAuth();
-    }
-    
-    async bindEvents() {
-        // Form submissions - only bind if elements exist
-        const signInForm = document.getElementById('signInForm');
-        if (signInForm) {
-            signInForm.addEventListener('submit', (e) => this.handleSignIn(e));
-        }
-        
-        const signUpForm = document.getElementById('signUpForm');
-        if (signUpForm) {
-            signUpForm.addEventListener('submit', (e) => this.handleSignUp(e));
-        }
-        
-        const forgotPasswordForm = document.getElementById('forgotPasswordForm');
-        if (forgotPasswordForm) {
-            console.log('Binding forgotPasswordForm submit event');
-            forgotPasswordForm.addEventListener('submit', (e) => {
-                console.log('Form submitted, this:', this);
-                console.log('showResetVerification method exists:', typeof this.showResetVerification);
-                this.handleForgotPassword(e);
-            });
-        } else {
-            // forgotPasswordForm not found - this is expected on dashboard page
-            if (window.location.pathname.includes('auth.html')) {
-                console.warn('forgotPasswordForm not found on auth page - this should be investigated');
-            }
-        }
-        
-        // Debug: Add direct button click listener
-        const sendCodeBtn = document.querySelector('#resetStep1 .auth-btn');
-        if (sendCodeBtn) {
-            console.log('Send code button found, adding click listener');
-            sendCodeBtn.addEventListener('click', (e) => {
-                console.log('Send code button clicked!');
-                if (e.target.type === 'submit') {
-                    console.log('Button is submit type, form should submit');
-                }
-            });
-        }
-        
-        const verificationForm = document.getElementById('verificationForm');
-        if (verificationForm) {
-            verificationForm.addEventListener('submit', (e) => this.handleVerification(e));
-        }
-        
-        const newPasswordForm = document.getElementById('newPasswordForm');
-        if (newPasswordForm) {
-            newPasswordForm.addEventListener('submit', (e) => this.handleResetPassword(e));
-        }
-        
-        // Real-time validation for sign-in
-        const emailInput = document.getElementById('email');
-        if (emailInput) {
-            emailInput.addEventListener('blur', (e) => this.validateEmail(e.target, 'emailError'));
-        }
-    }
-    
-    async checkExistingAuth() {
-        // try to auto-continue only if token exists
-        const t = localStorage.getItem('careGridToken') || sessionStorage.getItem('careGridToken');
-        if (!t) return; // show sign-in form normally
+  });
+});
 
         try {
             const resp = await fetch(buildUrl('/api/auth/me'), {
