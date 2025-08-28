@@ -1660,17 +1660,25 @@ outline: none;border-color: var(--primary-color);box-shadow: 0 4px 16px rgba(42,
  .form-group input:hover, .form-group select:hover{
 border-color: #c6d4fd;box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08)}
  .checkbox-container{
-display: flex;align-items: center;gap: 0.75rem;margin-bottom: 1rem;padding: 1rem;background: #fff;border-radius: 12px;border: 2px solid #e9ecef;transition:all .3s ease;cursor: pointer;position: relative}
+display: flex;align-items: flex-start;gap: 1rem;margin-bottom: 1.25rem;padding: 1.25rem;background: #fff;border-radius: 16px;border: 2px solid #e9ecef;transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);cursor: pointer;position: relative;box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04)}
  .checkbox-container:hover{
-border-color: var(--primary-color);box-shadow: 0 4px 12px rgba(42, 110, 243, 0.1)}
+border-color: var(--primary-color);box-shadow: 0 6px 20px rgba(42, 110, 243, 0.15);transform: translateY(-2px)}
+ .checkbox-container:focus-within{
+border-color: var(--primary-color);box-shadow: 0 0 0 4px rgba(42, 110, 243, 0.1);outline: none}
  .checkbox-container input[type="checkbox"]{
 display: none}
  .checkmark{
-width: 20px;height: 20px;border: 2px solid #ddd;border-radius: 4px;position: relative;transition:all .3s ease}
+width: 24px;height: 24px;border: 2.5px solid #d1d5db;border-radius: 8px;position: relative;transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);background: #fff;flex-shrink: 0;margin-top: 2px;display: flex;align-items: center;justify-content: center}
  .checkbox-container input[type="checkbox"]:checked + .checkmark{
-background: var(--primary-color);border-color: var(--primary-color)}
+background: linear-gradient(135deg, var(--primary-color) 0%, #1e40af 100%);border-color: var(--primary-color);transform: scale(1.05);box-shadow: 0 4px 12px rgba(42, 110, 243, 0.3)}
  .checkbox-container input[type="checkbox"]:checked + .checkmark::after{
-content: '\f00c';font-family: 'Font Awesome 6 Free';font-weight: 900;color: white;position: absolute;top: 50%;left: 50%;transform: translate(-50%, -50%);font-size: 12px}
+content: '✓';color: white;font-size: 14px;font-weight: 700;position: absolute;top: 50%;left: 50%;transform: translate(-50%, -50%) scale(1);animation: checkmarkScale 0.2s ease-out}
+ @keyframes checkmarkScale{
+0%{transform: translate(-50%, -50%) scale(0)}
+50%{transform: translate(-50%, -50%) scale(1.2)}
+100%{transform: translate(-50%, -50%) scale(1)}}
+ .checkbox-container label{
+font-size: 0.95rem;color: #374151;line-height: 1.5;font-weight: 500;flex: 1;cursor: pointer;margin: 0}
  .form-actions{
 margin-top: 2.5rem;padding-top: 2rem;border-top: 2px solid #e9ecef;text-align: center}
  .save-btn{
