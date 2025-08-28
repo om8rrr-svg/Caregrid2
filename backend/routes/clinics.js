@@ -104,7 +104,10 @@ router.get('/', optionalAuth, asyncHandler(async (req, res) => {
       whereConditions.push('c.is_premium = true');
     }
     
-    const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';
+    // Always filter for active clinics (or null for backwards compatibility)
+    whereConditions.push('(c.is_active = true OR c.is_active IS NULL)');
+    
+    const whereClause = `WHERE ${whereConditions.join(' AND ')}`;
     
     // Get clinics
     const result = await query(
@@ -183,12 +186,27 @@ router.get('/', optionalAuth, asyncHandler(async (req, res) => {
     
   } catch (dbError) {
     console.error('Database error in clinics route:', dbError);
+    console.error('Error details:', {
+      message: dbError.message,
+      code: dbError.code,
+      stack: dbError.stack
+    });
+    
+    // Try to get count even if main query fails
+    let errorTotal = 0;
+    try {
+      const errorCountResult = await query('SELECT COUNT(*) FROM clinics');
+      errorTotal = parseInt(errorCountResult.rows[0].count);
+      console.log('Count query succeeded with total:', errorTotal);
+    } catch (countError) {
+      console.error('Count query also failed:', countError.message);
+    }
     
     // Return empty results when database is unavailable
     paginatedResponse(res, [], {
       page,
       limit,
-      total: 0
+      total: errorTotal
     });
   }
 }));

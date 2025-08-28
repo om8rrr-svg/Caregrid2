@@ -11,6 +11,7 @@ const userRoutes = require('./routes/users');
 const clinicRoutes = require('./routes/clinics');
 const appointmentRoutes = require('./routes/appointments');
 const contactRoutes = require('./routes/contact');
+const debugRoutes = require('./routes/debug');
 const { errorHandler } = require('./middleware/errorHandler');
 const { authenticateToken } = require('./middleware/auth');
 
@@ -138,6 +139,7 @@ app.use('/api/users', authenticateToken, userRoutes);
 app.use('/api/clinics', clinicRoutes);
 app.use('/api/appointments', appointmentRoutes);
 app.use('/api/contact', contactRoutes);
+app.use('/api/debug', debugRoutes);
 
 // 404 handler
 app.use('*', (req, res) => {
