@@ -2119,12 +2119,12 @@ async function loadClinicsFromAPI() {
     try {
         // Only log in development mode
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-            console.log('Attempting to connect to API at:', apiService.baseURL);
+            console.log('Attempting to connect to API at:', window.apiService.baseURL);
         }
         
         // Request all clinics with timeout wrapper for graceful degradation
-        const response = await apiService.withTimeout(
-            apiService.getClinics({ limit: 200 }),
+        const response = await window.apiService.withTimeout(
+            window.apiService.getClinics({ limit: 200 }),
             15000 // 15 second timeout for clinic loading
         );
         
@@ -2914,12 +2914,19 @@ async function updateLocationCounts() {
         { key: 'london', city: 'London' }
     ];
     
-    // Update total count for 'All Locations' with timeout
+    // Check if backend is healthy before making requests
+    const isBackendHealthy = await window.apiService.isBackendHealthy();
+    
+    // Update total count for 'All Locations'
     try {
-        const res = await withTimeout(fetch(buildUrl('/api/clinics', { limit: 1000 })), 15000);
-        if (!res.ok) throw new Error('bad status ' + res.status);
-        const totalData = await res.json();
-        const totalCount = totalData.pagination?.total || totalData.data?.length || 0;
+        let totalCount;
+        if (isBackendHealthy) {
+            const totalData = await window.apiService.getClinics({ limit: 1000 });
+            totalCount = totalData.pagination?.total || totalData.data?.length || 0;
+        } else {
+            // Use fallback data when backend is not healthy
+            totalCount = clinicsData.length;
+        }
         
         const totalCountElement = document.querySelector('[data-location="all"] .clinic-count');
         if (totalCountElement) {
@@ -2932,7 +2939,10 @@ async function updateLocationCounts() {
             mobileAllOption.textContent = `All Locations (${totalCount} clinics)`;
         }
     } catch (error) {
-        console.error('Error fetching total clinic count:', error);
+        // Only log errors if we expected the backend to be healthy
+        if (isBackendHealthy) {
+            console.warn('Error fetching total clinic count, using fallback data:', error.message);
+        }
         // Use local fallback data
         const totalCount = clinicsData.length;
         const totalCountElement = document.querySelector('[data-location="all"] .clinic-count');
@@ -2946,13 +2956,19 @@ async function updateLocationCounts() {
         }
     }
     
-    // Update individual location counts with timeout and fallback
+    // Update individual location counts
     for (const location of locations) {
         try {
-            const res = await withTimeout(fetch(buildUrl('/api/clinics', { city: location.city, limit: 1000 })), 15000);
-            if (!res.ok) throw new Error('bad status ' + res.status);
-            const data = await res.json();
-            const count = data.pagination?.total || data.data?.length || 0;
+            let count;
+            if (isBackendHealthy) {
+                const data = await window.apiService.getClinics({ city: location.city, limit: 1000 });
+                count = data.pagination?.total || data.data?.length || 0;
+            } else {
+                // Use fallback data when backend is not healthy
+                count = clinicsData.filter(clinic => 
+                    clinic.location && clinic.location.toLowerCase() === location.city.toLowerCase()
+                ).length;
+            }
             
             const countElement = document.querySelector(`[data-location="${location.key}"] .clinic-count`);
             if (countElement) {
@@ -2965,7 +2981,10 @@ async function updateLocationCounts() {
                 mobileOption.textContent = `${location.city} (${count} ${count === 1 ? 'clinic' : 'clinics'})`;
             }
         } catch (error) {
-            console.error(`Error fetching clinic count for ${location.city}:`, error);
+            // Only log errors if we expected the backend to be healthy
+            if (isBackendHealthy) {
+                console.warn(`Error fetching clinic count for ${location.city}, using fallback data:`, error.message);
+            }
             // Use local fallback data
             const count = clinicsData.filter(clinic => 
                 clinic.location && clinic.location.toLowerCase() === location.city.toLowerCase()
