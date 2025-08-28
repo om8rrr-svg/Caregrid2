@@ -54,7 +54,8 @@ app.use(cors({
   origin: process.env.NODE_ENV === 'production' ? function(origin, cb) {
     if (!origin) return cb(null, true); // allow curl/postman
     if (allowed.includes(origin)) return cb(null, true);
-    return cb(new Error(`CORS blocked: ${origin}`));
+    console.log(`CORS blocked origin: ${origin}`);
+    return cb(null, false); // Reject without throwing error
   } : true, // Allow all origins in development
   methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
   allowedHeaders: ['Content-Type','Authorization','X-Requested-With'],
