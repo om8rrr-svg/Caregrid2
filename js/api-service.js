@@ -610,6 +610,37 @@ class APIService {
         }
     }
 
+    // Silent health check (doesn't log errors to console)
+    async silentHealthCheck() {
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 5000); // Quick timeout for health checks
+            
+            const response = await fetch(this.buildUrl('/health'), {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'omit',
+                signal: controller.signal
+            });
+            
+            clearTimeout(timeoutId);
+            
+            if (response.ok) {
+                this.backendHealthy = true;
+                this.lastHealthCheck = Date.now();
+                return true;
+            } else {
+                this.backendHealthy = false;
+                this.lastHealthCheck = Date.now();
+                return false;
+            }
+        } catch (error) {
+            this.backendHealthy = false;
+            this.lastHealthCheck = Date.now();
+            return false;
+        }
+    }
+
     // Health check
     async healthCheck() {
         try {
@@ -631,11 +662,28 @@ class APIService {
             return this.backendHealthy;
         }
         
+        // Use silent health check to avoid console spam
+        return await this.silentHealthCheck();
+    }
+
+    // Get clinics with optional filters
+    async getClinics(params = {}) {
         try {
-            await this.healthCheck();
-            return true;
+            const url = this.buildUrl('/api/clinics', params);
+            return await this.makeRequestWithRetryForUrl(url);
         } catch (error) {
-            return false;
+            // If backend is unavailable, don't spam console with errors
+            if (error.message.includes('BACKEND_UNAVAILABLE') || 
+                error.message.includes('Failed to fetch') ||
+                error.message.includes('CORS')) {
+                // Return empty result that matches API structure
+                return {
+                    success: false,
+                    data: [],
+                    pagination: { total: 0, page: 1, limit: params.limit || 200, pages: 0 }
+                };
+            }
+            throw error;
         }
     }
 

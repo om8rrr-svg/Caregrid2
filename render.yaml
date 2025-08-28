@@ -40,7 +40,7 @@ services:
       - key: FRONTEND_URL
         value: https://www.caregrid.co.uk
       - key: CORS_ORIGIN
-        value: https://www.caregrid.co.uk,https://caregrid.co.uk,http://localhost:3000,http://localhost:8000,http://localhost:8080
+        value: https://www.caregrid.co.uk,https://caregrid.co.uk,http://localhost:3000,http://localhost:8000,http://localhost:8080,http://127.0.0.1:3000,http://127.0.0.1:8000,http://127.0.0.1:8080,https://caregrid2-ddk7.vercel.app,https://caregrid2.vercel.app
       - key: EMAIL_SERVICE
         value: gmail
       - key: EMAIL_USER
