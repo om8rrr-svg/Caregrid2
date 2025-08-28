@@ -1,5 +1,5 @@
 // Import required functions
-import { buildUrl, withTimeout } from './api-base.js';
+import { buildUrl } from './api-base.js';
 
 // Initialize API service
 const apiService = new APIService();
@@ -2122,11 +2122,8 @@ async function loadClinicsFromAPI() {
             console.log('Attempting to connect to API at:', window.apiService.baseURL);
         }
         
-        // Request all clinics with timeout wrapper for graceful degradation
-        const response = await window.apiService.withTimeout(
-            window.apiService.getClinics({ limit: 200 }),
-            15000 // 15 second timeout for clinic loading
-        );
+        // Request all clinics with graceful degradation
+        const response = await window.apiService.getClinics({ limit: 200 });
         
         // Handle different response formats
         const clinics = response.data || response;
