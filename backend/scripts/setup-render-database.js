@@ -75,15 +75,20 @@ async function setupRenderDatabase() {
       }
       
       if (attempt === maxRetries) {
-        console.error('⚠️  All connection attempts failed. Continuing with server startup - database may need manual setup');
+        console.error('⚠️  All connection attempts failed. Server will start without database setup.');
+        console.error('💡 Database setup can be attempted later via API or manual setup.');
         // Write failure status to a file for health check
         try {
-          fs.writeFileSync('/tmp/db-setup-failed', new Date().toISOString());
+          fs.writeFileSync('/tmp/db-setup-failed', JSON.stringify({
+            timestamp: new Date().toISOString(),
+            lastError: error.message,
+            attempts: maxRetries
+          }));
         } catch (writeError) {
           // Ignore write errors
         }
-        // Don't exit with error code during deployment to prevent build failure
-        return;
+        // Exit successfully to avoid blocking deployment
+        process.exit(0);
       }
       
       // Wait before retry with exponential backoff

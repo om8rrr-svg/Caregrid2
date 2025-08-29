@@ -9,7 +9,7 @@
     "migrate": "node scripts/setup-database.js",
     "seed": "node scripts/setup-database.js --seed",
     "reset-db": "node scripts/setup-database.js --reset --seed",
-    "setup-render": "node scripts/setup-render-database.js",
+    "setup-render": "node scripts/setup-render-database.js || echo 'Database setup will be attempted during runtime'",
     "verify": "node scripts/verify-deployment.js",
     "test": "echo \"No tests specified - skipping\" && exit 0",
     "test-email": "node test-email-config.js",

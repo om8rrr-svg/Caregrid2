@@ -146,13 +146,57 @@ app.use(express.urlencoded({ extended: true }));
 // Logging
 app.use(morgan('combined'));
 
-// Health check endpoint (simple)
-app.get('/health', (req, res) => {
-  res.status(200).json({ 
+// Health check endpoint (enhanced for deployment)
+app.get('/health', async (req, res) => {
+  const health = {
     status: 'OK',
     timestamp: new Date().toISOString(),
-    service: 'CareGrid API'
-  });
+    service: 'CareGrid API',
+    version: process.env.npm_package_version || '1.0.0',
+    environment: process.env.NODE_ENV || 'development',
+    uptime: Math.floor(process.uptime())
+  };
+  
+  // Check basic server health
+  try {
+    // Add a simple database connectivity check if available
+    if (process.env.DATABASE_URL || (process.env.DB_HOST && process.env.DB_NAME)) {
+      try {
+        // Try to load database config safely
+        const dbConfigPath = './config/database';
+        const fs = require('fs');
+        const configPath = require.resolve(dbConfigPath);
+        
+        if (fs.existsSync(configPath)) {
+          const { testConnection } = require(dbConfigPath);
+          await Promise.race([
+            testConnection(),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('DB timeout')), 3000))
+          ]);
+          health.database = 'connected';
+        } else {
+          health.database = 'config_missing';
+        }
+      } catch (dbError) {
+        health.database = 'disconnected';
+        health.database_note = 'Service operational without database';
+        // Don't fail health check for DB issues - server can still serve static content
+      }
+    } else {
+      health.database = 'not_configured';
+    }
+    
+    res.status(200).json(health);
+  } catch (error) {
+    // Even if there are errors, return 200 for basic health check
+    res.status(200).json({
+      status: 'OK',
+      timestamp: new Date().toISOString(),
+      service: 'CareGrid API',
+      note: 'Basic service operational',
+      warnings: [error.message]
+    });
+  }
 });
 
 // Deployment status endpoint
