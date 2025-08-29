@@ -87,7 +87,7 @@
     }
     
     // Log configuration on load for debugging
-    if (typeof window !== 'undefined' && window.location.search.includes('debug')) {
+    if (typeof window !== 'undefined' && window.location && window.location.search && window.location.search.includes('debug')) {
         window.TestConfig.logConfig();
     }
     
