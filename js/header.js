@@ -1,12 +1,14 @@
+// /js/header.js
 function isAuthenticated() {
   return !!(localStorage.getItem('caregrid_token') || sessionStorage.getItem('caregrid_token'));
 }
 
 export function renderNavAuth() {
-  const navAccount = document.getElementById('navAccount');
-  if (!navAccount) return;
+  const container = document.getElementById('navAccount');
+  if (!container) return;
+
   if (isAuthenticated()) {
-    navAccount.innerHTML = `
+    container.innerHTML = `
       <a href="/dashboard.html">Dashboard</a>
       <a href="#" id="logoutLink">Logout</a>
     `;
@@ -17,7 +19,7 @@ export function renderNavAuth() {
       window.location.href = '/';
     });
   } else {
-    navAccount.innerHTML = `<a href="/auth.html">Sign in</a>`;
+    container.innerHTML = `<a href="/auth.html">Sign in</a>`;
   }
 }
 
