@@ -4,11 +4,12 @@
   "description": "CareGrid Backend API for healthcare appointment booking",
   "main": "server.js",
   "scripts": {
-    "start": "node scripts/setup-render-database.js && node server.js",
+    "start": "node server.js",
     "dev": "nodemon server.js",
     "migrate": "node scripts/setup-database.js",
     "seed": "node scripts/setup-database.js --seed",
     "reset-db": "node scripts/setup-database.js --reset --seed",
+    "setup-db": "node scripts/setup-render-database.js",
     "test": "echo \"No tests specified - skipping\" && exit 0",
     "test-email": "node test-email-config.js",
     "lint": "eslint . --ext .js",
