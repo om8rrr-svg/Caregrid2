@@ -97,6 +97,7 @@
         <div id="console-result" class="result"></div>
     </div>
 
+    <script src="js/test-config.js"></script>
     <script>
         // Store console errors
         window.consoleErrors = [];
@@ -111,7 +112,7 @@
             resultDiv.innerHTML = '<div class="info">Testing backend connectivity...</div>';
             
             try {
-                const response = await fetch('http://localhost:3000/health', {
+                const response = await fetch(TestConfig.buildHealthUrl(), {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json'
@@ -151,7 +152,7 @@
             resultDiv.innerHTML = '<div class="info">Testing Clinics API...</div>';
             
             try {
-                const response = await fetch('http://localhost:3000/api/clinics?limit=5', {
+                const response = await fetch(TestConfig.buildApiUrl('clinics?limit=5'), {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json'
@@ -174,7 +175,7 @@
             resultDiv.innerHTML = '<div class="info">Testing Auth API...</div>';
             
             try {
-                const response = await fetch('http://localhost:3000/api/auth/me', {
+                const response = await fetch(TestConfig.buildApiUrl('auth/me'), {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json'

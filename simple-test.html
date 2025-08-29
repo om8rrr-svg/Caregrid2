@@ -18,6 +18,7 @@
     
     <button onclick="runTests()">Run Tests</button>
     
+    <script src="js/test-config.js"></script>
     <script>
         function addResult(message, isError = false) {
             const div = document.createElement('div');
@@ -50,7 +51,7 @@
             try {
                 addResult('Testing simple fetch to backend...');
                 
-                const response = await fetch('http://localhost:3000/api/clinics?limit=1');
+                const response = await fetch(TestConfig.buildApiUrl('clinics?limit=1'));
                 addResult(`✓ Backend reachable: ${response.status}`);
                 
                 if (response.ok) {
@@ -69,7 +70,7 @@
             try {
                 addResult('Testing login endpoint...');
                 
-                const response = await fetch('http://localhost:3000/api/auth/login', {
+                const response = await fetch(TestConfig.buildApiUrl('auth/login'), {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

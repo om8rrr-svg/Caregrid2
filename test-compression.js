@@ -3,6 +3,7 @@
 /**
  * Test script to verify compression is working
  * Tests both frontend static files and backend API compression
+ * Environment-aware - uses environment variables to determine backend URL
  */
 
 const http = require('http');
@@ -11,26 +12,33 @@ const zlib = require('zlib');
 const fs = require('fs');
 const path = require('path');
 
+// Environment-aware configuration
+const BACKEND_URL = process.env.API_BASE || process.env.NEXT_PUBLIC_API_BASE || 'https://caregrid-backend.onrender.com';
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:8000';
+
+console.log(`Backend URL: ${BACKEND_URL}`);
+console.log(`Frontend URL: ${FRONTEND_URL}`);
+
 // Test URLs
 const tests = [
   {
-    name: 'Frontend CSS (Local)',
-    url: 'http://localhost:8000/css/style-performance.css',
+    name: 'Frontend CSS',
+    url: `${FRONTEND_URL}/css/style-performance.css`,
     expectedCompression: true
   },
   {
-    name: 'Frontend JavaScript (Local)',
-    url: 'http://localhost:8000/js/script.js',
+    name: 'Frontend JavaScript',
+    url: `${FRONTEND_URL}/js/script.js`,
     expectedCompression: true
   },
   {
-    name: 'Backend API Health (Local)',
-    url: 'http://localhost:3000/health',
+    name: 'Backend API Health',
+    url: `${BACKEND_URL}/health`,
     expectedCompression: true
   },
   {
-    name: 'Frontend HTML (Local)',
-    url: 'http://localhost:8000/index.html',
+    name: 'Frontend HTML',
+    url: `${FRONTEND_URL}/index.html`,
     expectedCompression: true
   }
 ];
@@ -205,8 +213,15 @@ async function runTests() {
 function checkServers() {
   log('🔍 Checking if servers are running...', 'blue');
   
+  // Parse frontend URL
+  const frontendUrl = new URL(FRONTEND_URL);
   const frontendCheck = new Promise((resolve) => {
-    const req = http.request({ hostname: 'localhost', port: 8000, path: '/', method: 'HEAD' }, (res) => {
+    const req = http.request({ 
+      hostname: frontendUrl.hostname, 
+      port: frontendUrl.port || (frontendUrl.protocol === 'https:' ? 443 : 80), 
+      path: '/', 
+      method: 'HEAD' 
+    }, (res) => {
       resolve(true);
     });
     req.on('error', () => resolve(false));
@@ -214,8 +229,16 @@ function checkServers() {
     req.end();
   });
   
+  // Parse backend URL
+  const backendUrl = new URL(BACKEND_URL);
+  const requestModule = backendUrl.protocol === 'https:' ? https : http;
   const backendCheck = new Promise((resolve) => {
-    const req = http.request({ hostname: 'localhost', port: 3000, path: '/health', method: 'HEAD' }, (res) => {
+    const req = requestModule.request({ 
+      hostname: backendUrl.hostname, 
+      port: backendUrl.port || (backendUrl.protocol === 'https:' ? 443 : 80), 
+      path: '/health', 
+      method: 'HEAD' 
+    }, (res) => {
       resolve(true);
     });
     req.on('error', () => resolve(false));
@@ -231,15 +254,21 @@ async function main() {
   const [frontendRunning, backendRunning] = await checkServers();
   
   if (!frontendRunning) {
-    log('⚠️  Frontend server (port 8000) is not running. Start with: python3 -m http.server 8000', 'yellow');
+    log(`⚠️  Frontend server (${FRONTEND_URL}) is not running.`, 'yellow');
+    if (FRONTEND_URL.includes('localhost')) {
+      log('   Start with: python3 -m http.server 8000', 'yellow');
+    }
   }
   
   if (!backendRunning) {
-    log('⚠️  Backend server (port 3000) is not running. Start with: npm start', 'yellow');
+    log(`⚠️  Backend server (${BACKEND_URL}) is not running.`, 'yellow');
+    if (BACKEND_URL.includes('localhost')) {
+      log('   Start with: npm start', 'yellow');
+    }
   }
   
   if (!frontendRunning && !backendRunning) {
-    log('❌ No servers are running. Please start the servers and try again.', 'red');
+    log('❌ No servers are running. Please check your configuration and try again.', 'red');
     process.exit(1);
   }
   

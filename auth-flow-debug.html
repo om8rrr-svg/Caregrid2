@@ -108,6 +108,7 @@
         <div class="log" id="log"></div>
     </div>
 
+    <script src="js/test-config.js"></script>
     <script>
         let currentToken = null;
         let currentUser = null;
@@ -141,7 +142,7 @@
             // Step 1: Health Check
             updateStep(1, 'active');
             try {
-                const healthResponse = await fetch('http://localhost:3000/health');
+                const healthResponse = await fetch(TestConfig.buildHealthUrl());
                 if (healthResponse.ok) {
                     const healthData = await healthResponse.json();
                     log(`Backend health: ${healthData.status}`, 'success');
@@ -161,7 +162,7 @@
             const password = document.getElementById('password').value;
             
             try {
-                const loginResponse = await fetch('http://localhost:3000/api/auth/login', {
+                const loginResponse = await fetch(TestConfig.buildApiUrl('auth/login'), {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -215,7 +216,7 @@
             // Step 4: Token Validation
             updateStep(4, 'active');
             try {
-                const authResponse = await fetch('http://localhost:3000/api/auth/me', {
+                const authResponse = await fetch(TestConfig.buildApiUrl('auth/me'), {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${currentToken}`,
@@ -258,7 +259,7 @@
             const password = document.getElementById('password').value;
             
             try {
-                const response = await fetch('http://localhost:3000/api/auth/login', {
+                const response = await fetch(TestConfig.buildApiUrl('auth/login'), {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -293,7 +294,7 @@
             }
             
             try {
-                const response = await fetch('http://localhost:3000/api/auth/me', {
+                const response = await fetch(TestConfig.buildApiUrl('auth/me'), {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`,

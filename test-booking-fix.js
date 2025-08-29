@@ -1,5 +1,23 @@
 // Test script to verify booking functionality
 
+// Environment-aware API configuration
+const API_BASE = process.env.API_BASE || process.env.NEXT_PUBLIC_API_BASE || 'https://caregrid-backend.onrender.com';
+
+// Helper function to build API URLs
+function buildApiUrl(endpoint) {
+    const cleanEndpoint = endpoint.replace(/^\//, '');
+    const apiBase = API_BASE.endsWith('/') ? API_BASE : API_BASE + '/';
+    
+    if (!cleanEndpoint.startsWith('api/')) {
+        return apiBase + 'api/' + cleanEndpoint;
+    }
+    
+    return apiBase + cleanEndpoint;
+}
+
+console.log(`Using API Base: ${API_BASE}`);
+console.log(`Test API URL: ${buildApiUrl('appointments')}`);
+
 // Test with different time slots to avoid conflicts
 const testBookingData = {
     clinicId: 1, // Numeric frontend ID
@@ -42,7 +60,7 @@ async function testBooking(data, testName) {
         console.log(`\n=== ${testName} ===`);
         console.log('Testing booking with data:', data);
         
-        const response = await fetch('http://localhost:3000/api/appointments', {
+        const response = await fetch(buildApiUrl('appointments'), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
