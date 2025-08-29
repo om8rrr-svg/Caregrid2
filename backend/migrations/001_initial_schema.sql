@@ -1,12 +1,42 @@
 -- CareGrid Database Schema
 -- Initial migration to create core tables
 
--- Enable UUID extension
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+-- Enable UUID extension with fallback
+DO $$
+BEGIN
+    -- Try to create uuid-ossp extension first
+    CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+EXCEPTION WHEN OTHERS THEN
+    -- If uuid-ossp is not available, ensure pgcrypto is available for gen_random_uuid
+    BEGIN
+        CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+    EXCEPTION WHEN OTHERS THEN
+        -- Log that neither extension is available - will need to use alternative approach
+        RAISE NOTICE 'Neither uuid-ossp nor pgcrypto extensions are available. Using built-in UUID functions.';
+    END;
+END$$;
+
+-- Create a function to generate UUIDs with fallback
+CREATE OR REPLACE FUNCTION generate_uuid() RETURNS UUID AS $$
+BEGIN
+    -- Try uuid_generate_v4() first (from uuid-ossp)
+    BEGIN
+        RETURN uuid_generate_v4();
+    EXCEPTION WHEN OTHERS THEN
+        -- Fallback to gen_random_uuid() (from pgcrypto or PostgreSQL 13+)
+        BEGIN
+            RETURN gen_random_uuid();
+        EXCEPTION WHEN OTHERS THEN
+            -- Last resort: use a simple UUID generation (not cryptographically secure)
+            RETURN (SELECT CAST(md5(random()::text || clock_timestamp()::text) AS UUID));
+        END;
+    END;
+END;
+$$ LANGUAGE plpgsql;
 
 -- Users table
 CREATE TABLE users (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT generate_uuid(),
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
@@ -23,7 +53,7 @@ CREATE TABLE users (
 
 -- Clinics table
 CREATE TABLE clinics (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT generate_uuid(),
     name VARCHAR(255) NOT NULL,
     type VARCHAR(100) NOT NULL, -- 'GP', 'Dentist', 'Physiotherapy', etc.
     description TEXT,
@@ -45,7 +75,7 @@ CREATE TABLE clinics (
 
 -- Clinic services table
 CREATE TABLE clinic_services (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT generate_uuid(),
     clinic_id UUID REFERENCES clinics(id) ON DELETE CASCADE,
     service_name VARCHAR(255) NOT NULL,
     description TEXT,
@@ -57,7 +87,7 @@ CREATE TABLE clinic_services (
 
 -- Appointments table
 CREATE TABLE appointments (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT generate_uuid(),
     reference_number VARCHAR(20) UNIQUE NOT NULL,
     user_id UUID REFERENCES users(id) ON DELETE CASCADE,
     clinic_id UUID REFERENCES clinics(id) ON DELETE CASCADE,
@@ -77,7 +107,7 @@ CREATE TABLE appointments (
 
 -- User favorites table
 CREATE TABLE user_favorites (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT generate_uuid(),
     user_id UUID REFERENCES users(id) ON DELETE CASCADE,
     clinic_id UUID REFERENCES clinics(id) ON DELETE CASCADE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -86,7 +116,7 @@ CREATE TABLE user_favorites (
 
 -- Clinic reviews table
 CREATE TABLE clinic_reviews (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT generate_uuid(),
     clinic_id UUID REFERENCES clinics(id) ON DELETE CASCADE,
     user_id UUID REFERENCES users(id) ON DELETE CASCADE,
     appointment_id UUID REFERENCES appointments(id) ON DELETE SET NULL,

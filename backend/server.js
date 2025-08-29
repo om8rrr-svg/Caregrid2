@@ -6,6 +6,54 @@ const compression = require('compression');
 const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
+// Environment validation for critical variables
+function validateEnvironment() {
+  const warnings = [];
+  const errors = [];
+  
+  // Critical environment variables
+  if (!process.env.JWT_SECRET) {
+    if (process.env.NODE_ENV === 'production') {
+      errors.push('JWT_SECRET is required in production');
+    } else {
+      warnings.push('JWT_SECRET not set - using fallback (not secure for production)');
+      process.env.JWT_SECRET = 'fallback-jwt-secret-for-development-only';
+    }
+  }
+  
+  // Database configuration
+  const hasDatabaseUrl = !!process.env.DATABASE_URL;
+  const hasDbVars = process.env.DB_HOST && process.env.DB_NAME && process.env.DB_USER;
+  
+  if (!hasDatabaseUrl && !hasDbVars) {
+    if (process.env.NODE_ENV === 'production') {
+      errors.push('Database configuration missing: need DATABASE_URL or DB_* variables');
+    } else {
+      warnings.push('Database not configured - some features may not work');
+    }
+  }
+  
+  // Log warnings and errors
+  if (warnings.length > 0) {
+    console.warn('⚠️  Environment warnings:');
+    warnings.forEach(warning => console.warn(`   • ${warning}`));
+  }
+  
+  if (errors.length > 0) {
+    console.error('❌ Environment errors:');
+    errors.forEach(error => console.error(`   • ${error}`));
+    console.error('🛑 Server cannot start with these configuration errors');
+    process.exit(1);
+  }
+  
+  if (warnings.length === 0 && errors.length === 0) {
+    console.log('✅ Environment configuration validated');
+  }
+}
+
+// Validate environment before starting
+validateEnvironment();
+
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const clinicRoutes = require('./routes/clinics');
@@ -98,13 +146,66 @@ app.use(express.urlencoded({ extended: true }));
 // Logging
 app.use(morgan('combined'));
 
-// Health check endpoint
+// Health check endpoint (simple)
 app.get('/health', (req, res) => {
   res.status(200).json({ 
     status: 'OK',
     timestamp: new Date().toISOString(),
     service: 'CareGrid API'
   });
+});
+
+// Deployment status endpoint
+app.get('/deployment-status', async (req, res) => {
+  const fs = require('fs');
+  let dbSetupStatus = 'unknown';
+  let lastSetupAttempt = null;
+  
+  try {
+    if (fs.existsSync('/tmp/db-setup-failed')) {
+      dbSetupStatus = 'failed';
+      const stats = fs.statSync('/tmp/db-setup-failed');
+      lastSetupAttempt = stats.mtime;
+    } else {
+      dbSetupStatus = 'ok';
+    }
+  } catch (error) {
+    // Ignore file system errors
+  }
+  
+  // Try to test database connection
+  let dbConnection = 'unknown';
+  try {
+    const { testConnection } = require('./config/database');
+    await testConnection();
+    dbConnection = 'connected';
+  } catch (error) {
+    dbConnection = 'failed';
+  }
+  
+  const status = {
+    timestamp: new Date().toISOString(),
+    service: 'CareGrid API',
+    version: require('./package.json').version,
+    environment: process.env.NODE_ENV || 'development',
+    port: PORT,
+    database: {
+      setup_status: dbSetupStatus,
+      connection_status: dbConnection,
+      last_setup_attempt: lastSetupAttempt
+    },
+    environment_check: {
+      has_jwt_secret: !!process.env.JWT_SECRET,
+      has_database_config: !!(process.env.DATABASE_URL || (process.env.DB_HOST && process.env.DB_NAME)),
+      has_cors_config: !!process.env.CORS_ORIGIN,
+      has_email_config: !!(process.env.EMAIL_SERVICE && process.env.EMAIL_USER)
+    }
+  };
+  
+  const overallHealthy = dbConnection === 'connected' && 
+                        (dbSetupStatus === 'ok' || dbSetupStatus === 'unknown');
+  
+  res.status(overallHealthy ? 200 : 503).json(status);
 });
 
 // Database health check endpoint

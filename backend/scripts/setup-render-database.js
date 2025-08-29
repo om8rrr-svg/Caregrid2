@@ -28,36 +28,68 @@ async function setupRenderDatabase() {
     console.log('🔗 Using individual DB environment variables');
   }
   
-  const client = new Client(config);
+  // Add connection retry logic with exponential backoff
+  const maxRetries = 5;
+  let client = null;
   
-  try {
-    console.log('🔌 Connecting to PostgreSQL...');
-    await client.connect();
-    console.log('✅ Connected successfully!');
-    
-    // Test the connection
-    const result = await client.query('SELECT version()');
-    console.log(`📊 PostgreSQL version: ${result.rows[0].version.split(' ')[0]} ${result.rows[0].version.split(' ')[1]}`);
-    
-    // Run migrations
-    await runMigrations(client);
-    
-    console.log('\n✅ Database setup completed successfully!');
-    console.log('\n🎯 Next steps:');
-    console.log('   1. Test the API: python3 test_api_mode.py');
-    console.log('   2. Run clinic import: python3 caregrid_listings_manager.py input/test_clinics.csv');
-    
-  } catch (error) {
-    console.error('❌ Database setup failed:', error.message);
-    if (error.code) {
-      console.error(`   Error code: ${error.code}`);
-    }
-    console.error('⚠️  Continuing with server startup - database may need manual setup');
-    // Don't exit with error code during deployment to prevent build failure
-    // process.exit(1);
-  } finally {
-    if (client._connected) {
-      await client.end();
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      console.log(`🔌 Connecting to PostgreSQL... (attempt ${attempt}/${maxRetries})`);
+      client = new Client(config);
+      
+      // Set connection timeout
+      const connectPromise = client.connect();
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Connection timeout')), 10000)
+      );
+      
+      await Promise.race([connectPromise, timeoutPromise]);
+      console.log('✅ Connected successfully!');
+      
+      // Test the connection
+      const result = await client.query('SELECT version()');
+      console.log(`📊 PostgreSQL version: ${result.rows[0].version.split(' ')[0]} ${result.rows[0].version.split(' ')[1]}`);
+      
+      // Run migrations
+      await runMigrations(client);
+      
+      console.log('\n✅ Database setup completed successfully!');
+      console.log('\n🎯 Next steps:');
+      console.log('   1. Test the API: python3 test_api_mode.py');
+      console.log('   2. Run clinic import: python3 caregrid_listings_manager.py input/test_clinics.csv');
+      
+      return; // Success, exit the retry loop
+      
+    } catch (error) {
+      console.error(`❌ Database setup attempt ${attempt} failed:`, error.message);
+      if (error.code) {
+        console.error(`   Error code: ${error.code}`);
+      }
+      
+      if (client && client._connected) {
+        try {
+          await client.end();
+        } catch (endError) {
+          // Ignore connection end errors
+        }
+      }
+      
+      if (attempt === maxRetries) {
+        console.error('⚠️  All connection attempts failed. Continuing with server startup - database may need manual setup');
+        // Write failure status to a file for health check
+        try {
+          fs.writeFileSync('/tmp/db-setup-failed', new Date().toISOString());
+        } catch (writeError) {
+          // Ignore write errors
+        }
+        // Don't exit with error code during deployment to prevent build failure
+        return;
+      }
+      
+      // Wait before retry with exponential backoff
+      const waitTime = Math.min(1000 * Math.pow(2, attempt - 1), 10000);
+      console.log(`⏳ Waiting ${waitTime}ms before retry...`);
+      await new Promise(resolve => setTimeout(resolve, waitTime));
     }
   }
 }
@@ -106,12 +138,45 @@ async function runMigrations(client) {
     console.log(`🔄 Applying migration: ${file}`);
     
     const migrationPath = path.join(migrationsDir, file);
-    const migrationSQL = fs.readFileSync(migrationPath, 'utf8');
+    let migrationSQL = fs.readFileSync(migrationPath, 'utf8');
+    
+    // Handle UUID extension compatibility for different PostgreSQL versions
+    if (migrationSQL.includes('uuid_generate_v4()')) {
+      migrationSQL = migrationSQL.replace(
+        'CREATE EXTENSION IF NOT EXISTS "uuid-ossp";',
+        `-- Try to create uuid-ossp extension, fallback to gen_random_uuid if not available
+DO $$
+BEGIN
+    CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+EXCEPTION WHEN OTHERS THEN
+    -- Extension not available, will use gen_random_uuid() instead
+    NULL;
+END$$;`
+      );
+      
+      // Replace uuid_generate_v4() with a more compatible function
+      migrationSQL = migrationSQL.replace(
+        /uuid_generate_v4\(\)/g,
+        'COALESCE(uuid_generate_v4(), gen_random_uuid())'
+      );
+    }
     
     try {
       // Execute migration in a transaction
       await client.query('BEGIN');
-      await client.query(migrationSQL);
+      
+      // Split migration into individual statements for better error handling
+      const statements = migrationSQL
+        .split(';')
+        .map(stmt => stmt.trim())
+        .filter(stmt => stmt.length > 0 && !stmt.startsWith('--'));
+      
+      for (const statement of statements) {
+        if (statement.trim()) {
+          await client.query(statement);
+        }
+      }
+      
       await client.query(
         'INSERT INTO schema_migrations (version) VALUES ($1)',
         [version]
@@ -122,6 +187,12 @@ async function runMigrations(client) {
     } catch (error) {
       await client.query('ROLLBACK');
       console.error(`❌ Failed to apply migration ${file}:`, error.message);
+      
+      // For initial schema migration, try to provide more helpful error info
+      if (file.includes('initial') && error.message.includes('uuid')) {
+        console.error('💡 Tip: This may be a UUID extension issue. The migration has been updated to handle this.');
+      }
+      
       throw error;
     }
   }
