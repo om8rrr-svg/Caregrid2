@@ -549,61 +549,97 @@
             <h2 class="section-title">Frequently Asked Questions</h2>
             
             <div class="faq-item">
-                <div class="faq-question" onclick="toggleFaq(this)">
+                <div class="faq-question" 
+                     onclick="toggleFaq(this)" 
+                     onkeydown="handleFaqKeydown(event)"
+                     tabindex="0" 
+                     role="button" 
+                     aria-expanded="false"
+                     aria-controls="faq-answer-1">
                     <span>How do I find a healthcare provider near me?</span>
-                    <span class="faq-icon">+</span>
+                    <span class="faq-icon" aria-hidden="true">+</span>
                 </div>
-                <div class="faq-answer">
+                <div class="faq-answer" id="faq-answer-1" role="region" aria-labelledby="faq-question-1">
                     <p>Use our search bar on the homepage to enter your location or browse by city. You can filter results by specialty (GP, Dentist, Physiotherapy, Aesthetic) to find exactly what you need.</p>
                 </div>
             </div>
             
             <div class="faq-item">
-                <div class="faq-question" onclick="toggleFaq(this)">
+                <div class="faq-question" 
+                     onclick="toggleFaq(this)" 
+                     onkeydown="handleFaqKeydown(event)"
+                     tabindex="0" 
+                     role="button" 
+                     aria-expanded="false"
+                     aria-controls="faq-answer-2">
                     <span>How do I list my clinic on CareGrid?</span>
-                    <span class="faq-icon">+</span>
+                    <span class="faq-icon" aria-hidden="true">+</span>
                 </div>
-                <div class="faq-answer">
+                <div class="faq-answer" id="faq-answer-2" role="region" aria-labelledby="faq-question-2">
                     <p>Click "List Your Clinic" in the navigation menu and fill out our simple onboarding form. We offer both free and premium listing options to suit your practice needs.</p>
                 </div>
             </div>
             
             <div class="faq-item">
-                <div class="faq-question" onclick="toggleFaq(this)">
+                <div class="faq-question" 
+                     onclick="toggleFaq(this)" 
+                     onkeydown="handleFaqKeydown(event)"
+                     tabindex="0" 
+                     role="button" 
+                     aria-expanded="false"
+                     aria-controls="faq-answer-3">
                     <span>What's the difference between free and premium listings?</span>
-                    <span class="faq-icon">+</span>
+                    <span class="faq-icon" aria-hidden="true">+</span>
                 </div>
-                <div class="faq-answer">
+                <div class="faq-answer" id="faq-answer-3" role="region" aria-labelledby="faq-question-3">
                     <p>Free listings include basic contact information and location. Premium listings (£29/month) offer priority placement, photo galleries, review management, and enhanced visibility in search results.</p>
                 </div>
             </div>
             
             <div class="faq-item">
-                <div class="faq-question" onclick="toggleFaq(this)">
+                <div class="faq-question" 
+                     onclick="toggleFaq(this)" 
+                     onkeydown="handleFaqKeydown(event)"
+                     tabindex="0" 
+                     role="button" 
+                     aria-expanded="false"
+                     aria-controls="faq-answer-4">
                     <span>How are reviews managed on the platform?</span>
-                    <span class="faq-icon">+</span>
+                    <span class="faq-icon" aria-hidden="true">+</span>
                 </div>
-                <div class="faq-answer">
+                <div class="faq-answer" id="faq-answer-4" role="region" aria-labelledby="faq-question-4">
                     <p>We integrate with Google Reviews to display authentic patient feedback. Premium clinic members can respond to reviews and have additional tools to manage their online reputation.</p>
                 </div>
             </div>
             
             <div class="faq-item">
-                <div class="faq-question" onclick="toggleFaq(this)">
+                <div class="faq-question" 
+                     onclick="toggleFaq(this)" 
+                     onkeydown="handleFaqKeydown(event)"
+                     tabindex="0" 
+                     role="button" 
+                     aria-expanded="false"
+                     aria-controls="faq-answer-5">
                     <span>Is CareGrid available in my area?</span>
-                    <span class="faq-icon">+</span>
+                    <span class="faq-icon" aria-hidden="true">+</span>
                 </div>
-                <div class="faq-answer">
+                <div class="faq-answer" id="faq-answer-5" role="region" aria-labelledby="faq-question-5">
                     <p>We currently focus on Manchester, Bolton, Liverpool, and Leeds, with plans to expand to more UK cities. If your area isn't listed, contact us to express interest in expansion.</p>
                 </div>
             </div>
             
             <div class="faq-item">
-                <div class="faq-question" onclick="toggleFaq(this)">
+                <div class="faq-question" 
+                     onclick="toggleFaq(this)" 
+                     onkeydown="handleFaqKeydown(event)"
+                     tabindex="0" 
+                     role="button" 
+                     aria-expanded="false"
+                     aria-controls="faq-answer-6">
                     <span>How do I book an appointment through CareGrid?</span>
-                    <span class="faq-icon">+</span>
+                    <span class="faq-icon" aria-hidden="true">+</span>
                 </div>
-                <div class="faq-answer">
+                <div class="faq-answer" id="faq-answer-6" role="region" aria-labelledby="faq-question-6">
                     <p>CareGrid is a directory service. Once you find a suitable healthcare provider, you'll be directed to their website or provided with their contact information to book directly with them.</p>
                 </div>
             </div>
@@ -616,7 +652,7 @@
             <div class="footer-content">
                 <div class="footer-section">
                     <div class="footer-logo">
-                        <img src="images/logo.svg" alt="CareGrid Logo" class="logo">
+                        <img src="images/logo.svg" alt="CareGrid Logo" class="logo" loading="lazy">
                         <span class="logo-text">CareGrid</span>
                     </div>
                     <p>Connecting patients with trusted private healthcare providers across the UK.</p>
@@ -738,25 +774,40 @@
             }
         }
         
-        // FAQ toggle functionality
+        // FAQ toggle functionality with accessibility support
         function toggleFaq(element) {
             const answer = element.nextElementSibling;
             const isActive = element.classList.contains('active');
+            const icon = element.querySelector('.faq-icon');
             
             // Close all other FAQs
             document.querySelectorAll('.faq-question').forEach(q => {
                 q.classList.remove('active');
                 q.nextElementSibling.classList.remove('active');
+                q.setAttribute('aria-expanded', 'false');
+                const qIcon = q.querySelector('.faq-icon');
+                if (qIcon) qIcon.textContent = '+';
             });
             
             // Toggle current FAQ
             if (!isActive) {
                 element.classList.add('active');
                 answer.classList.add('active');
+                element.setAttribute('aria-expanded', 'true');
+                if (icon) icon.textContent = '−';
+            }
+        }
+        
+        // Handle keyboard navigation for FAQ
+        function handleFaqKeydown(event) {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                toggleFaq(event.target);
             }
         }
     </script>
-    <script type="module" src="js/auth.js"></script>    <!-- Lazy Loading Script -->
+    <script type="module" src="js/auth.js"></script>
+    <!-- Lazy Loading Script -->
     <script src="js/lazy-loader.js"></script>
-$1</body>
+</body>
 </html>

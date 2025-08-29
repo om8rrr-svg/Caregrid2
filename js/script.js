@@ -2761,7 +2761,11 @@ function createClinicCard(clinic) {
     
     card.innerHTML = `
         <div class="clinic-image-container">
-            <img src="${clinic.logoUrl || clinic.image}" alt="${clinic.name}" class="clinic-image" loading="lazy">
+            <img src="${clinic.logoUrl || clinic.image}" 
+                 alt="${clinic.name} - ${formatType(clinic.type)} clinic" 
+                 class="clinic-image" 
+                 loading="lazy"
+                 onerror="this.src='images/clinic1.svg'">
             <div class="image-overlay">
                 <div class="type-badge">
                     <i class="${typeIcon}"></i>

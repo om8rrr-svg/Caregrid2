@@ -89,11 +89,20 @@
                 const clinicCard = document.createElement('div');
                 clinicCard.className = 'clinic-card';
                 
-                // Create image element
+                // Create image element with lazy loading
                 const img = document.createElement('img');
                 img.className = 'clinic-image';
                 img.alt = clinic.name;
-                img.src = clinic.image;
+                img.loading = 'lazy';
+                img.dataset.src = clinic.image;
+                img.dataset.fallback = 'images/clinic1.svg';
+                
+                // Use intersection observer for lazy loading if available
+                if (window.imageLazyLoader) {
+                    window.imageLazyLoader.observeNewImage(img);
+                } else {
+                    img.src = clinic.image;
+                }
                 
                 // Check if image loads successfully
                 img.onload = function() {
