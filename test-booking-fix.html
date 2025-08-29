@@ -8,6 +8,7 @@
     <button onclick="testBooking()">Test Booking Submission</button>
     <div id="result"></div>
 
+    <script src="js/test-config.js"></script>
     <script>
         async function testBooking() {
             const resultDiv = document.getElementById('result');
@@ -27,7 +28,7 @@
                 
                 console.log('Sending booking data:', appointmentData);
                 
-                const response = await fetch('http://localhost:3001/api/appointments', {
+                const response = await fetch(TestConfig.buildApiUrl('appointments'), {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

@@ -22,6 +22,7 @@
     
     <div id="result"></div>
     
+    <script src="js/test-config.js"></script>
     <script>
         document.getElementById('testForm').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -33,7 +34,7 @@
             resultDiv.innerHTML = 'Attempting login...';
             
             try {
-                const response = await fetch('http://localhost:3001/api/auth/login', {
+                const response = await fetch(TestConfig.buildApiUrl('auth/login'), {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

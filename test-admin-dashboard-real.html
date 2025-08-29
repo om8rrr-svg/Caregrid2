@@ -82,6 +82,7 @@
     <!-- <script src="/admin-api-service.js"></script>
     <script src="/admin-script.js"></script> -->
     
+    <script src="js/test-config.js"></script>
     <script>
         // Test version of admin dashboard with simplified authentication
         class TestAdminDashboard {
@@ -96,7 +97,7 @@
                     container.innerHTML = '<div class="loading">Loading bookings from backend...</div>';
                     
                     // Use test mode to bypass authentication
-                    const response = await fetch('http://localhost:3001/api/appointments/admin/appointments?test=true');
+                    const response = await fetch(TestConfig.buildApiUrl('appointments/admin/appointments?test=true'));
                     
                     if (!response.ok) {
                         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
