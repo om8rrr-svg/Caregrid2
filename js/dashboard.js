@@ -1,53 +1,85 @@
-// Dashboard JavaScript
+import { fetchJson } from './api-base.js';
 
-class Dashboard {
-    constructor() {
-        console.log('DEBUG: Dashboard constructor started');
-        this.currentUser = null;
-        this.authSystem = window.authSystem;
-        this.apiService = window.apiService;
-        this.currentSection = 'overview';
-        
-        // Initialize appointments as empty array first
-        this.appointments = [];
-        
-        // Initialize dashboard
-        this.init();
-    }
-    
-    async init() {
-        // Check authentication and load user data
-        await this.checkAuthentication();
-        
-        // Load appointments from API
-        await this.loadAppointments();
-        
-        // Initialize UI
-        this.initializeUI();
-    }
-    
-    async checkAuthentication() {
-        const token = this.apiService?.getStoredToken();
-        if (!token) {
-            // Not logged in: go to login
-            window.location.replace('auth.html');
-            return;
-        }
+function token() {
+  return localStorage.getItem('caregrid_token') || sessionStorage.getItem('caregrid_token');
+}
 
-        // Try cached user immediately (no flash)
-        const cached = localStorage.getItem('careGridCurrentUser') || sessionStorage.getItem('careGridCurrentUser');
-        if (cached) {
-            try {
-                this.currentUser = JSON.parse(cached);
-                this.updateWelcomeMessage(); // show UI immediately
-            } catch (e) {
-                console.warn('Failed to parse cached user data:', e);
-            }
-        }
+async function guard() {
+  const t = token();
+  if (!t) {
+    window.location.href = '/auth.html';
+    return Promise.reject(new Error('no_token'));
+  }
+  try {
+    await fetchJson('/api/auth/me', { headers: { Authorization: `Bearer ${t}` } });
+    return t;
+  } catch {
+    localStorage.removeItem('caregrid_token');
+    sessionStorage.removeItem('caregrid_token');
+    window.location.href = '/auth.html';
+    return Promise.reject(new Error('invalid_token'));
+  }
+}
 
-        // Then fetch fresh user; only log out on definite 401
-        try {
-            const me = await this.apiService.me(); // GET /auth/me
+// Skeletons
+function showSkeletons() {
+  const stats = document.getElementById('statsRow');
+  if (stats) stats.innerHTML = `
+    <div class="skeleton stat"></div>
+    <div class="skeleton stat"></div>
+    <div class="skeleton stat"></div>
+    <div class="skeleton stat"></div>
+  `;
+}
+
+function renderStats(stats) {
+  const statsRow = document.getElementById('statsRow');
+  if (statsRow) {
+    statsRow.innerHTML = `
+      <div class="stat-card">
+        <h3>Total Bookings</h3>
+        <p class="stat-number">${stats.totalBookings || 0}</p>
+      </div>
+      <div class="stat-card">
+        <h3>Pending Bookings</h3>
+        <p class="stat-number">${stats.pendingBookings || 0}</p>
+      </div>
+      <div class="stat-card">
+        <h3>Total Patients</h3>
+        <p class="stat-number">${stats.totalPatients || 0}</p>
+      </div>
+      <div class="stat-card">
+        <h3>Revenue</h3>
+        <p class="stat-number">£${stats.revenue || 0}</p>
+      </div>
+    `;
+  }
+}
+
+function toast(message) {
+  // Simple toast implementation
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = message;
+  toast.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #333; color: white; padding: 12px 16px; border-radius: 4px; z-index: 10000;';
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+
+async function initDashboard() {
+  showSkeletons();
+  const t = await guard(); // redirects if invalid
+
+  try {
+    const stats = await fetchJson('/api/admin/stats', { headers: { Authorization: `Bearer ${t}` } });
+    renderStats(stats);
+  } catch (e) {
+    renderStats({ totalBookings: 0, pendingBookings: 0, totalPatients: 0, revenue: 0 });
+    toast('Could not load stats. Try again later.');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', initDashboard);
             const user = me.data || me;
             localStorage.setItem('careGridCurrentUser', JSON.stringify(user));
             this.currentUser = user;
