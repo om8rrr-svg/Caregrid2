@@ -18,6 +18,9 @@ const { authenticateToken } = require('./middleware/auth');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Track database setup status for health checks
+let databaseSetupStatus = 'pending';
+
 // Compression middleware - enable gzip compression
 app.use(compression({
   level: 6, // Compression level (1-9, 6 is optimal)
@@ -103,7 +106,24 @@ app.get('/health', (req, res) => {
   res.status(200).json({ 
     status: 'OK',
     timestamp: new Date().toISOString(),
-    service: 'CareGrid API'
+    service: 'CareGrid API',
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
+// Deployment status endpoint (includes database setup status)
+app.get('/health/deployment', (req, res) => {
+  res.status(200).json({
+    status: 'OK',
+    service: 'CareGrid API',
+    environment: process.env.NODE_ENV || 'development',
+    database_setup: databaseSetupStatus,
+    timestamp: new Date().toISOString(),
+    deployment_info: {
+      node_version: process.version,
+      uptime: process.uptime(),
+      memory_usage: process.memoryUsage()
+    }
   });
 });
 
@@ -153,21 +173,42 @@ app.use('*', (req, res) => {
 app.use(errorHandler);
 
 // Start server
-app.listen(PORT, () => {
+const server = app.listen(PORT, async () => {
   console.log(`🚀 CareGrid API server running on port ${PORT}`);
   console.log(`📊 Health check: http://localhost:${PORT}/health`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+  
+  // Run database setup asynchronously after server starts (for Render deployment)
+  if (process.env.NODE_ENV === 'production') {
+    console.log('🔄 Running database setup asynchronously...');
+    const { setupRenderDatabase } = require('./scripts/setup-render-database');
+    try {
+      await setupRenderDatabase();
+      databaseSetupStatus = 'completed';
+    } catch (error) {
+      console.error('⚠️ Database setup failed, but server is running:', error.message);
+      databaseSetupStatus = 'failed';
+    }
+  } else {
+    databaseSetupStatus = 'skipped'; // Not needed for development
+  }
 });
 
 // Graceful shutdown
 process.on('SIGTERM', () => {
   console.log('SIGTERM received, shutting down gracefully');
-  process.exit(0);
+  server.close(() => {
+    console.log('Server closed');
+    process.exit(0);
+  });
 });
 
 process.on('SIGINT', () => {
   console.log('SIGINT received, shutting down gracefully');
-  process.exit(0);
+  server.close(() => {
+    console.log('Server closed');
+    process.exit(0);
+  });
 });
 
 module.exports = app;

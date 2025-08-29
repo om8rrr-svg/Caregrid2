@@ -2,6 +2,16 @@
 
 This guide will help you deploy your CareGrid backend to Render's free tier with PostgreSQL database.
 
+## ✨ Recent Improvements (Deployment Reliability)
+
+**🔧 Enhanced Deployment Stability**: The deployment process has been optimized to prevent common failures:
+- **Server starts immediately** without waiting for database setup
+- **Asynchronous database setup** with automatic retries (5 attempts with 3-second delays)
+- **Improved health checks** with deployment status monitoring
+- **Fallback mode** ensures service remains operational even if database setup encounters issues
+
+This means deployments should succeed consistently, even during database service startup delays.
+
 ## 📋 Prerequisites
 
 - GitHub repository with your CareGrid code (✅ Already done!)
@@ -116,20 +126,27 @@ python3 caregrid_listings_manager.py input/clinics_sample.csv
 
 ### Common Issues:
 
-1. **Database Connection Failed**:
-   - Check environment variables are set correctly
-   - Ensure database is running and accessible
-   - Verify SSL settings in production
+1. **Deployment Failures (FIXED)**:
+   - ✅ **Previous issue**: Server failed to start due to database setup timing
+   - ✅ **Solution**: Database setup now runs asynchronously with retry logic
+   - ✅ **Result**: Deployments should succeed consistently, even during database startup delays
 
-2. **Build Failed**:
+2. **Database Connection Failed**:
+   - Check environment variables are set correctly in Render dashboard
+   - Ensure database service is running and accessible
+   - Verify SSL settings in production (automatic with DATABASE_URL)
+   - **Note**: Service continues operating with fallback mode if database setup fails
+
+3. **Build Failed**:
    - Check build logs in Render dashboard
-   - Ensure `package.json` is in the correct location
-   - Verify Node.js version compatibility
+   - Ensure `package.json` is in the correct location (`backend/package.json`)
+   - Verify Node.js version compatibility (using Node.js 20.x)
 
-3. **Service Won't Start**:
-   - Check start command: `cd backend && npm start`
-   - Verify PORT environment variable is set
-   - Review application logs
+4. **Service Won't Start**:
+   - ✅ **Fixed**: Start command simplified to `cd backend && npm start`
+   - Verify PORT environment variable is set (automatic from Render)
+   - Review application logs in Render dashboard
+   - Check health endpoint: `/health` should return 200 OK immediately
 
 ### Useful Commands:
 
@@ -137,12 +154,41 @@ python3 caregrid_listings_manager.py input/clinics_sample.csv
 # Check service status
 curl https://your-backend-url.onrender.com/health
 
+# Check deployment status (includes database setup status)
+curl https://your-backend-url.onrender.com/health/deployment
+
+# Check database connection specifically
+curl https://your-backend-url.onrender.com/health/db
+
 # View logs in Render dashboard
 # Go to your service → Logs tab
 
 # Test database connection locally
 node -e "const { testConnection } = require('./backend/config/database'); testConnection();"
 ```
+
+### 🩺 Deployment Monitoring
+
+The service provides enhanced monitoring endpoints:
+
+- **`/health`**: Basic service health (always returns 200 OK when server is running)
+- **`/health/deployment`**: Detailed deployment status including:
+  - Database setup status (`pending`, `completed`, `failed`, `skipped`)
+  - Environment information
+  - Server uptime and memory usage
+- **`/health/db`**: Database connectivity test (may return 503 if database issues)
+
+**During deployment**, you can monitor the database setup progress:
+```bash
+# Check if database setup is complete
+curl -s https://your-backend-url.onrender.com/health/deployment | jq '.database_setup'
+```
+
+Possible database setup statuses:
+- `pending`: Database setup is in progress
+- `completed`: Database setup succeeded  
+- `failed`: Database setup failed (service continues with fallback mode)
+- `skipped`: Database setup not needed (development mode)
 
 ## 📊 Free Tier Limitations
 
