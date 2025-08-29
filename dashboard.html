@@ -24,6 +24,16 @@
         gtag('js', new Date());
         gtag('config', 'GA_MEASUREMENT_ID');
     </script>
+    
+    <!-- Dashboard Skeleton and Toast Styles -->
+    <style>
+    .skeleton.stat{height:100px;background:linear-gradient(90deg,#eee,#f6f6f6,#eee);margin:8px;border-radius:8px;animation:p 1.2s infinite}
+    @keyframes p{0%{background-position:-200px 0}100%{background-position:200px 0}}
+    .stat-box{background:#fff;border:1px solid #eee;border-radius:10px;padding:16px;margin:8px}
+    .stat-num{font-size:28px;font-weight:700}
+    .stat-label{color:#666}
+    .toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:10px 14px;border-radius:8px;z-index:10000}
+    </style>
 </head>
 <body>
     <!-- Navigation -->
