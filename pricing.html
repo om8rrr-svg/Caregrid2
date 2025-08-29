@@ -439,12 +439,12 @@
                     <a href="list-clinic.html" class="plan-button secondary">Get Started Free</a>
                 </div>
 
-                <!-- Premium Plan -->
+                <!-- Basic Plan -->
                 <div class="pricing-card featured">
-                    <h3 class="plan-name">Premium Listing</h3>
-                    <p class="plan-description">Everything you need to stand out and attract more patients</p>
+                    <h3 class="plan-name">Basic Listing</h3>
+                    <p class="plan-description">Enhanced features for growing practices</p>
                     <div class="plan-price">
-                        <span class="currency">£</span>29
+                        <span class="currency">£</span>19
                     </div>
                     <p class="plan-period">per month</p>
                     <ul class="plan-features">
@@ -454,34 +454,34 @@
                         </li>
                         <li>
                             <span class="feature-icon feature-included">✓</span>
-                            Priority placement in search
-                        </li>
-                        <li>
-                            <span class="feature-icon feature-included">✓</span>
-                            Photo gallery (up to 10 images)
-                        </li>
-                        <li>
-                            <span class="feature-icon feature-included">✓</span>
                             Patient reviews management
                         </li>
                         <li>
                             <span class="feature-icon feature-included">✓</span>
-                            Detailed service descriptions
+                            Basic analytics dashboard
                         </li>
                         <li>
                             <span class="feature-icon feature-included">✓</span>
-                            Analytics dashboard
+                            Priority placement in search
                         </li>
                         <li>
                             <span class="feature-icon feature-included">✓</span>
-                            Premium badge display
+                            Photo gallery (up to 5 images)
                         </li>
                         <li>
                             <span class="feature-icon feature-included">✓</span>
                             Email support
                         </li>
+                        <li>
+                            <span class="feature-icon feature-not-included">✗</span>
+                            Multiple locations
+                        </li>
+                        <li>
+                            <span class="feature-icon feature-not-included">✗</span>
+                            API access
+                        </li>
                     </ul>
-                    <a href="#" class="plan-button primary" onclick="upgradeToPremium()">Upgrade to Premium</a>
+                    <a href="#" class="plan-button primary" onclick="upgradeToBasic()">Upgrade to Basic</a>
                     <div class="trust-badges">
                         <div class="badge-item">
                             <i class="fab fa-stripe"></i>
@@ -498,22 +498,18 @@
                     </div>
                 </div>
 
-                <!-- Enterprise Plan -->
+                <!-- Premium Plan -->
                 <div class="pricing-card">
-                    <h3 class="plan-name">Enterprise</h3>
+                    <h3 class="plan-name">Premium</h3>
                     <p class="plan-description">For large practices and clinic chains with advanced needs</p>
                     <div class="plan-price">
-                        <span class="currency">£</span>99
+                        <span class="currency">£</span>49
                     </div>
                     <p class="plan-period">per month</p>
                     <ul class="plan-features">
                         <li>
                             <span class="feature-icon feature-included">✓</span>
-                            Everything in Premium plan
-                        </li>
-                        <li>
-                            <span class="feature-icon feature-included">✓</span>
-                            Multiple location management
+                            Everything in Basic plan
                         </li>
                         <li>
                             <span class="feature-icon feature-included">✓</span>
@@ -521,7 +517,7 @@
                         </li>
                         <li>
                             <span class="feature-icon feature-included">✓</span>
-                            Custom branding options
+                            Multiple location management
                         </li>
                         <li>
                             <span class="feature-icon feature-included">✓</span>
@@ -529,18 +525,22 @@
                         </li>
                         <li>
                             <span class="feature-icon feature-included">✓</span>
+                            Unlimited photo gallery
+                        </li>
+                        <li>
+                            <span class="feature-icon feature-included">✓</span>
                             Priority customer support
+                        </li>
+                        <li>
+                            <span class="feature-icon feature-included">✓</span>
+                            Custom branding options
                         </li>
                         <li>
                             <span class="feature-icon feature-included">✓</span>
                             Dedicated account manager
                         </li>
-                        <li>
-                            <span class="feature-icon feature-included">✓</span>
-                            Custom integrations
-                        </li>
                     </ul>
-                    <a href="contact.html" class="plan-button secondary">Contact Sales</a>
+                    <a href="#" class="plan-button primary" onclick="upgradeToPremium()">Upgrade to Premium</a>
                     <div class="trust-badges">
                         <div class="badge-item">
                             <i class="fas fa-user-shield"></i>
@@ -563,57 +563,39 @@
                 <table>
                     <thead>
                         <tr>
-                            <th class="feature-name">Features</th>
+                            <th class="feature-name">Feature</th>
                             <th>Free</th>
+                            <th>Basic</th>
                             <th>Premium</th>
-                            <th>Enterprise</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td class="feature-name">Basic listing</td>
+                            <td class="feature-name">Clinic Listing</td>
                             <td>✓</td>
                             <td>✓</td>
                             <td>✓</td>
                         </tr>
                         <tr>
-                            <td class="feature-name">Contact information</td>
-                            <td>✓</td>
-                            <td>✓</td>
-                            <td>✓</td>
-                        </tr>
-                        <tr>
-                            <td class="feature-name">Priority placement</td>
+                            <td class="feature-name">Patient Reviews</td>
                             <td>✗</td>
                             <td>✓</td>
                             <td>✓</td>
                         </tr>
                         <tr>
-                            <td class="feature-name">Photo gallery</td>
-                            <td>✗</td>
-                            <td>Up to 10</td>
-                            <td>Unlimited</td>
-                        </tr>
-                        <tr>
-                            <td class="feature-name">Reviews management</td>
-                            <td>✗</td>
-                            <td>✓</td>
-                            <td>✓</td>
-                        </tr>
-                        <tr>
-                            <td class="feature-name">Analytics dashboard</td>
+                            <td class="feature-name">Analytics Dashboard</td>
                             <td>✗</td>
                             <td>Basic</td>
                             <td>Advanced</td>
                         </tr>
                         <tr>
-                            <td class="feature-name">Multiple locations</td>
+                            <td class="feature-name">Multiple Locations</td>
                             <td>✗</td>
                             <td>✗</td>
                             <td>✓</td>
                         </tr>
                         <tr>
-                            <td class="feature-name">API access</td>
+                            <td class="feature-name">API Access</td>
                             <td>✗</td>
                             <td>✗</td>
                             <td>✓</td>
@@ -628,6 +610,36 @@
     <section class="faq-section">
         <div class="faq-container">
             <h2 class="section-title">Frequently Asked Questions</h2>
+            
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
+                    What's included in Premium?
+                    <span class="faq-icon">▼</span>
+                </button>
+                <div class="faq-answer">
+                    Premium includes advanced analytics, multi-location support, API access, unlimited photo gallery, custom branding options, priority support, and a dedicated account manager to help you maximize your practice's online presence.
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
+                    How do I list my clinic?
+                    <span class="faq-icon">▼</span>
+                </button>
+                <div class="faq-answer">
+                    Use our multi-step form to register in minutes. Simply click "List Your Clinic" and provide your practice details, contact information, and services. Our team will review and approve your listing within 24 hours.
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
+                    What's the difference between Basic and Premium plans?
+                    <span class="faq-icon">▼</span>
+                </button>
+                <div class="faq-answer">
+                    Basic plan includes patient reviews, basic analytics, and up to 5 photos. Premium adds multi-location support, advanced analytics, API access, unlimited photos, custom branding, and dedicated support for larger practices.
+                </div>
+            </div>
             
             <div class="faq-item">
                 <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
@@ -655,7 +667,7 @@
                     <span class="faq-icon">▼</span>
                 </button>
                 <div class="faq-answer">
-                    We accept all major credit cards (Visa, Mastercard, American Express) and debit cards. Payments are processed securely through Stripe. For Enterprise plans, we also offer invoice billing.
+                    We accept all major credit cards (Visa, Mastercard, American Express) and debit cards. Payments are processed securely through Stripe. For Premium plans, we also offer invoice billing.
                 </div>
             </div>
             
@@ -675,7 +687,7 @@
                     <span class="faq-icon">▼</span>
                 </button>
                 <div class="faq-answer">
-                    Premium and Enterprise plans include review management features. We can import existing Google reviews and provide tools to encourage and manage new patient feedback. You can respond to reviews and showcase positive testimonials.
+                    Basic and Premium plans include review management features. We can import existing Google reviews and provide tools to encourage and manage new patient feedback. You can respond to reviews and showcase positive testimonials.
                 </div>
             </div>
             
@@ -685,7 +697,7 @@
                     <span class="faq-icon">▼</span>
                 </button>
                 <div class="faq-answer">
-                    Free plan users have access to our help center and community forum. Premium users get email support with 24-48 hour response times. Enterprise customers receive priority support and a dedicated account manager.
+                    Free plan users have access to our help center and community forum. Basic users get email support with 24-48 hour response times. Premium customers receive priority support and a dedicated account manager.
                 </div>
             </div>
         </div>
@@ -848,6 +860,12 @@
         function upgradeToPremium() {
             // This would integrate with Stripe for payment processing
             alert('Stripe integration would be implemented here for premium upgrade.');
+            // Redirect to Stripe checkout or payment form
+        }
+        
+        function upgradeToBasic() {
+            // This would integrate with Stripe for payment processing
+            alert('Stripe integration would be implemented here for basic plan upgrade.');
             // Redirect to Stripe checkout or payment form
         }
     </script>
