@@ -2081,6 +2081,7 @@ async function initializeApp() {
     filteredClinics = [...clinicsData];
     applyFilters();
     await updateLocationCounts();
+    await updateCategoryCounts();
 }
 
 // Function to handle URL parameters
@@ -3000,6 +3001,75 @@ async function updateLocationCounts() {
             const mobileOption = document.querySelector(`.mobile-location-select option[value="${location.key}"]`);
             if (mobileOption) {
                 mobileOption.textContent = `${location.city} (${count} ${count === 1 ? 'clinic' : 'clinics'})`;
+            }
+        }
+    }
+}
+
+async function updateCategoryCounts() {
+    const categories = [
+        { key: 'all', type: 'All' },
+        { key: 'gp', type: 'Private GP' },
+        { key: 'dentist', type: 'Dentist' },
+        { key: 'physio', type: 'Physiotherapist' },
+        { key: 'optician', type: 'Optician' },
+        { key: 'pharmacy', type: 'Pharmacy' }
+    ];
+    
+    // Update individual category counts
+    for (const category of categories) {
+        try {
+            let count;
+            if (category.key === 'all') {
+                // Total count for all clinics
+                count = clinicsData.length;
+            } else {
+                // Count for specific category
+                count = clinicsData.filter(clinic => {
+                    if (!clinic.type) return false;
+                    const clinicType = clinic.type.toLowerCase();
+                    const categoryType = category.type.toLowerCase();
+                    
+                    // Handle different naming variations
+                    if (category.key === 'gp') {
+                        return clinicType.includes('gp') || clinicType.includes('general practice');
+                    } else if (category.key === 'dentist') {
+                        return clinicType.includes('dentist') || clinicType.includes('dental');
+                    } else if (category.key === 'physio') {
+                        return clinicType.includes('physio') || clinicType.includes('physiotherapy');
+                    } else if (category.key === 'optician') {
+                        return clinicType.includes('optician') || clinicType.includes('optical');
+                    } else if (category.key === 'pharmacy') {
+                        return clinicType.includes('pharmacy') || clinicType.includes('pharmacist');
+                    }
+                    return false;
+                }).length;
+            }
+            
+            const countElement = document.querySelector(`[data-category="${category.key}"] .clinic-count`);
+            if (countElement) {
+                countElement.textContent = `${count} ${count === 1 ? 'clinic' : 'clinics'}`;
+                
+                // Disable category if count is 0 (except for 'all')
+                const categoryBtn = document.querySelector(`[data-category="${category.key}"]`);
+                if (categoryBtn && category.key !== 'all') {
+                    if (count === 0) {
+                        categoryBtn.disabled = true;
+                        categoryBtn.style.opacity = '0.5';
+                        categoryBtn.style.cursor = 'not-allowed';
+                    } else {
+                        categoryBtn.disabled = false;
+                        categoryBtn.style.opacity = '1';
+                        categoryBtn.style.cursor = 'pointer';
+                    }
+                }
+            }
+        } catch (error) {
+            console.warn(`Error updating count for ${category.key}:`, error.message);
+            // Fallback to showing no count
+            const countElement = document.querySelector(`[data-category="${category.key}"] .clinic-count`);
+            if (countElement) {
+                countElement.textContent = '';
             }
         }
     }
