@@ -3624,3 +3624,25 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Update navbar when auth state changes
 window.addEventListener('authStateChanged', updateNavbarAuthState);
+
+/** @description Manages multi-step form for CareGrid clinic registration */
+function nextStep(step) {
+    document.querySelectorAll('.step').forEach(s => s.style.display = 'none');
+    document.getElementById(`step${step}`).style.display = 'block';
+}
+
+// Make nextStep function available globally
+window.nextStep = nextStep;
+
+// Add event listener for clinic form submission
+document.addEventListener('DOMContentLoaded', function() {
+    const clinicForm = document.getElementById('clinic-form');
+    if (clinicForm) {
+        clinicForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (e.target.checkValidity()) {
+                console.log('Form data:', new FormData(e.target));
+            }
+        });
+    }
+});
