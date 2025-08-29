@@ -28,36 +28,52 @@ async function setupRenderDatabase() {
     console.log('🔗 Using individual DB environment variables');
   }
   
-  const client = new Client(config);
+  // Retry logic for database connection
+  const maxRetries = 5;
+  const retryDelay = 3000; // 3 seconds
   
-  try {
-    console.log('🔌 Connecting to PostgreSQL...');
-    await client.connect();
-    console.log('✅ Connected successfully!');
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    const client = new Client(config);
     
-    // Test the connection
-    const result = await client.query('SELECT version()');
-    console.log(`📊 PostgreSQL version: ${result.rows[0].version.split(' ')[0]} ${result.rows[0].version.split(' ')[1]}`);
-    
-    // Run migrations
-    await runMigrations(client);
-    
-    console.log('\n✅ Database setup completed successfully!');
-    console.log('\n🎯 Next steps:');
-    console.log('   1. Test the API: python3 test_api_mode.py');
-    console.log('   2. Run clinic import: python3 caregrid_listings_manager.py input/test_clinics.csv');
-    
-  } catch (error) {
-    console.error('❌ Database setup failed:', error.message);
-    if (error.code) {
-      console.error(`   Error code: ${error.code}`);
-    }
-    console.error('⚠️  Continuing with server startup - database may need manual setup');
-    // Don't exit with error code during deployment to prevent build failure
-    // process.exit(1);
-  } finally {
-    if (client._connected) {
+    try {
+      console.log(`🔌 Connecting to PostgreSQL (attempt ${attempt}/${maxRetries})...`);
+      await client.connect();
+      console.log('✅ Connected successfully!');
+      
+      // Test the connection
+      const result = await client.query('SELECT version()');
+      console.log(`📊 PostgreSQL version: ${result.rows[0].version.split(' ')[0]} ${result.rows[0].version.split(' ')[1]}`);
+      
+      // Run migrations
+      await runMigrations(client);
+      
+      console.log('\n✅ Database setup completed successfully!');
+      console.log('\n🎯 Next steps:');
+      console.log('   1. Test the API: python3 test_api_mode.py');
+      console.log('   2. Run clinic import: python3 caregrid_listings_manager.py input/test_clinics.csv');
+      
       await client.end();
+      return; // Success, exit the retry loop
+      
+    } catch (error) {
+      console.error(`❌ Database setup attempt ${attempt} failed:`, error.message);
+      if (error.code) {
+        console.error(`   Error code: ${error.code}`);
+      }
+      
+      if (client._connected) {
+        await client.end();
+      }
+      
+      if (attempt < maxRetries) {
+        console.log(`⏳ Retrying in ${retryDelay/1000} seconds...`);
+        await new Promise(resolve => setTimeout(resolve, retryDelay));
+      } else {
+        console.error('⚠️  All database setup attempts failed - server will continue with fallback mode');
+        console.error('⚠️  Database may need manual setup or may not be ready yet');
+        // Throw error to indicate failure for status tracking
+        throw new Error('Database setup failed after all retry attempts');
+      }
     }
   }
 }
