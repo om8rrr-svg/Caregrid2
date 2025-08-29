@@ -7349,3 +7349,32 @@ body.stakeholder .nav-menu .stakeholder-only {
     color: white; 
     border: none; 
 }
+
+/* Simple Navigation and Footer Styles as requested in ticket */
+/* These styles support the simplified navigation structure */
+header nav { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    padding: 1rem; 
+    background: #E6F0FF; 
+}
+
+header ul { 
+    list-style: none; 
+    display: flex; 
+    gap: 1rem; 
+}
+
+footer { 
+    text-align: center; 
+    padding: 1rem; 
+    background: #2A6EF3; 
+    color: white; 
+}
+
+@media (max-width: 768px) { 
+    header ul { 
+        flex-direction: column; 
+    } 
+}
