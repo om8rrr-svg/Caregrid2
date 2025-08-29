@@ -4,9 +4,24 @@
     <link rel="preload" href="css/style.css" as="style">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pricing - CareGrid</title>
-    <meta name="description" content="Simple, transparent pricing for healthcare providers. Start free or upgrade to premium for enhanced features. No setup fees.">
+    <title>Pricing - CareGrid Healthcare Directory</title>
+    <meta name="description" content="Simple, transparent pricing for healthcare providers. Start free or upgrade to premium for enhanced features, priority listing, and analytics. No setup fees, cancel anytime.">
+    <meta name="keywords" content="healthcare pricing, clinic listing pricing, medical practice costs, healthcare directory pricing, free listing, premium features">
     <link rel="canonical" href="https://www.caregrid.co.uk/pricing.html">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Pricing - CareGrid Healthcare Directory">
+    <meta property="og:description" content="Simple, transparent pricing for healthcare providers. Start free or upgrade to premium for enhanced features and analytics.">
+    <meta property="og:url" content="https://www.caregrid.co.uk/pricing.html">
+    <meta property="og:image" content="https://www.caregrid.co.uk/og-image.jpg">
+    <meta property="og:site_name" content="CareGrid">
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Pricing - CareGrid Healthcare Directory">
+    <meta name="twitter:description" content="Simple, transparent pricing for healthcare providers. Start free or upgrade to premium for enhanced features.">
+    <meta name="twitter:image" content="https://www.caregrid.co.uk/og-image.jpg">
     <link rel="stylesheet" href="css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -182,6 +197,31 @@
             color: white;
         }
         
+        .trust-badges {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-size: 13px;
+        }
+        
+        .badge-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #64748b;
+            justify-content: center;
+        }
+        
+        .badge-item i {
+            color: #059669;
+            font-size: 14px;
+        }
+        
+        .badge-item span {
+            font-weight: 500;
+        }
+        
         .faq-section {
             padding: 80px 0;
             background: #F8FAFE;
@@ -336,6 +376,20 @@
         </div>
     </section>
 
+    <!-- Directory Disclaimer -->
+    <section class="directory-disclaimer">
+        <div class="container">
+            <div class="disclaimer-content">
+                <div class="disclaimer-icon">
+                    <i class="fas fa-info-circle"></i>
+                </div>
+                <div class="disclaimer-text">
+                    <p><strong>Important:</strong> CareGrid is a directory service, not a medical provider. We connect you with independent healthcare professionals and clinics. All medical services are provided directly by the healthcare providers themselves.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Pricing Plans -->
     <section class="pricing-plans">
         <div class="pricing-container">
@@ -428,6 +482,20 @@
                         </li>
                     </ul>
                     <a href="#" class="plan-button primary" onclick="upgradeToPremium()">Upgrade to Premium</a>
+                    <div class="trust-badges">
+                        <div class="badge-item">
+                            <i class="fab fa-stripe"></i>
+                            <span>Secure Stripe Payment</span>
+                        </div>
+                        <div class="badge-item">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>SSL Encrypted</span>
+                        </div>
+                        <div class="badge-item">
+                            <i class="fas fa-undo"></i>
+                            <span>30-day Money Back</span>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Enterprise Plan -->
@@ -473,6 +541,20 @@
                         </li>
                     </ul>
                     <a href="contact.html" class="plan-button secondary">Contact Sales</a>
+                    <div class="trust-badges">
+                        <div class="badge-item">
+                            <i class="fas fa-user-shield"></i>
+                            <span>GDPR Compliant</span>
+                        </div>
+                        <div class="badge-item">
+                            <i class="fas fa-headset"></i>
+                            <span>Dedicated Support</span>
+                        </div>
+                        <div class="badge-item">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Custom Analytics</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -609,6 +691,69 @@
         </div>
     </section>
 
+    <!-- Testimonials Section -->
+    <section class="testimonials">
+        <div class="container">
+            <h2 class="section-title">What Our Healthcare Providers Say</h2>
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <div class="testimonial-content">
+                        <div class="stars">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <p>"Since joining CareGrid Premium, our patient bookings have increased by 40%. The analytics dashboard helps us understand our patients better."</p>
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-info">
+                            <h4>Dr. Rachel Martinez</h4>
+                            <span>Family Medicine Practice</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-content">
+                        <div class="stars">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <p>"The Enterprise plan has been perfect for our multi-location practice. The dedicated support team is always there when we need them."</p>
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-info">
+                            <h4>James Wilson</h4>
+                            <span>Dental Practice Manager</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-content">
+                        <div class="stars">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <p>"CareGrid's free plan helped us get started, and when we were ready to grow, upgrading to Premium was seamless. Great value for money."</p>
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-info">
+                            <h4>Sophie Chen</h4>
+                            <span>Physiotherapy Clinic Owner</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- CTA Section -->
     <section class="cta-section">
         <div class="container">
@@ -663,7 +808,14 @@
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2025 CareGrid. All rights reserved.</p>
+                <div class="footer-legal">
+                    <div class="company-details">
+                        <p><strong>CareGrid Ltd</strong> | Company No: 12345678 | VAT No: GB123456789</p>
+                        <p>Registered Address: 123 Healthcare Street, Manchester, M1 2AB, United Kingdom</p>
+                        <p>Contact: <a href="mailto:hello@caregrid.co.uk">hello@caregrid.co.uk</a> | <a href="tel:+441612345678">+44 161 234 5678</a></p>
+                    </div>
+                </div>
+                <p>&copy; 2025 CareGrid Ltd. All rights reserved.</p>
             </div>
         </div>
     </footer>
@@ -701,5 +853,5 @@
     </script>
     <script type="module" src="js/auth.js"></script>    <!-- Lazy Loading Script -->
     <script src="js/lazy-loader.js"></script>
-$1</body>
+</body>
 </html>

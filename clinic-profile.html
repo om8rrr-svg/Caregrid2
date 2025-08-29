@@ -4,9 +4,24 @@
     <link rel="preload" href="css/style.css" as="style">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Clinic Profile - CareGrid Healthcare Directory">
-    <meta name="keywords" content="clinic, healthcare, medical, profile">
-    <title>Clinic Profile - CareGrid</title>
+    <title id="pageTitle">Clinic Profile - CareGrid Healthcare Directory</title>
+    <meta id="pageDescription" name="description" content="Find detailed information about healthcare clinics and providers. View services, ratings, contact details, and book appointments with trusted private healthcare providers.">
+    <meta name="keywords" content="clinic profile, healthcare provider, medical clinic, private healthcare, clinic details, book appointment">
+    <link rel="canonical" href="https://www.caregrid.co.uk/clinic-profile.html">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta id="ogTitle" property="og:title" content="Clinic Profile - CareGrid Healthcare Directory">
+    <meta id="ogDescription" property="og:description" content="Find detailed information about healthcare clinics and providers. View services, ratings, and book appointments.">
+    <meta property="og:url" content="https://www.caregrid.co.uk/clinic-profile.html">
+    <meta id="ogImage" property="og:image" content="https://www.caregrid.co.uk/og-image.jpg">
+    <meta property="og:site_name" content="CareGrid">
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta id="twitterTitle" name="twitter:title" content="Clinic Profile - CareGrid Healthcare Directory">
+    <meta id="twitterDescription" name="twitter:description" content="Find detailed information about healthcare clinics and providers. View services, ratings, and book appointments.">
+    <meta id="twitterImage" name="twitter:image" content="https://www.caregrid.co.uk/og-image.jpg">
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -138,6 +153,37 @@
              font-weight: 600;
          }
      </style>
+     
+     <!-- JSON-LD Schema for Clinic -->
+     <script type="application/ld+json" id="clinicSchema">
+     {
+       "@context": "https://schema.org",
+       "@type": "MedicalBusiness",
+       "name": "Clinic Name",
+       "description": "Healthcare clinic providing quality medical services",
+       "url": "https://www.caregrid.co.uk/clinic-profile.html",
+       "telephone": "",
+       "address": {
+         "@type": "PostalAddress",
+         "streetAddress": "",
+         "addressLocality": "",
+         "addressRegion": "",
+         "postalCode": "",
+         "addressCountry": "GB"
+       },
+       "openingHours": [],
+       "priceRange": "£",
+       "aggregateRating": {
+         "@type": "AggregateRating",
+         "ratingValue": "0",
+         "reviewCount": "0"
+       },
+       "image": "",
+       "medicalSpecialty": [],
+       "paymentAccepted": ["Cash", "Credit Card"],
+       "currenciesAccepted": "GBP"
+     }
+     </script>
 </head>
 <body>
     <!-- Navigation -->
@@ -504,11 +550,83 @@
             // Load similar clinics
             loadSimilarClinics(clinic);
             
-            // Update page title
-            document.title = `${clinic.name} - CareGrid`;
+            // Update page title and SEO metadata
+            updateSEOMetadata(clinic);
             
             // Setup auto-refresh for status (every minute)
             setupStatusAutoRefresh(clinic);
+        }
+        
+        function updateSEOMetadata(clinic) {
+            // Update page title
+            const clinicTitle = `${clinic.name} - ${formatType(clinic.type)} in ${clinic.location || 'UK'} | CareGrid`;
+            document.title = clinicTitle;
+            document.getElementById('pageTitle').textContent = clinicTitle;
+            
+            // Update meta descriptions
+            const description = `Book appointments at ${clinic.name}, a trusted ${formatType(clinic.type).toLowerCase()} in ${clinic.location || 'UK'}. View services, ratings, contact details and opening hours. ${clinic.rating ? `Rated ${clinic.rating}/5 stars.` : ''}`;
+            document.getElementById('pageDescription').setAttribute('content', description);
+            
+            // Update Open Graph meta tags
+            document.getElementById('ogTitle').setAttribute('content', clinicTitle);
+            document.getElementById('ogDescription').setAttribute('content', description);
+            if (clinic.image || clinic.logoUrl) {
+                document.getElementById('ogImage').setAttribute('content', clinic.image || clinic.logoUrl);
+            }
+            
+            // Update Twitter meta tags
+            document.getElementById('twitterTitle').setAttribute('content', clinicTitle);
+            document.getElementById('twitterDescription').setAttribute('content', description);
+            if (clinic.image || clinic.logoUrl) {
+                document.getElementById('twitterImage').setAttribute('content', clinic.image || clinic.logoUrl);
+            }
+            
+            // Update JSON-LD schema
+            updateClinicSchema(clinic);
+        }
+        
+        function updateClinicSchema(clinic) {
+            const schema = {
+                "@context": "https://schema.org",
+                "@type": "MedicalBusiness",
+                "name": clinic.name,
+                "description": generateUniqueDescription(clinic),
+                "url": window.location.href,
+                "telephone": clinic.phone,
+                "address": {
+                    "@type": "PostalAddress",
+                    "streetAddress": clinic.address,
+                    "addressLocality": clinic.location || "",
+                    "addressRegion": "",
+                    "postalCode": "",
+                    "addressCountry": "GB"
+                },
+                "openingHours": [],
+                "priceRange": "£",
+                "aggregateRating": {
+                    "@type": "AggregateRating",
+                    "ratingValue": clinic.rating ? clinic.rating.toString() : "0",
+                    "reviewCount": (clinic.reviews || clinic.reviewCount || clinic.review_count || 0).toString()
+                },
+                "image": clinic.image || clinic.logoUrl || "https://www.caregrid.co.uk/og-image.jpg",
+                "medicalSpecialty": [formatType(clinic.type)],
+                "paymentAccepted": ["Cash", "Credit Card", "Bank Transfer"],
+                "currenciesAccepted": "GBP"
+            };
+            
+            // Add opening hours if available
+            if (clinic.openingHours) {
+                schema.openingHours = clinic.openingHours;
+            }
+            
+            // Add website if available
+            if (clinic.website) {
+                schema.url = clinic.website;
+            }
+            
+            // Update the schema script
+            document.getElementById('clinicSchema').textContent = JSON.stringify(schema, null, 2);
+        }
         }
         
         function setupStatusAutoRefresh(clinic) {
@@ -1006,5 +1124,5 @@
     <script type="module" src="js/script.js"></script>
     <script src="js/auth.js"></script>    <!-- Lazy Loading Script -->
     <script src="js/lazy-loader.js"></script>
-$1</body>
+</body>
 </html>

@@ -4,9 +4,24 @@
     <link rel="preload" href="css/style.css" as="style">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="List your clinic on CareGrid - Connect with patients and grow your practice">
-    <meta name="keywords" content="list clinic, healthcare directory, medical practice, patient booking">
-    <title>List Your Clinic - CareGrid</title>
+    <title>List Your Clinic - CareGrid Healthcare Directory</title>
+    <meta name="description" content="List your clinic on CareGrid and connect with patients across the UK. Join thousands of healthcare providers, increase visibility, and grow your medical practice with our leading healthcare directory.">
+    <meta name="keywords" content="list clinic, healthcare directory, medical practice, patient booking, clinic registration, healthcare providers, medical professionals">
+    <link rel="canonical" href="https://www.caregrid.co.uk/list-clinic.html">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="List Your Clinic - CareGrid Healthcare Directory">
+    <meta property="og:description" content="List your clinic on CareGrid and connect with patients across the UK. Join thousands of healthcare providers and grow your medical practice.">
+    <meta property="og:url" content="https://www.caregrid.co.uk/list-clinic.html">
+    <meta property="og:image" content="https://www.caregrid.co.uk/og-image.jpg">
+    <meta property="og:site_name" content="CareGrid">
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="List Your Clinic - CareGrid Healthcare Directory">
+    <meta name="twitter:description" content="List your clinic on CareGrid and connect with patients across the UK. Join thousands of healthcare providers and grow your practice.">
+    <meta name="twitter:image" content="https://www.caregrid.co.uk/og-image.jpg">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="stylesheet" href="css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -142,16 +157,52 @@
             display: block;
         }
         
+        .progress-container {
+            margin-bottom: 30px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #E1E8ED;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #2A6EF3 0%, #4A90E2 100%);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        
+        .progress-text {
+            text-align: center;
+            color: #5A6C7D;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
         .step-indicator {
             display: flex;
             justify-content: center;
             margin-bottom: 40px;
-            gap: 20px;
+            gap: 30px;
         }
         
         .step {
-            width: 40px;
-            height: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .step-number {
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             background: #E1E8ED;
             color: #5A6C7D;
@@ -159,17 +210,44 @@
             align-items: center;
             justify-content: center;
             font-weight: 600;
+            font-size: 16px;
             transition: all 0.3s ease;
+            border: 2px solid transparent;
         }
         
-        .step.active {
+        .step-label {
+            font-size: 12px;
+            color: #5A6C7D;
+            font-weight: 500;
+            text-align: center;
+        }
+        
+        .step.active .step-number {
             background: #2A6EF3;
             color: white;
+            border-color: #2A6EF3;
+            box-shadow: 0 0 0 4px rgba(42, 110, 243, 0.2);
         }
         
-        .step.completed {
+        .step.active .step-label {
+            color: #2A6EF3;
+            font-weight: 600;
+        }
+        
+        .step.completed .step-number {
             background: #27AE60;
             color: white;
+            border-color: #27AE60;
+        }
+        
+        .step.completed .step-number::before {
+            content: "✓";
+            font-size: 14px;
+        }
+        
+        .step.completed .step-label {
+            color: #27AE60;
+            font-weight: 600;
         }
         
         .form-group {
@@ -518,12 +596,32 @@
     <section class="form-section">
         <div class="form-container">
             <form class="clinic-form" id="listClinicForm">
+                <!-- Progress Bar -->
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill" style="width: 25%;"></div>
+                    </div>
+                    <div class="progress-text" id="progressText">Step 1 of 4 - Basic Information</div>
+                </div>
+                
                 <!-- Step Indicator -->
                 <div class="step-indicator">
-                    <div class="step active" data-step="1">1</div>
-                    <div class="step" data-step="2">2</div>
-                    <div class="step" data-step="3">3</div>
-                    <div class="step" data-step="4">4</div>
+                    <div class="step active" data-step="1">
+                        <span class="step-number">1</span>
+                        <span class="step-label">Basic Info</span>
+                    </div>
+                    <div class="step" data-step="2">
+                        <span class="step-number">2</span>
+                        <span class="step-label">Services</span>
+                    </div>
+                    <div class="step" data-step="3">
+                        <span class="step-number">3</span>
+                        <span class="step-label">Media</span>
+                    </div>
+                    <div class="step" data-step="4">
+                        <span class="step-number">4</span>
+                        <span class="step-label">Plans</span>
+                    </div>
                 </div>
 
                 <!-- Step 1: Basic Information -->
@@ -846,15 +944,44 @@
             // Show current step
             document.querySelector(`.form-step[data-step="${currentStep}"]`).classList.add('active');
             
+            // Update progress bar
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            const progressPercentage = (currentStep / totalSteps) * 100;
+            
+            if (progressFill) {
+                progressFill.style.width = progressPercentage + '%';
+            }
+            
+            // Update progress text with step names
+            const stepNames = ['Basic Information', 'Services & Specialties', 'Media & Branding', 'Plans & Verification'];
+            if (progressText) {
+                progressText.textContent = `Step ${currentStep} of ${totalSteps} - ${stepNames[currentStep - 1]}`;
+            }
+            
             // Update step indicators
             document.querySelectorAll('.step').forEach((step, index) => {
                 const stepNumber = index + 1;
+                const stepNumberElement = step.querySelector('.step-number');
+                
                 step.classList.remove('active', 'completed');
                 
                 if (stepNumber < currentStep) {
                     step.classList.add('completed');
+                    // Hide number, show checkmark via CSS
+                    if (stepNumberElement) {
+                        stepNumberElement.textContent = '';
+                    }
                 } else if (stepNumber === currentStep) {
                     step.classList.add('active');
+                    if (stepNumberElement) {
+                        stepNumberElement.textContent = stepNumber;
+                    }
+                } else {
+                    // Future step
+                    if (stepNumberElement) {
+                        stepNumberElement.textContent = stepNumber;
+                    }
                 }
             });
             
@@ -872,6 +999,9 @@
                 nextBtn.style.display = 'inline-block';
                 submitBtn.style.display = 'none';
             }
+            
+            // Auto-save form data to localStorage
+            saveFormProgress();
         }
         
         function validateStep(step) {
@@ -920,6 +1050,67 @@
             // 4. Create the clinic listing
             
             console.log('Form submitted with data:', Object.fromEntries(formData));
+            
+            // Clear saved progress
+            localStorage.removeItem('clinicFormProgress');
+        }
+        
+        // Auto-save functionality
+        function saveFormProgress() {
+            const formData = new FormData(document.getElementById('listClinicForm'));
+            const data = Object.fromEntries(formData);
+            data.currentStep = currentStep;
+            
+            try {
+                localStorage.setItem('clinicFormProgress', JSON.stringify(data));
+            } catch (error) {
+                console.warn('Could not save form progress:', error);
+            }
+        }
+        
+        function loadFormProgress() {
+            try {
+                const saved = localStorage.getItem('clinicFormProgress');
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    
+                    // Restore form fields
+                    Object.keys(data).forEach(key => {
+                        if (key !== 'currentStep') {
+                            const field = document.querySelector(`[name="${key}"]`);
+                            if (field) {
+                                if (field.type === 'checkbox') {
+                                    field.checked = data[key] === 'on';
+                                } else {
+                                    field.value = data[key];
+                                }
+                            }
+                        }
+                    });
+                    
+                    // Restore current step if it was saved
+                    if (data.currentStep && data.currentStep > 1) {
+                        currentStep = parseInt(data.currentStep);
+                        updateStepDisplay();
+                    }
+                    
+                    return true;
+                }
+            } catch (error) {
+                console.warn('Could not load form progress:', error);
+            }
+            return false;
+        }
+        
+        // Save form data when user types or changes fields
+        function attachAutoSaveListeners() {
+            const form = document.getElementById('listClinicForm');
+            const inputs = form.querySelectorAll('input, select, textarea');
+            
+            inputs.forEach(input => {
+                input.addEventListener('input', saveFormProgress);
+                input.addEventListener('change', saveFormProgress);
+            });
         }
         
         // File upload handling
@@ -940,7 +1131,30 @@
         });
         
         // Initialize form
-        updateStepDisplay();
+        document.addEventListener('DOMContentLoaded', function() {
+            // Try to load saved progress first
+            const hasProgress = loadFormProgress();
+            
+            // Always update display to ensure UI is correct
+            updateStepDisplay();
+            
+            // Attach auto-save listeners
+            attachAutoSaveListeners();
+            
+            // Show user if there was saved progress
+            if (hasProgress) {
+                const progressText = document.getElementById('progressText');
+                if (progressText) {
+                    const originalText = progressText.textContent;
+                    progressText.textContent = '✨ Restored your previous progress';
+                    progressText.style.color = '#27AE60';
+                    setTimeout(() => {
+                        progressText.textContent = originalText;
+                        progressText.style.color = '#5A6C7D';
+                    }, 3000);
+                }
+            }
+        });
     </script>
     <script type="module" src="js/api-base.js"></script>
     <script type="module" src="js/list-clinic.js"></script>

@@ -1,0 +1,88 @@
+{
+  "name": "CareGrid Development Environment",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:18-bullseye",
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "installZsh": true,
+      "configureZshAsDefaultShell": true,
+      "installOhMyZsh": true
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "GitHub.copilot",
+        "GitHub.copilot-chat",
+        "ms-vscode.vscode-json",
+        "bradlc.vscode-tailwindcss",
+        "formulahendry.auto-rename-tag",
+        "christian-kohler.path-intellisense",
+        "ms-vscode.live-server",
+        "ritwickdey.LiveServer",
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint",
+        "ms-vscode.vscode-typescript-next",
+        "ms-vscode.hexeditor",
+        "ms-vscode-remote.remote-containers",
+        "ms-vscode.remote-repositories",
+        "GitHub.vscode-pull-request-github",
+        "eamodio.gitlens",
+        "oderwat.indent-rainbow",
+        "PKief.material-icon-theme",
+        "zhuangtongfa.Material-theme",
+        "formulahendry.code-runner",
+        "ms-vscode.vscode-css-peek",
+        "zignd.html-css-class-completion",
+        "pranaygp.vscode-css-peek",
+        "bradlc.vscode-tailwindcss",
+        "ecmel.vscode-html-css"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "zsh",
+        "terminal.integrated.profiles.linux": {
+          "zsh": {
+            "path": "/bin/zsh"
+          }
+        },
+        "git.terminalAuthentication": false,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "liveServer.settings.donotShowInfoMsg": true,
+        "liveServer.settings.port": 8080,
+        "liveServer.settings.host": "0.0.0.0",
+        "liveServer.settings.CustomBrowser": "chrome",
+        "liveServer.settings.useLocalIp": true
+      }
+    }
+  },
+  "forwardPorts": [8080, 3000, 5000],
+  "portsAttributes": {
+    "8080": {
+      "label": "Live Server",
+      "onAutoForward": "notify"
+    },
+    "3000": {
+      "label": "Backend API",
+      "onAutoForward": "silent"
+    },
+    "5000": {
+      "label": "Alt Server",
+      "onAutoForward": "silent"
+    }
+  },
+  "postCreateCommand": "npm install",
+  "postAttachCommand": {
+    "server": "echo 'CareGrid development environment ready!'"
+  },
+  "remoteUser": "node",
+  "containerEnv": {
+    "TZ": "Europe/London",
+    "NODE_ENV": "development"
+  },
+  "mounts": [
+    "source=${localWorkspaceFolder}/.vscode,target=/workspace/.vscode,type=bind,consistency=cached"
+  ],
+  "workspaceFolder": "/workspace",
+  "shutdownAction": "stopContainer"
+}
