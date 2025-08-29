@@ -2082,6 +2082,204 @@ body {
     }
 }
 
+/* Directory Disclaimer */
+.directory-disclaimer {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    margin: 40px auto;
+    max-width: 1200px;
+    padding: 0;
+}
+
+.disclaimer-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    padding: 20px 25px;
+    background: linear-gradient(135deg, #fef3cd 0%, #fef7e0 100%);
+    border-radius: 12px;
+    border-left: 4px solid #f59e0b;
+}
+
+.disclaimer-icon {
+    color: #d97706;
+    font-size: 20px;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+.disclaimer-text p {
+    margin: 0;
+    color: #92400e;
+    font-size: 15px;
+    line-height: 1.5;
+    font-weight: 500;
+}
+
+@media (max-width: 768px) {
+    .directory-disclaimer {
+        margin: 20px 15px;
+    }
+    
+    .disclaimer-content {
+        padding: 15px 20px;
+        gap: 12px;
+    }
+    
+    .disclaimer-text p {
+        font-size: 14px;
+    }
+}
+
+/* How It Works Section */
+.how-it-works {
+    padding: 80px 0;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+}
+
+.steps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 40px;
+    margin-top: 50px;
+}
+
+.step-card {
+    background: white;
+    padding: 40px 30px;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.step-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.step-number {
+    position: absolute;
+    top: -15px;
+    left: 30px;
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.step-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 20px;
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 30px;
+}
+
+.step-card h3 {
+    margin: 0 0 15px 0;
+    color: #1e293b;
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.step-card p {
+    color: #64748b;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Testimonials Section */
+.testimonials {
+    padding: 80px 0;
+    background: white;
+}
+
+.testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 30px;
+    margin-top: 50px;
+}
+
+.testimonial-card {
+    background: #f8fafc;
+    padding: 30px;
+    border-radius: 20px;
+    border-left: 4px solid #3b82f6;
+    transition: all 0.3s ease;
+}
+
+.testimonial-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.stars {
+    color: #fbbf24;
+    margin-bottom: 20px;
+    font-size: 16px;
+}
+
+.testimonial-content p {
+    color: #475569;
+    line-height: 1.6;
+    font-style: italic;
+    margin: 0 0 25px 0;
+    font-size: 16px;
+}
+
+.testimonial-author {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.author-info h4 {
+    margin: 0;
+    color: #1e293b;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.author-info span {
+    color: #64748b;
+    font-size: 14px;
+}
+
+@media (max-width: 768px) {
+    .steps-grid {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+    
+    .testimonials-grid {
+        grid-template-columns: 1fr;
+        gap: 25px;
+    }
+    
+    .step-card {
+        padding: 30px 20px;
+    }
+    
+    .testimonial-card {
+        padding: 25px;
+    }
+}
+
 /* Enhanced Footer */
 .footer {
     background: linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%);
@@ -2195,6 +2393,28 @@ body {
     z-index: 2;
     backdrop-filter: blur(10px);
     font-weight: 500;
+}
+
+.footer-legal {
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.company-details p {
+    margin: 8px 0;
+    font-size: 14px;
+    color: #cbd5e1;
+}
+
+.company-details a {
+    color: #60a5fa;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.company-details a:hover {
+    color: #3b82f6;
 }
 
 /* Responsive Design */
