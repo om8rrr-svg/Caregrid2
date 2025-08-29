@@ -7331,3 +7331,21 @@ body.stakeholder .nav-menu .stakeholder-only {
         display: none;
     }
 }
+
+/* Search Form Styles for Two-Input Layout */
+#hero form { 
+    display: flex; 
+    gap: 1rem; 
+    padding: 1rem; 
+}
+
+#hero input, #hero button { 
+    padding: 0.5rem; 
+    border-radius: 4px; 
+}
+
+#hero button { 
+    background: #2A6EF3; 
+    color: white; 
+    border: none; 
+}
