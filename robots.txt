@@ -1,4 +1,39 @@
 User-agent: *
 Allow: /
 
+# Block admin and test pages
+Disallow: /admin*
+Disallow: /test*
+Disallow: /debug*
+Disallow: /api-test*
+Disallow: /auth-debug*
+Disallow: /auth-flow-debug*
+Disallow: /dashboard-test*
+Disallow: /simple-auth-test*
+Disallow: /final-auth-test*
+Disallow: /login-flow-test*
+Disallow: /network-debug*
+Disallow: /production-diagnostics*
+Disallow: /vercel-deployment-test*
+Disallow: /cleanup-unknown-bookings*
+Disallow: /clinic-image-verification*
+Disallow: /diagnose-user-bookings*
+Disallow: /caregrid-diagnostics*
+
+# Block backend and scripts
+Disallow: /backend/
+Disallow: /*.py
+Disallow: /*.sh
+Disallow: /*.sql
+Disallow: /js/test*
+Disallow: /input/
+Disallow: /output/
+
+# Allow important resources
+Allow: /css/
+Allow: /js/
+Allow: /images/
+Allow: /assets/
+
+# Sitemap
 Sitemap: https://www.caregrid.co.uk/sitemap.xml
