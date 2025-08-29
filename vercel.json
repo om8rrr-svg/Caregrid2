@@ -21,5 +21,6 @@
       "source": "/(.*)",
       "headers": [{ "key": "Cache-Control", "value": "no-store" }]
     }
-  ]
+  ],
+  "errorPage": "404.html"
 }

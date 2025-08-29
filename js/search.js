@@ -35,11 +35,19 @@ class AdvancedSearch {
             distance: '',
             rating: '',
             language: '',
-            gender: ''
+            gender: '',
+            search: ''
         };
         
         this.activeFilterCount = 0;
         this.selectedSuggestionIndex = -1;
+        
+        // Debouncing
+        this.debounceTimeout = null;
+        this.debounceDelay = 500; // 500ms delay
+        
+        // Loading state
+        this.isLoading = false;
         
         // Always try to initialize, but handle errors gracefully
         this.init();
@@ -325,12 +333,16 @@ class AdvancedSearch {
         this.updateResultsCount();
     }
     
-    updateResultsCount() {
-        const visibleCards = document.querySelectorAll('.clinic-card[style*="block"], .clinic-card:not([style*="none"])');
+    updateResultsCount(total = null) {
         const resultsText = document.querySelector('.results-count');
         
         if (resultsText) {
-            resultsText.textContent = `${visibleCards.length} clinic${visibleCards.length !== 1 ? 's' : ''} found`;
+            if (total !== null) {
+                resultsText.textContent = `${total} clinic${total !== 1 ? 's' : ''} found`;
+            } else {
+                const visibleCards = document.querySelectorAll('.clinic-card[style*="block"], .clinic-card:not([style*="none"])');
+                resultsText.textContent = `${visibleCards.length} clinic${visibleCards.length !== 1 ? 's' : ''} found`;
+            }
         }
     }
     
@@ -363,6 +375,213 @@ class AdvancedSearch {
         
         this.updateActiveFilterCount();
         this.updateFiltersToggle();
+        
+        // Debounce the filter application
+        this.debounceFilterApplication();
+    }
+    
+    debounceFilterApplication() {
+        // Clear existing timeout
+        if (this.debounceTimeout) {
+            clearTimeout(this.debounceTimeout);
+        }
+        
+        // Set new timeout
+        this.debounceTimeout = setTimeout(() => {
+            this.applyFiltersWithAPI();
+        }, this.debounceDelay);
+    }
+    
+    async applyFiltersWithAPI() {
+        if (this.isLoading) return;
+        
+        this.isLoading = true;
+        this.showLoadingState();
+        
+        try {
+            // Build filter params for API
+            const params = {};
+            
+            Object.entries(this.currentFilters).forEach(([key, value]) => {
+                if (value && value !== '') {
+                    params[key] = value;
+                }
+            });
+            
+            // Add search query if exists
+            if (this.searchInput && this.searchInput.value.trim()) {
+                params.search = this.searchInput.value.trim();
+            }
+            
+            console.log('Applying filters with API params:', params);
+            
+            // Use AbortController for timeout
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 30000);
+            
+            // Call API with filters
+            const response = await fetch(this.apiService.buildUrl('/api/clinics'), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ filters: params }),
+                signal: controller.signal
+            });
+            
+            clearTimeout(timeoutId);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
+            const data = await response.json();
+            
+            // Update the clinic cards with filtered results
+            this.updateClinicsDisplay(data.clinics || []);
+            this.updateResultsCount(data.total || 0);
+            
+        } catch (error) {
+            console.error('Filter API error:', error);
+            
+            if (error.name === 'AbortError') {
+                this.showError('Request timeout. Please try again.');
+            } else {
+                this.showError('Failed to apply filters. Using local filtering as fallback.');
+                // Fallback to local filtering
+                this.filterClinicsByAdvancedFilters();
+            }
+        } finally {
+            this.isLoading = false;
+            this.hideLoadingState();
+        }
+    }
+    
+    showLoadingState() {
+        // Show loading spinner
+        const loadingIndicator = document.getElementById('loadingIndicator') || this.createLoadingIndicator();
+        loadingIndicator.style.display = 'block';
+        
+        // Disable filter controls
+        if (this.advancedFilters) {
+            this.advancedFilters.style.opacity = '0.6';
+            this.advancedFilters.style.pointerEvents = 'none';
+        }
+    }
+    
+    hideLoadingState() {
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        if (loadingIndicator) {
+            loadingIndicator.style.display = 'none';
+        }
+        
+        // Re-enable filter controls
+        if (this.advancedFilters) {
+            this.advancedFilters.style.opacity = '1';
+            this.advancedFilters.style.pointerEvents = 'auto';
+        }
+    }
+    
+    createLoadingIndicator() {
+        const indicator = document.createElement('div');
+        indicator.id = 'loadingIndicator';
+        indicator.innerHTML = `
+            <div style="
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(0,0,0,0.8);
+                color: white;
+                padding: 20px;
+                border-radius: 8px;
+                z-index: 10000;
+                display: none;
+            ">
+                <i class="fas fa-spinner fa-spin"></i>
+                <span style="margin-left: 10px;">Applying filters...</span>
+            </div>
+        `;
+        document.body.appendChild(indicator);
+        return indicator;
+    }
+    
+    updateClinicsDisplay(clinics) {
+        const clinicsContainer = document.querySelector('.clinics-grid') || document.querySelector('.clinic-cards');
+        
+        if (!clinicsContainer) {
+            console.warn('Clinics container not found');
+            return;
+        }
+        
+        if (clinics.length === 0) {
+            clinicsContainer.innerHTML = `
+                <div class="no-results" style="grid-column: 1 / -1; text-align: center; padding: 40px;">
+                    <i class="fas fa-search" style="font-size: 48px; color: #ccc; margin-bottom: 20px;"></i>
+                    <h3>No clinics found</h3>
+                    <p>Try adjusting your filters or search terms.</p>
+                    <button onclick="window.advancedSearch?.clearAllFilters()" class="btn btn-primary">
+                        Clear Filters
+                    </button>
+                </div>
+            `;
+            return;
+        }
+        
+        // Update the existing clinic cards or render new ones
+        clinicsContainer.innerHTML = clinics.map(clinic => this.renderClinicCard(clinic)).join('');
+    }
+    
+    renderClinicCard(clinic) {
+        return `
+            <div class="clinic-card" data-clinic-id="${clinic.id}">
+                <div class="clinic-image">
+                    <img src="${clinic.image || 'images/clinic-placeholder.jpg'}" 
+                         alt="${clinic.name}" 
+                         onerror="this.src='images/clinic-placeholder.jpg'">
+                </div>
+                <div class="clinic-info">
+                    <h3 class="clinic-name">${clinic.name}</h3>
+                    <p class="clinic-type">${clinic.type}</p>
+                    <div class="clinic-location">${clinic.address || clinic.location}</div>
+                    <div class="clinic-rating">
+                        <span class="rating">${clinic.rating || 'N/A'}</span>
+                        <span class="reviews">(${clinic.reviewCount || 0} reviews)</span>
+                    </div>
+                </div>
+                <div class="clinic-actions">
+                    <a href="clinic-profile.html?id=${clinic.id}" class="btn btn-outline">
+                        View Details
+                    </a>
+                    <a href="booking.html?clinic=${clinic.id}" class="btn btn-primary">
+                        Book Now
+                    </a>
+                </div>
+            </div>
+        `;
+    }
+    
+    showError(message) {
+        const toast = document.createElement('div');
+        toast.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #dc3545;
+            color: white;
+            padding: 12px 16px;
+            border-radius: 4px;
+            z-index: 10000;
+            max-width: 300px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        `;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            setTimeout(() => toast.remove(), 300);
+        }, 5000);
     }
     
     updateActiveFilterCount() {
