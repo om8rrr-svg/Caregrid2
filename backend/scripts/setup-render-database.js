@@ -145,42 +145,14 @@ async function runMigrations(client) {
     const migrationPath = path.join(migrationsDir, file);
     let migrationSQL = fs.readFileSync(migrationPath, 'utf8');
     
-    // Handle UUID extension compatibility for different PostgreSQL versions
-    if (migrationSQL.includes('uuid_generate_v4()')) {
-      migrationSQL = migrationSQL.replace(
-        'CREATE EXTENSION IF NOT EXISTS "uuid-ossp";',
-        `-- Try to create uuid-ossp extension, fallback to gen_random_uuid if not available
-DO $$
-BEGIN
-    CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-EXCEPTION WHEN OTHERS THEN
-    -- Extension not available, will use gen_random_uuid() instead
-    NULL;
-END$$;`
-      );
-      
-      // Replace uuid_generate_v4() with a more compatible function
-      migrationSQL = migrationSQL.replace(
-        /uuid_generate_v4\(\)/g,
-        'COALESCE(uuid_generate_v4(), gen_random_uuid())'
-      );
-    }
+    // Skip UUID compatibility handling - use migration file as-is
     
     try {
       // Execute migration in a transaction
       await client.query('BEGIN');
       
-      // Split migration into individual statements for better error handling
-      const statements = migrationSQL
-        .split(';')
-        .map(stmt => stmt.trim())
-        .filter(stmt => stmt.length > 0 && !stmt.startsWith('--'));
-      
-      for (const statement of statements) {
-        if (statement.trim()) {
-          await client.query(statement);
-        }
-      }
+      // Execute the entire migration as one statement to handle complex SQL
+      await client.query(migrationSQL);
       
       await client.query(
         'INSERT INTO schema_migrations (version) VALUES ($1)',

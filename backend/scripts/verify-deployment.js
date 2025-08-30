@@ -145,7 +145,7 @@ async function checkDatabaseConnection() {
     
     // Check if UUID function is available
     try {
-      await client.query('SELECT generate_uuid()');
+      await client.query('SELECT uuid_generate_v4()');
       log('🆔 UUID generation function available', colors.green);
     } catch (error) {
       issues.push('UUID generation function not available - migrations may fail');
