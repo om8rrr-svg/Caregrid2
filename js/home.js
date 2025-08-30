@@ -79,4 +79,68 @@ function renderClinicCard(c) {
   `;
 }
 
-document.addEventListener('DOMContentLoaded', loadCities);
+async function loadFeaturedClinics() {
+  const list = el('clinicGrid'); // container where featured clinic cards render
+  if (!list) return;
+  
+  // Check if clinics are already loaded by script.js
+  if (list.children.length > 0 && !list.innerHTML.includes('Loading')) {
+    return; // Already populated by script.js
+  }
+  
+  list.innerHTML = '<div class="muted">Loading featured clinics…</div>';
+
+  try {
+    const rsp = await fetchJson('/api/clinics', { params: { limit: 100 } });
+    const clinics = rsp?.data || rsp || [];
+    const items = Array.isArray(clinics) ? clinics : [];
+    const data = items.length ? items : [
+      { name:'Manchester Private GP', city:'Manchester', postcode:'M3 2BB', type:'GP', website:'#' },
+      { name:'Bolton Smile Dental', city:'Bolton', postcode:'BL1 1AA', type:'Dentist', website:'#' },
+      { name:'Leeds Physio Hub', city:'Leeds', postcode:'LS1 4HT', type:'Physio', website:'#' }
+    ];
+    
+    // Show demo data badge if using fallback
+    if (data.length === 3 && data[0].name === 'Manchester Private GP') {
+      const resultsInfo = el('resultsInfo');
+      if (resultsInfo) {
+        resultsInfo.innerHTML = '<span class="badge demo-badge" style="background: #ff9500; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; margin-right: 10px;">Demo Data</span>Showing demo clinics';
+        resultsInfo.style.display = 'block';
+      }
+    }
+    
+    renderClinics(data);
+  } catch (e) {
+    const data = [
+      { name:'Manchester Private GP', city:'Manchester', postcode:'M3 2BB', type:'GP', website:'#' },
+      { name:'Bolton Smile Dental', city:'Bolton', postcode:'BL1 1AA', type:'Dentist', website:'#' },
+      { name:'Leeds Physio Hub', city:'Leeds', postcode:'LS1 4HT', type:'Physio', website:'#' }
+    ];
+    
+    // Show demo data badge
+    const resultsInfo = el('resultsInfo');
+    if (resultsInfo) {
+      resultsInfo.innerHTML = '<span class="badge demo-badge" style="background: #ff9500; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; margin-right: 10px;">Demo Data</span>Showing demo clinics (API unavailable)';
+      resultsInfo.style.display = 'block';
+    }
+    
+    renderClinics(data);
+  }
+}
+
+function renderClinics(data) {
+  const list = el('clinicGrid');
+  if (!list) return;
+  
+  if (data.length === 0) {
+    list.innerHTML = '<div class="muted">No featured clinics available.</div>';
+    return;
+  }
+  
+  list.innerHTML = data.map(renderClinicCard).join('');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadCities();
+  loadFeaturedClinics();
+});
