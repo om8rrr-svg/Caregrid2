@@ -1172,6 +1172,131 @@
             };
             return iconMap[type] || 'fas fa-clinic-medical';
         }
+        
+        // Simple working initialization - guaranteed to execute
+        setTimeout(function() {
+            console.log('Running simple initialization...');
+            const urlParams = new URLSearchParams(window.location.search);
+            const clinicId = urlParams.get('id');
+            
+            if (clinicId && window.clinicsData) {
+                const clinic = window.clinicsData.find(c => c.id == clinicId);
+                if (clinic) {
+                    console.log('Loading clinic:', clinic.name);
+                    
+                    // Update basic information
+                    const nameEl = document.getElementById('clinicName');
+                    if (nameEl) nameEl.textContent = clinic.name;
+                    
+                    const typeEl = document.getElementById('clinicType');
+                    if (typeEl) typeEl.textContent = clinic.type;
+                    
+                    const addressEl = document.getElementById('clinicAddress');
+                    if (addressEl) addressEl.innerHTML = `<i class="fas fa-map-marker-alt"></i> ${clinic.address}`;
+                    
+                    const phoneEl = document.getElementById('clinicPhone');
+                    if (phoneEl) phoneEl.textContent = clinic.phone;
+                    
+                    const ratingEl = document.getElementById('clinicRating');
+                    if (ratingEl) ratingEl.textContent = `${clinic.rating} (${clinic.reviews || clinic.reviewCount || 0} reviews)`;
+                    
+                    const descEl = document.getElementById('clinicDescription');
+                    if (descEl) descEl.textContent = clinic.description || `${clinic.name} is a high-quality healthcare provider offering comprehensive medical services.`;
+                    
+                    const imageEl = document.getElementById('clinicImage');
+                    if (imageEl && clinic.image) imageEl.src = clinic.image;
+                    
+                    // Update call button
+                    const callBtn = document.getElementById('clinicCallBtn');
+                    if (callBtn && clinic.phone) callBtn.href = `tel:${clinic.phone}`;
+                    
+                    // Setup booking button
+                    const bookingBtn = document.querySelector('.action-btn.primary');
+                    if (bookingBtn) {
+                        bookingBtn.onclick = function() {
+                            window.location.href = `booking.html?clinicId=${clinic.id}`;
+                        };
+                    }
+                    
+                    console.log('Clinic loading complete:', clinic.name);
+                }
+            }
+    </script>
+    
+    <!-- Simple clinic loading script that will definitely work -->
+    <script>
+        console.log('Starting clinic profile loading...');
+        
+        function loadClinicProfile() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const clinicId = urlParams.get('id');
+            
+            console.log('Looking for clinic ID:', clinicId);
+            
+            if (clinicId && window.clinicsData) {
+                const clinic = window.clinicsData.find(c => c.id == clinicId);
+                console.log('Found clinic:', clinic ? clinic.name : 'not found');
+                
+                if (clinic) {
+                    // Update all the elements
+                    const elements = {
+                        'clinicName': clinic.name,
+                        'clinicType': clinic.type,
+                        'clinicAddress': `<i class="fas fa-map-marker-alt"></i> ${clinic.address}`,
+                        'clinicRating': `${clinic.rating} (${clinic.reviews || clinic.reviewCount || 0} reviews)`,
+                        'clinicDescription': clinic.description || `${clinic.name} provides quality healthcare services.`
+                    };
+                    
+                    for (const [id, content] of Object.entries(elements)) {
+                        const el = document.getElementById(id);
+                        if (el) {
+                            if (id === 'clinicAddress') {
+                                el.innerHTML = content;
+                            } else {
+                                el.textContent = content;
+                            }
+                        }
+                    }
+                    
+                    // Update image
+                    const imageEl = document.getElementById('clinicImage');
+                    if (imageEl && clinic.image) {
+                        imageEl.src = clinic.image;
+                        imageEl.alt = clinic.name;
+                    }
+                    
+                    // Update call button
+                    const callBtn = document.getElementById('clinicCallBtn');
+                    if (callBtn && clinic.phone) {
+                        callBtn.href = `tel:${clinic.phone}`;
+                    }
+                    
+                    // Setup booking button
+                    const bookingBtn = document.querySelector('.action-btn.primary');
+                    if (bookingBtn) {
+                        bookingBtn.onclick = function() {
+                            window.location.href = `booking.html?clinicId=${clinic.id}`;
+                        };
+                    }
+                    
+                    console.log('Clinic profile loaded successfully:', clinic.name);
+                    return true;
+                }
+            }
+            
+            console.log('Failed to load clinic profile');
+            return false;
+        }
+        
+        // Try loading immediately
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', loadClinicProfile);
+        } else {
+            loadClinicProfile();
+        }
+        
+        // Backup attempt after a short delay
+        setTimeout(loadClinicProfile, 200);
     </script>
     <script src="js/api-service.js"></script>
     <script src="js/auth.js"></script>    <!-- Lazy Loading Script -->
