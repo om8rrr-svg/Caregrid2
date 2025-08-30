@@ -2,7 +2,7 @@ import { fetchJson } from './api-base.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('listClinicForm');
-  const success = document.getElementById('listClinicSuccess');
+  const success = document.querySelector('.form-step[data-step="success"]');
   const fail = document.getElementById('listClinicFail');
   
   // Hide success and fail messages by default
