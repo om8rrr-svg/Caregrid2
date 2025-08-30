@@ -11,7 +11,10 @@ async function loadCities() {
   try {
     const rsp = await fetchJson('/api/clinics', { params: { limit: 500 } });
     const clinics = rsp?.data || rsp || [];
-    const cities = [...new Set(clinics.map(c => c.city).filter(Boolean))].sort();
+    
+    // Add deduplication safeguard
+    const uniq = arr => [...new Set(arr.filter(Boolean))];
+    const cities = uniq(clinics.map(c => c.city)).sort();
 
     if (cities.length === 0) {
       container.innerHTML = `<div class="muted">No cities yet. Please check back soon.</div>`;
@@ -79,4 +82,9 @@ function renderClinicCard(c) {
   `;
 }
 
-document.addEventListener('DOMContentLoaded', loadCities);
+document.addEventListener('DOMContentLoaded', () => {
+  // Clear any placeholder text on init
+  document.querySelectorAll('.clinic-count').forEach(el => el.textContent = '—');
+  
+  loadCities();
+});
