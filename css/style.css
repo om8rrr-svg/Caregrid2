@@ -5,6 +5,321 @@
     box-sizing: border-box;
 }
 
+/* Legal/Privacy Page Styles */
+.legal-content {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    min-height: calc(100vh - 80px);
+    padding: 60px 0;
+    position: relative;
+}
+
+.legal-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 200px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    opacity: 0.1;
+    z-index: 1;
+}
+
+.legal-content .container {
+    position: relative;
+    z-index: 2;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.legal-header {
+    text-align: center;
+    margin-bottom: 50px;
+    padding: 40px 30px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+.legal-header h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 15px;
+    letter-spacing: -0.02em;
+}
+
+.legal-header .last-updated {
+    font-size: 1.1rem;
+    color: #64748b;
+    font-weight: 500;
+    padding: 10px 20px;
+    background: #f1f5f9;
+    border-radius: 25px;
+    display: inline-block;
+    border: 1px solid #e2e8f0;
+}
+
+.legal-text {
+    background: white;
+    padding: 50px;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    line-height: 1.8;
+    font-size: 1.1rem;
+    color: #334155;
+}
+
+.legal-text h2 {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 40px 0 20px 0;
+    padding-bottom: 15px;
+    border-bottom: 3px solid #e2e8f0;
+    position: relative;
+}
+
+.legal-text h2:first-child {
+    margin-top: 0;
+}
+
+.legal-text h2::before {
+    content: '';
+    position: absolute;
+    bottom: -3px;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 2px;
+}
+
+.legal-text p {
+    margin-bottom: 20px;
+    text-align: justify;
+}
+
+.legal-text ul {
+    margin: 20px 0;
+    padding-left: 0;
+}
+
+.legal-text li {
+    list-style: none;
+    margin-bottom: 12px;
+    padding: 15px 20px;
+    background: #f8fafc;
+    border-radius: 10px;
+    border-left: 4px solid #667eea;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.legal-text li:hover {
+    background: #f1f5f9;
+    transform: translateX(5px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
+}
+
+.legal-text li::before {
+    content: '✓';
+    position: absolute;
+    left: -12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.legal-text strong {
+    color: #1e293b;
+    font-weight: 600;
+}
+
+.legal-text a {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 500;
+    border-bottom: 1px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.legal-text a:hover {
+    color: #764ba2;
+    border-bottom-color: #764ba2;
+}
+
+/* Responsive Design for Legal/Privacy Pages */
+@media (max-width: 768px) {
+    .legal-content {
+        padding: 30px 0;
+    }
+    
+    .legal-content .container {
+        padding: 0 15px;
+    }
+    
+    .legal-header {
+        padding: 30px 20px;
+        margin-bottom: 30px;
+        border-radius: 15px;
+    }
+    
+    .legal-header h1 {
+        font-size: 2.2rem;
+        line-height: 1.2;
+    }
+    
+    .legal-header .last-updated {
+        font-size: 1rem;
+        padding: 8px 16px;
+    }
+    
+    .legal-text {
+        padding: 30px 25px;
+        border-radius: 15px;
+        font-size: 1rem;
+        line-height: 1.7;
+    }
+    
+    .legal-text h2 {
+        font-size: 1.6rem;
+        margin: 30px 0 15px 0;
+    }
+    
+    .legal-text li {
+        padding: 12px 15px;
+        margin-bottom: 10px;
+    }
+    
+    .legal-text li::before {
+        width: 20px;
+        height: 20px;
+        font-size: 10px;
+        left: -10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .legal-content {
+        padding: 20px 0;
+    }
+    
+    .legal-content .container {
+        padding: 0 10px;
+    }
+    
+    .legal-header {
+        padding: 25px 15px;
+        margin-bottom: 25px;
+        border-radius: 12px;
+    }
+    
+    .legal-header h1 {
+        font-size: 1.8rem;
+    }
+    
+    .legal-header .last-updated {
+        font-size: 0.9rem;
+        padding: 6px 12px;
+    }
+    
+    .legal-text {
+        padding: 25px 20px;
+        border-radius: 12px;
+        font-size: 0.95rem;
+    }
+    
+    .legal-text h2 {
+        font-size: 1.4rem;
+        margin: 25px 0 12px 0;
+    }
+    
+    .legal-text p {
+        margin-bottom: 15px;
+        text-align: left;
+    }
+    
+    .legal-text li {
+        padding: 10px 12px;
+        margin-bottom: 8px;
+        border-radius: 8px;
+    }
+    
+    .legal-text li:hover {
+        transform: none;
+    }
+    
+    .legal-text li::before {
+        width: 18px;
+        height: 18px;
+        font-size: 9px;
+        left: -9px;
+    }
+}
+
+/* Accessibility Improvements */
+.legal-text {
+    scroll-behavior: smooth;
+}
+
+.legal-text h2:focus,
+.legal-text a:focus {
+    outline: 2px solid #667eea;
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+.legal-text li:focus-within {
+    background: #e0e7ff;
+    outline: 2px solid #667eea;
+    outline-offset: 2px;
+}
+
+/* Print Styles */
+@media print {
+    .legal-content {
+        background: white;
+        padding: 0;
+    }
+    
+    .legal-content::before {
+        display: none;
+    }
+    
+    .legal-header,
+    .legal-text {
+        box-shadow: none;
+        border: 1px solid #ddd;
+        background: white;
+    }
+    
+    .legal-text li::before {
+        background: #333;
+    }
+    
+    .legal-text a {
+        color: #333;
+        text-decoration: underline;
+    }
+}
+
 /* Enhanced Animations */
 @keyframes fadeInUp {
     from {
