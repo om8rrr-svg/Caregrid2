@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<<<<<<< HEAD
     <title>Page Not Found (404) - CareGrid</title>
     <meta name="description" content="The page you're looking for doesn't exist. Find private healthcare providers across the UK with CareGrid.">
     <meta name="robots" content="noindex, nofollow">
@@ -28,10 +29,27 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         .error-page {
+=======
+    <title>Page Not Found - CareGrid</title>
+    <meta name="description" content="Sorry, the page you're looking for doesn't exist. Find healthcare providers on CareGrid.">
+    <link rel="canonical" href="https://www.caregrid.co.uk/404">
+    <meta property="og:title" content="Page Not Found - CareGrid">
+    <meta property="og:description" content="Sorry, the page you're looking for doesn't exist. Find healthcare providers on CareGrid.">
+    <meta property="og:url" content="https://www.caregrid.co.uk/404">
+    <meta property="og:image" content="https://www.caregrid.co.uk/og-image.jpg">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/fontawesome/css/all.min.css">
+    <style>
+        .error-container {
+>>>>>>> origin/copilot/fix-3adb1fa2-252d-4fed-814b-349a116416db
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
+<<<<<<< HEAD
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             padding: 20px;
         }
@@ -66,10 +84,51 @@
             color: #718096;
             margin: 20px 0 40px;
             line-height: 1.6;
+=======
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+        }
+        
+        .error-content {
+            text-align: center;
+            max-width: 600px;
+            background: white;
+            padding: 60px 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+        }
+        
+        .error-icon {
+            font-size: 120px;
+            color: #e74c3c;
+            margin-bottom: 30px;
+            animation: bounce 2s infinite;
+        }
+        
+        .error-title {
+            font-size: 48px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        
+        .error-subtitle {
+            font-size: 24px;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+        }
+        
+        .error-message {
+            font-size: 16px;
+            color: #95a5a6;
+            line-height: 1.6;
+            margin-bottom: 40px;
+>>>>>>> origin/copilot/fix-3adb1fa2-252d-4fed-814b-349a116416db
         }
         
         .error-actions {
             display: flex;
+<<<<<<< HEAD
             gap: 16px;
             justify-content: center;
             flex-wrap: wrap;
@@ -82,22 +141,47 @@
             text-decoration: none;
             font-weight: 500;
             transition: all 0.3s ease;
+=======
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+>>>>>>> origin/copilot/fix-3adb1fa2-252d-4fed-814b-349a116416db
             display: inline-flex;
             align-items: center;
             gap: 8px;
         }
         
         .btn-primary {
+<<<<<<< HEAD
             background: #667eea;
+=======
+            background: #3498db;
+>>>>>>> origin/copilot/fix-3adb1fa2-252d-4fed-814b-349a116416db
             color: white;
         }
         
         .btn-primary:hover {
+<<<<<<< HEAD
             background: #5a67d8;
+=======
+            background: #2980b9;
+>>>>>>> origin/copilot/fix-3adb1fa2-252d-4fed-814b-349a116416db
             transform: translateY(-2px);
         }
         
         .btn-secondary {
+<<<<<<< HEAD
             background: #f7fafc;
             color: #4a5568;
             border: 1px solid #e2e8f0;
@@ -152,20 +236,93 @@
             
             .error-title {
                 font-size: 24px;
+=======
+            background: #95a5a6;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #7f8c8d;
+            transform: translateY(-2px);
+        }
+        
+        .search-box {
+            margin: 30px 0;
+            position: relative;
+            max-width: 400px;
+            margin: 30px auto;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 15px 20px 15px 50px;
+            border: 2px solid #e0e0e0;
+            border-radius: 50px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+        
+        .search-input:focus {
+            border-color: #3498db;
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #95a5a6;
+            font-size: 18px;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .error-content {
+                padding: 40px 20px;
+            }
+            
+            .error-title {
+                font-size: 36px;
+            }
+            
+            .error-subtitle {
+                font-size: 20px;
+>>>>>>> origin/copilot/fix-3adb1fa2-252d-4fed-814b-349a116416db
             }
             
             .error-actions {
                 flex-direction: column;
+<<<<<<< HEAD
             }
             
             .btn {
                 width: 100%;
+=======
+                align-items: center;
+            }
+            
+            .btn {
+                width: 200px;
+>>>>>>> origin/copilot/fix-3adb1fa2-252d-4fed-814b-349a116416db
                 justify-content: center;
             }
         }
     </style>
 </head>
 <body>
+<<<<<<< HEAD
     <!-- Navigation -->
     <header>
         <nav>
@@ -206,14 +363,63 @@
                     <a href="/booking.html" class="helpful-link">Book Appointment</a>
                     <a href="/help.html" class="helpful-link">Help & Support</a>
                 </div>
+=======
+    <div class="error-container">
+        <div class="error-content">
+            <div class="error-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h1 class="error-title">404</h1>
+            <h2 class="error-subtitle">Page Not Found</h2>
+            <p class="error-message">
+                Sorry, the page you're looking for doesn't exist. It might have been moved, deleted, or you entered the wrong URL.
+            </p>
+            
+            <div class="search-box">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" placeholder="Search for clinics..." id="quickSearch">
+            </div>
+            
+            <div class="error-actions">
+                <a href="/" class="btn btn-primary">
+                    <i class="fas fa-home"></i>
+                    Go Home
+                </a>
+                <a href="javascript:history.back()" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i>
+                    Go Back
+                </a>
+>>>>>>> origin/copilot/fix-3adb1fa2-252d-4fed-814b-349a116416db
             </div>
         </div>
     </div>
 
+<<<<<<< HEAD
     <!-- Footer -->
     <footer>
         <p>&copy; 2025 CareGrid. All rights reserved. | <a href="#">Privacy Policy</a> | <a href="#">Terms</a></p>
         <p>Connecting patients with private healthcare in Manchester, Bolton, Liverpool, Leeds.</p>
     </footer>
+=======
+    <script>
+        // Quick search functionality
+        document.getElementById('quickSearch').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const query = this.value.trim();
+                if (query) {
+                    window.location.href = `/?search=${encodeURIComponent(query)}`;
+                }
+            }
+        });
+        
+        // Track 404 errors if analytics is available
+        if (typeof gtag !== 'undefined') {
+            gtag('event', '404_error', {
+                page_location: window.location.href,
+                page_referrer: document.referrer
+            });
+        }
+    </script>
+>>>>>>> origin/copilot/fix-3adb1fa2-252d-4fed-814b-349a116416db
 </body>
 </html>
