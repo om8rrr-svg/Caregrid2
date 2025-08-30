@@ -3,8 +3,16 @@ name: Deploy Backend to Render
 on:
   push:
     branches: [ main ]
+    paths:
+      - 'backend/**'
+      - 'render.yaml'
+      - '.github/workflows/deploy.yml'
   pull_request:
     branches: [ main ]
+    paths:
+      - 'backend/**'
+      - 'render.yaml'
+      - '.github/workflows/deploy.yml'
 
 permissions:
   contents: read
