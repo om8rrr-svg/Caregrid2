@@ -345,7 +345,7 @@
                     <i class="fas fa-check-circle"></i>
                 </div>
                 <h3 id="successTitle">Welcome to CareGrid!</h3>
-                <p id="successMessage">Welcome to CareGrid!</p>
+                <p id="successMessage">Your account has been created successfully. You can now access your dashboard and book appointments.</p>
             </div>
             <div class="modal-actions">
                 <button class="auth-btn primary" onclick="closeSuccessModal(); showSignIn();">Continue to Sign In</button>
@@ -443,6 +443,86 @@
             initGoogleAuth();
             initFacebookAuth();
         });
+
+        // Success modal functions
+        function showSuccessModal() {
+            const modal = document.getElementById('successModal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.style.display = 'flex';
+            }
+        }
+
+        function closeSuccessModal() {
+            const modal = document.getElementById('successModal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.style.display = 'none';
+            }
+        }
+
+        function showSignIn() {
+            // Hide password reset wizard if shown
+            const passwordResetWizard = document.getElementById('passwordResetWizard');
+            if (passwordResetWizard) {
+                passwordResetWizard.style.display = 'none';
+                passwordResetWizard.classList.add('hidden');
+            }
+            
+            // Show sign in form (already visible by default)
+            const signinForm = document.getElementById('signinForm');
+            if (signinForm) {
+                signinForm.style.display = 'block';
+            }
+        }
+
+        function showPasswordResetWizard() {
+            const passwordResetWizard = document.getElementById('passwordResetWizard');
+            if (passwordResetWizard) {
+                passwordResetWizard.style.display = 'block';
+                passwordResetWizard.classList.remove('hidden');
+            }
+        }
+
+        function showResetStep(step) {
+            // Hide all steps
+            for (let i = 1; i <= 4; i++) {
+                const stepElement = document.getElementById(`resetStep${i}`);
+                if (stepElement) {
+                    stepElement.classList.add('hidden');
+                    stepElement.style.display = 'none';
+                }
+            }
+            
+            // Show the requested step
+            const targetStep = document.getElementById(`resetStep${step}`);
+            if (targetStep) {
+                targetStep.classList.remove('hidden');
+                targetStep.style.display = 'block';
+            }
+        }
+
+        // Password toggle function
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const toggle = input.parentElement.querySelector('.password-toggle, .password-toggle-modern');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                toggle.innerHTML = '<i class="fas fa-eye-slash"></i>';
+            } else {
+                input.type = 'password';
+                toggle.innerHTML = '<i class="fas fa-eye"></i>';
+            }
+        }
+
+        // Make functions available globally
+        window.showSuccessModal = showSuccessModal;
+        window.closeSuccessModal = closeSuccessModal;
+        window.showSignIn = showSignIn;
+        window.showPasswordResetWizard = showPasswordResetWizard;
+        window.showResetStep = showResetStep;
+        window.togglePassword = togglePassword;
     </script>
     
     <!-- Modern Loading Overlay -->

@@ -275,44 +275,105 @@
                 this.showLoading('signUpForm');
                 
                 try {
-                    // Simulate API call
-                    await this.delay(2000);
-                    
-                    // Check if email already exists
-                    if (this.users.find(u => u.email === formData.email)) {
-                        throw new Error('An account with this email already exists');
+                    // Try backend API first
+                    const response = await fetch('https://caregrid-backend.onrender.com/api/auth/register', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            firstName: formData.firstName,
+                            lastName: formData.lastName,
+                            email: formData.email,
+                            phone: formData.phone,
+                            password: formData.password
+                        })
+                    });
+
+                    if (response.ok) {
+                        const result = await response.json();
+                        
+                        // Store the token
+                        if (result.data && result.data.token) {
+                            localStorage.setItem('caregrid_token', result.data.token);
+                        }
+                        
+                        // Show success modal and redirect after user acknowledges
+                        this.showSuccessModalAndRedirect();
+                        return;
+                    } else {
+                        // Handle API error
+                        const errorData = await response.json().catch(() => ({}));
+                        throw new Error(errorData.message || 'Registration failed. Please try again.');
                     }
+                } catch (apiError) {
+                    console.warn('Backend API unavailable, using localStorage fallback:', apiError.message);
                     
-                    // Create new user
-                    const newUser = {
-                        id: Date.now().toString(),
-                        firstName: formData.firstName,
-                        lastName: formData.lastName,
-                        email: formData.email,
-                        phone: formData.phone,
-                        password: formData.password,
-                        createdAt: new Date().toISOString(),
-                        verified: false,
-                        favorites: [],
-                        appointments: []
-                    };
-                    
-                    this.users.push(newUser);
-                    localStorage.setItem('careGridUsers', JSON.stringify(this.users));
-                    
-                    // Link any guest bookings
-                    this.linkGuestBookings(newUser);
-                    
-                    // Auto sign in
-                    localStorage.setItem('careGridCurrentUser', JSON.stringify(newUser));
-                    
-                    // Redirect directly to dashboard
-                    window.location.href = 'dashboard.html';
-                    
-                } catch (error) {
-                    this.showError('signUpEmailError', error.message);
+                    try {
+                        // Fallback to localStorage for demo/development
+                        // Check if email already exists
+                        if (this.users.find(u => u.email === formData.email)) {
+                            throw new Error('An account with this email already exists');
+                        }
+                        
+                        // Create new user
+                        const newUser = {
+                            id: Date.now().toString(),
+                            firstName: formData.firstName,
+                            lastName: formData.lastName,
+                            email: formData.email,
+                            phone: formData.phone,
+                            password: formData.password,
+                            createdAt: new Date().toISOString(),
+                            verified: false,
+                            favorites: [],
+                            appointments: []
+                        };
+                        
+                        this.users.push(newUser);
+                        localStorage.setItem('careGridUsers', JSON.stringify(this.users));
+                        
+                        // Link any guest bookings
+                        this.linkGuestBookings(newUser);
+                        
+                        // Auto sign in
+                        localStorage.setItem('careGridCurrentUser', JSON.stringify(newUser));
+                        
+                        // Show success modal and redirect
+                        this.showSuccessModalAndRedirect();
+                    } catch (localStorageError) {
+                        this.showError('signUpEmailError', localStorageError.message);
+                    }
                 } finally {
                     this.hideLoading('signUpForm');
+                }
+            }
+            
+            showSuccessModalAndRedirect() {
+                this.hideLoading('signUpForm');
+                
+                // Create success modal dynamically if it doesn't exist
+                let modal = document.getElementById('signupSuccessModal');
+                if (!modal) {
+                    const modalHTML = `
+                        <div id="signupSuccessModal" class="modal" style="display: flex;">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <div class="success-icon">
+                                        <i class="fas fa-check-circle"></i>
+                                    </div>
+                                    <h3>Welcome to CareGrid!</h3>
+                                    <p>Your account has been created successfully. A welcome email has been sent to your email address.</p>
+                                </div>
+                                <div class="modal-actions">
+                                    <button class="auth-btn primary" onclick="window.location.href='dashboard.html'">Continue to Dashboard</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    document.body.insertAdjacentHTML('beforeend', modalHTML);
+                } else {
+                    modal.style.display = 'flex';
                 }
             }
             
@@ -484,24 +545,28 @@
             
             showLoading(formId) {
                 const form = document.getElementById(formId);
+                if (!form) return;
+                
                 const btnText = form.querySelector('.btn-text');
                 const btnLoader = form.querySelector('.btn-loader');
                 const submitBtn = form.querySelector('button[type="submit"]');
                 
-                btnText.classList.add('hidden');
-                btnLoader.classList.remove('hidden');
-                submitBtn.disabled = true;
+                if (btnText) btnText.classList.add('hidden');
+                if (btnLoader) btnLoader.classList.remove('hidden');
+                if (submitBtn) submitBtn.disabled = true;
             }
             
             hideLoading(formId) {
                 const form = document.getElementById(formId);
+                if (!form) return;
+                
                 const btnText = form.querySelector('.btn-text');
                 const btnLoader = form.querySelector('.btn-loader');
                 const submitBtn = form.querySelector('button[type="submit"]');
                 
-                btnText.classList.remove('hidden');
-                btnLoader.classList.add('hidden');
-                submitBtn.disabled = false;
+                if (btnText) btnText.classList.remove('hidden');
+                if (btnLoader) btnLoader.classList.add('hidden');
+                if (submitBtn) submitBtn.disabled = false;
             }
             
 
