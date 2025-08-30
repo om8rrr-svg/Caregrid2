@@ -405,17 +405,38 @@
             const clinicId = urlParams.get('id');
             
             if (clinicId) {
-                try {
-                    // Show loading state
-                    showLoadingState();
-                    
-                    // Try to get clinic from API first
-                    const response = await window.apiService.getClinicById(clinicId);
-                    const clinic = response.data || response;
-                    
+                // Show loading state
+                showLoadingState();
+                
+                // Check if local data is available first for faster loading
+                let clinic = null;
+                if (window.clinicsData) {
+                    clinic = window.clinicsData.find(c => c.id == clinicId);
                     if (clinic) {
+                        console.log('Found clinic in local data:', clinic.name);
                         currentClinic = clinic;
                         loadClinicData(clinic);
+                        return; // Exit early with local data
+                    }
+                }
+                
+                // If no local data found, try API with timeout
+                try {
+                    console.log('Attempting to load clinic from API...');
+                    
+                    // Add timeout to API call to prevent hanging
+                    const timeoutPromise = new Promise((_, reject) =>
+                        setTimeout(() => reject(new Error('API timeout')), 5000)
+                    );
+                    
+                    const apiPromise = window.apiService.getClinicById(clinicId);
+                    const response = await Promise.race([apiPromise, timeoutPromise]);
+                    const apiClinic = response.data || response;
+                    
+                    if (apiClinic) {
+                        console.log('Loaded clinic from API:', apiClinic.name);
+                        currentClinic = apiClinic;
+                        loadClinicData(apiClinic);
                     } else {
                         console.log('Clinic not found for ID:', clinicId);
                         showErrorMessage('Clinic not found');
@@ -423,10 +444,11 @@
                 } catch (error) {
                     console.error('Failed to load clinic data from API:', error);
                     
-                    // Fallback to local data if available
+                    // Final fallback to local data if API fails
                     if (window.clinicsData) {
-                        const clinic = window.clinicsData.find(c => c.id == clinicId);
+                        clinic = window.clinicsData.find(c => c.id == clinicId);
                         if (clinic) {
+                            console.log('Using local data as fallback:', clinic.name);
                             currentClinic = clinic;
                             loadClinicData(clinic);
                         } else {
@@ -474,7 +496,38 @@
             }
         }
         
-        document.addEventListener('DOMContentLoaded', initializeClinicProfile);
+        document.addEventListener('DOMContentLoaded', function() {
+            // Ensure initialization happens with proper error handling
+            try {
+                initializeClinicProfile();
+            } catch (error) {
+                console.error('Error during initialization:', error);
+                // Fallback initialization in case of errors
+                setTimeout(initializeClinicProfileFallback, 500);
+            }
+        });
+        
+        // Backup initialization function that works without complex dependencies
+        function initializeClinicProfileFallback() {
+            console.log('Running fallback initialization...');
+            const urlParams = new URLSearchParams(window.location.search);
+            const clinicId = urlParams.get('id');
+            
+            if (clinicId && window.clinicsData) {
+                const clinic = window.clinicsData.find(c => c.id == clinicId);
+                if (clinic) {
+                    console.log('Loading clinic with fallback method:', clinic.name);
+                    currentClinic = clinic;
+                    loadClinicData(clinic);
+                } else {
+                    showErrorMessage('Clinic not found');
+                }
+            } else if (!clinicId) {
+                showErrorMessage('No clinic specified');
+            } else {
+                showErrorMessage('Unable to load clinic information');
+            }
+        }
 
         function loadClinicData(clinic) {
             // Basic clinic information
@@ -1121,8 +1174,9 @@
         }
     </script>
     <script src="js/api-service.js"></script>
-    <script type="module" src="js/script.js"></script>
     <script src="js/auth.js"></script>    <!-- Lazy Loading Script -->
     <script src="js/lazy-loader.js"></script>
+    <!-- Load clinic data from a dedicated file for profile page -->
+    <script src="js/clinic-data.js"></script>
 </body>
 </html>
