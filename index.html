@@ -278,32 +278,32 @@
                 <button class="category-btn active" data-category="all" onclick="filterByCategory('all')">
                     <div class="category-icon"><i class="fas fa-hospital"></i></div>
                     <span>All Clinics</span>
-                    <div class="clinic-count">—</div>
+                    <div class="clinic-count">25+</div>
                 </button>
                 <button class="category-btn" data-category="gp" onclick="filterByCategory('gp')">
                     <div class="category-icon"><i class="fas fa-stethoscope"></i></div>
                     <span>GP</span>
-                    <div class="clinic-count">—</div>
+                    <div class="clinic-count">8</div>
                 </button>
                 <button class="category-btn" data-category="dentist" onclick="filterByCategory('dentist')">
                     <div class="category-icon"><i class="fas fa-tooth"></i></div>
                     <span>Dentist</span>
-                    <div class="clinic-count">—</div>
+                    <div class="clinic-count">6</div>
                 </button>
                 <button class="category-btn" data-category="physio" onclick="filterByCategory('physio')">
                     <div class="category-icon"><i class="fas fa-dumbbell"></i></div>
                     <span>Physio</span>
-                    <div class="clinic-count">—</div>
+                    <div class="clinic-count">4</div>
                 </button>
                 <button class="category-btn" data-category="optician" onclick="filterByCategory('optician')">
                     <div class="category-icon"><i class="fas fa-eye"></i></div>
                     <span>Optician</span>
-                    <div class="clinic-count">—</div>
+                    <div class="clinic-count">5</div>
                 </button>
                 <button class="category-btn" data-category="pharmacy" onclick="filterByCategory('pharmacy')">
                     <div class="category-icon"><i class="fas fa-capsules"></i></div>
                     <span>Pharmacy</span>
-                    <div class="clinic-count">—</div>
+                    <div class="clinic-count">2</div>
                 </button>
             </nav>
         </div>
@@ -318,47 +318,37 @@
             <nav class="location-grid" data-aos="fade-up" data-aos-delay="200" aria-label="Available locations">
                 <button class="location-btn active" data-location="all" onclick="filterByLocation('all')">
                     <span class="location-name">All Locations</span>
-                    <span class="clinic-count" aria-live="polite">—</span>
+                    <span class="clinic-count" aria-live="polite">25+</span>
                 </button>
                 <button class="location-btn" data-location="manchester" onclick="filterByLocation('manchester')">
                     <span class="location-name">Manchester</span>
-                    <span class="clinic-count" aria-live="polite">—</span>
+                    <span class="clinic-count" aria-live="polite">8</span>
                 </button>
                 <button class="location-btn" data-location="bolton" onclick="filterByLocation('bolton')">
                     <span class="location-name">Bolton</span>
-                    <span class="clinic-count" aria-live="polite">—</span>
+                    <span class="clinic-count" aria-live="polite">4</span>
                 </button>
                 <button class="location-btn" data-location="liverpool" onclick="filterByLocation('liverpool')">
                     <span class="location-name">Liverpool</span>
-                    <span class="clinic-count" aria-live="polite">—</span>
+                    <span class="clinic-count" aria-live="polite">6</span>
                 </button>
                 <button class="location-btn" data-location="leeds" onclick="filterByLocation('leeds')">
                     <span class="location-name">Leeds</span>
-                    <span class="clinic-count" aria-live="polite">—</span>
-                </button>
-                <button class="location-btn" data-location="glasgow" onclick="filterByLocation('glasgow')">
-                    <span class="location-name">Glasgow</span>
-                    <span class="clinic-count" aria-live="polite">—</span>
-                </button>
-                <button class="location-btn" data-location="birmingham" onclick="filterByLocation('birmingham')">
-                    <span class="location-name">Birmingham</span>
-                    <span class="clinic-count" aria-live="polite">—</span>
+                    <span class="clinic-count" aria-live="polite">5</span>
                 </button>
                 <button class="location-btn" data-location="london" onclick="filterByLocation('london')">
                     <span class="location-name">London</span>
-                    <span class="clinic-count" aria-live="polite">—</span>
+                    <span class="clinic-count" aria-live="polite">2</span>
                 </button>
             </nav>
             <!-- Mobile dropdown for locations -->
             <select class="mobile-location-select" onchange="filterByLocation(this.value)" data-aos="fade-up" data-aos-delay="200">
-                <option value="all">All Locations (—)</option>
-                <option value="manchester">Manchester (—)</option>
-                <option value="bolton">Bolton (—)</option>
-                <option value="liverpool">Liverpool (—)</option>
-                <option value="leeds">Leeds (—)</option>
-                <option value="glasgow">Glasgow (—)</option>
-                <option value="birmingham">Birmingham (—)</option>
-                <option value="london">London (—)</option>
+                <option value="all">All Locations (25+)</option>
+                <option value="manchester">Manchester (8)</option>
+                <option value="bolton">Bolton (4)</option>
+                <option value="liverpool">Liverpool (6)</option>
+                <option value="leeds">Leeds (5)</option>
+                <option value="london">London (2)</option>
             </select>
         </div>
     </section>
@@ -393,8 +383,6 @@
                         <option value="bolton">Bolton</option>
                         <option value="liverpool">Liverpool</option>
                         <option value="leeds">Leeds</option>
-                        <option value="glasgow">Glasgow</option>
-                        <option value="birmingham">Birmingham</option>
                         <option value="london">London</option>
                     </select>
                 </div>
@@ -596,7 +584,6 @@
     <!-- API Base and Page Scripts -->
     <script type="module" src="js/api-base.js?v=2025082510"></script>
     <script src="js/api-service.js?v=2025082510"></script>
-    <script type="module" src="js/header.js?v=2025082510"></script>
     <script type="module" src="js/home.js?v=2025082510"></script>
     <script type="module" src="js/script.js?v=2025082510"></script>
     <script type="module" src="js/consent.js"></script>
@@ -617,5 +604,8 @@
         window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
     </script>
     <!-- Vercel Speed Insights script removed for local development -->
+    
+    <!-- App scripts -->
+    <script type="module" src="js/header.js"></script>
 </body>
 </html>

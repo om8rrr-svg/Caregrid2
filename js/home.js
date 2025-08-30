@@ -98,13 +98,70 @@ async function loadFeaturedClinics() {
     const clinics = rsp?.data || rsp || [];
     const items = Array.isArray(clinics) ? clinics : [];
     const data = items.length ? items : [
-      { name:'Manchester Private GP', city:'Manchester', postcode:'M3 2BB', type:'GP', website:'#' },
-      { name:'Bolton Smile Dental', city:'Bolton', postcode:'BL1 1AA', type:'Dentist', website:'#' },
-      { name:'Leeds Physio Hub', city:'Leeds', postcode:'LS1 4HT', type:'Physio', website:'#' }
+      { 
+        name: 'Manchester Private GP', 
+        city: 'Manchester', 
+        postcode: 'M3 2BB', 
+        type: 'GP', 
+        website: '#',
+        rating: 4.8,
+        reviews: 156,
+        description: 'Comprehensive private healthcare services in Manchester city centre',
+        phone: '0161 234 5678',
+        address: '123 Deansgate, Manchester'
+      },
+      { 
+        name: 'Bolton Smile Dental', 
+        city: 'Bolton', 
+        postcode: 'BL1 1AA', 
+        type: 'Dentist', 
+        website: '#',
+        rating: 4.9,
+        reviews: 89,
+        description: 'Modern dental practice offering cosmetic and general dentistry',
+        phone: '01204 567 890',
+        address: '45 Chorley New Road, Bolton'
+      },
+      { 
+        name: 'Leeds Physio Hub', 
+        city: 'Leeds', 
+        postcode: 'LS1 4HT', 
+        type: 'Physio', 
+        website: '#',
+        rating: 4.7,
+        reviews: 124,
+        description: 'Sports injury rehabilitation and physiotherapy specialists',
+        phone: '0113 456 7890',
+        address: '78 The Headrow, Leeds'
+      },
+      { 
+        name: 'Liverpool Eye Care', 
+        city: 'Liverpool', 
+        postcode: 'L1 8JQ', 
+        type: 'Optician', 
+        website: '#',
+        rating: 4.6,
+        reviews: 67,
+        description: 'Comprehensive eye care and designer eyewear specialists',
+        phone: '0151 789 0123',
+        address: '32 Bold Street, Liverpool'
+      },
+      { 
+        name: 'London Wellness Pharmacy', 
+        city: 'London', 
+        postcode: 'SW1A 1AA', 
+        type: 'Pharmacy', 
+        website: '#',
+        rating: 4.5,
+        reviews: 203,
+        description: 'Full-service pharmacy with health consultations and wellness products',
+        phone: '020 7123 4567',
+        address: '15 Harley Street, London'
+      }
     ];
     
     // Show demo data badge if using fallback
-    if (data.length === 3 && data[0].name === 'Manchester Private GP') {
+    if (data.length === 5 && data[0].name === 'Manchester Private GP') {
       const resultsInfo = el('resultsInfo');
       if (resultsInfo) {
         resultsInfo.innerHTML = '<span class="badge demo-badge" style="background: #ff9500; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; margin-right: 10px;">Demo Data</span>Showing demo clinics';
@@ -115,9 +172,66 @@ async function loadFeaturedClinics() {
     renderClinics(data);
   } catch (e) {
     const data = [
-      { name:'Manchester Private GP', city:'Manchester', postcode:'M3 2BB', type:'GP', website:'#' },
-      { name:'Bolton Smile Dental', city:'Bolton', postcode:'BL1 1AA', type:'Dentist', website:'#' },
-      { name:'Leeds Physio Hub', city:'Leeds', postcode:'LS1 4HT', type:'Physio', website:'#' }
+      { 
+        name: 'Manchester Private GP', 
+        city: 'Manchester', 
+        postcode: 'M3 2BB', 
+        type: 'GP', 
+        website: '#',
+        rating: 4.8,
+        reviews: 156,
+        description: 'Comprehensive private healthcare services in Manchester city centre',
+        phone: '0161 234 5678',
+        address: '123 Deansgate, Manchester'
+      },
+      { 
+        name: 'Bolton Smile Dental', 
+        city: 'Bolton', 
+        postcode: 'BL1 1AA', 
+        type: 'Dentist', 
+        website: '#',
+        rating: 4.9,
+        reviews: 89,
+        description: 'Modern dental practice offering cosmetic and general dentistry',
+        phone: '01204 567 890',
+        address: '45 Chorley New Road, Bolton'
+      },
+      { 
+        name: 'Leeds Physio Hub', 
+        city: 'Leeds', 
+        postcode: 'LS1 4HT', 
+        type: 'Physio', 
+        website: '#',
+        rating: 4.7,
+        reviews: 124,
+        description: 'Sports injury rehabilitation and physiotherapy specialists',
+        phone: '0113 456 7890',
+        address: '78 The Headrow, Leeds'
+      },
+      { 
+        name: 'Liverpool Eye Care', 
+        city: 'Liverpool', 
+        postcode: 'L1 8JQ', 
+        type: 'Optician', 
+        website: '#',
+        rating: 4.6,
+        reviews: 67,
+        description: 'Comprehensive eye care and designer eyewear specialists',
+        phone: '0151 789 0123',
+        address: '32 Bold Street, Liverpool'
+      },
+      { 
+        name: 'London Wellness Pharmacy', 
+        city: 'London', 
+        postcode: 'SW1A 1AA', 
+        type: 'Pharmacy', 
+        website: '#',
+        rating: 4.5,
+        reviews: 203,
+        description: 'Full-service pharmacy with health consultations and wellness products',
+        phone: '020 7123 4567',
+        address: '15 Harley Street, London'
+      }
     ];
     
     // Show demo data badge
