@@ -60,48 +60,288 @@
             <div class="help-header">
                 <h1>Help Center</h1>
                 <p>Find answers to common questions and get support for using CareGrid</p>
+                
+                <!-- Search Bar -->
+                <div class="help-search">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="helpSearch" placeholder="Search for help topics..." aria-label="Search help topics">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <h2>Quick Actions</h2>
+                <div class="action-grid">
+                    <a href="auth.html" class="action-card">
+                        <i class="fas fa-user-plus"></i>
+                        <h3>Create Account</h3>
+                        <p>Sign up to book appointments</p>
+                    </a>
+                    <a href="index.html" class="action-card">
+                        <i class="fas fa-search"></i>
+                        <h3>Find Providers</h3>
+                        <p>Search for healthcare services</p>
+                    </a>
+                    <a href="dashboard.html" class="action-card">
+                        <i class="fas fa-calendar-alt"></i>
+                        <h3>Manage Bookings</h3>
+                        <p>View and manage appointments</p>
+                    </a>
+                    <a href="contact.html" class="action-card">
+                        <i class="fas fa-headset"></i>
+                        <h3>Contact Support</h3>
+                        <p>Get help from our team</p>
+                    </a>
+                </div>
             </div>
 
             <div class="help-content">
-                <div class="help-section">
-                    <h2>Frequently Asked Questions</h2>
-                    
-                    <div class="faq-item">
-                        <h3>How do I book an appointment?</h3>
-                        <p>To book an appointment, search for a clinic using our search bar, select your preferred clinic, and click the "Book Appointment" button. You'll need to create an account or sign in to complete your booking.</p>
-                    </div>
-
-                    <div class="faq-item">
-                        <h3>How do I search for healthcare providers?</h3>
-                        <p>Use our search bar on the homepage to search by location, clinic type, or specific services. You can also filter results by category and location using the dropdown menus.</p>
-                    </div>
-
-                    <div class="faq-item">
-                        <h3>Is CareGrid free to use?</h3>
-                        <p>Yes, CareGrid is completely free for patients. You can search for clinics, view their information, and book appointments at no cost.</p>
-                    </div>
-
-                    <div class="faq-item">
-                        <h3>How do I cancel or reschedule an appointment?</h3>
-                        <p>You can manage your appointments through your dashboard after signing in. From there, you can view, cancel, or reschedule your bookings.</p>
-                    </div>
-
-                    <div class="faq-item">
-                        <h3>What types of healthcare providers are listed?</h3>
-                        <p>CareGrid lists various private healthcare providers including GPs, dentists, physiotherapists, aesthetic clinics, and other specialist services.</p>
+                <!-- FAQ Categories -->
+                <div class="faq-categories">
+                    <h2>Browse by Category</h2>
+                    <div class="category-tabs">
+                        <button class="category-tab active" data-category="all">All Topics</button>
+                        <button class="category-tab" data-category="getting-started">Getting Started</button>
+                        <button class="category-tab" data-category="booking">Booking & Appointments</button>
+                        <button class="category-tab" data-category="account">Account Management</button>
+                        <button class="category-tab" data-category="providers">For Providers</button>
                     </div>
                 </div>
 
-                <div class="help-section">
-                    <h2>Contact Support</h2>
-                    <p>Can't find what you're looking for? Our support team is here to help.</p>
-                    <div class="contact-options">
-                        <div class="contact-option">
-                            <i class="fas fa-envelope"></i>
-                            <h4>Email Support</h4>
-                            <p>Send us an email and we'll get back to you within 24 hours.</p>
-                            <a href="contact.html" class="btn-primary">Contact Us</a>
+                <!-- FAQ Section -->
+                <div class="faq-section">
+                    <h2>Frequently Asked Questions</h2>
+                    
+                    <!-- Getting Started -->
+                    <div class="faq-item" data-category="getting-started">
+                        <div class="faq-question" 
+                             onclick="toggleFaq(this)" 
+                             onkeydown="handleFaqKeydown(event)"
+                             tabindex="0" 
+                             role="button" 
+                             aria-expanded="false"
+                             aria-controls="faq-answer-1">
+                            <span><i class="fas fa-play-circle"></i>How do I get started with CareGrid?</span>
+                            <span class="faq-icon" aria-hidden="true">+</span>
                         </div>
+                        <div class="faq-answer" id="faq-answer-1" role="region" aria-labelledby="faq-question-1">
+                            <p>Getting started is easy! Simply visit our homepage, use the search bar to find healthcare providers in your area, and browse through available clinics. You can search without an account, but you'll need to sign up to book appointments.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item" data-category="getting-started">
+                        <div class="faq-question" 
+                             onclick="toggleFaq(this)" 
+                             onkeydown="handleFaqKeydown(event)"
+                             tabindex="0" 
+                             role="button" 
+                             aria-expanded="false"
+                             aria-controls="faq-answer-2">
+                            <span><i class="fas fa-search"></i>How do I search for healthcare providers?</span>
+                            <span class="faq-icon" aria-hidden="true">+</span>
+                        </div>
+                        <div class="faq-answer" id="faq-answer-2" role="region" aria-labelledby="faq-question-2">
+                            <p>Use our search bar on the homepage to search by location, clinic type, or specific services. You can filter results by category (GP, Dentist, Physiotherapy, Aesthetic) and location using the dropdown menus. Results show clinic ratings, reviews, and contact information.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item" data-category="getting-started">
+                        <div class="faq-question" 
+                             onclick="toggleFaq(this)" 
+                             onkeydown="handleFaqKeydown(event)"
+                             tabindex="0" 
+                             role="button" 
+                             aria-expanded="false"
+                             aria-controls="faq-answer-3">
+                            <span><i class="fas fa-pound-sign"></i>Is CareGrid free to use?</span>
+                            <span class="faq-icon" aria-hidden="true">+</span>
+                        </div>
+                        <div class="faq-answer" id="faq-answer-3" role="region" aria-labelledby="faq-question-3">
+                            <p>Yes, CareGrid is completely free for patients. You can search for clinics, view their information, read reviews, and book appointments at no cost. We're funded by our clinic partners who pay for premium listing features.</p>
+                        </div>
+                    </div>
+
+                    <!-- Booking & Appointments -->
+                    <div class="faq-item" data-category="booking">
+                        <div class="faq-question" 
+                             onclick="toggleFaq(this)" 
+                             onkeydown="handleFaqKeydown(event)"
+                             tabindex="0" 
+                             role="button" 
+                             aria-expanded="false"
+                             aria-controls="faq-answer-4">
+                            <span><i class="fas fa-calendar-plus"></i>How do I book an appointment?</span>
+                            <span class="faq-icon" aria-hidden="true">+</span>
+                        </div>
+                        <div class="faq-answer" id="faq-answer-4" role="region" aria-labelledby="faq-question-4">
+                            <p>To book an appointment: 1) Search for a clinic, 2) Select your preferred provider, 3) Click "Book Appointment", 4) Choose your preferred date and time, 5) Fill in your details, and 6) Confirm your booking. You'll receive a confirmation email with your appointment details.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item" data-category="booking">
+                        <div class="faq-question" 
+                             onclick="toggleFaq(this)" 
+                             onkeydown="handleFaqKeydown(event)"
+                             tabindex="0" 
+                             role="button" 
+                             aria-expanded="false"
+                             aria-controls="faq-answer-5">
+                            <span><i class="fas fa-edit"></i>How do I cancel or reschedule an appointment?</span>
+                            <span class="faq-icon" aria-hidden="true">+</span>
+                        </div>
+                        <div class="faq-answer" id="faq-answer-5" role="region" aria-labelledby="faq-question-5">
+                            <p>Sign in to your account and go to your dashboard. Under "My Appointments", you'll find all your bookings. Click on the appointment you want to modify and select "Cancel" or "Reschedule". Please note that cancellation policies vary by clinic.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item" data-category="booking">
+                        <div class="faq-question" 
+                             onclick="toggleFaq(this)" 
+                             onkeydown="handleFaqKeydown(event)"
+                             tabindex="0" 
+                             role="button" 
+                             aria-expanded="false"
+                             aria-controls="faq-answer-6">
+                            <span><i class="fas fa-clock"></i>How far in advance can I book appointments?</span>
+                            <span class="faq-icon" aria-hidden="true">+</span>
+                        </div>
+                        <div class="faq-answer" id="faq-answer-6" role="region" aria-labelledby="faq-question-6">
+                            <p>Booking timeframes vary by clinic and service type. Most clinics allow bookings up to 3-6 months in advance. Some specialists may have longer waiting times. Check the clinic's profile for specific availability and booking windows.</p>
+                        </div>
+                    </div>
+
+                    <!-- Account Management -->
+                    <div class="faq-item" data-category="account">
+                        <div class="faq-question" 
+                             onclick="toggleFaq(this)" 
+                             onkeydown="handleFaqKeydown(event)"
+                             tabindex="0" 
+                             role="button" 
+                             aria-expanded="false"
+                             aria-controls="faq-answer-7">
+                            <span><i class="fas fa-user-cog"></i>How do I update my profile information?</span>
+                            <span class="faq-icon" aria-hidden="true">+</span>
+                        </div>
+                        <div class="faq-answer" id="faq-answer-7" role="region" aria-labelledby="faq-question-7">
+                            <p>Sign in to your account and navigate to your dashboard. Click on "Settings" or "Profile" to update your personal information, contact details, and preferences. Remember to save your changes before leaving the page.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item" data-category="account">
+                        <div class="faq-question" 
+                             onclick="toggleFaq(this)" 
+                             onkeydown="handleFaqKeydown(event)"
+                             tabindex="0" 
+                             role="button" 
+                             aria-expanded="false"
+                             aria-controls="faq-answer-8">
+                            <span><i class="fas fa-key"></i>I forgot my password. How do I reset it?</span>
+                            <span class="faq-icon" aria-hidden="true">+</span>
+                        </div>
+                        <div class="faq-answer" id="faq-answer-8" role="region" aria-labelledby="faq-question-8">
+                            <p>On the sign-in page, click "Forgot Password". Enter your email address and we'll send you a password reset link. Check your email (including spam folder) and follow the instructions to create a new password.</p>
+                        </div>
+                    </div>
+
+                    <!-- For Providers -->
+                    <div class="faq-item" data-category="providers">
+                        <div class="faq-question" 
+                             onclick="toggleFaq(this)" 
+                             onkeydown="handleFaqKeydown(event)"
+                             tabindex="0" 
+                             role="button" 
+                             aria-expanded="false"
+                             aria-controls="faq-answer-9">
+                            <span><i class="fas fa-hospital"></i>How can I list my clinic on CareGrid?</span>
+                            <span class="faq-icon" aria-hidden="true">+</span>
+                        </div>
+                        <div class="faq-answer" id="faq-answer-9" role="region" aria-labelledby="faq-question-9">
+                            <p>Click "List Your Clinic" in the navigation menu and complete our onboarding form. We offer both free basic listings and premium enhanced listings with additional features. Our team will review your application and help you get started.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item" data-category="providers">
+                        <div class="faq-question" 
+                             onclick="toggleFaq(this)" 
+                             onkeydown="handleFaqKeydown(event)"
+                             tabindex="0" 
+                             role="button" 
+                             aria-expanded="false"
+                             aria-controls="faq-answer-10">
+                            <span><i class="fas fa-star"></i>What types of healthcare providers are listed?</span>
+                            <span class="faq-icon" aria-hidden="true">+</span>
+                        </div>
+                        <div class="faq-answer" id="faq-answer-10" role="region" aria-labelledby="faq-question-10">
+                            <p>CareGrid lists various private healthcare providers including General Practitioners (GPs), Dentists, Physiotherapists, Aesthetic clinics, Specialists, and other healthcare services. We focus on quality private healthcare providers across the UK.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Support Section -->
+                <div class="contact-support">
+                    <h2>Still Need Help?</h2>
+                    <p>Our support team is here to assist you with any questions or concerns.</p>
+                    
+                    <div class="support-options">
+                        <div class="support-option">
+                            <div class="support-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div class="support-details">
+                                <h3>Email Support</h3>
+                                <p>Get detailed help via email</p>
+                                <span class="response-time">Response within 24 hours</span>
+                                <a href="contact.html" class="action-btn primary">Send Email</a>
+                            </div>
+                        </div>
+                        
+                        <div class="support-option">
+                            <div class="support-icon">
+                                <i class="fas fa-phone-alt"></i>
+                            </div>
+                            <div class="support-details">
+                                <h3>Phone Support</h3>
+                                <p>Speak directly with our team</p>
+                                <span class="response-time">Mon-Fri, 9AM-6PM GMT</span>
+                                <a href="tel:+441612345678" class="action-btn secondary">Call Now</a>
+                            </div>
+                        </div>
+                        
+                        <div class="support-option">
+                            <div class="support-icon">
+                                <i class="fas fa-comments"></i>
+                            </div>
+                            <div class="support-details">
+                                <h3>Live Chat</h3>
+                                <p>Chat with us in real-time</p>
+                                <span class="response-time">Available 24/7</span>
+                                <a href="#" class="action-btn primary" onclick="openLiveChat()">Start Chat</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional Resources -->
+                <div class="additional-resources">
+                    <h2>Additional Resources</h2>
+                    <div class="resource-grid">
+                        <a href="pricing.html" class="resource-card">
+                            <i class="fas fa-tag"></i>
+                            <h3>Pricing Information</h3>
+                            <p>Learn about our pricing plans for healthcare providers</p>
+                        </a>
+                        <a href="privacy.html" class="resource-card">
+                            <i class="fas fa-shield-alt"></i>
+                            <h3>Privacy Policy</h3>
+                            <p>How we protect and handle your personal information</p>
+                        </a>
+                        <a href="terms.html" class="resource-card">
+                            <i class="fas fa-file-contract"></i>
+                            <h3>Terms of Service</h3>
+                            <p>Terms and conditions for using CareGrid services</p>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -156,5 +396,6 @@
     </footer>
 
     <script src="js/auth.js"></script>
+    <script src="js/help.js"></script>
 </body>
 </html>
