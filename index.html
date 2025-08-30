@@ -579,56 +579,7 @@
             setTimeout(initializeAOS, 500);
         }
         
-        // Check authentication state on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            // Wait a bit for auth.js to finish loading
-            setTimeout(checkAuthenticationState, 100);
-        });
-        
-        // Also check when the page becomes visible (in case of navigation)
-        document.addEventListener('visibilitychange', function() {
-            if (!document.hidden) {
-                checkAuthenticationState();
-            }
-        });
-        
-        function checkAuthenticationState() {
-            try {
-                const currentUser = JSON.parse(localStorage.getItem('careGridCurrentUser') || sessionStorage.getItem('careGridCurrentUser') || 'null');
-                
-                const authNavItem = document.getElementById('authNavItem');
-                const userNavItem = document.getElementById('userNavItem');
-                const userName = document.getElementById('userName');
-                
-                if (currentUser && authNavItem && userNavItem && userName) {
-                    // User is logged in - show user menu, hide sign in
-                    authNavItem.style.display = 'none';
-                    userNavItem.style.display = 'block';
-                    const firstName = currentUser.firstName || '';
-                    const lastName = currentUser.lastName || '';
-                    userName.textContent = `${firstName} ${lastName}`.trim() || 'User';
-                    console.log('User authenticated:', firstName, lastName);
-                } else if (authNavItem && userNavItem) {
-                    // User is not logged in - show sign in, hide user menu
-                    authNavItem.style.display = 'block';
-                    userNavItem.style.display = 'none';
-                    console.log('No user authenticated');
-                }
-            } catch (error) {
-                console.error('Error checking authentication state:', error);
-            }
-        }
-        
-        function toggleUserMenu() {
-            const dropdown = document.getElementById('userDropdown');
-            const avatar = document.querySelector('.user-avatar');
-            const isOpen = avatar.getAttribute('aria-expanded') === 'true';
-            
-            avatar.setAttribute('aria-expanded', String(!isOpen));
-            dropdown.hidden = isOpen;
-            dropdown.classList.toggle('show');
-        }
-        
+        // Advanced filters toggle function (not auth-related)
         function toggleAdvancedFilters() {
             const filtersPanel = document.getElementById('advancedFilters');
             const toggle = document.getElementById('filtersToggle');
@@ -639,26 +590,7 @@
             filtersPanel.classList.toggle('show');
         }
         
-        function logout() {
-            localStorage.removeItem('careGridCurrentUser');
-            sessionStorage.removeItem('careGridCurrentUser');
-            localStorage.removeItem('careGridToken');
-            sessionStorage.removeItem('careGridToken');
-            
-            // Dispatch auth state change event to update navigation
-            window.dispatchEvent(new CustomEvent('authStateChanged'));
-            
-            window.location.href = 'index.html';
-        }
-        
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(event) {
-            const userMenu = document.querySelector('.user-menu');
-            const dropdown = document.getElementById('userDropdown');
-            if (userMenu && !userMenu.contains(event.target)) {
-                dropdown.classList.remove('show');
-            }
-        });
+        <!-- Navigation and authentication state is now handled by js/header.js -->
     </script>
     
     <!-- API Base and Page Scripts -->
