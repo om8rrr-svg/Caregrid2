@@ -96,9 +96,36 @@ function logout() {
   window.location.href = '/';
 }
 
+// Toggle user dropdown menu
+function toggleUserMenu() {
+  const dropdown = document.getElementById('userDropdown');
+  const avatar = document.querySelector('.user-avatar');
+  if (dropdown && avatar) {
+    const isOpen = avatar.getAttribute('aria-expanded') === 'true';
+    avatar.setAttribute('aria-expanded', String(!isOpen));
+    dropdown.hidden = isOpen;
+    dropdown.classList.toggle('show');
+  }
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(event) {
+  const userMenu = document.querySelector('.user-menu');
+  const dropdown = document.getElementById('userDropdown');
+  if (userMenu && dropdown && !userMenu.contains(event.target)) {
+    dropdown.hidden = true;
+    dropdown.classList.remove('show');
+    const avatar = document.querySelector('.user-avatar');
+    if (avatar) {
+      avatar.setAttribute('aria-expanded', 'false');
+    }
+  }
+});
+
 // Make functions globally available
 window.renderNavAuth = renderNavAuth;
 window.logout = logout;
+window.toggleUserMenu = toggleUserMenu;
 
 // Update auth state on auth changes
 window.addEventListener('authStateChanged', renderNavAuth);
