@@ -42,7 +42,39 @@ document.addEventListener('DOMContentLoaded', () => {
       const token = rsp.token || rsp.accessToken;
       if (!token) throw new Error('missing_token');
       localStorage.setItem('caregrid_token', token);
-      window.location.href = '/dashboard.html';
+      
+      // Show success modal for existing users
+      const successModal = document.getElementById('successModal');
+      const successTitle = document.getElementById('successTitle');
+      const successMessage = document.getElementById('successMessage');
+      
+      if (successModal && successTitle && successMessage) {
+        successTitle.textContent = 'Welcome Back!';
+        successMessage.textContent = 'You have successfully signed in to your CareGrid account.';
+        
+        if (UI.progress()) UI.progress().style.display = 'none';
+        
+        // Show the success modal
+        successModal.classList.remove('hidden');
+        successModal.style.display = 'flex';
+        
+        // Auto-redirect after 3 seconds or when user clicks continue
+        const redirectTimer = setTimeout(() => {
+          window.location.href = '/dashboard.html';
+        }, 3000);
+        
+        // If user clicks continue, clear timer and redirect immediately
+        const continueBtn = successModal.querySelector('.auth-btn');
+        if (continueBtn) {
+          continueBtn.onclick = () => {
+            clearTimeout(redirectTimer);
+            window.location.href = '/dashboard.html';
+          };
+        }
+      } else {
+        // Fallback: direct redirect if modal not found
+        window.location.href = '/dashboard.html';
+      }
     } catch (err) {
       if (UI.progress()) UI.progress().style.display = 'none';
       if (UI.error()) {

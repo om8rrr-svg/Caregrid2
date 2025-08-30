@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy and Terms of Service Verification</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .test-result { padding: 20px; margin: 20px 0; border-radius: 8px; }
+        .success { background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .error { background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        .info { background-color: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; }
+        .test-links { margin: 20px 0; }
+        .test-links a { display: inline-block; margin: 10px 20px 10px 0; padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; }
+        .test-links a:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <h1>Privacy Policy and Terms of Service Verification</h1>
+    
+    <div class="info">
+        <h3>Test Purpose</h3>
+        <p>This page helps verify that the Privacy Policy and Terms of Service pages are showing different content as expected.</p>
+        <p><strong>Issue:</strong> Both pages were reported to show the same Terms of Service content in production.</p>
+    </div>
+
+    <div class="test-links">
+        <h3>Test Links</h3>
+        <a href="privacy.html" target="_blank">Privacy Policy Page</a>
+        <a href="terms.html" target="_blank">Terms of Service Page</a>
+    </div>
+
+    <div id="testResults"></div>
+
+    <script>
+        async function verifyPages() {
+            const resultDiv = document.getElementById('testResults');
+            resultDiv.innerHTML = '<h3>Running Tests...</h3>';
+
+            try {
+                // Test Privacy Policy page
+                const privacyResponse = await fetch('privacy.html');
+                const privacyContent = await privacyResponse.text();
+                
+                // Test Terms of Service page
+                const termsResponse = await fetch('terms.html');
+                const termsContent = await termsResponse.text();
+
+                // Parse the content to check titles and key sections
+                const privacyTitle = extractTitle(privacyContent);
+                const termsTitle = extractTitle(termsContent);
+                
+                const privacyHasDataController = privacyContent.includes('Data Controller Information');
+                const privacyHasGDPR = privacyContent.includes('GDPR');
+                const privacyHasCookies = privacyContent.includes('Cookies');
+                
+                const termsHasAcceptance = termsContent.includes('Acceptance of Terms');
+                const termsHasUserAccounts = termsContent.includes('User Accounts');
+                const termsHasLiability = termsContent.includes('Limitation of Liability');
+
+                let results = '<h3>Test Results:</h3>';
+
+                // Test 1: Different titles
+                if (privacyTitle !== termsTitle) {
+                    results += `<div class="test-result success">
+                        <strong>✅ PASS:</strong> Pages have different titles<br>
+                        Privacy: "${privacyTitle}"<br>
+                        Terms: "${termsTitle}"
+                    </div>`;
+                } else {
+                    results += `<div class="test-result error">
+                        <strong>❌ FAIL:</strong> Pages have identical titles: "${privacyTitle}"
+                    </div>`;
+                }
+
+                // Test 2: Privacy-specific content
+                if (privacyHasDataController && privacyHasGDPR && privacyHasCookies) {
+                    results += `<div class="test-result success">
+                        <strong>✅ PASS:</strong> Privacy page contains expected privacy-specific content (Data Controller, GDPR, Cookies)
+                    </div>`;
+                } else {
+                    results += `<div class="test-result error">
+                        <strong>❌ FAIL:</strong> Privacy page missing expected content<br>
+                        Data Controller: ${privacyHasDataController ? '✅' : '❌'}<br>
+                        GDPR: ${privacyHasGDPR ? '✅' : '❌'}<br>
+                        Cookies: ${privacyHasCookies ? '✅' : '❌'}
+                    </div>`;
+                }
+
+                // Test 3: Terms-specific content
+                if (termsHasAcceptance && termsHasUserAccounts && termsHasLiability) {
+                    results += `<div class="test-result success">
+                        <strong>✅ PASS:</strong> Terms page contains expected terms-specific content (Acceptance, User Accounts, Liability)
+                    </div>`;
+                } else {
+                    results += `<div class="test-result error">
+                        <strong>❌ FAIL:</strong> Terms page missing expected content<br>
+                        Acceptance of Terms: ${termsHasAcceptance ? '✅' : '❌'}<br>
+                        User Accounts: ${termsHasUserAccounts ? '✅' : '❌'}<br>
+                        Limitation of Liability: ${termsHasLiability ? '✅' : '❌'}
+                    </div>`;
+                }
+
+                // Test 4: Content uniqueness
+                if (privacyContent !== termsContent) {
+                    results += `<div class="test-result success">
+                        <strong>✅ PASS:</strong> Page contents are different (${privacyContent.length} vs ${termsContent.length} characters)
+                    </div>`;
+                } else {
+                    results += `<div class="test-result error">
+                        <strong>❌ FAIL:</strong> Page contents are identical!
+                    </div>`;
+                }
+
+                resultDiv.innerHTML = results;
+
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="test-result error">
+                    <strong>❌ ERROR:</strong> Failed to fetch pages: ${error.message}
+                </div>`;
+            }
+        }
+
+        function extractTitle(htmlContent) {
+            const match = htmlContent.match(/<h1[^>]*>([^<]+)<\/h1>/i);
+            return match ? match[1].trim() : 'No title found';
+        }
+
+        // Run tests when page loads
+        window.addEventListener('DOMContentLoaded', verifyPages);
+    </script>
+
+    <div class="info">
+        <h3>Troubleshooting Guide</h3>
+        <p>If tests fail, the issue is likely in the production deployment. Check:</p>
+        <ul>
+            <li><strong>File Deployment:</strong> Ensure both privacy.html and terms.html are correctly uploaded</li>
+            <li><strong>Web Server Config:</strong> Check for redirects or rewrites affecting these URLs</li>
+            <li><strong>CDN/Caching:</strong> Clear cache and verify content distribution</li>
+            <li><strong>Build Process:</strong> Verify no scripts are overwriting files during deployment</li>
+            <li><strong>File Permissions:</strong> Ensure both files are readable by the web server</li>
+        </ul>
+    </div>
+</body>
+</html>
