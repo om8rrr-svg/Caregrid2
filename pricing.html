@@ -868,15 +868,13 @@
         }
         
         function upgradeToPremium() {
-            // This would integrate with Stripe for payment processing
-            alert('Stripe integration would be implemented here for premium upgrade.');
-            // Redirect to Stripe checkout or payment form
+            // Redirect to clinic listing with premium plan parameter
+            window.location.href = 'list-clinic.html?plan=premium';
         }
         
         function upgradeToBasic() {
-            // This would integrate with Stripe for payment processing
-            alert('Stripe integration would be implemented here for basic plan upgrade.');
-            // Redirect to Stripe checkout or payment form
+            // Redirect to clinic listing with basic plan parameter
+            window.location.href = 'list-clinic.html?plan=basic';
         }
     </script>
     <script type="module" src="js/auth.js"></script>    <!-- Lazy Loading Script -->
