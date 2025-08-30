@@ -28,36 +28,46 @@ async function setupRenderDatabase() {
     console.log('🔗 Using individual DB environment variables');
   }
   
-  const client = new Client(config);
+  const maxRetries = 5;
+  const retryDelay = 2000; // 2 seconds
   
-  try {
-    console.log('🔌 Connecting to PostgreSQL...');
-    await client.connect();
-    console.log('✅ Connected successfully!');
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    const client = new Client(config);
     
-    // Test the connection
-    const result = await client.query('SELECT version()');
-    console.log(`📊 PostgreSQL version: ${result.rows[0].version.split(' ')[0]} ${result.rows[0].version.split(' ')[1]}`);
-    
-    // Run migrations
-    await runMigrations(client);
-    
-    console.log('\n✅ Database setup completed successfully!');
-    console.log('\n🎯 Next steps:');
-    console.log('   1. Test the API: python3 test_api_mode.py');
-    console.log('   2. Run clinic import: python3 caregrid_listings_manager.py input/test_clinics.csv');
+    try {
+      console.log(`🔌 Connecting to PostgreSQL (attempt ${attempt}/${maxRetries})...`);
+      await client.connect();
+      console.log('✅ Connected successfully!');
+      
+      // Test the connection
+      const result = await client.query('SELECT version()');
+      console.log(`📊 PostgreSQL version: ${result.rows[0].version.split(' ')[0]} ${result.rows[0].version.split(' ')[1]}`);
+      
+      // Run migrations
+      await runMigrations(client);
+      
+      console.log('\n✅ Database setup completed successfully!');
+      console.log('\n🎯 Database is ready for application startup');
+      
+      await client.end();
+      return; // Success, exit function
     
   } catch (error) {
-    console.error('❌ Database setup failed:', error.message);
-    if (error.code) {
-      console.error(`   Error code: ${error.code}`);
-    }
-    console.error('⚠️  Continuing with server startup - database may need manual setup');
-    // Don't exit with error code during deployment to prevent build failure
-    // process.exit(1);
-  } finally {
-    if (client._connected) {
-      await client.end();
+      console.error(`❌ Database setup failed (attempt ${attempt}/${maxRetries}):`, error.message);
+      if (error.code) {
+        console.error(`   Error code: ${error.code}`);
+      }
+      
+      await client.end().catch(() => {}); // Ignore connection close errors
+      
+      if (attempt === maxRetries) {
+        console.error('⚠️  All connection attempts failed. Database may need manual setup.');
+        console.error('⚠️  Continuing with deployment - server will handle database errors gracefully');
+        return; // Don't exit with error to prevent build failure
+      }
+      
+      console.log(`⏳ Waiting ${retryDelay/1000}s before retry...`);
+      await new Promise(resolve => setTimeout(resolve, retryDelay));
     }
   }
 }

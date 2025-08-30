@@ -100,31 +100,71 @@ app.use(morgan('combined'));
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-  res.status(200).json({ 
+  res.status(200).json({
     status: 'OK',
     timestamp: new Date().toISOString(),
-    service: 'CareGrid API'
+    uptime: process.uptime(),
+    environment: process.env.NODE_ENV || 'development',
+    version: '1.0.0'
   });
 });
 
-// Database health check endpoint
+// Database health check endpoint with retry logic
 app.get('/health/db', async (req, res) => {
+  const maxRetries = 3;
+  const retryDelay = 1000;
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const { testConnection } = require('./config/database');
+      await testConnection();
+      res.status(200).json({
+        status: 'OK',
+        database: 'Connected',
+        timestamp: new Date().toISOString(),
+        attempt: attempt
+      });
+      return;
+    } catch (error) {
+      if (attempt === maxRetries) {
+        res.status(503).json({
+          status: 'ERROR',
+          database: 'Disconnected',
+          error: error.message,
+          timestamp: new Date().toISOString(),
+          attempts: maxRetries
+        });
+        return;
+      }
+      await new Promise(resolve => setTimeout(resolve, retryDelay));
+    }
+  }
+});
+
+// Comprehensive system health endpoint
+app.get('/health/system', async (req, res) => {
+  const health = {
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    environment: process.env.NODE_ENV || 'development',
+    version: '1.0.0',
+    memory: process.memoryUsage(),
+    database: 'Unknown'
+  };
+  
   try {
     const { testConnection } = require('./config/database');
     await testConnection();
-    res.status(200).json({
-      status: 'OK',
-      database: 'Connected',
-      timestamp: new Date().toISOString()
-    });
+    health.database = 'Connected';
   } catch (error) {
-    res.status(503).json({
-      status: 'ERROR',
-      database: 'Disconnected',
-      error: error.message,
-      timestamp: new Date().toISOString()
-    });
+    health.database = 'Disconnected';
+    health.status = 'DEGRADED';
+    health.databaseError = error.message;
   }
+  
+  const statusCode = health.status === 'OK' ? 200 : 503;
+  res.status(statusCode).json(health);
 });
 
 // API freshness - no stale data for JSON endpoints

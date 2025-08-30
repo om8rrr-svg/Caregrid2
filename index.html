@@ -146,17 +146,8 @@
             <p class="hero-description animate-fade-up" style="animation-delay: 0.3s;">Connect with elite healthcare professionals and world-class clinics across the UK</p>
             
             <div class="search-container animate-fade-up" id="search" style="animation-delay: 0.4s;">
-                <!-- New Two-Input Search Form -->
-                <section id="hero">
-                    <form id="search-form">
-                        <input type="text" placeholder="e.g., GP, Dentist, Physio" aria-label="Service type" required>
-                        <input type="text" placeholder="e.g., Manchester" aria-label="Location" required>
-                        <button type="submit">Search</button>
-                    </form>
-                </section>
-                
-                <!-- Keep original search for advanced functionality -->
-                <div class="search-box" style="display: none;">
+                <!-- Main Search Box -->
+                <div class="search-box">
                     <i class="fas fa-search search-icon"></i>
                     <input type="text" id="searchInput" placeholder="Search by service, symptom, or location..." class="search-input" autocomplete="off">
                     <div class="search-suggestions" id="searchSuggestions"></div>
@@ -592,31 +583,18 @@
         </div>
     </footer>
 
-    <script type="module" src="js/api-base.js?v=2025082509"></script>
-    <script type="module" src="js/home.js"></script>
-    <script src="js/api-service.js?v=2025082509"></script>
-    <script type="module" src="js/header.js"></script>
-    <script type="module" src="js/script.js?v=2025082509"></script>
+    <!-- Configuration must load first -->
+    <script src="js/config.js?v=2025082510"></script>
+    <script type="module" src="js/api-base.js?v=2025082510"></script>
+    <script type="module" src="js/home.js?v=2025082510"></script>
+    <script src="js/api-service.js?v=2025082510"></script>
+    <script type="module" src="js/header.js?v=2025082510"></script>
+    <script type="module" src="js/script.js?v=2025082510"></script>
     <!-- search functionality loaded lazily -->
     <script type="module" src="js/consent.js"></script>
     <script type="module" src="js/auth.js?v=2025082510"></script>
     
-    <!-- Search Form Handler - Inline to avoid module conflicts -->
-    <script>
-    /** @description Handles search for CareGrid healthcare directory, filtering clinics by service and location */
-    (function() {
-        const searchForm = document.getElementById('search-form');
-        if (searchForm) {
-            searchForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const service = e.target[0].value;
-                const location = e.target[1].value;
-                // Mock response; replace with API call later
-                document.body.insertAdjacentHTML('beforeend', `<p style="background-color: #d4edda; padding: 10px; margin: 10px; border: 1px solid #c3e6cb; border-radius: 4px; color: #155724;">Found clinics for ${service} in ${location}!</p>`);
-            });
-        }
-    })();
-    </script>
+
     
     <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
     <script>
@@ -725,9 +703,9 @@
     </script>
     
     <!-- API Base and Page Scripts -->
-    <script type="module" src="js/api-base.js"></script>
-    <script type="module" src="js/header.js"></script>
-    <script type="module" src="js/home.js"></script>
+    <script type="module" src="js/api-base.js?v=2025082510"></script>
+    <script type="module" src="js/header.js?v=2025082510"></script>
+    <script type="module" src="js/home.js?v=2025082510"></script>
     
     <!-- Lazy Loading Script -->
     <script src="js/lazy-loader.js?v=2025082509"></script>

@@ -8,7 +8,7 @@ echo
 
 # Check for any remaining hardcoded localhost references (excluding appropriate files)
 echo "1. Checking for remaining hardcoded localhost references..."
-HARDCODED=$(find . -name "*.html" -o -name "*.js" | xargs grep -l "localhost:300" 2>/dev/null | grep -v "backend/server.js" | grep -v "test-compression.js" | grep -v "js/test-config.js")
+HARDCODED=$(find . -name "*.html" -o -name "*.js" | grep -v node_modules | grep -v "js/config.js" | xargs grep -l "localhost:300" 2>/dev/null | grep -v "backend/server.js" | grep -v "test-compression.js" | grep -v "js/test-config.js")
 
 if [ -z "$HARDCODED" ]; then
     echo "✅ No hardcoded localhost references found in test files"

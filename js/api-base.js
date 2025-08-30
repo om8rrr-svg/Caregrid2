@@ -1,4 +1,5 @@
 // /js/api-base.js
+// Centralized API base configuration
 export const API_BASE =
   (typeof window !== 'undefined' && window.__API_BASE__) ||
   (typeof process !== 'undefined' && (process.env?.NEXT_PUBLIC_API_BASE || process.env?.API_BASE)) ||
