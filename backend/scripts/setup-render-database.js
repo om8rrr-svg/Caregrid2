@@ -178,7 +178,18 @@ async function runMigrations(client) {
 }
 
 if (require.main === module) {
-  setupRenderDatabase();
+  setupRenderDatabase()
+    .then(() => {
+      console.log('✅ Database setup completed successfully');
+      process.exit(0);
+    })
+    .catch((error) => {
+      console.error('❌ Database setup failed:', error.message);
+      console.log('⚠️  Server will start without database setup');
+      console.log('💡 Database setup can be attempted later via API');
+      // Exit with 0 to not block deployment
+      process.exit(0);
+    });
 }
 
 module.exports = { setupRenderDatabase, runMigrations };

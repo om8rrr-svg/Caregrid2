@@ -46,7 +46,7 @@ services:
       - key: EMAIL_USER
         value: noreply@caregriduk.co.uk
       - key: EMAIL_PASSWORD
-        value: bycozcsxrffvvazo
+        sync: false
       - key: EMAIL_FROM
         value: '"CareGrid UK" <noreply@caregriduk.co.uk>'
 
