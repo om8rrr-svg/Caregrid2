@@ -6,14 +6,9 @@ function el(id) { return document.getElementById(id); }
 async function guard() {
   const t = getToken();
   if (!t) {
-<<<<<<< HEAD
-    window.location.href = '/auth.html';
-    throw new Error('no_token');
-=======
     showError('No authentication token found. Please sign in.');
     setTimeout(() => window.location.href = '/auth.html', 2000);
     return Promise.reject(new Error('no_token'));
->>>>>>> origin/copilot/fix-3adb1fa2-252d-4fed-814b-349a116416db
   }
   
   try {
@@ -30,10 +25,6 @@ async function guard() {
   } catch (error) {
     localStorage.removeItem('caregrid_token');
     sessionStorage.removeItem('caregrid_token');
-<<<<<<< HEAD
-    window.location.href = '/auth.html';
-    throw new Error('invalid_token');
-=======
     
     if (error.message.includes('network_error') || error.message.includes('timeout')) {
       showError('Connection timeout. Please check your internet connection and try again.');
@@ -43,12 +34,10 @@ async function guard() {
       setTimeout(() => window.location.href = '/auth.html', 2000);
     }
     return Promise.reject(error);
->>>>>>> origin/copilot/fix-3adb1fa2-252d-4fed-814b-349a116416db
   }
 }
 
 function showSkeletons() {
-<<<<<<< HEAD
   const stats = el('statsRow');
   if (stats) {
     stats.innerHTML = `
@@ -56,79 +45,20 @@ function showSkeletons() {
       <div class="skeleton stat"></div>
       <div class="skeleton stat"></div>
       <div class="skeleton stat"></div>
-=======
-  const stats = document.getElementById('statsRow');
-  if (stats) {
-    stats.innerHTML = `
-      <div class="skeleton stat" style="animation: pulse 1.5s ease-in-out infinite;">
-        <div style="height: 20px; background: #e0e0e0; border-radius: 4px; margin-bottom: 8px;"></div>
-        <div style="height: 30px; background: #e0e0e0; border-radius: 4px;"></div>
-      </div>
-      <div class="skeleton stat" style="animation: pulse 1.5s ease-in-out infinite 0.2s;">
-        <div style="height: 20px; background: #e0e0e0; border-radius: 4px; margin-bottom: 8px;"></div>
-        <div style="height: 30px; background: #e0e0e0; border-radius: 4px;"></div>
-      </div>
-      <div class="skeleton stat" style="animation: pulse 1.5s ease-in-out infinite 0.4s;">
-        <div style="height: 20px; background: #e0e0e0; border-radius: 4px; margin-bottom: 8px;"></div>
-        <div style="height: 30px; background: #e0e0e0; border-radius: 4px;"></div>
-      </div>
-      <div class="skeleton stat" style="animation: pulse 1.5s ease-in-out infinite 0.6s;">
-        <div style="height: 20px; background: #e0e0e0; border-radius: 4px; margin-bottom: 8px;"></div>
-        <div style="height: 30px; background: #e0e0e0; border-radius: 4px;"></div>
-      </div>
     `;
-    
-    // Add pulse animation if not already added
-    if (!document.getElementById('pulseAnimation')) {
-      const style = document.createElement('style');
-      style.id = 'pulseAnimation';
-      style.textContent = `
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.5; }
-        }
-      `;
-      document.head.appendChild(style);
-    }
   }
 }
 
 function renderStats(stats) {
-  const statsRow = document.getElementById('statsRow');
-  if (statsRow) {
-    statsRow.innerHTML = `
-      <div class="stat-card">
-        <h3>Total Bookings</h3>
-        <p class="stat-number">${stats.totalBookings || 0}</p>
-      </div>
-      <div class="stat-card">
-        <h3>Pending Bookings</h3>
-        <p class="stat-number">${stats.pendingBookings || 0}</p>
-      </div>
-      <div class="stat-card">
-        <h3>Total Patients</h3>
-        <p class="stat-number">${stats.totalPatients || 0}</p>
-      </div>
-      <div class="stat-card">
-        <h3>Revenue</h3>
-        <p class="stat-number">£${stats.revenue || 0}</p>
-      </div>
->>>>>>> origin/copilot/fix-3adb1fa2-252d-4fed-814b-349a116416db
-    `;
-  }
-}
-
-<<<<<<< HEAD
-function renderStats(s) {
-  const stats = el('statsRow');
-  if (!stats) return;
-  stats.innerHTML = `
-    <div class="stat-box"><div class="stat-num">${s.totalBookings ?? 0}</div><div class="stat-label">Total Bookings</div></div>
-    <div class="stat-box"><div class="stat-num">${s.pendingBookings ?? 0}</div><div class="stat-label">Pending</div></div>
-    <div class="stat-box"><div class="stat-num">${s.totalPatients ?? 0}</div><div class="stat-label">Patients</div></div>
-    <div class="stat-box"><div class="stat-num">£${(s.revenue ?? 0).toLocaleString()}</div><div class="stat-label">Revenue</div></div>
+  const statsRow = el('statsRow');
+  if (!statsRow) return;
+  statsRow.innerHTML = `
+    <div class="stat-box"><div class="stat-num">${stats.totalBookings ?? 0}</div><div class="stat-label">Total Bookings</div></div>
+    <div class="stat-box"><div class="stat-num">${stats.pendingBookings ?? 0}</div><div class="stat-label">Pending</div></div>
+    <div class="stat-box"><div class="stat-num">${stats.totalPatients ?? 0}</div><div class="stat-label">Patients</div></div>
+    <div class="stat-box"><div class="stat-num">£${(stats.revenue ?? 0).toLocaleString()}</div><div class="stat-label">Revenue</div></div>
   `;
-=======
+}
 function toast(message, type = 'info') {
   const toast = document.createElement('div');
   toast.className = 'toast';
@@ -188,10 +118,9 @@ function createErrorContainer() {
   container.querySelector = container.querySelector || (() => null);
   document.body.appendChild(container);
   return container;
->>>>>>> origin/copilot/fix-3adb1fa2-252d-4fed-814b-349a116416db
 }
 
-function toast(msg) {
+function toast(msg, type = 'info') {
   const t = document.createElement('div');
   t.className = 'toast';
   t.textContent = msg;
@@ -201,23 +130,13 @@ function toast(msg) {
 
 async function init() {
   showSkeletons();
-<<<<<<< HEAD
-  const token = await guard(); // redirects if invalid
-
-  try {
-    const s = await fetchJson('/api/admin/stats', { headers: { Authorization: `Bearer ${token}` }, timeoutMs: 15000 });
-    renderStats(s);
-  } catch {
-    renderStats({ totalBookings: 0, pendingBookings: 0, totalPatients: 0, revenue: 0 });
-    toast('Could not load latest stats.');
-=======
   
   try {
-    const t = await guard(); // redirects if invalid
+    const token = await guard(); // redirects if invalid
 
     try {
       const stats = await fetchJson('/api/admin/stats', { 
-        headers: { Authorization: `Bearer ${t}` },
+        headers: { Authorization: `Bearer ${token}` },
         timeoutMs: 30000 
       });
       renderStats(stats);
@@ -234,7 +153,6 @@ async function init() {
   } catch (e) {
     // Guard failed, error already handled in guard function
     console.log('Dashboard initialization failed due to auth guard');
->>>>>>> origin/copilot/fix-3adb1fa2-252d-4fed-814b-349a116416db
   }
 }
 
