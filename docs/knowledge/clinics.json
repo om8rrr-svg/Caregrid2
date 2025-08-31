@@ -1,0 +1,4 @@
+{
+  "cities": ["Manchester","Bolton","Leeds","Liverpool","Glasgow","Birmingham","London"],
+  "categories": ["GP","Dentist","Physio","Optician","Pharmacy","Aesthetics"]
+}
