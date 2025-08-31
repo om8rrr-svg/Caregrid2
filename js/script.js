@@ -1,5 +1,6 @@
 // Import required functions
 import { buildUrl } from './api-base.js';
+import { APIService } from './api-service.js';
 
 // Initialize API service
 const apiService = new APIService();
