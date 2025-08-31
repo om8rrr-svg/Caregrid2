@@ -1,23 +1,11 @@
 // API Service for CareGrid Backend Communication
 // Import the centralized API base configuration
-if (typeof buildUrl === 'undefined') {
-    // Fallback if api-base.js not loaded
-    const API_BASE = window.__API_BASE__ || 
-                     (typeof process !== 'undefined' && (process.env.NEXT_PUBLIC_API_BASE || process.env.API_BASE)) ||
-                     'https://caregrid-backend.onrender.com';
-    window.buildUrl = function(path, params = {}) {
-        const url = new URL(path.replace(/^\//, ''), API_BASE.endsWith('/') ? API_BASE : API_BASE + '/');
-        Object.entries(params).forEach(([k, v]) => v != null && url.searchParams.set(k, v));
-        return url.toString();
-    };
-}
+import { API_BASE, buildUrl, fetchJson } from './api-base.js';
 
 class APIService {
     constructor() {
         // Use the centralized API base configuration
-        this.baseURL = window.__API_BASE__ || 
-                       (typeof process !== 'undefined' && (process.env.NEXT_PUBLIC_API_BASE || process.env.API_BASE)) ||
-                       'https://caregrid-backend.onrender.com';
+        this.baseURL = API_BASE;
         this.token = this.getStoredToken();
         this.backendHealthy = null; // Track backend health
         this.lastHealthCheck = 0;
@@ -26,24 +14,7 @@ class APIService {
 
     // Build complete API URL with parameters - single source of truth
     buildUrl(path, params = {}) {
-        // Get the API base URL (prefer window flag, then environment, then default)
-        const API_BASE = window.__API_BASE__ ||
-                         (typeof process !== 'undefined' && (process.env.NEXT_PUBLIC_API_BASE || process.env.API_BASE)) ||
-                         'https://caregrid-backend.onrender.com';
-        
-        // Create URL ensuring proper path concatenation
-        const cleanPath = path.replace(/^\//, ''); // Remove leading slash
-        const baseUrl = API_BASE.endsWith('/') ? API_BASE : API_BASE + '/';
-        const url = new URL(cleanPath, baseUrl);
-        
-        // Add query parameters
-        Object.entries(params).forEach(([key, value]) => {
-            if (value != null && value !== '') {
-                url.searchParams.set(key, value);
-            }
-        });
-        
-        return url.toString();
+        return buildUrl(path, params);
     }
 
     // Timeout wrapper for requests with fallback handling
@@ -698,4 +669,9 @@ class APIService {
 }
 
 // Create global instance
-window.apiService = new APIService();
+const apiService = new APIService();
+window.apiService = apiService;
+
+// Export for ES6 modules
+export { APIService, apiService };
+export default apiService;
