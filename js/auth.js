@@ -92,7 +92,7 @@ class AuthSystem {
     
     async checkExistingAuth() {
         // try to auto-continue only if token exists
-        const t = localStorage.getItem('caregrid_token') || sessionStorage.getItem('caregrid_token');
+        const t = localStorage.getItem('careGridToken') || sessionStorage.getItem('careGridToken');
         if (!t) return; // show sign-in form normally
 
         try {
@@ -150,9 +150,19 @@ class AuthSystem {
                 throw new Error('No token received from server');
             }
             
-            // after successful /auth/login
-            localStorage.setItem('caregrid_token', token);
-            sessionStorage.setItem('caregrid_token', token);
+            // Store token using apiService for consistency
+            this.apiService.setToken(token, true);
+            this.currentUser = user;
+            
+            // Store user data in localStorage to match dashboard expectations
+            if (user) {
+                localStorage.setItem('careGridCurrentUser', JSON.stringify(user));
+                sessionStorage.removeItem('careGridCurrentUser');
+            }
+            
+            // Dispatch auth state change event
+            window.dispatchEvent(new CustomEvent('authStateChanged'));
+            
             window.location.href = 'dashboard.html';
             
         } catch (error) {

@@ -82,10 +82,13 @@ export function renderNavAuth() {
 
 function logout() {
   // Clear all possible token storage locations
-  localStorage.removeItem('caregrid_token');
-  sessionStorage.removeItem('caregrid_token');
-  localStorage.removeItem('careGridToken');
-  sessionStorage.removeItem('careGridToken');
+  // Use apiService to remove token consistently
+    if (window.apiService) {
+        window.apiService.removeToken();
+    } else {
+        localStorage.removeItem('careGridToken');
+        sessionStorage.removeItem('careGridToken');
+    }
   localStorage.removeItem('careGridCurrentUser');
   sessionStorage.removeItem('careGridCurrentUser');
   

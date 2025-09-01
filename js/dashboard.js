@@ -23,8 +23,13 @@ async function guard() {
     clearTimeout(timeoutId);
     return t;
   } catch (error) {
-    localStorage.removeItem('caregrid_token');
-    sessionStorage.removeItem('caregrid_token');
+    // Use apiService to remove token consistently
+        if (window.apiService) {
+            window.apiService.removeToken();
+        } else {
+            localStorage.removeItem('careGridToken');
+            sessionStorage.removeItem('careGridToken');
+        }
     
     if (error.message.includes('network_error') || error.message.includes('timeout')) {
       showError('Connection timeout. Please check your internet connection and try again.');

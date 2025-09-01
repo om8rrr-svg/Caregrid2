@@ -136,3 +136,4 @@ demo_api_publishing.sh
 live_test_setup.sh
 validate-fixes.sh
 vercel-readiness-check.sh
+.vercel
