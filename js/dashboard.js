@@ -4,7 +4,8 @@ import { fetchJson, getToken } from './api-base.js';
 function el(id) { return document.getElementById(id); }
 
 async function guard() {
-  const t = getToken();
+  // Use apiService for consistent token management
+  const t = window.apiService ? window.apiService.getStoredToken() : getToken();
   if (!t) {
     showError('No authentication token found. Please sign in.');
     setTimeout(() => window.location.href = '/auth.html', 2000);

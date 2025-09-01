@@ -1,7 +1,11 @@
 // /js/header.js
 function isAuthenticated() {
-  return !!(localStorage.getItem('caregrid_token') || sessionStorage.getItem('caregrid_token') ||
-           localStorage.getItem('careGridToken') || sessionStorage.getItem('careGridToken'));
+  // Use apiService for consistent token management if available
+  if (window.apiService) {
+    return !!window.apiService.getStoredToken();
+  }
+  // Fallback to direct storage access
+  return !!(localStorage.getItem('careGridToken') || sessionStorage.getItem('careGridToken'));
 }
 
 function getCurrentUser() {

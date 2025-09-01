@@ -43,5 +43,5 @@ export async function fetchJson(path, { params, method = 'GET', headers = {}, bo
 }
 
 export function getToken() {
-  return localStorage.getItem('caregrid_token') || sessionStorage.getItem('caregrid_token');
+  return localStorage.getItem('careGridToken') || sessionStorage.getItem('careGridToken');
 }
