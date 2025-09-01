@@ -1,0 +1,89 @@
+name: Deploy Frontend to Vercel
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '*.html'
+      - 'css/**'
+      - 'js/**'
+      - 'images/**'
+      - 'assets/**'
+      - 'vercel.json'
+      - '.github/workflows/vercel-deploy.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - '*.html'
+      - 'css/**'
+      - 'js/**'
+      - 'images/**'
+      - 'assets/**'
+      - 'vercel.json'
+      - '.github/workflows/vercel-deploy.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate-frontend:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Validate frontend files
+      run: |
+        echo "Validating required frontend files..."
+        test -f index.html || { echo "❌ index.html not found"; exit 1; }
+        test -f auth.html || { echo "❌ auth.html not found"; exit 1; }
+        test -f booking.html || { echo "❌ booking.html not found"; exit 1; }
+        test -f vercel.json || { echo "❌ vercel.json not found"; exit 1; }
+        test -d css || { echo "❌ css directory not found"; exit 1; }
+        test -d js || { echo "❌ js directory not found"; exit 1; }
+        echo "✅ All required frontend files present"
+        
+    - name: Check HTML syntax
+      run: |
+        echo "Checking HTML files for basic syntax..."
+        for file in *.html; do
+          if [ -f "$file" ]; then
+            echo "Checking $file..."
+            # Basic HTML validation - check for opening and closing tags
+            if ! grep -q "<html" "$file" || ! grep -q "</html>" "$file"; then
+              echo "⚠️ Warning: $file may have HTML structure issues"
+            else
+              echo "✅ $file looks good"
+            fi
+          fi
+        done
+
+  deploy-frontend:
+    needs: validate-frontend
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Deploy to Vercel
+      uses: amondnet/vercel-action@v25
+      with:
+        vercel-token: ${{ secrets.VERCEL_TOKEN }}
+        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+        vercel-args: '--prod'
+        
+    - name: Comment deployment URL
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: '🚀 Frontend deployed to Vercel! Check the deployment at the provided URL.'
+          })
