@@ -1172,135 +1172,175 @@
             return iconMap[type] || 'fas fa-clinic-medical';
         }
         
-        // Simple working initialization - guaranteed to execute
-        setTimeout(function() {
-            console.log('Running simple initialization...');
-            const urlParams = new URLSearchParams(window.location.search);
-            const clinicId = urlParams.get('id');
+        // Clinic type icon mapping function
+        function getClinicTypeIcon(type) {
+            const iconMap = {
+                'medical': 'fas fa-user-md',
+                'dental': 'fas fa-tooth',
+                'physiotherapy': 'fas fa-dumbbell',
+                'mental-health': 'fas fa-brain',
+                'aesthetic': 'fas fa-spa'
+            };
+            return iconMap[type] || 'fas fa-clinic-medical';
+        }
+        
+        function updateClinicDisplay(clinic) {
+            // Update basic information
+            const nameEl = document.getElementById('clinicName');
+            if (nameEl) nameEl.textContent = clinic.name;
             
-            if (clinicId && window.clinicsData) {
-                const clinic = window.clinicsData.find(c => c.id == clinicId);
-                if (clinic) {
-                    console.log('Loading clinic:', clinic.name);
-                    
-                    // Update basic information
-                    const nameEl = document.getElementById('clinicName');
-                    if (nameEl) nameEl.textContent = clinic.name;
-                    
-                    const typeEl = document.getElementById('clinicType');
-                    if (typeEl) typeEl.textContent = clinic.type;
-                    
-                    const addressEl = document.getElementById('clinicAddress');
-                    if (addressEl) addressEl.innerHTML = `<i class="fas fa-map-marker-alt"></i> ${clinic.address}`;
-                    
-                    const phoneEl = document.getElementById('clinicPhone');
-                    if (phoneEl) phoneEl.textContent = clinic.phone;
-                    
-                    const ratingEl = document.getElementById('clinicRating');
-                    if (ratingEl) ratingEl.textContent = `${clinic.rating} (${clinic.reviews || clinic.reviewCount || 0} reviews)`;
-                    
-                    const descEl = document.getElementById('clinicDescription');
-                    if (descEl) descEl.textContent = clinic.description || `${clinic.name} is a high-quality healthcare provider offering comprehensive medical services.`;
-                    
-                    const imageEl = document.getElementById('clinicImage');
-                    if (imageEl && clinic.image) imageEl.src = clinic.image;
-                    
-                    // Update call button
-                    const callBtn = document.getElementById('clinicCallBtn');
-                    if (callBtn && clinic.phone) callBtn.href = `tel:${clinic.phone}`;
-                    
-                    // Setup booking button
-                    const bookingBtn = document.querySelector('.action-btn.primary');
-                    if (bookingBtn) {
-                        bookingBtn.onclick = function() {
-                            window.location.href = `booking.html?clinicId=${clinic.id}`;
-                        };
-                    }
-                    
-                    console.log('Clinic loading complete:', clinic.name);
-                }
+            const typeEl = document.getElementById('clinicType');
+            if (typeEl) typeEl.textContent = clinic.type;
+            
+            const addressEl = document.getElementById('clinicAddress');
+            if (addressEl) addressEl.innerHTML = `<i class="fas fa-map-marker-alt"></i> ${clinic.address}`;
+            
+            const phoneEl = document.getElementById('clinicPhone');
+            if (phoneEl) phoneEl.textContent = clinic.phone;
+            
+            const ratingEl = document.getElementById('clinicRating');
+            if (ratingEl) ratingEl.textContent = `${clinic.rating} (${clinic.reviews || clinic.reviewCount || 0} reviews)`;
+            
+            const descEl = document.getElementById('clinicDescription');
+            if (descEl) descEl.textContent = clinic.description || `${clinic.name} is a high-quality healthcare provider offering comprehensive medical services.`;
+            
+            const imageEl = document.getElementById('clinicImage');
+            if (imageEl && clinic.image) imageEl.src = clinic.image;
+            
+            // Update call button
+            const callBtn = document.getElementById('clinicCallBtn');
+            if (callBtn && clinic.phone) callBtn.href = `tel:${clinic.phone}`;
+            
+            // Setup booking button
+            const bookingBtn = document.querySelector('.action-btn.primary');
+            if (bookingBtn) {
+                bookingBtn.onclick = function() {
+                    window.location.href = `booking.html?clinicId=${clinic.id}`;
+                };
             }
+            
+            console.log('Clinic loading complete:', clinic.name);
+        }
     </script>
     
-    <!-- Simple clinic loading script that will definitely work -->
-    <script>
+    <!-- Clinic profile loading script with API support -->
+    <script type="module">
         console.log('Starting clinic profile loading...');
         
-        function loadClinicProfile() {
+        async function loadClinicProfile() {
             const urlParams = new URLSearchParams(window.location.search);
             const clinicId = urlParams.get('id');
             
             console.log('Looking for clinic ID:', clinicId);
             
-            if (clinicId && window.clinicsData) {
-                const clinic = window.clinicsData.find(c => c.id == clinicId);
-                console.log('Found clinic:', clinic ? clinic.name : 'not found');
+            if (!clinicId) {
+                console.error('No clinic ID provided');
+                return false;
+            }
+            
+            try {
+                // Wait for API service to be available
+                let attempts = 0;
+                while (!window.apiService && attempts < 50) {
+                    console.log('Waiting for API service...');
+                    await new Promise(resolve => {
+                        setTimeout(() => resolve(), 100);
+                    });
+                    attempts++;
+                }
+                
+                console.log('Loading clinic from API...');
+                
+                // Try to get clinic from API first
+                const response = await window.apiService.getClinics({ limit: 200 });
+                const clinic = response.data.find(c => c.id == clinicId || c.frontendId == clinicId);
                 
                 if (clinic) {
-                    // Update all the elements
-                    const elements = {
-                        'clinicName': clinic.name,
-                        'clinicType': clinic.type,
-                        'clinicAddress': `<i class="fas fa-map-marker-alt"></i> ${clinic.address}`,
-                        'clinicRating': `${clinic.rating} (${clinic.reviews || clinic.reviewCount || 0} reviews)`,
-                        'clinicDescription': clinic.description || `${clinic.name} provides quality healthcare services.`
-                    };
-                    
-                    for (const [id, content] of Object.entries(elements)) {
-                        const el = document.getElementById(id);
-                        if (el) {
-                            if (id === 'clinicAddress') {
-                                el.innerHTML = content;
-                            } else {
-                                el.textContent = content;
-                            }
-                        }
-                    }
-                    
-                    // Update image
-                    const imageEl = document.getElementById('clinicImage');
-                    if (imageEl && clinic.image) {
-                        imageEl.src = clinic.image;
-                        imageEl.alt = clinic.name;
-                    }
-                    
-                    // Update call button
-                    const callBtn = document.getElementById('clinicCallBtn');
-                    if (callBtn && clinic.phone) {
-                        callBtn.href = `tel:${clinic.phone}`;
-                    }
-                    
-                    // Setup booking button
-                    const bookingBtn = document.querySelector('.action-btn.primary');
-                    if (bookingBtn) {
-                        bookingBtn.onclick = function() {
-                            window.location.href = `booking.html?clinicId=${clinic.id}`;
-                        };
-                    }
-                    
-                    console.log('Clinic profile loaded successfully:', clinic.name);
+                    console.log('Found clinic from API:', clinic.name);
+                    updateClinicDisplay(clinic);
+                    return true;
+                } else {
+                    console.log('Clinic not found in API, trying fallback data...');
+                    return loadFromFallbackData(clinicId);
+                }
+            } catch (error) {
+                console.error('Failed to load clinic data from API:', error);
+                return loadFromFallbackData(clinicId);
+            }
+        }
+        
+        function loadFromFallbackData(clinicId) {
+            if (window.clinicsData) {
+                const clinic = window.clinicsData.find(c => c.id == clinicId);
+                if (clinic) {
+                    console.log('Found clinic in fallback data:', clinic.name);
+                    updateClinicDisplay(clinic);
                     return true;
                 }
             }
-            
             console.log('Failed to load clinic profile');
             return false;
         }
         
-        // Try loading immediately
+        function updateClinicDisplay(clinic) {
+            // Update all the elements
+            const elements = {
+                'clinicName': clinic.name,
+                'clinicType': clinic.type,
+                'clinicAddress': `<i class="fas fa-map-marker-alt"></i> ${clinic.address}`,
+                'clinicRating': `${clinic.rating || 0} (${clinic.reviews || clinic.reviewCount || 0} reviews)`,
+                'clinicDescription': clinic.description || `${clinic.name} provides quality healthcare services.`
+            };
+            
+            for (const [id, content] of Object.entries(elements)) {
+                const el = document.getElementById(id);
+                if (el) {
+                    if (id === 'clinicAddress') {
+                        el.innerHTML = content;
+                    } else {
+                        el.textContent = content;
+                    }
+                }
+            }
+            
+            // Update image
+            const imageEl = document.getElementById('clinicImage');
+            if (imageEl && clinic.image) {
+                imageEl.src = clinic.image;
+                imageEl.alt = clinic.name;
+            }
+            
+            // Update call button
+            const callBtn = document.getElementById('clinicCallBtn');
+            if (callBtn && clinic.phone) {
+                callBtn.href = `tel:${clinic.phone}`;
+            }
+            
+            // Setup booking button
+            const bookingBtn = document.querySelector('.action-btn.primary');
+            if (bookingBtn) {
+                bookingBtn.onclick = function() {
+                    window.location.href = `booking.html?clinicId=${clinic.id || clinic.frontendId}`;
+                };
+            }
+            
+            // Hide loading states
+            const loadingElements = document.querySelectorAll('.loading-text');
+            loadingElements.forEach(el => el.style.display = 'none');
+            
+            console.log('Clinic profile loaded successfully:', clinic.name);
+        }
+        
+        // Try loading when DOM is ready
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', loadClinicProfile);
         } else {
             loadClinicProfile();
         }
-        
-        // Backup attempt after a short delay
-        setTimeout(loadClinicProfile, 200);
-    })();
     </script>
-    <script type="module" src="js/api-base.js"></script>
-    <script src="js/api-service.js"></script>
-    <script type="module" src="js/auth.js"></script>
+    <script type="module" src="js/api-base.js?v=2025082511"></script>
+    <script type="module" src="js/api-service.js?v=2025082511"></script>
+    <script type="module" src="js/auth.js?v=2025082511"></script>
     <!-- Lazy Loading Script -->
     <script src="js/lazy-loader.js"></script>
     <!-- Load clinic data from a dedicated file for profile page -->
