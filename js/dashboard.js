@@ -126,12 +126,102 @@ function createErrorContainer() {
   return container;
 }
 
-function toast(msg, type = 'info') {
-  const t = document.createElement('div');
-  t.className = 'toast';
-  t.textContent = msg;
-  document.body.appendChild(t);
-  setTimeout(() => t.remove(), 4000);
+
+
+function showUserLoading() {
+  const userNameElements = [
+    document.getElementById('dashboardUserName'),
+    document.getElementById('userName')
+  ];
+  
+  userNameElements.forEach(element => {
+    if (element) {
+      element.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+      element.style.opacity = '0.7';
+    }
+  });
+}
+
+function hideUserLoading() {
+  const userNameElements = [
+    document.getElementById('dashboardUserName'),
+    document.getElementById('userName')
+  ];
+  
+  userNameElements.forEach(element => {
+    if (element) {
+      element.style.opacity = '1';
+    }
+  });
+}
+
+async function loadUserData(token) {
+  try {
+    showUserLoading();
+    
+    const response = await fetchJson('/api/auth/me', { 
+      headers: { Authorization: `Bearer ${token}` },
+      timeoutMs: 15000
+    });
+    
+    if (response && response.user) {
+      const user = response.user;
+      const userName = `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email || 'User';
+      
+      // Store user data for consistent access
+      if (window.apiService) {
+        window.apiService.setUserData(user);
+      } else {
+        localStorage.setItem('careGridCurrentUser', JSON.stringify(user));
+      }
+      
+      // Update all user name displays
+      const userNameElements = [
+        document.getElementById('dashboardUserName'),
+        document.getElementById('userName')
+      ];
+      
+      userNameElements.forEach(element => {
+        if (element) {
+          element.textContent = userName;
+        }
+      });
+      
+      hideUserLoading();
+      
+      // Dispatch event for header to update
+      window.dispatchEvent(new CustomEvent('userDataLoaded', { detail: { user } }));
+      
+      return user;
+    }
+  } catch (error) {
+    console.warn('Failed to load user data:', error);
+    hideUserLoading();
+    
+    // Fallback to stored user data
+    const storedUser = getCurrentUser();
+    if (storedUser) {
+      const userName = `${storedUser.firstName || ''} ${storedUser.lastName || ''}`.trim() || storedUser.email || 'User';
+      const userNameElements = [
+        document.getElementById('dashboardUserName'),
+        document.getElementById('userName')
+      ];
+      
+      userNameElements.forEach(element => {
+        if (element) {
+          element.textContent = userName;
+        }
+      });
+    }
+  }
+}
+
+function getCurrentUser() {
+  try {
+    return JSON.parse(localStorage.getItem('careGridCurrentUser') || sessionStorage.getItem('careGridCurrentUser') || 'null');
+  } catch {
+    return null;
+  }
 }
 
 async function init() {
@@ -139,6 +229,9 @@ async function init() {
   
   try {
     const token = await guard(); // redirects if invalid
+    
+    // Load user data immediately after authentication
+    await loadUserData(token);
 
     try {
       const stats = await fetchJson('/api/admin/stats', { 

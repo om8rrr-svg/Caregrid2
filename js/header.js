@@ -19,16 +19,47 @@ function getCurrentUser() {
 export function renderNavAuth() {
   const authNavItem = document.getElementById('authNavItem');
   const userNavItem = document.getElementById('userNavItem');
+  const userMenuContainer = document.getElementById('userMenuContainer');
+  const signInContainer = document.getElementById('signInContainer');
   
   // Fallback to navAccount if the main nav items don't exist
   const navAccount = document.getElementById('navAccount');
   
   if (isAuthenticated()) {
     const currentUser = getCurrentUser();
-    const userName = currentUser ? 
-      `${currentUser.firstName || ''} ${currentUser.lastName || ''}`.trim() || 'User' : 'User';
+    let userName = 'Loading...';
     
-    if (authNavItem && userNavItem) {
+    // If user data is available, use it; otherwise show loading
+    if (currentUser && currentUser.firstName) {
+      userName = currentUser.firstName;
+    } else if (window.apiService) {
+      // Try to get user data from apiService
+      const userData = window.apiService.getUserData();
+      if (userData && userData.firstName) {
+        userName = userData.firstName;
+      }
+    }
+    
+    if (userMenuContainer && signInContainer) {
+      // Use the new Bootstrap dropdown structure
+      userMenuContainer.innerHTML = `
+        <div class="dropdown">
+          <button class="btn btn-outline-primary dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-user me-2"></i>${userName}
+          </button>
+          <ul class="dropdown-menu" aria-labelledby="userDropdown">
+            <li><a class="dropdown-item" href="dashboard.html"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a></li>
+            <li><a class="dropdown-item" href="profile.html"><i class="fas fa-user-edit me-2"></i>Profile</a></li>
+            <li><a class="dropdown-item" href="booking.html"><i class="fas fa-calendar-plus me-2"></i>Book Appointment</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#" onclick="logout()"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+          </ul>
+        </div>
+      `;
+      
+      userMenuContainer.style.display = 'block';
+      signInContainer.style.display = 'none';
+    } else if (authNavItem && userNavItem) {
       // Use the existing nav structure
       authNavItem.style.display = 'none';
       userNavItem.style.display = 'block';
@@ -75,7 +106,10 @@ export function renderNavAuth() {
       });
     }
   } else {
-    if (authNavItem && userNavItem) {
+    if (userMenuContainer && signInContainer) {
+      userMenuContainer.style.display = 'none';
+      signInContainer.style.display = 'block';
+    } else if (authNavItem && userNavItem) {
       authNavItem.style.display = 'block';
       userNavItem.style.display = 'none';
     } else if (navAccount) {
@@ -109,6 +143,11 @@ window.logout = logout;
 
 // Update auth state on auth changes
 window.addEventListener('authStateChanged', renderNavAuth);
+
+// Listen for user data updates
+window.addEventListener('userDataLoaded', function(event) {
+  renderNavAuth();
+});
 
 // Initial render
 document.addEventListener('DOMContentLoaded', renderNavAuth);

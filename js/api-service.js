@@ -61,6 +61,39 @@ class APIService {
         sessionStorage.removeItem('careGridCurrentUser');
     }
 
+    // User data management
+    setUserData(user, remember = false) {
+        const userData = {
+            id: user.id,
+            email: user.email,
+            firstName: user.firstName || '',
+            lastName: user.lastName || '',
+            phone: user.phone || '',
+            dateOfBirth: user.dateOfBirth || '',
+            address: user.address || '',
+            emergencyContact: user.emergencyContact || '',
+            medicalConditions: user.medicalConditions || '',
+            allergies: user.allergies || '',
+            medications: user.medications || ''
+        };
+        
+        if (remember) {
+            localStorage.setItem('careGridCurrentUser', JSON.stringify(userData));
+            sessionStorage.removeItem('careGridCurrentUser');
+        } else {
+            sessionStorage.setItem('careGridCurrentUser', JSON.stringify(userData));
+            localStorage.removeItem('careGridCurrentUser');
+        }
+    }
+
+    getUserData() {
+        try {
+            return JSON.parse(localStorage.getItem('careGridCurrentUser') || sessionStorage.getItem('careGridCurrentUser') || 'null');
+        } catch {
+            return null;
+        }
+    }
+
     // HTTP request helper
     async makeRequest(endpoint, options = {}) {
         // Use buildUrl to ensure proper URL construction
