@@ -94,14 +94,7 @@ function renderBanner() {
   };
 }
 
-export function loadAnalyticsIfConsented() {
-  if (getConsent() === true) {
-    // Example: Google Analytics tag here
-    // const s = document.createElement('script'); s.src='…'; document.head.appendChild(s);
-    console.log('Analytics loaded - user consented');
-    showConsentToast('Analytics disabled. You can change this anytime.', 'info');
-  };
-}
+// Removed duplicate function - keeping the more complete version below
 
 function showConsentToast(message, type = 'info') {
   const toast = document.createElement('div');
