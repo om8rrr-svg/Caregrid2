@@ -6,6 +6,7 @@ const { query, transaction } = require('../config/database');
 const { generateToken, generateRefreshToken, verifyToken, authenticateToken } = require('../middleware/auth');
 const { AppError, asyncHandler, successResponse } = require('../middleware/errorHandler');
 const emailService = require('../services/emailService');
+const googleAuthService = require('../services/googleAuthService');
 
 const router = express.Router();
 
@@ -555,6 +556,92 @@ if (process.env.NODE_ENV !== 'production') {
   }));
 }
 
-module.exports = router;
+// @route   POST /api/auth/google
+// @desc    Google OAuth authentication
+// @access  Public
+router.post('/google', [
+  body('token').notEmpty().withMessage('Google token is required'),
+  body('recaptchaToken').optional().isString().withMessage('reCAPTCHA token must be a string')
+], asyncHandler(async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    const errorMessages = errors.array().map(error => error.msg).join(', ');
+    throw new AppError(errorMessages, 400, 'VALIDATION_ERROR');
+  }
+
+  const { token, recaptchaToken } = req.body;
+
+  // Verify reCAPTCHA if provided
+  if (recaptchaToken) {
+    const recaptchaResult = await googleAuthService.verifyRecaptcha(recaptchaToken, 'login');
+    if (!recaptchaResult.success) {
+      throw new AppError('reCAPTCHA verification failed. Please try again.', 400, 'RECAPTCHA_FAILED');
+    }
+  }
+
+  // Verify Google token
+  const googleUser = await googleAuthService.verifyGoogleToken(token);
+  
+  // Find or create user
+  const user = await googleAuthService.findOrCreateUser(googleUser);
+
+  // Generate JWT tokens
+  const jwtToken = generateToken({ 
+    userId: user.id, 
+    email: user.email,
+    firstName: user.first_name,
+    lastName: user.last_name,
+    role: user.role
+  });
+  const refreshToken = generateRefreshToken({ userId: user.id });
+
+  // Update last login
+  await query(
+    'UPDATE users SET updated_at = CURRENT_TIMESTAMP WHERE id = $1',
+    [user.id]
+  );
+
+  successResponse(res, {
+    user: {
+      id: user.id,
+      firstName: user.first_name,
+      lastName: user.last_name,
+      email: user.email,
+      phone: user.phone,
+      role: user.role,
+      verified: user.verified
+    },
+    token: jwtToken,
+    refreshToken
+  }, 'Google authentication successful');
+}));
+
+// @route   POST /api/auth/verify-recaptcha
+// @desc    Verify reCAPTCHA token
+// @access  Public
+router.post('/verify-recaptcha', [
+  body('token').notEmpty().withMessage('reCAPTCHA token is required'),
+  body('action').optional().isString().withMessage('Action must be a string')
+], asyncHandler(async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    const errorMessages = errors.array().map(error => error.msg).join(', ');
+    throw new AppError(errorMessages, 400, 'VALIDATION_ERROR');
+  }
+
+  const { token, action } = req.body;
+
+  const result = await googleAuthService.verifyRecaptcha(token, action);
+  
+  if (!result.success) {
+    throw new AppError('reCAPTCHA verification failed', 400, 'RECAPTCHA_FAILED');
+  }
+
+  successResponse(res, {
+    success: true,
+    score: result.score,
+    action: result.action
+  }, 'reCAPTCHA verification successful');
+}));
 
 module.exports = router;

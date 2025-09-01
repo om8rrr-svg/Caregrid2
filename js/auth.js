@@ -1283,41 +1283,100 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Social authentication functions (placeholder)
-function signInWithGoogle() {
-    const authInstance = gapi.auth2.getAuthInstance();
-    if (!authInstance) {
-        // Fallback for demo purposes when Google Auth is not properly configured
-        if (confirm('Google OAuth is not properly configured for this domain. Would you like to simulate a Google sign-in for demo purposes?')) {
-            simulateGoogleSignIn();
+// Google OAuth Integration
+async function initializeGoogleAuth() {
+    try {
+        if (window.googleAuthService && window.GOOGLE_CLIENT_ID) {
+            await window.googleAuthService.init(window.GOOGLE_CLIENT_ID);
+            
+            // Attach Google Sign-In to button
+            const googleSignInBtn = document.getElementById('googleSignInBtn');
+            if (googleSignInBtn) {
+                window.googleAuthService.attachToButton(
+                    googleSignInBtn,
+                    handleGoogleSignInSuccess,
+                    handleGoogleSignInError
+                );
+            }
+            
+            console.log('Google Auth initialized successfully');
         }
-        return;
+    } catch (error) {
+        console.error('Google Auth initialization failed:', error);
     }
-    
-    authInstance.signIn().then(function(googleUser) {
-        const profile = googleUser.getBasicProfile();
-        const userData = {
-            id: 'google_' + profile.getId(),
-            email: profile.getEmail(),
-            name: profile.getName(),
-            profilePicture: profile.getImageUrl(),
-            provider: 'google',
-            lastLogin: new Date().toISOString()
-        };
+}
+
+// Handle successful Google sign-in
+async function handleGoogleSignInSuccess(result) {
+    try {
+        // Store token and user data
+        if (result.tokens && result.tokens.accessToken) {
+            window.apiService.setToken(result.tokens.accessToken, true);
+        }
         
-        // Store user data in localStorage
-        localStorage.setItem('careGridCurrentUser', JSON.stringify(userData));
-        localStorage.setItem('careGridToken', 'google_oauth_token_' + Date.now());
-        localStorage.setItem('isLoggedIn', 'true');
+        if (result.user) {
+            localStorage.setItem('careGridCurrentUser', JSON.stringify(result.user));
+            window.authSystem.currentUser = result.user;
+        }
+        
+        // Dispatch auth state change event
+        window.dispatchEvent(new CustomEvent('authStateChanged'));
         
         // Redirect to dashboard
-        //window.location.href = 'dashboard.html';
-    }).catch(function(error) {
-        console.error('Google sign-in error:', error);
-        if (confirm('Google sign-in failed due to configuration issues. Would you like to simulate a Google sign-in for demo purposes?')) {
-            simulateGoogleSignIn();
+        window.location.href = 'dashboard.html';
+        
+    } catch (error) {
+        console.error('Google sign-in success handler error:', error);
+        handleGoogleSignInError(error);
+    }
+}
+
+// Handle Google sign-in errors
+function handleGoogleSignInError(error) {
+    console.error('Google sign-in failed:', error);
+    
+    let errorMessage = 'Google sign-in failed. Please try again.';
+    
+    if (error.message) {
+        if (error.message.includes('popup_closed_by_user')) {
+            errorMessage = 'Sign-in was cancelled. Please try again.';
+        } else if (error.message.includes('network')) {
+            errorMessage = 'Network error. Please check your connection and try again.';
+        } else if (error.message.includes('reCAPTCHA')) {
+            errorMessage = 'Security verification failed. Please try again.';
         }
-    });
+    }
+    
+    // Show error message
+    const errorDiv = document.querySelector('.google-auth-error') || document.createElement('div');
+    errorDiv.className = 'google-auth-error alert alert-danger';
+    errorDiv.textContent = errorMessage;
+    
+    const authForm = document.getElementById('signinForm') || document.querySelector('.modern-auth-form');
+    if (authForm && !document.querySelector('.google-auth-error')) {
+        authForm.appendChild(errorDiv);
+    }
+    
+    // Hide error after 5 seconds
+    setTimeout(() => {
+        errorDiv.remove();
+    }, 5000);
+}
+
+// Updated Google sign-in function
+function signInWithGoogle() {
+    const googleSignInBtn = document.getElementById('googleSignInBtn');
+    if (googleSignInBtn) {
+        googleSignInBtn.click();
+    } else if (window.googleAuthService) {
+        // Direct call if button not found
+        window.googleAuthService.signInWithRecaptcha()
+            .then(handleGoogleSignInSuccess)
+            .catch(handleGoogleSignInError);
+    } else {
+        console.error('Google Auth service not available');
+        handleGoogleSignInError(new Error('Google Auth service not available'));
+    }
 }
 
 // Simulate Google Sign-In for demo purposes
@@ -1344,40 +1403,37 @@ function simulateGoogleSignIn() {
     }, 1000);
 }
 
-function signUpWithGoogle() {
-    const authInstance = gapi.auth2.getAuthInstance();
-    if (!authInstance) {
-        // Fallback for demo purposes when Google Auth is not properly configured
-        if (confirm('Google OAuth is not properly configured for this domain. Would you like to simulate a Google sign-up for demo purposes?')) {
-            simulateGoogleSignUp();
+// reCAPTCHA Integration
+async function initializeRecaptcha() {
+    try {
+        if (window.recaptchaService && window.RECAPTCHA_SITE_KEY) {
+            await window.recaptchaService.init(window.RECAPTCHA_SITE_KEY);
+            
+            // Protect forms with reCAPTCHA
+            const signinForm = document.getElementById('signinForm');
+            const signupForm = document.getElementById('signupForm');
+            const forgotPasswordForm = document.getElementById('forgotPasswordForm');
+            
+            if (signinForm) {
+                window.recaptchaService.protectForm(signinForm);
+            }
+            if (signupForm) {
+                window.recaptchaService.protectForm(signupForm);
+            }
+            if (forgotPasswordForm) {
+                window.recaptchaService.protectForm(forgotPasswordForm);
+            }
+            
+            console.log('reCAPTCHA initialized successfully');
         }
-        return;
+    } catch (error) {
+        console.error('reCAPTCHA initialization failed:', error);
     }
-    
-    authInstance.signIn().then(function(googleUser) {
-        const profile = googleUser.getBasicProfile();
-        const userData = {
-            id: 'google_' + profile.getId(),
-            email: profile.getEmail(),
-            name: profile.getName(),
-            profilePicture: profile.getImageUrl(),
-            provider: 'google',
-            createdAt: new Date().toISOString()
-        };
-        
-        // Store user data in localStorage
-        localStorage.setItem('careGridCurrentUser', JSON.stringify(userData));
-        localStorage.setItem('careGridToken', 'google_signup_token_' + Date.now());
-        localStorage.setItem('isLoggedIn', 'true');
-        
-        // Redirect to dashboard
-        //window.location.href = 'dashboard.html';
-    }).catch(function(error) {
-        console.error('Google sign-up error:', error);
-        if (confirm('Google sign-up failed due to configuration issues. Would you like to simulate a Google sign-up for demo purposes?')) {
-            simulateGoogleSignUp();
-        }
-    });
+}
+
+function signUpWithGoogle() {
+    // Use the same Google sign-in flow for sign-up
+    signInWithGoogle();
 }
 
 // Simulate Google Sign-Up for demo purposes
@@ -1510,9 +1566,13 @@ function logout() {
 }
 
 // Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     // Always create AuthSystem but make it handle missing elements gracefully
     window.authSystem = new AuthSystem();
+    
+    // Initialize Google OAuth and reCAPTCHA
+    await initializeGoogleAuth();
+    await initializeRecaptcha();
     
     // Check authentication state for UI updates only (no API calls)
     setTimeout(checkAuthenticationState, 100);
