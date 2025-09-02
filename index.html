@@ -315,7 +315,7 @@
             <header>
                 <h2 class="section-title" data-aos="fade-up">Choose Your Location</h2>
             </header>
-            <nav class="location-grid" data-aos="fade-up" data-aos-delay="200" aria-label="Available locations">
+            <nav class="location-grid desktop-only" data-aos="fade-up" data-aos-delay="200" aria-label="Available locations">
                 <button class="location-btn active" data-location="all" onclick="filterByLocation('all')">
                     <span class="location-name">All Locations</span>
                     <span class="clinic-count" aria-live="polite">25+</span>
@@ -342,7 +342,7 @@
                 </button>
             </nav>
             <!-- Mobile dropdown for locations -->
-            <select class="mobile-location-select" onchange="filterByLocation(this.value)" data-aos="fade-up" data-aos-delay="200">
+            <select class="mobile-location-select mobile-only" onchange="filterByLocation(this.value)" data-aos="fade-up" data-aos-delay="200">
                 <option value="all">All Locations (25+)</option>
                 <option value="manchester">Manchester (8)</option>
                 <option value="bolton">Bolton (4)</option>

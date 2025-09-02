@@ -3911,9 +3911,74 @@ function createEnhancedClinicCard(clinic) {
     return card;
 }
 
+// Create skeleton loading cards
+function createSkeletonCard() {
+    const card = document.createElement('div');
+    card.className = 'clinic-card skeleton';
+    
+    card.innerHTML = `
+        <div class="clinic-image-container">
+            <div class="clinic-image"></div>
+        </div>
+        <div class="clinic-content">
+            <div class="clinic-name"></div>
+            <div class="clinic-type"></div>
+            <div class="clinic-location"></div>
+            <div class="clinic-rating">
+                <div class="stars">★★★★★</div>
+                <span class="rating-text">4.8</span>
+                <span class="review-count">(123 reviews)</span>
+            </div>
+            <div class="clinic-actions">
+                <div class="visit-btn">View Details</div>
+                <div class="contact-btn">Call Now</div>
+            </div>
+        </div>
+    `;
+    
+    return card;
+}
+
+// Show skeleton loading state
+function showSkeletonLoading(container, count = 6) {
+    if (!container) return;
+    
+    container.innerHTML = '';
+    for (let i = 0; i < count; i++) {
+        container.appendChild(createSkeletonCard());
+    }
+}
+
+// Hide skeleton and show actual content with fade-in
+function hideSkeletonAndShowContent(container, content) {
+    if (!container) return;
+    
+    // Remove skeleton cards
+    const skeletons = container.querySelectorAll('.clinic-card.skeleton');
+    skeletons.forEach(skeleton => skeleton.remove());
+    
+    // Add real content with fade-in animation
+    if (Array.isArray(content)) {
+        content.forEach((card, index) => {
+            setTimeout(() => {
+                card.style.opacity = '0';
+                container.appendChild(card);
+                // Trigger fade-in animation
+                setTimeout(() => {
+                    card.style.transition = 'opacity 0.3s ease';
+                    card.style.opacity = '1';
+                }, 50);
+            }, index * 100); // Stagger the appearance
+        });
+    }
+}
+
 // Make functions available globally
 window.initializeMobileFilters = initializeMobileFilters;
 window.applyMobileFilter = applyMobileFilter;
 window.showMoreFiltersSheet = showMoreFiltersSheet;
 window.closeMobileFilterModal = closeMobileFilterModal;
 window.createEnhancedClinicCard = createEnhancedClinicCard;
+window.createSkeletonCard = createSkeletonCard;
+window.showSkeletonLoading = showSkeletonLoading;
+window.hideSkeletonAndShowContent = hideSkeletonAndShowContent;
