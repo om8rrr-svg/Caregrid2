@@ -26,6 +26,14 @@ CareGrid is a comprehensive healthcare directory platform that helps patients fi
 
 [View Live Site](https://caregrid.vercel.app) *(will be updated with actual URL)*
 
+## 🔧 API Configuration & Health Monitoring
+
+**API Proxy**: Vercel deployments automatically proxy `/api/*` requests to the backend server, eliminating CORS issues.
+
+**Health Check**: Visit `/health-check.html` on any deployment to verify API connectivity and backend health.
+
+**CLI Health Check**: Run `npm run smoke https://<vercel-preview>` to test deployment health programmatically.
+
 ## 🛠️ Technology Stack
 
 - **Frontend**: HTML5, CSS3, JavaScript (ES6+)
