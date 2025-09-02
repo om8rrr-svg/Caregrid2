@@ -8062,6 +8062,11 @@ footer {
         padding-bottom: 100px;
     }
     
+    /* Add bottom padding to similar clinics section to avoid overlap */
+    .similar-clinics {
+        padding-bottom: 100px;
+    }
+    
     /* Hide on desktop */
     .clinic-profile-bottom-bar {
         display: none;
