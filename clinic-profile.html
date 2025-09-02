@@ -357,6 +357,18 @@
         </div>
     </section>
 
+    <!-- Mobile Sticky Bottom Action Bar -->
+    <div class="clinic-profile-bottom-bar">
+        <a href="tel:" class="bottom-action-btn call" id="bottomCallBtn">
+            <i class="fas fa-phone"></i>
+            Call
+        </a>
+        <a href="mailto:" class="bottom-action-btn email" id="bottomEmailBtn">
+            <i class="fas fa-envelope"></i>
+            Email
+        </a>
+    </div>
+
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
@@ -572,6 +584,15 @@
             
             // Update call button
             document.getElementById('clinicCallBtn').href = `tel:${clinic.phone}`;
+            
+            // Update mobile bottom action bar
+            const bottomCallBtn = document.getElementById('bottomCallBtn');
+            const bottomEmailBtn = document.getElementById('bottomEmailBtn');
+            if (bottomCallBtn) bottomCallBtn.href = `tel:${clinic.phone}`;
+            if (bottomEmailBtn) {
+                const email = clinic.email || generateEmail(clinic);
+                bottomEmailBtn.href = `mailto:${email}`;
+            }
             
             // Update email
             const email = clinic.email || generateEmail(clinic);
