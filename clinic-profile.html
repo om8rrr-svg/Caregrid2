@@ -153,61 +153,24 @@
              font-weight: 600;
          }
 
-         /* Mobile Sticky CTA Bar */
-         .mobile-sticky-bar {
-             position: fixed;
-             bottom: 0;
-             left: 0;
-             right: 0;
-             background: rgba(255, 255, 255, 0.95);
-             backdrop-filter: blur(10px);
-             border-top: 1px solid #e9ecef;
-             padding: 15px 20px;
-             box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
-             z-index: 1000;
-             display: none; /* Hidden by default, shown on mobile via media query */
+         /* Mobile Sticky CTA Bar - matches requested implementation */
+         .sticky-cta {
+             display: none; /* Hidden by default */
          }
-
-         .sticky-actions {
-             display: flex;
-             gap: 15px;
-             max-width: 400px;
-             margin: 0 auto;
-         }
-
-         .sticky-btn {
-             flex: 1;
-             padding: 12px 20px;
-             border: none;
-             border-radius: 8px;
-             font-weight: 600;
-             font-size: 14px;
-             display: flex;
-             align-items: center;
-             justify-content: center;
-             gap: 8px;
-             cursor: pointer;
-             transition: all 0.3s ease;
-         }
-
-         .sticky-btn.call-btn {
-             background: transparent;
-             color: #2A6EF3;
-             border: 2px solid #2A6EF3;
-         }
-
-         .sticky-btn.call-btn:hover {
-             background: #2A6EF3;
-             color: white;
-         }
-
-         .sticky-btn.primary {
-             background: #2A6EF3;
-             color: white;
-         }
-
-         .sticky-btn.primary:hover {
-             background: #1E5AD1;
+         
+         @media (max-width: 600px){
+             .clinic-profile-content{
+                 padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+             }
+             .sticky-cta{
+                 position: fixed; left:0; right:0; bottom:0;
+                 background:#fff; display:flex; gap:10px;
+                 padding:12px calc(12px + env(safe-area-inset-left,0px))
+                         calc(12px + env(safe-area-inset-bottom,0px));
+                 box-shadow:0 -4px 12px rgba(0,0,0,.1);
+                 z-index:1000;
+             }
+             .sticky-cta .btn{ flex:1; min-height:48px; font-size:16px; text-align:center; }
          }
 
          /* Rating Highlight Row */
@@ -234,21 +197,7 @@
              font-size: 16px;
          }
 
-         /* Content padding for sticky bar */
-         @media (max-width: 768px) {
-             .mobile-sticky-bar {
-                 display: block;
-             }
-             
-             body {
-                 padding-bottom: 80px;
-             }
-             
-             /* Safe area support for iPhone */
-             .mobile-sticky-bar {
-                 padding-bottom: calc(15px + env(safe-area-inset-bottom));
-             }
-         }
+
 
          /* Empty state for similar clinics */
          .similar-clinics-empty {
@@ -392,7 +341,7 @@
     </section>
 
     <!-- Clinic Details -->
-    <section class="clinic-details">
+    <section class="clinic-details clinic-profile-content">
         <div class="container">
             <div class="details-grid">
                 <div class="main-content">
@@ -478,7 +427,7 @@
     </section>
 
     <!-- Similar Clinics -->
-    <section class="similar-clinics">
+    <section class="similar-clinics clinic-profile-content">
         <div class="container">
             <h2 class="section-title">Similar Clinics Nearby</h2>
             <div class="clinic-grid" id="similarClinics">
@@ -527,17 +476,15 @@
     </footer>
 
     <!-- Mobile Sticky CTA Bar -->
-    <div class="mobile-sticky-bar" id="mobileSticky">
-        <div class="sticky-actions">
-            <button class="sticky-btn call-btn" id="stickyCallBtn">
-                <i class="fas fa-phone"></i>
-                <span>Call</span>
-            </button>
-            <button class="sticky-btn primary" id="stickyBookBtn">
-                <i class="fas fa-calendar"></i>
-                <span>Book</span>
-            </button>
-        </div>
+    <div class="sticky-cta">
+        <a href="tel:" id="cta-call" class="btn">
+            <i class="fas fa-phone"></i>
+            Call
+        </a>
+        <a href="mailto:" id="cta-email" class="btn">
+            <i class="fas fa-envelope"></i>
+            Email
+        </a>
     </div>
 
     <script>
@@ -1560,22 +1507,6 @@
                 imageEl.alt = clinic.name;
             }
             
-            // Setup mobile sticky bar (Fix 1)
-            const stickyCallBtn = document.getElementById('stickyCallBtn');
-            const stickyBookBtn = document.getElementById('stickyBookBtn');
-            
-            if (stickyCallBtn && clinic.phone) {
-                stickyCallBtn.onclick = function() {
-                    window.location.href = `tel:${clinic.phone}`;
-                };
-            }
-            
-            if (stickyBookBtn) {
-                stickyBookBtn.onclick = function() {
-                    window.location.href = `booking.html?clinicId=${clinic.id || clinic.frontendId}`;
-                };
-            }
-
             // Setup website button in Quick Actions (Fix 1)
             const websiteBtn = document.getElementById('websiteBtn');
             if (websiteBtn && clinic.website) {
@@ -1627,5 +1558,22 @@
     <script src="js/clinic-data.js"></script>
     
     <script type="module" src="js/header.js"></script>
+    <script>
+        // Sticky CTA functionality - populate phone/email links
+        document.addEventListener("DOMContentLoaded", async () => {
+          try {
+            const urlParams = new URLSearchParams(window.location.search);
+            const id = urlParams.get('id');
+            if (!id) return;
+            
+            const res = await fetch(`/api/clinics?id=${id}`).catch(()=>null);
+            const clinic = res ? await res.json() : {};
+            const tel = document.querySelector("#cta-call");
+            const eml = document.querySelector("#cta-email");
+            if (clinic?.phone) tel.href = `tel:${clinic.phone}`;
+            if (clinic?.email) eml.href = `mailto:${clinic.email}`;
+          } catch(e){ console.warn("Sticky CTA fallback:", e); }
+        });
+    </script>
 </body>
 </html>
