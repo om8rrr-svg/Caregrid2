@@ -152,6 +152,139 @@
              color: #ffc107 !important;
              font-weight: 600;
          }
+
+         /* Mobile Sticky CTA Bar */
+         .mobile-sticky-bar {
+             position: fixed;
+             bottom: 0;
+             left: 0;
+             right: 0;
+             background: rgba(255, 255, 255, 0.95);
+             backdrop-filter: blur(10px);
+             border-top: 1px solid #e9ecef;
+             padding: 15px 20px;
+             box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+             z-index: 1000;
+             display: none; /* Hidden by default, shown on mobile via media query */
+         }
+
+         .sticky-actions {
+             display: flex;
+             gap: 15px;
+             max-width: 400px;
+             margin: 0 auto;
+         }
+
+         .sticky-btn {
+             flex: 1;
+             padding: 12px 20px;
+             border: none;
+             border-radius: 8px;
+             font-weight: 600;
+             font-size: 14px;
+             display: flex;
+             align-items: center;
+             justify-content: center;
+             gap: 8px;
+             cursor: pointer;
+             transition: all 0.3s ease;
+         }
+
+         .sticky-btn.call-btn {
+             background: transparent;
+             color: #2A6EF3;
+             border: 2px solid #2A6EF3;
+         }
+
+         .sticky-btn.call-btn:hover {
+             background: #2A6EF3;
+             color: white;
+         }
+
+         .sticky-btn.primary {
+             background: #2A6EF3;
+             color: white;
+         }
+
+         .sticky-btn.primary:hover {
+             background: #1E5AD1;
+         }
+
+         /* Rating Highlight Row */
+         .rating-highlight-row {
+             background: linear-gradient(135deg, #27AE60 0%, #2ECC71 100%);
+             color: white;
+             padding: 12px 20px;
+             margin: -20px -20px 20px -20px;
+             display: flex;
+             align-items: center;
+             gap: 12px;
+             border-radius: 0;
+         }
+
+         .rating-highlight-row .stars {
+             color: white !important;
+             font-size: 18px;
+             font-weight: bold;
+         }
+
+         .rating-highlight-row .rating-text {
+             color: white !important;
+             font-weight: bold;
+             font-size: 16px;
+         }
+
+         /* Content padding for sticky bar */
+         @media (max-width: 768px) {
+             .mobile-sticky-bar {
+                 display: block;
+             }
+             
+             body {
+                 padding-bottom: 80px;
+             }
+             
+             /* Safe area support for iPhone */
+             .mobile-sticky-bar {
+                 padding-bottom: calc(15px + env(safe-area-inset-bottom));
+             }
+         }
+
+         /* Empty state for similar clinics */
+         .similar-clinics-empty {
+             text-align: center;
+             padding: 40px 20px;
+             background: #f8f9fa;
+             border-radius: 12px;
+             margin-top: 20px;
+         }
+
+         .similar-clinics-empty h3 {
+             color: #6c757d;
+             margin-bottom: 10px;
+             font-size: 1.2rem;
+         }
+
+         .similar-clinics-empty p {
+             color: #6c757d;
+             margin-bottom: 20px;
+         }
+
+         .similar-clinics-empty .search-nearby-btn {
+             background: #2A6EF3;
+             color: white;
+             padding: 10px 20px;
+             border: none;
+             border-radius: 6px;
+             text-decoration: none;
+             display: inline-block;
+             font-weight: 600;
+             transition: background 0.3s ease;
+         }
+
+         .similar-clinics-empty .search-nearby-btn:hover {
+             background: #1E5AD1;
+         }
      </style>
      
      <!-- JSON-LD Schema for Clinic -->
@@ -243,23 +376,16 @@
                 </div>
                 <div class="clinic-info">
                     <h1 id="clinicName">Loading clinic information...</h1>
-                    <p class="clinic-type" id="clinicType">Loading...</p>
-                    <div class="clinic-rating">
-                        <span class="stars" id="clinicStars">★★★★★</span>
-                        <span class="rating-text" id="clinicRating">Loading reviews...</span>
+                    <div class="rating-highlight-row" id="ratingHighlight" style="display: none;">
+                        <span class="stars" id="clinicStarsHighlight">★★★★★</span>
+                        <span class="rating-text" id="clinicRatingHighlight">Loading reviews...</span>
                     </div>
+                    <p class="clinic-type" id="clinicType">Loading...</p>
                     <p class="clinic-address" id="clinicAddress">
                         <i class="fas fa-map-marker-alt"></i>
                         Loading address...
                     </p>
-                    <div class="clinic-contact">
-                        <a href="tel:+441234567890" class="contact-btn" id="clinicCallBtn">
-                            <i class="fas fa-phone"></i> Call Now
-                        </a>
-                        <a href="#" class="website-btn" id="clinicWebsite">
-                            <i class="fas fa-globe"></i>  Visit Website
-                        </a>
-                    </div>
+                    <!-- Inline CTAs removed - moved to Quick Actions and sticky bar -->
                 </div>
             </div>
         </div>
@@ -317,6 +443,10 @@
                             <button class="action-btn secondary" id="directionsBtn">
                                 <i class="fas fa-directions"></i>
                                 Get Directions
+                            </button>
+                            <button class="action-btn secondary" id="websiteBtn">
+                                <i class="fas fa-globe"></i>
+                                Visit Website
                             </button>
                             <button class="action-btn secondary" onclick="shareClinic()">
                                 <i class="fas fa-share"></i>
@@ -396,6 +526,20 @@
         </div>
     </footer>
 
+    <!-- Mobile Sticky CTA Bar -->
+    <div class="mobile-sticky-bar" id="mobileSticky">
+        <div class="sticky-actions">
+            <button class="sticky-btn call-btn" id="stickyCallBtn">
+                <i class="fas fa-phone"></i>
+                <span>Call</span>
+            </button>
+            <button class="sticky-btn primary" id="stickyBookBtn">
+                <i class="fas fa-calendar"></i>
+                <span>Book</span>
+            </button>
+        </div>
+    </div>
+
     <script>
         let currentClinic = null;
         
@@ -415,7 +559,7 @@
                     if (clinic) {
                         console.log('Found clinic in local data:', clinic.name);
                         currentClinic = clinic;
-                        loadClinicData(clinic);
+                        updateClinicDisplay(clinic);
                         return; // Exit early with local data
                     }
                 }
@@ -436,7 +580,7 @@
                     if (apiClinic) {
                         console.log('Loaded clinic from API:', apiClinic.name);
                         currentClinic = apiClinic;
-                        loadClinicData(apiClinic);
+                        updateClinicDisplay(apiClinic);
                     } else {
                         console.log('Clinic not found for ID:', clinicId);
                         showErrorMessage('Clinic not found');
@@ -450,7 +594,7 @@
                         if (clinic) {
                             console.log('Using local data as fallback:', clinic.name);
                             currentClinic = clinic;
-                            loadClinicData(clinic);
+                            updateClinicDisplay(clinic);
                         } else {
                             console.log('Clinic not found in local data for ID:', clinicId);
                             showErrorMessage('Clinic not found');
@@ -475,7 +619,21 @@
             document.getElementById('clinicStatus').textContent = 'Loading...';
             document.getElementById('overlayType').textContent = 'Loading...';
             document.getElementById('clinicDescription').textContent = 'Loading clinic information...';
-            document.getElementById('clinicRating').textContent = 'Loading reviews...';
+            document.getElementById('clinicRatingHighlight').textContent = 'Loading reviews...';
+            
+            // Start timeout for contact info (Fix 4)
+            setTimeout(() => {
+                const phoneEl = document.getElementById('clinicPhone');
+                const emailEl = document.getElementById('clinicEmail');
+                
+                if (phoneEl && phoneEl.textContent === 'Loading...') {
+                    phoneEl.textContent = 'Not available';
+                }
+                
+                if (emailEl && emailEl.textContent === 'Loading...') {
+                    emailEl.textContent = 'Not available';
+                }
+            }, 2000); // 2 second timeout
         }
         
         function showErrorMessage(message) {
@@ -487,7 +645,12 @@
             document.getElementById('clinicStatus').textContent = 'Status unknown';
             document.getElementById('overlayType').textContent = '';
             document.getElementById('clinicDescription').textContent = 'Please check the URL and try again.';
-            document.getElementById('clinicRating').textContent = 'No reviews available';
+            
+            // Hide rating highlight on error
+            const ratingHighlight = document.getElementById('ratingHighlight');
+            if (ratingHighlight) {
+                ratingHighlight.style.display = 'none';
+            }
             
             // Hide premium badge when there's an error
             const premiumBadge = document.getElementById('premiumBadge');
@@ -518,7 +681,7 @@
                 if (clinic) {
                     console.log('Loading clinic with fallback method:', clinic.name);
                     currentClinic = clinic;
-                    loadClinicData(clinic);
+                    updateClinicDisplay(clinic);
                 } else {
                     showErrorMessage('Clinic not found');
                 }
@@ -965,6 +1128,21 @@
             }
         }
         
+        // Fix 5: Handle empty state for similar clinics
+        function handleSimilarClinicsEmpty() {
+            const similarContainer = document.getElementById('similarClinics');
+            if (similarContainer && similarContainer.children.length === 0) {
+                const emptyState = document.createElement('div');
+                emptyState.className = 'similar-clinics-empty';
+                emptyState.innerHTML = `
+                    <h3>No Similar Clinics Found</h3>
+                    <p>We couldn't find any similar clinics in this area right now.</p>
+                    <a href="index.html" class="search-nearby-btn">Search All Clinics</a>
+                `;
+                similarContainer.appendChild(emptyState);
+            }
+        }
+        
         function loadSimilarClinics(clinic) {
             const similarContainer = document.getElementById('similarClinics');
             if (!similarContainer || !window.clinicsData) return;
@@ -983,10 +1161,16 @@
             }
             
             similarContainer.innerHTML = '';
-            similarClinics.forEach(similarClinic => {
-                const card = createSimilarClinicCard(similarClinic);
-                similarContainer.appendChild(card);
-            });
+            
+            if (similarClinics.length === 0) {
+                // Fix 5: Show empty state when no clinics found
+                handleSimilarClinicsEmpty();
+            } else {
+                similarClinics.forEach(similarClinic => {
+                    const card = createSimilarClinicCard(similarClinic);
+                    similarContainer.appendChild(card);
+                });
+            }
         }
         
         function createSimilarClinicCard(clinic) {
@@ -1283,13 +1467,12 @@
         }
         
         function updateClinicDisplay(clinic) {
-            // Update all the elements
+            // Update basic information
             const elements = {
                 'clinicName': clinic.name,
-                'clinicType': clinic.type,
+                'clinicType': formatType(clinic.type),
                 'clinicAddress': `<i class="fas fa-map-marker-alt"></i> ${clinic.address}`,
-                'clinicRating': `${clinic.rating || 0} (${clinic.reviews || clinic.reviewCount || 0} reviews)`,
-                'clinicDescription': clinic.description || `${clinic.name} provides quality healthcare services.`
+                'clinicDescription': clinic.description || generateUniqueDescription(clinic)
             };
             
             for (const [id, content] of Object.entries(elements)) {
@@ -1302,27 +1485,124 @@
                     }
                 }
             }
+
+            // Update overlay elements
+            const overlayType = document.getElementById('overlayType');
+            if (overlayType) {
+                overlayType.textContent = formatType(clinic.type);
+            }
+            
+            const typeIcon = getTypeIcon(clinic.type);
+            const typeBadgeIcon = document.querySelector('.type-badge i');
+            if (typeBadgeIcon) {
+                typeBadgeIcon.className = typeIcon;
+            }
+
+            // Show/hide premium badge
+            const premiumBadge = document.getElementById('premiumBadge');
+            const isPremium = clinic.premium || clinic.is_premium || clinic.premiumStatus;
+            if (premiumBadge) {
+                premiumBadge.style.display = isPremium ? 'block' : 'none';
+            }
+
+            // Update contact information (Fix 4: clears timeout fallback if data loads)
+            const phoneEl = document.getElementById('clinicPhone');
+            const emailEl = document.getElementById('clinicEmail');
+            
+            if (phoneEl) {
+                phoneEl.textContent = clinic.phone || 'Not available';
+            }
+            
+            if (emailEl) {
+                const email = clinic.email || generateEmail(clinic);
+                emailEl.textContent = email;
+            }
+
+            // Update status
+            const status = generateStatus(clinic);
+            const statusElement = document.getElementById('clinicStatus');
+            if (statusElement) {
+                statusElement.textContent = status.text;
+                statusElement.className = status.class;
+            }
+
+            // Update services
+            const servicesContainer = document.getElementById('clinicServices');
+            if (servicesContainer) {
+                servicesContainer.innerHTML = '';
+                const services = clinic.services || generateServices(clinic.type);
+                services.forEach(service => {
+                    const serviceTag = document.createElement('span');
+                    serviceTag.className = 'service-tag';
+                    serviceTag.textContent = service;
+                    servicesContainer.appendChild(serviceTag);
+                });
+            }
+
+            // Update rating highlight row (Fix 3)
+            const ratingHighlight = document.getElementById('ratingHighlight');
+            const clinicStarsHighlight = document.getElementById('clinicStarsHighlight');
+            const clinicRatingHighlight = document.getElementById('clinicRatingHighlight');
+            
+            if (ratingHighlight && clinicStarsHighlight && clinicRatingHighlight) {
+                const stars = '★'.repeat(Math.floor(clinic.rating || 0));
+                const reviewCount = clinic.reviews || clinic.reviewCount || clinic.review_count || 0;
+                
+                clinicStarsHighlight.textContent = stars;
+                clinicRatingHighlight.textContent = `${clinic.rating || 0} (${reviewCount} reviews)`;
+                ratingHighlight.style.display = 'flex';
+            }
             
             // Update image
             const imageEl = document.getElementById('clinicImage');
-            if (imageEl && clinic.image) {
-                imageEl.src = clinic.image;
+            if (imageEl && (clinic.image || clinic.logoUrl)) {
+                imageEl.src = clinic.image || clinic.logoUrl;
                 imageEl.alt = clinic.name;
             }
             
-            // Update call button
-            const callBtn = document.getElementById('clinicCallBtn');
-            if (callBtn && clinic.phone) {
-                callBtn.href = `tel:${clinic.phone}`;
+            // Setup mobile sticky bar (Fix 1)
+            const stickyCallBtn = document.getElementById('stickyCallBtn');
+            const stickyBookBtn = document.getElementById('stickyBookBtn');
+            
+            if (stickyCallBtn && clinic.phone) {
+                stickyCallBtn.onclick = function() {
+                    window.location.href = `tel:${clinic.phone}`;
+                };
             }
             
-            // Setup booking button
+            if (stickyBookBtn) {
+                stickyBookBtn.onclick = function() {
+                    window.location.href = `booking.html?clinicId=${clinic.id || clinic.frontendId}`;
+                };
+            }
+
+            // Setup website button in Quick Actions (Fix 1)
+            const websiteBtn = document.getElementById('websiteBtn');
+            if (websiteBtn && clinic.website) {
+                websiteBtn.onclick = function() {
+                    window.open(clinic.website, '_blank');
+                };
+                websiteBtn.style.display = 'block';
+            } else if (websiteBtn) {
+                websiteBtn.style.display = 'none';
+            }
+            
+            // Setup booking button in Quick Actions
             const bookingBtn = document.querySelector('.action-btn.primary');
             if (bookingBtn) {
                 bookingBtn.onclick = function() {
                     window.location.href = `booking.html?clinicId=${clinic.id || clinic.frontendId}`;
                 };
             }
+
+            // Update opening hours
+            updateOpeningHours(clinic);
+            
+            // Setup button event listeners
+            setupButtonListeners(clinic);
+            
+            // Load similar clinics
+            loadSimilarClinics(clinic);
             
             // Hide loading states
             const loadingElements = document.querySelectorAll('.loading-text');
