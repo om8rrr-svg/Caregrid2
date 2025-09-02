@@ -7693,3 +7693,101 @@ footer {
         flex-direction: column; 
     } 
 }
+
+/* Skeleton Loading Animation for Featured Clinics */
+@keyframes skeleton-shimmer {
+    0% {
+        background-position: -200px 0;
+    }
+    100% {
+        background-position: calc(200px + 100%) 0;
+    }
+}
+
+.skeleton-card {
+    pointer-events: none;
+    user-select: none;
+}
+
+.skeleton-text {
+    border-radius: 4px;
+    animation: skeleton-shimmer 1.5s infinite;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+}
+
+.skeleton-image {
+    border-radius: 8px 8px 0 0;
+}
+
+/* Demo Badge Styles */
+.demo-badge {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Clinic Card Enhancements */
+.clinic-card {
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+    background: white;
+}
+
+.clinic-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+
+.clinic-card__image {
+    position: relative;
+    overflow: hidden;
+}
+
+.clinic-card__image img {
+    transition: transform 0.3s ease;
+}
+
+.clinic-card:hover .clinic-card__image img {
+    transform: scale(1.05);
+}
+
+.clinic-card__head,
+.clinic-card__body,
+.clinic-card__actions {
+    padding: 15px;
+}
+
+.clinic-card__head {
+    padding-bottom: 10px;
+}
+
+.clinic-card__body {
+    padding-top: 0;
+    padding-bottom: 10px;
+}
+
+.clinic-card__actions {
+    padding-top: 0;
+    border-top: 1px solid #f0f0f0;
+}
+
+.clinic-card__actions a {
+    display: inline-block;
+    padding: 8px 16px;
+    margin-right: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.clinic-card__actions a:hover {
+    background: #f8f9fa;
+    border-color: #007bff;
+    color: #007bff;
+}
