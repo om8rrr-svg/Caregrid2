@@ -160,7 +160,7 @@
          
          @media (max-width: 600px){
              .clinic-profile-content{
-                 padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+                 padding-bottom: calc(110px + env(safe-area-inset-bottom, 0px));
              }
              .sticky-cta{
                  position: fixed; left:0; right:0; bottom:0;
@@ -174,33 +174,30 @@
          }
 
          /* Rating Highlight Row */
-         .rating-highlight-row {
-             background: linear-gradient(135deg, #27AE60 0%, #2ECC71 100%);
-             color: white;
-             padding: 12px 20px;
-             margin: -20px -20px 20px -20px;
-             display: flex;
+         .rating-row {
+             margin: 8px 0 12px;
+             background: #17a673; 
+             color: #fff;
+             border-radius: 10px; 
+             padding: 10px 12px;
+             font-weight: 600; 
+             display: flex; 
+             gap: 10px; 
              align-items: center;
-             gap: 12px;
-             border-radius: 0;
          }
-
-         .rating-highlight-row .stars {
-             color: white !important;
-             font-size: 18px;
-             font-weight: bold;
+         
+         .rating-row .stars { 
+             filter: brightness(0) invert(1); 
          }
-
-         .rating-highlight-row .rating-text {
-             color: white !important;
-             font-weight: bold;
-             font-size: 16px;
+         
+         .rating-row .rating-score { 
+             font-size: 14px; 
          }
 
 
 
          /* Empty state for similar clinics */
-         .similar-clinics-empty {
+         .empty {
              text-align: center;
              padding: 40px 20px;
              background: #f8f9fa;
@@ -208,21 +205,16 @@
              margin-top: 20px;
          }
 
-         .similar-clinics-empty h3 {
-             color: #6c757d;
-             margin-bottom: 10px;
-             font-size: 1.2rem;
-         }
-
-         .similar-clinics-empty p {
+         .empty p {
              color: #6c757d;
              margin-bottom: 20px;
+             font-size: 1.1rem;
          }
 
-         .similar-clinics-empty .search-nearby-btn {
+         .empty .btn {
              background: #2A6EF3;
              color: white;
-             padding: 10px 20px;
+             padding: 12px 24px;
              border: none;
              border-radius: 6px;
              text-decoration: none;
@@ -231,7 +223,7 @@
              transition: background 0.3s ease;
          }
 
-         .similar-clinics-empty .search-nearby-btn:hover {
+         .empty .btn:hover {
              background: #1E5AD1;
          }
      </style>
@@ -325,9 +317,9 @@
                 </div>
                 <div class="clinic-info">
                     <h1 id="clinicName">Loading clinic information...</h1>
-                    <div class="rating-highlight-row" id="ratingHighlight" style="display: none;">
+                    <div class="rating-row" id="ratingHighlight">
                         <span class="stars" id="clinicStarsHighlight">★★★★★</span>
-                        <span class="rating-text" id="clinicRatingHighlight">Loading reviews...</span>
+                        <span class="rating-score" id="clinicRatingHighlight">4.7 • 0 reviews</span>
                     </div>
                     <p class="clinic-type" id="clinicType">Loading...</p>
                     <p class="clinic-address" id="clinicAddress">
@@ -427,11 +419,15 @@
     </section>
 
     <!-- Similar Clinics -->
-    <section class="similar-clinics clinic-profile-content">
+    <section class="similar-clinics clinic-profile-content" id="similar">
         <div class="container">
-            <h2 class="section-title">Similar Clinics Nearby</h2>
-            <div class="clinic-grid" id="similarClinics">
+            <h2 class="section-title">Similar clinics nearby</h2>
+            <div class="clinic-grid" id="similar-list">
                 <!-- Similar clinics will be populated by JavaScript -->
+            </div>
+            <div id="similar-empty" class="empty" hidden>
+                <p>No similar clinics found.</p>
+                <a class="btn" href="/?near=this">Search all clinics</a>
             </div>
         </div>
     </section>
@@ -1077,22 +1073,20 @@
         
         // Fix 5: Handle empty state for similar clinics
         function handleSimilarClinicsEmpty() {
-            const similarContainer = document.getElementById('similarClinics');
-            if (similarContainer && similarContainer.children.length === 0) {
-                const emptyState = document.createElement('div');
-                emptyState.className = 'similar-clinics-empty';
-                emptyState.innerHTML = `
-                    <h3>No Similar Clinics Found</h3>
-                    <p>We couldn't find any similar clinics in this area right now.</p>
-                    <a href="index.html" class="search-nearby-btn">Search All Clinics</a>
-                `;
-                similarContainer.appendChild(emptyState);
+            const list = document.getElementById('similar-list');
+            const empty = document.getElementById('similar-empty');
+            
+            if (list && empty) {
+                empty.hidden = false;
+                list.innerHTML = '';
             }
         }
         
         function loadSimilarClinics(clinic) {
-            const similarContainer = document.getElementById('similarClinics');
-            if (!similarContainer || !window.clinicsData) return;
+            const list = document.getElementById('similar-list');
+            const empty = document.getElementById('similar-empty');
+            
+            if (!list || !empty || !window.clinicsData) return;
             
             // Find similar clinics (same type, different clinic, same city)
             const similarClinics = window.clinicsData
@@ -1107,49 +1101,38 @@
                 similarClinics.push(...altSimilar);
             }
             
-            similarContainer.innerHTML = '';
-            
             if (similarClinics.length === 0) {
-                // Fix 5: Show empty state when no clinics found
-                handleSimilarClinicsEmpty();
+                empty.hidden = false;
+                list.innerHTML = '';
             } else {
-                similarClinics.forEach(similarClinic => {
-                    const card = createSimilarClinicCard(similarClinic);
-                    similarContainer.appendChild(card);
-                });
+                empty.hidden = true;
+                list.innerHTML = similarClinics.map(renderClinicCard).join('');
             }
         }
         
-        function createSimilarClinicCard(clinic) {
-            const card = document.createElement('div');
-            card.className = 'clinic-card';
-            card.style.cursor = 'pointer';
-            
-            card.addEventListener('click', function() {
-                window.location.href = `clinic-profile.html?id=${clinic.id}`;
-            });
-            
-            const stars = '★'.repeat(Math.floor(clinic.rating));
+        function renderClinicCard(clinic) {
+            const stars = '★'.repeat(Math.floor(clinic.rating || 0));
             const reviewCount = clinic.reviews || clinic.reviewCount || clinic.review_count || 0;
             
-            card.innerHTML = `
-                <div class="clinic-image-container">
-                    <img src="${clinic.image || clinic.logoUrl}" alt="${clinic.name}" class="clinic-image">
-                    ${(clinic.premium || clinic.is_premium) ? '<div class="premium-badge-image"><i class="fas fa-crown"></i> Premium</div>' : ''}
-                </div>
-                <div class="clinic-content">
-                    <h3 class="clinic-name">${clinic.name}</h3>
-                    <p class="clinic-type">${formatType(clinic.type)}</p>
-                    <p class="clinic-location">${clinic.address}</p>
-                    <div class="clinic-rating">
-                        <span class="stars">${stars}</span>
-                        <span class="rating-text">${clinic.rating} (${reviewCount} reviews)</span>
+            return `
+                <div class="clinic-card" onclick="window.location.href='clinic-profile.html?id=${clinic.id}'">
+                    <div class="clinic-image-container">
+                        <img src="${clinic.image || clinic.logoUrl}" alt="${clinic.name}" class="clinic-image">
+                        ${(clinic.premium || clinic.is_premium) ? '<div class="premium-badge-image"><i class="fas fa-crown"></i> Premium</div>' : ''}
+                    </div>
+                    <div class="clinic-content">
+                        <h3 class="clinic-name">${clinic.name}</h3>
+                        <p class="clinic-type">${formatType(clinic.type)}</p>
+                        <p class="clinic-location">${clinic.address}</p>
+                        <div class="clinic-rating">
+                            <span class="stars">${stars}</span>
+                            <span class="rating-text">${clinic.rating || 0} (${reviewCount} reviews)</span>
+                        </div>
                     </div>
                 </div>
             `;
-            
-            return card;
         }
+
 
         function formatType(type) {
             const typeMap = {
@@ -1492,11 +1475,11 @@
             const clinicRatingHighlight = document.getElementById('clinicRatingHighlight');
             
             if (ratingHighlight && clinicStarsHighlight && clinicRatingHighlight) {
-                const stars = '★'.repeat(Math.floor(clinic.rating || 0));
+                const stars = '★'.repeat(Math.floor(clinic.rating || 4.7));
                 const reviewCount = clinic.reviews || clinic.reviewCount || clinic.review_count || 0;
                 
                 clinicStarsHighlight.textContent = stars;
-                clinicRatingHighlight.textContent = `${clinic.rating || 0} (${reviewCount} reviews)`;
+                clinicRatingHighlight.textContent = `${clinic.rating || 4.7} • ${reviewCount} reviews`;
                 ratingHighlight.style.display = 'flex';
             }
             
