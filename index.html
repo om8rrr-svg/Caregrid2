@@ -255,23 +255,23 @@
     </section>
 
     <!-- Mobile Sticky Filter Bar -->
-    <div class="mobile-filter-bar" id="mobileFilterBar">
+    <div class="mobile-filter-bar sticky-filters" id="mobileFilterBar">
         <div class="filter-chips-container">
-            <div class="filter-chips" id="filterChips">
+            <div class="filter-chips chips" id="filterChips" role="tablist" aria-label="Filter options">
                 <!-- Filter chips populated by JavaScript -->
             </div>
-            <button class="more-filters-btn" id="moreFiltersBtn" style="display: none;">
+            <button class="more-filters-btn chip" id="moreFiltersBtn" style="display: none;" aria-label="Show more filters">
                 <span class="more-count">+2</span>
             </button>
         </div>
     </div>
 
     <!-- Filter Bottom Sheet -->
-    <div class="filter-bottom-sheet" id="filterBottomSheet">
+    <div class="filter-bottom-sheet bottom-sheet" id="filterBottomSheet">
         <div class="bottom-sheet-content">
             <div class="bottom-sheet-header">
                 <h3>Filters</h3>
-                <button class="close-sheet-btn" id="closeSheetBtn">
+                <button class="close-sheet-btn" id="closeSheetBtn" aria-label="Close filters">
                     <i class="fas fa-times"></i>
                 </button>
             </div>

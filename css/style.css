@@ -1,4 +1,8 @@
 /* Reset and Base Styles */
+:root {
+    --nav-offset: 64px;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -7792,7 +7796,84 @@ footer {
     color: #007bff;
 }
 
-/* Mobile Sticky Filter Bar */
+/* Mobile Sticky Filter Bar - Exact spec implementation */
+@media (max-width: 600px) {
+  .sticky-filters {
+    position: sticky;
+    top: var(--nav-offset, 64px);
+    background: #fff;
+    z-index: 30;
+    padding: 8px 12px;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .chips {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .chip {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+    border: 1px solid #ddd;
+    border-radius: 999px;
+    padding: 8px 12px;
+    min-height: 44px;
+    line-height: 26px;
+    font-size: 14px;
+    background: #fff;
+    white-space: nowrap;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+  }
+  
+  .chip:focus {
+    outline: 2px solid #2e7;
+    outline-offset: 2px;
+  }
+  
+  .chip:hover {
+    background: #f8f9fa;
+    border-color: #007bff;
+  }
+  
+  .chip.active {
+    background: #007bff;
+    color: white;
+    border-color: #007bff;
+  }
+  
+  .bottom-sheet {
+    position: fixed;
+    inset: auto 0 0 0;
+    background: #fff;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    box-shadow: 0 -10px 30px rgba(0,0,0,.15);
+    z-index: 40;
+    max-height: 70vh;
+    overflow: auto;
+    padding: 12px;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+  }
+  
+  .bottom-sheet.open {
+    transform: translateY(0);
+  }
+  
+  .sheet-hidden {
+    display: none;
+  }
+}
+
+/* Legacy mobile filter bar - maintain compatibility */
 .mobile-filter-bar {
     position: sticky;
     top: 80px; /* Below navbar */
@@ -7818,6 +7899,8 @@ footer {
     scrollbar-width: none;
     -ms-overflow-style: none;
     flex: 1;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
 }
 
 .filter-chips::-webkit-scrollbar {
@@ -7827,21 +7910,28 @@ footer {
 .filter-chip {
     display: inline-flex;
     align-items: center;
-    padding: 6px 12px;
-    background: #f8f9fa;
-    border: 1px solid #dee2e6;
-    border-radius: 20px;
-    font-size: 13px;
+    padding: 8px 12px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 999px;
+    font-size: 14px;
     font-weight: 500;
     white-space: nowrap;
     cursor: pointer;
     transition: all 0.2s;
     min-height: 44px; /* Accessibility requirement */
     min-width: 44px;
+    scroll-snap-align: start;
+    line-height: 26px;
+}
+
+.filter-chip:focus {
+    outline: 2px solid #2e7;
+    outline-offset: 2px;
 }
 
 .filter-chip:hover {
-    background: #e9ecef;
+    background: #f8f9fa;
     border-color: #007bff;
 }
 
@@ -7881,19 +7971,20 @@ footer {
     background: #5a6268;
 }
 
-/* Filter Bottom Sheet */
+/* Filter Bottom Sheet - Updated to match spec */
 .filter-bottom-sheet {
     position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: white;
-    z-index: 1000;
+    inset: auto 0 0 0;
+    background: #fff;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    box-shadow: 0 -10px 30px rgba(0,0,0,.15);
+    z-index: 40;
+    max-height: 70vh;
+    overflow: auto;
+    padding: 12px;
     transform: translateY(100%);
     transition: transform 0.3s ease;
-    max-height: 80vh;
-    border-radius: 16px 16px 0 0;
-    box-shadow: 0 -4px 16px rgba(0,0,0,0.2);
 }
 
 .filter-bottom-sheet.open {

@@ -253,7 +253,7 @@ function initMobileFilters() {
     sort: 'rating'
   };
   
-  // Filter data - deduplicated using Set
+  // Filter data - deduplicated using Set and alphabetically sorted
   const filterData = {
     categories: [
       { id: 'all', name: 'All', icon: 'fas fa-hospital', count: '25+' },
@@ -265,12 +265,12 @@ function initMobileFilters() {
     ],
     locations: [
       { id: 'all', name: 'All Locations', count: '25+' },
-      { id: 'manchester', name: 'Manchester', count: '8' },
       { id: 'bolton', name: 'Bolton', count: '4' },
-      { id: 'liverpool', name: 'Liverpool', count: '6' },
       { id: 'leeds', name: 'Leeds', count: '5' },
-      { id: 'london', name: 'London', count: '2' }
-    ],
+      { id: 'liverpool', name: 'Liverpool', count: '6' },
+      { id: 'london', name: 'London', count: '2' },
+      { id: 'manchester', name: 'Manchester', count: '8' }
+    ].sort((a, b) => a.name === 'All Locations' ? -1 : b.name === 'All Locations' ? 1 : a.name.localeCompare(b.name)),
     ratings: [
       { id: 'all', name: 'Any Rating' },
       { id: '4plus', name: '4+ Stars' },
@@ -281,11 +281,15 @@ function initMobileFilters() {
       { id: 'reviews', name: 'Reviews' },
       { id: 'distance', name: 'Distance' },
       { id: 'name', name: 'Name' }
+    ],
+    map: [
+      { id: 'map', name: 'Map', icon: 'fas fa-map-marker-alt' }
     ]
   };
   
-  // Deduplicate locations using Set
+  // Deduplicate locations using Set and ensure alphabetical order
   const uniqueLocations = [...new Set(filterData.locations.map(l => l.name))]
+    .sort()
     .map(name => filterData.locations.find(l => l.name === name));
   filterData.locations = uniqueLocations;
   
@@ -295,18 +299,26 @@ function initMobileFilters() {
       { type: 'category', ...filterData.categories.find(c => c.id === filterState.category) },
       { type: 'location', ...filterData.locations.find(l => l.id === filterState.location) },
       { type: 'rating', ...filterData.ratings.find(r => r.id === filterState.rating) },
-      { type: 'sort', name: `Sort: ${filterData.sorts.find(s => s.id === filterState.sort).name}` }
+      { type: 'sort', name: `Sort: ${filterData.sorts.find(s => s.id === filterState.sort).name}` },
+      { type: 'map', ...filterData.map[0] }
     ];
     
     // Show first 3 chips on mobile, with overflow handling
     const maxVisible = window.innerWidth > 480 ? 4 : 3;
     visibleChips.push(...allChips.slice(0, maxVisible));
     
+    // Add proper ARIA roles for accessibility
+    filterChips.setAttribute('role', 'tablist');
+    filterChips.setAttribute('aria-label', 'Filter options');
+    
     filterChips.innerHTML = visibleChips.map(chip => `
       <button class="filter-chip ${chip.id === filterState[chip.type] ? 'active' : ''}" 
               data-type="${chip.type}" 
               data-value="${chip.id || chip.type}"
-              ${chip.count ? `data-count="${chip.count}"` : ''}>
+              ${chip.count ? `data-count="${chip.count}"` : ''}
+              role="tab"
+              aria-selected="${chip.id === filterState[chip.type] ? 'true' : 'false'}"
+              tabindex="${chip.id === filterState[chip.type] ? '0' : '-1'}">
         ${chip.icon ? `<i class="${chip.icon}"></i> ` : ''}${chip.name}
       </button>
     `).join('');
@@ -320,20 +332,50 @@ function initMobileFilters() {
       moreFiltersBtn.style.display = 'none';
     }
     
-    // Add click handlers
-    filterChips.querySelectorAll('.filter-chip').forEach(chip => {
+    // Add click handlers with keyboard navigation support
+    filterChips.querySelectorAll('.filter-chip').forEach((chip, index) => {
       chip.addEventListener('click', () => {
         const type = chip.dataset.type;
-        if (type !== 'sort') {
+        if (type === 'map') {
+          // Handle map functionality
+          handleMapToggle();
+        } else if (type !== 'sort') {
           openBottomSheet(type);
         } else {
           openBottomSheet('sort');
+        }
+      });
+      
+      // Keyboard navigation
+      chip.addEventListener('keydown', (e) => {
+        const chips = filterChips.querySelectorAll('.filter-chip');
+        let currentIndex = Array.from(chips).indexOf(chip);
+        
+        switch(e.key) {
+          case 'ArrowLeft':
+            e.preventDefault();
+            currentIndex = currentIndex > 0 ? currentIndex - 1 : chips.length - 1;
+            chips[currentIndex].focus();
+            break;
+          case 'ArrowRight':
+            e.preventDefault();
+            currentIndex = currentIndex < chips.length - 1 ? currentIndex + 1 : 0;
+            chips[currentIndex].focus();
+            break;
+          case 'Enter':
+          case ' ':
+            e.preventDefault();
+            chip.click();
+            break;
         }
       });
     });
   }
   
   function openBottomSheet(activeSection = null) {
+    // Save current scroll position for restoration
+    window.savedScrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+    
     // Populate bottom sheet with current filters
     populateBottomSheetFilters();
     bottomSheet.classList.add('open');
@@ -351,6 +393,33 @@ function initMobileFilters() {
   function closeBottomSheet() {
     bottomSheet.classList.remove('open');
     document.body.style.overflow = '';
+    
+    // Restore scroll position if saved
+    if (typeof window.savedScrollPosition !== 'undefined') {
+      setTimeout(() => {
+        window.scrollTo(0, window.savedScrollPosition);
+      }, 50);
+    }
+  }
+  
+  function handleMapToggle() {
+    // Toggle map view functionality
+    console.log('Map toggle clicked - implement map view');
+    // Could integrate with Google Maps or similar
+    
+    // For now, show a placeholder notification
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+      position: fixed; top: 100px; left: 50%; transform: translateX(-50%);
+      background: #007bff; color: white; padding: 12px 20px;
+      border-radius: 8px; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    `;
+    notification.textContent = 'Map view coming soon!';
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+      document.body.removeChild(notification);
+    }, 2000);
   }
   
   function populateBottomSheetFilters() {
@@ -412,6 +481,9 @@ function initMobileFilters() {
   }
   
   function applyFilters() {
+    // Save current scroll position
+    const scrollPosition = window.savedScrollPosition || window.pageYOffset || document.documentElement.scrollTop;
+    
     // Update filter chips
     renderFilterChips();
     
@@ -423,13 +495,14 @@ function initMobileFilters() {
       window.filterByLocation(filterState.location);
     }
     
-    // Preserve scroll position
-    const scrollPosition = window.pageYOffset;
+    // Close bottom sheet
     closeBottomSheet();
     
-    // Restore scroll position after a short delay
+    // Restore scroll position after a short delay to ensure DOM updates
     setTimeout(() => {
       window.scrollTo(0, scrollPosition);
+      // Clear saved position
+      delete window.savedScrollPosition;
     }, 100);
   }
   
