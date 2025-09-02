@@ -254,6 +254,52 @@
         </div>
     </section>
 
+    <!-- Mobile Sticky Filter Bar -->
+    <div class="mobile-filter-bar" id="mobileFilterBar">
+        <div class="filter-chips-container">
+            <div class="filter-chips" id="filterChips">
+                <!-- Filter chips populated by JavaScript -->
+            </div>
+            <button class="more-filters-btn" id="moreFiltersBtn" style="display: none;">
+                <span class="more-count">+2</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Filter Bottom Sheet -->
+    <div class="filter-bottom-sheet" id="filterBottomSheet">
+        <div class="bottom-sheet-content">
+            <div class="bottom-sheet-header">
+                <h3>Filters</h3>
+                <button class="close-sheet-btn" id="closeSheetBtn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="bottom-sheet-body">
+                <div class="filter-section">
+                    <h4>Category</h4>
+                    <div class="filter-options" id="categoryFilters"></div>
+                </div>
+                <div class="filter-section">
+                    <h4>Location</h4>
+                    <div class="filter-options" id="locationFilters"></div>
+                </div>
+                <div class="filter-section">
+                    <h4>Rating</h4>
+                    <div class="filter-options" id="ratingFilters"></div>
+                </div>
+                <div class="filter-section">
+                    <h4>Sort By</h4>
+                    <div class="filter-options" id="sortFilters"></div>
+                </div>
+            </div>
+            <div class="bottom-sheet-footer">
+                <button class="filter-btn secondary" id="clearFiltersBtn">Clear All</button>
+                <button class="filter-btn primary" id="applyFiltersBtn">Apply Filters</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Categories Section -->
     <section class="categories" id="categories">
         <div class="container">
@@ -295,8 +341,8 @@
         </div>
     </section>
 
-    <!-- Locations Section -->
-    <section class="locations">
+    <!-- Locations Section - Hidden on Mobile, using sticky filter bar instead -->
+    <section class="locations desktop-only">
         <div class="container">
             <header>
                 <h2 class="section-title" data-aos="fade-up">Choose Your Location</h2>

@@ -230,4 +230,237 @@ document.addEventListener('DOMContentLoaded', () => {
   
   loadCities();
   loadFeaturedClinics();
+  initMobileFilters();
 });
+
+// Mobile Filter Bar Implementation
+function initMobileFilters() {
+  const filterBar = document.getElementById('mobileFilterBar');
+  const filterChips = document.getElementById('filterChips');
+  const moreFiltersBtn = document.getElementById('moreFiltersBtn');
+  const bottomSheet = document.getElementById('filterBottomSheet');
+  const closeSheetBtn = document.getElementById('closeSheetBtn');
+  const applyFiltersBtn = document.getElementById('applyFiltersBtn');
+  const clearFiltersBtn = document.getElementById('clearFiltersBtn');
+  
+  if (!filterBar) return; // Not on homepage
+  
+  // Initialize filter state
+  const filterState = {
+    category: 'all',
+    location: 'all',
+    rating: 'all',
+    sort: 'rating'
+  };
+  
+  // Filter data - deduplicated using Set
+  const filterData = {
+    categories: [
+      { id: 'all', name: 'All', icon: 'fas fa-hospital', count: '25+' },
+      { id: 'gp', name: 'GP', icon: 'fas fa-stethoscope', count: '8' },
+      { id: 'dentist', name: 'Dentist', icon: 'fas fa-tooth', count: '6' },
+      { id: 'physio', name: 'Physio', icon: 'fas fa-dumbbell', count: '4' },
+      { id: 'optician', name: 'Optician', icon: 'fas fa-eye', count: '5' },
+      { id: 'pharmacy', name: 'Pharmacy', icon: 'fas fa-capsules', count: '2' }
+    ],
+    locations: [
+      { id: 'all', name: 'All Locations', count: '25+' },
+      { id: 'manchester', name: 'Manchester', count: '8' },
+      { id: 'bolton', name: 'Bolton', count: '4' },
+      { id: 'liverpool', name: 'Liverpool', count: '6' },
+      { id: 'leeds', name: 'Leeds', count: '5' },
+      { id: 'london', name: 'London', count: '2' }
+    ],
+    ratings: [
+      { id: 'all', name: 'Any Rating' },
+      { id: '4plus', name: '4+ Stars' },
+      { id: '4.5plus', name: '4.5+ Stars' }
+    ],
+    sorts: [
+      { id: 'rating', name: 'Rating' },
+      { id: 'reviews', name: 'Reviews' },
+      { id: 'distance', name: 'Distance' },
+      { id: 'name', name: 'Name' }
+    ]
+  };
+  
+  // Deduplicate locations using Set
+  const uniqueLocations = [...new Set(filterData.locations.map(l => l.name))]
+    .map(name => filterData.locations.find(l => l.name === name));
+  filterData.locations = uniqueLocations;
+  
+  function renderFilterChips() {
+    const visibleChips = [];
+    const allChips = [
+      { type: 'category', ...filterData.categories.find(c => c.id === filterState.category) },
+      { type: 'location', ...filterData.locations.find(l => l.id === filterState.location) },
+      { type: 'rating', ...filterData.ratings.find(r => r.id === filterState.rating) },
+      { type: 'sort', name: `Sort: ${filterData.sorts.find(s => s.id === filterState.sort).name}` }
+    ];
+    
+    // Show first 3 chips on mobile, with overflow handling
+    const maxVisible = window.innerWidth > 480 ? 4 : 3;
+    visibleChips.push(...allChips.slice(0, maxVisible));
+    
+    filterChips.innerHTML = visibleChips.map(chip => `
+      <button class="filter-chip ${chip.id === filterState[chip.type] ? 'active' : ''}" 
+              data-type="${chip.type}" 
+              data-value="${chip.id || chip.type}"
+              ${chip.count ? `data-count="${chip.count}"` : ''}>
+        ${chip.icon ? `<i class="${chip.icon}"></i> ` : ''}${chip.name}
+      </button>
+    `).join('');
+    
+    // Show "+N" button if there are hidden chips
+    const hiddenCount = allChips.length - maxVisible;
+    if (hiddenCount > 0) {
+      moreFiltersBtn.style.display = 'block';
+      moreFiltersBtn.querySelector('.more-count').textContent = `+${hiddenCount}`;
+    } else {
+      moreFiltersBtn.style.display = 'none';
+    }
+    
+    // Add click handlers
+    filterChips.querySelectorAll('.filter-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const type = chip.dataset.type;
+        if (type !== 'sort') {
+          openBottomSheet(type);
+        } else {
+          openBottomSheet('sort');
+        }
+      });
+    });
+  }
+  
+  function openBottomSheet(activeSection = null) {
+    // Populate bottom sheet with current filters
+    populateBottomSheetFilters();
+    bottomSheet.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    
+    // Focus on active section if specified
+    if (activeSection) {
+      const section = bottomSheet.querySelector(`#${activeSection}Filters`);
+      if (section) {
+        section.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
+  }
+  
+  function closeBottomSheet() {
+    bottomSheet.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  
+  function populateBottomSheetFilters() {
+    // Populate category filters
+    const categoryFilters = document.getElementById('categoryFilters');
+    categoryFilters.innerHTML = filterData.categories.map(cat => `
+      <button class="filter-option ${cat.id === filterState.category ? 'active' : ''}" 
+              data-type="category" 
+              data-value="${cat.id}">
+        <i class="${cat.icon}"></i> ${cat.name} (${cat.count})
+      </button>
+    `).join('');
+    
+    // Populate location filters
+    const locationFilters = document.getElementById('locationFilters');
+    locationFilters.innerHTML = filterData.locations.map(loc => `
+      <button class="filter-option ${loc.id === filterState.location ? 'active' : ''}" 
+              data-type="location" 
+              data-value="${loc.id}">
+        ${loc.name} ${loc.count ? `(${loc.count})` : ''}
+      </button>
+    `).join('');
+    
+    // Populate rating filters
+    const ratingFilters = document.getElementById('ratingFilters');
+    ratingFilters.innerHTML = filterData.ratings.map(rating => `
+      <button class="filter-option ${rating.id === filterState.rating ? 'active' : ''}" 
+              data-type="rating" 
+              data-value="${rating.id}">
+        ${rating.name}
+      </button>
+    `).join('');
+    
+    // Populate sort filters
+    const sortFilters = document.getElementById('sortFilters');
+    sortFilters.innerHTML = filterData.sorts.map(sort => `
+      <button class="filter-option ${sort.id === filterState.sort ? 'active' : ''}" 
+              data-type="sort" 
+              data-value="${sort.id}">
+        ${sort.name}
+      </button>
+    `).join('');
+    
+    // Add click handlers to all filter options
+    bottomSheet.querySelectorAll('.filter-option').forEach(option => {
+      option.addEventListener('click', () => {
+        const type = option.dataset.type;
+        const value = option.dataset.value;
+        
+        // Update active state
+        option.parentElement.querySelectorAll('.filter-option').forEach(opt => 
+          opt.classList.remove('active'));
+        option.classList.add('active');
+        
+        // Update filter state
+        filterState[type] = value;
+      });
+    });
+  }
+  
+  function applyFilters() {
+    // Update filter chips
+    renderFilterChips();
+    
+    // Apply filters to clinic display (integrate with existing filter logic)
+    if (window.filterByCategory) {
+      window.filterByCategory(filterState.category);
+    }
+    if (window.filterByLocation) {
+      window.filterByLocation(filterState.location);
+    }
+    
+    // Preserve scroll position
+    const scrollPosition = window.pageYOffset;
+    closeBottomSheet();
+    
+    // Restore scroll position after a short delay
+    setTimeout(() => {
+      window.scrollTo(0, scrollPosition);
+    }, 100);
+  }
+  
+  function clearAllFilters() {
+    filterState.category = 'all';
+    filterState.location = 'all';
+    filterState.rating = 'all';
+    filterState.sort = 'rating';
+    
+    populateBottomSheetFilters();
+    renderFilterChips();
+  }
+  
+  // Event listeners
+  moreFiltersBtn?.addEventListener('click', () => openBottomSheet());
+  closeSheetBtn?.addEventListener('click', closeBottomSheet);
+  applyFiltersBtn?.addEventListener('click', applyFilters);
+  clearFiltersBtn?.addEventListener('click', clearAllFilters);
+  
+  // Close bottom sheet when clicking outside
+  bottomSheet?.addEventListener('click', (e) => {
+    if (e.target === bottomSheet) {
+      closeBottomSheet();
+    }
+  });
+  
+  // Initial render
+  renderFilterChips();
+  
+  // Handle window resize
+  window.addEventListener('resize', () => {
+    renderFilterChips();
+  });
+}
