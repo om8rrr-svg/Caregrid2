@@ -118,6 +118,95 @@
              font-size: 0.85rem;
          }
          
+         /* Mobile Polish and Safe Area Support */
+         body {
+             padding-bottom: 88px;
+             padding-bottom: calc(88px + env(safe-area-inset-bottom));
+         }
+         
+         @supports (padding: max(0px)) {
+             body {
+                 padding-bottom: max(88px, env(safe-area-inset-bottom));
+             }
+         }
+         
+         /* Rating highlight row styling */
+         .clinic-rating {
+             margin: 12px 0 16px 0;
+             padding: 8px 0;
+             border-bottom: 1px solid rgba(0,0,0,0.1);
+         }
+         
+         /* Empty state styling */
+         .empty-state {
+             background: #f8f9fa;
+             border-radius: 12px;
+             border: 2px dashed #dee2e6;
+         }
+         
+         .empty-state:hover {
+             border-color: #007bff;
+             background: #f0f8ff;
+         }
+         
+         .search-all-btn:hover {
+             background: #0056b3 !important;
+             transform: translateY(-1px);
+             box-shadow: 0 4px 8px rgba(0,123,255,0.3);
+         }
+         
+         /* Contact info loading states */
+         .contact-item span:empty::after {
+             content: 'Loading...';
+             color: #999;
+             font-style: italic;
+         }
+         
+         /* Ensure buttons meet accessibility requirements */
+         .contact-btn, .website-btn, .search-all-btn {
+             min-height: 44px;
+             min-width: 44px;
+             display: inline-flex;
+             align-items: center;
+             justify-content: center;
+             text-decoration: none;
+         }
+         
+         /* Focus outlines for accessibility */
+         .contact-btn:focus, 
+         .website-btn:focus, 
+         .search-all-btn:focus,
+         .filter-option:focus {
+             outline: 2px solid #007bff;
+             outline-offset: 2px;
+         }
+         
+         @media (max-width: 768px) {
+             /* Additional mobile spacing */
+             .clinic-profile-header {
+                 padding-bottom: 20px;
+             }
+             
+             .clinic-details {
+                 padding-bottom: 20px;
+             }
+             
+             .similar-clinics {
+                 padding-bottom: 40px;
+             }
+             
+             /* Ensure rating row is prominent on mobile */
+             .clinic-rating {
+                 font-size: 1.1rem;
+                 margin: 16px 0 20px 0;
+                 padding: 12px 0;
+             }
+             
+             .clinic-rating .stars {
+                 font-size: 1.2rem;
+             }
+         }
+         
          .similar-clinics {
              padding: 60px 0;
              background: #f8f9fa;
@@ -548,7 +637,34 @@
             const reviewCount = clinic.reviews || clinic.reviewCount || clinic.review_count || 0;
             document.getElementById('clinicRating').textContent = `${clinic.rating} (${reviewCount} reviews)`;
             
-            // Update contact information
+            // Update contact information with timeout handling
+            setTimeout(() => {
+                // Update phone with timeout
+                if (clinic.phone) {
+                    document.getElementById('clinicPhone').textContent = clinic.phone;
+                } else {
+                    document.getElementById('clinicPhone').textContent = 'Not available';
+                }
+                
+                // Update email with timeout
+                const email = clinic.email || generateEmail(clinic);
+                if (email && email !== 'Not available') {
+                    document.getElementById('clinicEmail').textContent = email;
+                } else {
+                    document.getElementById('clinicEmail').textContent = 'Not available';
+                }
+                
+                // Update status with timeout
+                try {
+                    const status = generateStatus(clinic);
+                    const statusElement = document.getElementById('clinicStatus');
+                    statusElement.textContent = status.text;
+                    statusElement.className = status.class;
+                } catch (error) {
+                    document.getElementById('clinicStatus').textContent = 'Not available';
+                }
+            }, 2000); // 2 second timeout
+            
             if (clinic.website) {
                 document.getElementById('clinicWebsite').href = clinic.website;
                 document.getElementById('clinicWebsite').style.display = 'inline-block';
@@ -558,16 +674,6 @@
             
             // Update call button
             document.getElementById('clinicCallBtn').href = `tel:${clinic.phone}`;
-            
-            // Update email
-            const email = clinic.email || generateEmail(clinic);
-            document.getElementById('clinicEmail').textContent = email;
-            
-            // Update status with real-time checking
-            const status = generateStatus(clinic);
-            const statusElement = document.getElementById('clinicStatus');
-            statusElement.textContent = status.text;
-            statusElement.className = status.class;
             
             // Update services
             const servicesContainer = document.getElementById('clinicServices');
@@ -953,10 +1059,25 @@
         
         function loadSimilarClinics(clinic) {
             const similarContainer = document.getElementById('similarClinics');
-            if (!similarContainer || !window.clinicsData) return;
+            if (!similarContainer) return;
+            
+            if (!window.clinicsData) {
+                // Show empty state if no clinic data available
+                similarContainer.innerHTML = `
+                    <div class="empty-state" style="text-align: center; padding: 40px 20px; color: #666;">
+                        <i class="fas fa-search" style="font-size: 48px; color: #ddd; margin-bottom: 16px;"></i>
+                        <h3 style="margin-bottom: 8px; color: #333;">No Similar Clinics Found</h3>
+                        <p style="margin-bottom: 20px;">We couldn't find similar clinics in your area right now.</p>
+                        <a href="index.html" class="search-all-btn" style="display: inline-block; padding: 12px 24px; background: #007bff; color: white; text-decoration: none; border-radius: 6px; font-weight: 600; min-height: 44px; min-width: 44px; line-height: 20px;">
+                            Search All Clinics
+                        </a>
+                    </div>
+                `;
+                return;
+            }
             
             // Find similar clinics (same type, different clinic, same city)
-            const similarClinics = window.clinicsData
+            let similarClinics = window.clinicsData
                 .filter(c => c.id !== clinic.id && c.type === clinic.type && c.city === clinic.city)
                 .slice(0, 3);
             
@@ -965,7 +1086,22 @@
                 const altSimilar = window.clinicsData
                     .filter(c => c.id !== clinic.id && c.type === clinic.type)
                     .slice(0, 3);
-                similarClinics.push(...altSimilar);
+                similarClinics = altSimilar;
+            }
+            
+            if (similarClinics.length === 0) {
+                // Show empty state if still no similar clinics found
+                similarContainer.innerHTML = `
+                    <div class="empty-state" style="text-align: center; padding: 40px 20px; color: #666;">
+                        <i class="fas fa-search" style="font-size: 48px; color: #ddd; margin-bottom: 16px;"></i>
+                        <h3 style="margin-bottom: 8px; color: #333;">No Similar Clinics Found</h3>
+                        <p style="margin-bottom: 20px;">We couldn't find similar ${clinic.type || 'healthcare'} providers in your area.</p>
+                        <a href="index.html" class="search-all-btn" style="display: inline-block; padding: 12px 24px; background: #007bff; color: white; text-decoration: none; border-radius: 6px; font-weight: 600; min-height: 44px; min-width: 44px; line-height: 20px;">
+                            Search All Clinics
+                        </a>
+                    </div>
+                `;
+                return;
             }
             
             similarContainer.innerHTML = '';
