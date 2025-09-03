@@ -94,25 +94,31 @@ app.use(compression({
 app.use(helmet());
 
 // CORS configuration
-const allowed = (process.env.CORS_ORIGIN || 'http://localhost:3000,http://localhost:8000,http://localhost:8080,http://127.0.0.1:8000,http://127.0.0.1:8080,https://caregrid2-ddk7.vercel.app,https://caregrid2.vercel.app')
+const allowlist = (process.env.CORS_ORIGINS || 'http://localhost:3000,http://localhost:5173,http://localhost:8000,http://localhost:8080,http://127.0.0.1:8000,http://127.0.0.1:8080,https://caregrid2-ddk7.vercel.app,https://caregrid2.vercel.app')
   .split(',')
   .map(s => s.trim())
   .filter(Boolean);
 
-app.use(cors({
-  origin: process.env.NODE_ENV === 'production' ? function(origin, cb) {
+const vercelPreviewRegex = /^https:\/\/caregrid2-[a-z0-9-]+\.vercel\.app$/i;
+
+const corsOptions = {
+  origin: (origin, cb) => {
     if (!origin) return cb(null, true); // allow curl/postman
-    if (allowed.includes(origin)) return cb(null, true);
-    console.log(`CORS blocked origin: ${origin}`);
-    return cb(null, false); // Reject without throwing error
-  } : true, // Allow all origins in development
+    if (allowlist.includes(origin) || vercelPreviewRegex.test(origin)) {
+      return cb(null, true);
+    }
+    return cb(new Error('CORS blocked: ' + origin));
+  },
   methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
   allowedHeaders: ['Content-Type','Authorization','X-Requested-With'],
-  credentials: false
-}));
+  credentials: false, // set true only if we use cookies
+  maxAge: 86400
+};
 
-// Handle preflight for all routes
-app.options('*', cors());
+app.use(cors(corsOptions));
+
+// Return clean preflight responses
+app.options('*', cors(corsOptions));
 
 // Rate limiting
 const limiter = rateLimit({
@@ -146,58 +152,8 @@ app.use(express.urlencoded({ extended: true }));
 // Logging
 app.use(morgan('combined'));
 
-// Health check endpoint (enhanced for deployment)
-app.get('/health', async (req, res) => {
-  const health = {
-    status: 'OK',
-    timestamp: new Date().toISOString(),
-    service: 'CareGrid API',
-    version: process.env.npm_package_version || '1.0.0',
-    environment: process.env.NODE_ENV || 'development',
-    uptime: Math.floor(process.uptime())
-  };
-  
-  // Check basic server health
-  try {
-    // Add a simple database connectivity check if available
-    if (process.env.DATABASE_URL || (process.env.DB_HOST && process.env.DB_NAME)) {
-      try {
-        // Try to load database config safely
-        const dbConfigPath = './config/database';
-        const fs = require('fs');
-        const configPath = require.resolve(dbConfigPath);
-        
-        if (fs.existsSync(configPath)) {
-          const { testConnection } = require(dbConfigPath);
-          await Promise.race([
-            testConnection(),
-            new Promise((_, reject) => setTimeout(() => reject(new Error('DB timeout')), 3000))
-          ]);
-          health.database = 'connected';
-        } else {
-          health.database = 'config_missing';
-        }
-      } catch (dbError) {
-        health.database = 'disconnected';
-        health.database_note = 'Service operational without database';
-        // Don't fail health check for DB issues - server can still serve static content
-      }
-    } else {
-      health.database = 'not_configured';
-    }
-    
-    res.status(200).json(health);
-  } catch (error) {
-    // Even if there are errors, return 200 for basic health check
-    res.status(200).json({
-      status: 'OK',
-      timestamp: new Date().toISOString(),
-      service: 'CareGrid API',
-      note: 'Basic service operational',
-      warnings: [error.message]
-    });
-  }
-});
+// Simple health check endpoint (accessible via /health)
+app.get('/health', (req, res) => res.json({ ok: true }));
 
 // Deployment status endpoint
 app.get('/deployment-status', async (req, res) => {
