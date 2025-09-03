@@ -2494,16 +2494,18 @@ function filterByCategory(category) {
     
     applyFilters();
     
-    // Scroll to locations section
-    const locationsSection = document.querySelector('.locations');
-    if (locationsSection) {
-        setTimeout(() => {
-            locationsSection.scrollIntoView({ 
-                behavior: 'smooth', 
-                block: 'start',
-                inline: 'nearest'
-            });
-        }, 100);
+    // Scroll to locations section only on mobile devices (768px and below)
+    if (window.innerWidth <= 768) {
+        const locationsSection = document.querySelector('.locations');
+        if (locationsSection) {
+            setTimeout(() => {
+                locationsSection.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'start',
+                    inline: 'nearest'
+                });
+            }, 100);
+        }
     }
 }
 
