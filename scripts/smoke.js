@@ -1,5 +1,5 @@
 // Run: node scripts/smoke.js https://your-vercel-preview.vercel.app
-import fetch from 'node-fetch';
+const fetch = require('node-fetch');
 
 const base = process.argv[2] || 'http://localhost:5173';
 const probe = async (path) => {
