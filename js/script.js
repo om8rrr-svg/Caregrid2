@@ -3646,4 +3646,339 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+    
+    // Initialize mobile filter chips
+    initializeMobileFilters();
 });
+
+// ==================================================================
+// MOBILE FILTER CHIPS FUNCTIONALITY
+// ==================================================================
+
+function initializeMobileFilters() {
+    const filterChips = document.querySelectorAll('.filter-chip');
+    
+    filterChips.forEach(chip => {
+        chip.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const filter = this.getAttribute('data-filter');
+            
+            if (filter === 'more') {
+                // Show more filters modal/sheet
+                showMoreFiltersSheet();
+                return;
+            }
+            
+            // Remove active class from all chips
+            filterChips.forEach(c => c.classList.remove('active'));
+            
+            // Add active class to clicked chip
+            this.classList.add('active');
+            
+            // Apply the filter
+            applyMobileFilter(filter);
+        });
+    });
+}
+
+function applyMobileFilter(filter) {
+    // Update the dropdown filters to match the chip selection
+    if (['gp', 'dentist', 'physio', 'optician', 'pharmacy'].includes(filter)) {
+        // It's a category filter
+        const categorySelect = document.getElementById('categoryFilter');
+        if (categorySelect) {
+            categorySelect.value = filter;
+        }
+        filterByCategory(filter);
+    } else if (['manchester', 'bolton', 'liverpool', 'leeds', 'london'].includes(filter)) {
+        // It's a location filter
+        const locationSelect = document.getElementById('locationFilter');
+        if (locationSelect) {
+            locationSelect.value = filter;
+        }
+        filterByLocation(filter);
+    } else if (filter === 'all') {
+        // Reset all filters
+        resetFilters();
+    }
+}
+
+function showMoreFiltersSheet() {
+    // Create a simple modal for additional filters
+    const modal = document.createElement('div');
+    modal.className = 'mobile-filter-modal';
+    modal.innerHTML = `
+        <div class="modal-backdrop"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>More Filters</h3>
+                <button class="modal-close" onclick="closeMobileFilterModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="filter-group">
+                    <label>Sort by:</label>
+                    <div class="filter-options">
+                        <button class="filter-option" data-sort="rating">Highest Rated</button>
+                        <button class="filter-option" data-sort="reviews">Most Reviews</button>
+                        <button class="filter-option" data-sort="distance">Nearest</button>
+                    </div>
+                </div>
+                <div class="filter-group">
+                    <label>Rating:</label>
+                    <div class="filter-options">
+                        <button class="filter-option" data-rating="4">4+ Stars</button>
+                        <button class="filter-option" data-rating="4.5">4.5+ Stars</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Add styles for the modal
+    if (!document.getElementById('mobile-filter-modal-styles')) {
+        const styles = document.createElement('style');
+        styles.id = 'mobile-filter-modal-styles';
+        styles.textContent = `
+            .mobile-filter-modal {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                z-index: 1000;
+            }
+            
+            .modal-backdrop {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+            }
+            
+            .modal-content {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: white;
+                border-radius: 16px 16px 0 0;
+                padding: 24px;
+                max-height: 70vh;
+                overflow-y: auto;
+            }
+            
+            .modal-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 20px;
+            }
+            
+            .modal-close {
+                background: none;
+                border: none;
+                font-size: 24px;
+                cursor: pointer;
+                padding: 0;
+                width: 32px;
+                height: 32px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            .filter-group {
+                margin-bottom: 20px;
+            }
+            
+            .filter-group label {
+                display: block;
+                font-weight: 600;
+                margin-bottom: 12px;
+                color: #333;
+            }
+            
+            .filter-options {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            
+            .filter-option {
+                padding: 8px 16px;
+                background: #f3f4f6;
+                border: 1px solid #e5e7eb;
+                border-radius: 20px;
+                font-size: 0.9rem;
+                cursor: pointer;
+                transition: all 0.2s ease;
+            }
+            
+            .filter-option:hover,
+            .filter-option.active {
+                background: #2A6EF3;
+                color: white;
+                border-color: #2A6EF3;
+            }
+        `;
+        document.head.appendChild(styles);
+    }
+    
+    // Close modal when clicking backdrop
+    modal.querySelector('.modal-backdrop').addEventListener('click', closeMobileFilterModal);
+}
+
+function closeMobileFilterModal() {
+    const modal = document.querySelector('.mobile-filter-modal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+// Enhanced createClinicCard function for mobile improvements
+function createEnhancedClinicCard(clinic) {
+    const card = document.createElement('div');
+    card.className = 'clinic-card fade-in';
+    card.style.cursor = 'pointer';
+    
+    // Add click event to entire card
+    card.addEventListener('click', function(e) {
+        // Don't navigate if clicking on action buttons
+        if (!e.target.closest('.clinic-actions')) {
+            window.location.href = `clinic-profile.html?id=${clinic.frontendId || clinic.id}`;
+        }
+    });
+    
+    // Create star rating with actual star icons
+    const fullStars = Math.floor(clinic.rating);
+    const hasHalfStar = clinic.rating % 1 >= 0.5;
+    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+    
+    let starsHTML = '';
+    for (let i = 0; i < fullStars; i++) {
+        starsHTML += '<i class="fas fa-star"></i>';
+    }
+    if (hasHalfStar) {
+        starsHTML += '<i class="fas fa-star-half-alt"></i>';
+    }
+    for (let i = 0; i < emptyStars; i++) {
+        starsHTML += '<i class="far fa-star"></i>';
+    }
+    
+    // Get type icon for overlay
+    const typeIcon = getTypeIcon(clinic.type);
+    
+    card.innerHTML = `
+        <div class="clinic-image-container">
+            <img src="${clinic.logoUrl || clinic.image}" 
+                 alt="${clinic.name} - ${formatType(clinic.type)} clinic" 
+                 class="clinic-image" 
+                 loading="lazy"
+                 onerror="this.src='images/clinic1.svg'">
+            <div class="image-overlay">
+                <div class="type-badge">
+                    <i class="${typeIcon}"></i>
+                    <span>${formatType(clinic.type)}</span>
+                </div>
+                ${(clinic.premium !== undefined ? clinic.premium : false) ? '<div class="premium-badge-image"><i class="fas fa-crown"></i> Premium</div>' : ''}
+            </div>
+        </div>
+        <div class="clinic-content">
+            <h3 class="clinic-name">${clinic.name}</h3>
+            <p class="clinic-type">${formatType(clinic.type)}</p>
+            <p class="clinic-location">${clinic.address}</p>
+            <div class="clinic-rating">
+                <div class="stars">${starsHTML}</div>
+                <span class="rating-text">${clinic.rating}</span>
+                <span class="review-count">(${clinic.reviewCount || clinic.reviews} reviews)</span>
+            </div>
+            <div class="clinic-actions">
+                <a href="clinic-profile.html?id=${clinic.id}" class="visit-btn">
+                    <i class="fas fa-eye"></i> View Details
+                </a>
+                <a href="tel:${clinic.phone}" class="contact-btn">
+                    <i class="fas fa-phone"></i> Call Now
+                </a>
+            </div>
+        </div>
+    `;
+    
+    return card;
+}
+
+// Create skeleton loading cards
+function createSkeletonCard() {
+    const card = document.createElement('div');
+    card.className = 'clinic-card skeleton';
+    
+    card.innerHTML = `
+        <div class="clinic-image-container">
+            <div class="clinic-image"></div>
+        </div>
+        <div class="clinic-content">
+            <div class="clinic-name"></div>
+            <div class="clinic-type"></div>
+            <div class="clinic-location"></div>
+            <div class="clinic-rating">
+                <div class="stars">★★★★★</div>
+                <span class="rating-text">4.8</span>
+                <span class="review-count">(123 reviews)</span>
+            </div>
+            <div class="clinic-actions">
+                <div class="visit-btn">View Details</div>
+                <div class="contact-btn">Call Now</div>
+            </div>
+        </div>
+    `;
+    
+    return card;
+}
+
+// Show skeleton loading state
+function showSkeletonLoading(container, count = 6) {
+    if (!container) return;
+    
+    container.innerHTML = '';
+    for (let i = 0; i < count; i++) {
+        container.appendChild(createSkeletonCard());
+    }
+}
+
+// Hide skeleton and show actual content with fade-in
+function hideSkeletonAndShowContent(container, content) {
+    if (!container) return;
+    
+    // Remove skeleton cards
+    const skeletons = container.querySelectorAll('.clinic-card.skeleton');
+    skeletons.forEach(skeleton => skeleton.remove());
+    
+    // Add real content with fade-in animation
+    if (Array.isArray(content)) {
+        content.forEach((card, index) => {
+            setTimeout(() => {
+                card.style.opacity = '0';
+                container.appendChild(card);
+                // Trigger fade-in animation
+                setTimeout(() => {
+                    card.style.transition = 'opacity 0.3s ease';
+                    card.style.opacity = '1';
+                }, 50);
+            }, index * 100); // Stagger the appearance
+        });
+    }
+}
+
+// Make functions available globally
+window.initializeMobileFilters = initializeMobileFilters;
+window.applyMobileFilter = applyMobileFilter;
+window.showMoreFiltersSheet = showMoreFiltersSheet;
+window.closeMobileFilterModal = closeMobileFilterModal;
+window.createEnhancedClinicCard = createEnhancedClinicCard;
+window.createSkeletonCard = createSkeletonCard;
+window.showSkeletonLoading = showSkeletonLoading;
+window.hideSkeletonAndShowContent = hideSkeletonAndShowContent;

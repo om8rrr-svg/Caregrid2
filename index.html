@@ -315,7 +315,7 @@
             <header>
                 <h2 class="section-title" data-aos="fade-up">Choose Your Location</h2>
             </header>
-            <nav class="location-grid" data-aos="fade-up" data-aos-delay="200" aria-label="Available locations">
+            <nav class="location-grid desktop-only" data-aos="fade-up" data-aos-delay="200" aria-label="Available locations">
                 <button class="location-btn active" data-location="all" onclick="filterByLocation('all')">
                     <span class="location-name">All Locations</span>
                     <span class="clinic-count" aria-live="polite">25+</span>
@@ -342,7 +342,7 @@
                 </button>
             </nav>
             <!-- Mobile dropdown for locations -->
-            <select class="mobile-location-select" onchange="filterByLocation(this.value)" data-aos="fade-up" data-aos-delay="200">
+            <select class="mobile-location-select mobile-only" onchange="filterByLocation(this.value)" data-aos="fade-up" data-aos-delay="200">
                 <option value="all">All Locations (25+)</option>
                 <option value="manchester">Manchester (8)</option>
                 <option value="bolton">Bolton (4)</option>
@@ -386,6 +386,21 @@
                         <option value="london">London</option>
                     </select>
                 </div>
+            </div>
+        </div>
+        
+        <!-- Mobile Filter Chips (Sticky) -->
+        <div class="filters-section mobile-only">
+            <div class="filter-chips">
+                <a href="#" class="filter-chip active" data-filter="all">All</a>
+                <a href="#" class="filter-chip" data-filter="gp">GP</a>
+                <a href="#" class="filter-chip" data-filter="dentist">Dentist</a>
+                <a href="#" class="filter-chip" data-filter="physio">Physio</a>
+                <a href="#" class="filter-chip" data-filter="manchester">Manchester</a>
+                <a href="#" class="filter-chip" data-filter="bolton">Bolton</a>
+                <a href="#" class="filter-chip" data-filter="liverpool">Liverpool</a>
+                <a href="#" class="filter-chip" data-filter="leeds">Leeds</a>
+                <a href="#" class="filter-chip overflow-chip" data-filter="more">+2 More</a>
             </div>
         </div>
         

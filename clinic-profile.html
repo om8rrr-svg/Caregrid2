@@ -152,6 +152,121 @@
              color: #ffc107 !important;
              font-weight: 600;
          }
+         
+         /* Hero image styles */
+         .clinic-hero-image {
+             width: 100%;
+             height: 250px;
+             overflow: hidden;
+             position: relative;
+         }
+         
+         .hero-image-container {
+             width: 100%;
+             height: 100%;
+             position: relative;
+         }
+         
+         .hero-image {
+             width: 100%;
+             height: 100%;
+             object-fit: cover;
+         }
+         
+         .hero-overlay {
+             position: absolute;
+             top: 0;
+             left: 0;
+             right: 0;
+             bottom: 0;
+             background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.3) 100%);
+         }
+         
+         /* Improved visual hierarchy */
+         .clinic-info .clinic-type {
+             font-size: 0.9rem;
+             color: #666;
+             margin-bottom: 12px;
+         }
+         
+         .clinic-info .clinic-address {
+             font-size: 0.85rem;
+             color: #888;
+             margin-bottom: 16px;
+         }
+         
+         .clinic-rating {
+             background: #f0fdf4;
+             border: 1px solid #bbf7d0;
+             border-radius: 8px;
+             padding: 8px 12px;
+             display: inline-flex;
+             align-items: center;
+             gap: 8px;
+             margin-bottom: 16px;
+         }
+         
+         .clinic-rating .stars {
+             color: #ffc107;
+             font-size: 1rem;
+             font-weight: 600;
+         }
+         
+         .clinic-rating .rating-text {
+             color: #15803d;
+             font-size: 0.9rem;
+             font-weight: 600;
+         }
+         
+         /* Quick Actions spacing improvements */
+         .action-buttons {
+             display: flex;
+             flex-direction: column;
+             gap: 12px;
+         }
+         
+         .action-btn {
+             width: 100%;
+             padding: 12px 16px;
+             border-radius: 8px;
+             font-weight: 600;
+             text-decoration: none;
+             text-align: center;
+             transition: all 0.2s ease;
+             display: flex;
+             align-items: center;
+             justify-content: center;
+             gap: 8px;
+             border: 2px solid transparent;
+             cursor: pointer;
+         }
+         
+         .action-btn.primary {
+             background: #2A6EF3;
+             color: white;
+         }
+         
+         .action-btn.primary:hover {
+             background: #1E5AD1;
+             transform: translateY(-1px);
+         }
+         
+         .action-btn.secondary {
+             background: #f8f9fa;
+             color: #2A6EF3;
+             border-color: #e9ecef;
+         }
+         
+         .action-btn.secondary:hover {
+             background: #e9ecef;
+             transform: translateY(-1px);
+         }
+         
+         @media (max-width: 768px) {
+             .clinic-hero-image {
+                 height: 200px;
+             }
+         }
      </style>
      
      <!-- JSON-LD Schema for Clinic -->
@@ -227,6 +342,16 @@
         </div>
     </nav>
 
+    <!-- Clinic Hero Image -->
+    <section class="clinic-hero-image">
+        <div class="hero-image-container">
+            <img src="images/pall_mall_medical.jpg" alt="Clinic Interior" id="clinicHeroImage" class="hero-image">
+            <div class="hero-overlay">
+                <div class="hero-gradient"></div>
+            </div>
+        </div>
+    </section>
+
     <!-- Clinic Profile Header -->
     <section class="clinic-profile-header">
         <div class="container">
@@ -252,14 +377,7 @@
                         <i class="fas fa-map-marker-alt"></i>
                         Loading address...
                     </p>
-                    <div class="clinic-contact">
-                        <a href="tel:+441234567890" class="contact-btn" id="clinicCallBtn">
-                            <i class="fas fa-phone"></i> Call Now
-                        </a>
-                        <a href="#" class="website-btn" id="clinicWebsite">
-                            <i class="fas fa-globe"></i>  Visit Website
-                        </a>
-                    </div>
+                    <!-- Contact buttons removed to avoid duplication with sticky bottom bar -->
                 </div>
             </div>
         </div>
@@ -356,6 +474,18 @@
             </div>
         </div>
     </section>
+
+    <!-- Mobile Sticky Bottom Action Bar -->
+    <div class="clinic-profile-bottom-bar">
+        <a href="tel:" class="bottom-action-btn call" id="bottomCallBtn">
+            <i class="fas fa-phone"></i>
+            Call
+        </a>
+        <a href="mailto:" class="bottom-action-btn email" id="bottomEmailBtn">
+            <i class="fas fa-envelope"></i>
+            Email
+        </a>
+    </div>
 
     <!-- Footer -->
     <footer class="footer">
@@ -538,6 +668,13 @@
             document.getElementById('clinicImage').src = clinic.image || clinic.logoUrl;
             document.getElementById('clinicImage').alt = clinic.name;
             
+            // Update hero image (use clinic image or fallback to default)
+            const heroImage = document.getElementById('clinicHeroImage');
+            if (heroImage) {
+                heroImage.src = clinic.image || clinic.logoUrl || 'images/pall_mall_medical.jpg';
+                heroImage.alt = `${clinic.name} - Interior View`;
+            }
+            
             // Generate unique description for each clinic
             const uniqueDescription = generateUniqueDescription(clinic);
             document.getElementById('clinicDescription').textContent = uniqueDescription;
@@ -572,6 +709,15 @@
             
             // Update call button
             document.getElementById('clinicCallBtn').href = `tel:${clinic.phone}`;
+            
+            // Update mobile bottom action bar
+            const bottomCallBtn = document.getElementById('bottomCallBtn');
+            const bottomEmailBtn = document.getElementById('bottomEmailBtn');
+            if (bottomCallBtn) bottomCallBtn.href = `tel:${clinic.phone}`;
+            if (bottomEmailBtn) {
+                const email = clinic.email || generateEmail(clinic);
+                bottomEmailBtn.href = `mailto:${email}`;
+            }
             
             // Update email
             const email = clinic.email || generateEmail(clinic);
