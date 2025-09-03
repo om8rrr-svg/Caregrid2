@@ -1,4 +1,8 @@
 /* Reset and Base Styles */
+:root {
+    --nav-offset: 64px;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -7694,6 +7698,424 @@ footer {
     } 
 }
 
+/* Skeleton Loading Animation for Featured Clinics */
+@keyframes skeleton-shimmer {
+    0% {
+        background-position: -200px 0;
+    }
+    100% {
+        background-position: calc(200px + 100%) 0;
+    }
+}
+
+.skeleton-card {
+    pointer-events: none;
+    user-select: none;
+}
+
+.skeleton-text {
+    border-radius: 4px;
+    animation: skeleton-shimmer 1.5s infinite;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+}
+
+.skeleton-image {
+    border-radius: 8px 8px 0 0;
+}
+
+/* Demo Badge Styles */
+.demo-badge {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Clinic Card Enhancements */
+.clinic-card {
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+    background: white;
+}
+
+.clinic-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+
+.clinic-card__image {
+    position: relative;
+    overflow: hidden;
+}
+
+.clinic-card__image img {
+    transition: transform 0.3s ease;
+}
+
+.clinic-card:hover .clinic-card__image img {
+    transform: scale(1.05);
+}
+
+.clinic-card__head,
+.clinic-card__body,
+.clinic-card__actions {
+    padding: 15px;
+}
+
+.clinic-card__head {
+    padding-bottom: 10px;
+}
+
+.clinic-card__body {
+    padding-top: 0;
+    padding-bottom: 10px;
+}
+
+.clinic-card__actions {
+    padding-top: 0;
+    border-top: 1px solid #f0f0f0;
+}
+
+.clinic-card__actions a {
+    display: inline-block;
+    padding: 8px 16px;
+    margin-right: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.clinic-card__actions a:hover {
+    background: #f8f9fa;
+    border-color: #007bff;
+    color: #007bff;
+}
+
+/* Mobile Sticky Filter Bar - Exact spec implementation */
+@media (max-width: 600px) {
+  .sticky-filters {
+    position: sticky;
+    top: var(--nav-offset, 64px);
+    background: #fff;
+    z-index: 30;
+    padding: 8px 12px;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .chips {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .chip {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+    border: 1px solid #ddd;
+    border-radius: 999px;
+    padding: 8px 12px;
+    min-height: 44px;
+    line-height: 26px;
+    font-size: 14px;
+    background: #fff;
+    white-space: nowrap;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+  }
+  
+  .chip:focus {
+    outline: 2px solid #2e7;
+    outline-offset: 2px;
+  }
+  
+  .chip:hover {
+    background: #f8f9fa;
+    border-color: #007bff;
+  }
+  
+  .chip.active {
+    background: #007bff;
+    color: white;
+    border-color: #007bff;
+  }
+  
+  .bottom-sheet {
+    position: fixed;
+    inset: auto 0 0 0;
+    background: #fff;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    box-shadow: 0 -10px 30px rgba(0,0,0,.15);
+    z-index: 40;
+    max-height: 70vh;
+    overflow: auto;
+    padding: 12px;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+  }
+  
+  .bottom-sheet.open {
+    transform: translateY(0);
+  }
+  
+  .sheet-hidden {
+    display: none;
+  }
+}
+
+/* Legacy mobile filter bar - maintain compatibility */
+.mobile-filter-bar {
+    position: sticky;
+    top: 80px; /* Below navbar */
+    background: white;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 10px 15px;
+    z-index: 999;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    display: none; /* Show on mobile only */
+}
+
+.filter-chips-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    overflow: hidden;
+}
+
+.filter-chips {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    flex: 1;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+}
+
+.filter-chips::-webkit-scrollbar {
+    display: none;
+}
+
+.filter-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-height: 44px; /* Accessibility requirement */
+    min-width: 44px;
+    scroll-snap-align: start;
+    line-height: 26px;
+}
+
+.filter-chip:focus {
+    outline: 2px solid #2e7;
+    outline-offset: 2px;
+}
+
+.filter-chip:hover {
+    background: #f8f9fa;
+    border-color: #007bff;
+}
+
+.filter-chip.active {
+    background: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+.filter-chip.has-count::after {
+    content: attr(data-count);
+    background: rgba(255,255,255,0.2);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 11px;
+    margin-left: 6px;
+}
+
+.more-filters-btn {
+    background: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 6px 12px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    min-height: 44px;
+    min-width: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.more-filters-btn:hover {
+    background: #5a6268;
+}
+
+/* Filter Bottom Sheet - Updated to match spec */
+.filter-bottom-sheet {
+    position: fixed;
+    inset: auto 0 0 0;
+    background: #fff;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    box-shadow: 0 -10px 30px rgba(0,0,0,.15);
+    z-index: 40;
+    max-height: 70vh;
+    overflow: auto;
+    padding: 12px;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+}
+
+.filter-bottom-sheet.open {
+    transform: translateY(0);
+}
+
+.bottom-sheet-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    max-height: 80vh;
+}
+
+.bottom-sheet-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.bottom-sheet-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.close-sheet-btn {
+    background: none;
+    border: none;
+    font-size: 18px;
+    color: #666;
+    cursor: pointer;
+    min-height: 44px;
+    min-width: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.bottom-sheet-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+.filter-section {
+    margin-bottom: 24px;
+}
+
+.filter-section h4 {
+    margin: 0 0 12px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+}
+
+.filter-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.filter-option {
+    padding: 8px 16px;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 20px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.filter-option:hover {
+    background: #e9ecef;
+    border-color: #007bff;
+}
+
+.filter-option.active {
+    background: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+.bottom-sheet-footer {
+    display: flex;
+    gap: 12px;
+    padding: 16px 20px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.filter-btn {
+    flex: 1;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    min-height: 44px;
+    transition: all 0.2s;
+}
+
+.filter-btn.secondary {
+    background: #f8f9fa;
+    color: #6c757d;
+    border: 1px solid #dee2e6;
+}
+
+.filter-btn.secondary:hover {
+    background: #e9ecef;
+    color: #5a6268;
+}
+
+.filter-btn.primary {
+    background: #007bff;
+    color: white;
+}
+
+.filter-btn.primary:hover {
+    background: #0056b3;
+}
+
+/* Desktop-only class to hide sections on mobile */
+.desktop-only {
+    display: block;
+}
+
 /* Utility Classes */
 .mobile-only {
     display: none;
@@ -7705,6 +8127,15 @@ footer {
     }
     
     .desktop-only {
+        display: none;
+    }
+    
+    .mobile-filter-bar {
+        /* Mobile filter bar styles will be defined here */
+    }
+    
+    /* Hide advanced filters on mobile as we have the sticky bar */
+    .advanced-filters {
         display: none;
     }
 }

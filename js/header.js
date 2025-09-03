@@ -1,4 +1,6 @@
 // /js/header.js
+import { buildUrl } from './api-base.js';
+
 function isAuthenticated() {
   // Use apiService for consistent token management if available
   if (window.apiService) {
@@ -16,134 +18,204 @@ function getCurrentUser() {
   }
 }
 
-export function renderNavAuth() {
-  const authNavItem = document.getElementById('authNavItem');
-  const userNavItem = document.getElementById('userNavItem');
-  const userMenuContainer = document.getElementById('userMenuContainer');
-  const signInContainer = document.getElementById('signInContainer');
-  
-  // Fallback to navAccount if the main nav items don't exist
-  const navAccount = document.getElementById('navAccount');
-  
-  if (isAuthenticated()) {
-    const currentUser = getCurrentUser();
-    let userName = 'Loading...';
-    
-    // If user data is available, use it; otherwise show loading
-    if (currentUser && currentUser.firstName) {
-      const firstName = currentUser.firstName || '';
-      const lastName = currentUser.lastName || '';
-      userName = `${firstName} ${lastName}`.trim() || firstName;
-    } else if (window.apiService) {
-      // Try to get user data from apiService
-      const userData = window.apiService.getUserData();
-      if (userData && userData.firstName) {
-        const firstName = userData.firstName || '';
-        const lastName = userData.lastName || '';
-        userName = `${firstName} ${lastName}`.trim() || firstName;
+async function getSession() {
+  try {
+    const token = localStorage.getItem('careGridToken') || sessionStorage.getItem('careGridToken');
+    if (!token) {
+      return { authenticated: false, user: null };
+    }
+
+    const response = await fetch(buildUrl('/api/auth/me'), {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
       }
+    });
+
+    if (response.ok) {
+      const userData = await response.json();
+      return { authenticated: true, user: userData };
+    } else {
+      // Token might be invalid, clear it
+      localStorage.removeItem('careGridToken');
+      sessionStorage.removeItem('careGridToken');
+      localStorage.removeItem('careGridCurrentUser');
+      sessionStorage.removeItem('careGridCurrentUser');
+      return { authenticated: false, user: null };
     }
-    
-    if (userMenuContainer && signInContainer) {
-      // Use the new Bootstrap dropdown structure
-      userMenuContainer.innerHTML = `
-        <div class="dropdown">
-          <button class="btn btn-outline-primary dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="fas fa-user me-2"></i>${userName}
-          </button>
-          <ul class="dropdown-menu" aria-labelledby="userDropdown">
-            <li><a class="dropdown-item" href="dashboard.html"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a></li>
-            <li><a class="dropdown-item" href="profile.html"><i class="fas fa-user-edit me-2"></i>Profile</a></li>
-            <li><a class="dropdown-item" href="booking.html"><i class="fas fa-calendar-plus me-2"></i>Book Appointment</a></li>
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="#" onclick="logout()"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
-          </ul>
-        </div>
-      `;
-      
-      userMenuContainer.style.display = 'block';
-      signInContainer.style.display = 'none';
-    } else if (authNavItem && userNavItem) {
-      // Use the existing nav structure
-      authNavItem.style.display = 'none';
-      userNavItem.style.display = 'block';
-      
-      // Update user menu content
-      const userMenu = userNavItem.querySelector('.user-menu');
-      if (userMenu) {
-        userMenu.innerHTML = `
-          <div class="user-avatar" onclick="toggleUserMenu()" aria-expanded="false" aria-controls="userDropdown" role="button" tabindex="0">
-            <img src="images/default-avatar.svg" alt="User Avatar" id="userAvatar">
-            <span class="user-name" id="userName">${userName}</span>
-            <i class="fas fa-chevron-down"></i>
-          </div>
-          <div class="user-dropdown" id="userDropdown">
-            <a href="dashboard.html" class="dropdown-item">
-              <i class="fas fa-tachometer-alt"></i>
-              Dashboard
-            </a>
-            <a href="#" class="dropdown-item" id="logoutLink">
-              <i class="fas fa-sign-out-alt"></i>
-              Logout
-            </a>
-          </div>
-        `;
-        
-        // Add logout functionality
-        const logoutLink = userMenu.querySelector('#logoutLink');
-        if (logoutLink) {
-          logoutLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            logout();
-          });
-        }
-      }
-    } else if (navAccount) {
-      // Fallback for pages without the main nav structure
-      navAccount.innerHTML = `
-        <a href="/dashboard.html">Dashboard</a>
-        <a href="#" id="logoutLink">Logout</a>
-      `;
-      document.getElementById('logoutLink')?.addEventListener('click', (e) => {
-        e.preventDefault();
-        logout();
-      });
-    }
-  } else {
-    if (userMenuContainer && signInContainer) {
-      userMenuContainer.style.display = 'none';
-      signInContainer.style.display = 'block';
-    } else if (authNavItem && userNavItem) {
-      authNavItem.style.display = 'block';
-      userNavItem.style.display = 'none';
-    } else if (navAccount) {
-      navAccount.innerHTML = `<a href="/auth.html">Sign in</a>`;
-    }
+  } catch (error) {
+    console.error('Session check failed:', error);
+    return { authenticated: false, user: null };
   }
 }
 
-function logout() {
-  // Clear all possible token storage locations
-  // Use apiService to remove token consistently
-    if (window.apiService) {
-        window.apiService.removeToken();
+export async function renderNavAuth() {
+  const authNavItem = document.getElementById('authNavItem');
+  const userNavItem = document.getElementById('userNavItem');
+  
+  if (!authNavItem || !userNavItem) {
+    console.warn('Navigation elements not found');
+    return;
+  }
+
+  try {
+    const session = await getSession();
+    
+    if (session.authenticated) {
+      // Get user name from session or fallback to current user data
+      let userName = session.user?.firstName || session.user?.name || 'User';
+      
+      // If user data is available from currentUser, use it as fallback
+      if (!userName || userName === 'User') {
+        if (currentUser && currentUser.firstName) {
+          const firstName = currentUser.firstName || '';
+          const lastName = currentUser.lastName || '';
+          userName = `${firstName} ${lastName}`.trim() || firstName;
+        } else if (window.apiService) {
+          // Try to get user data from apiService
+          const userData = window.apiService.getUserData();
+          if (userData && userData.firstName) {
+            const firstName = userData.firstName || '';
+            const lastName = userData.lastName || '';
+            userName = `${firstName} ${lastName}`.trim() || firstName;
+          }
+        }
+      }
+      
+      if (userMenuContainer && signInContainer) {
+        // Use the new Bootstrap dropdown structure
+        userMenuContainer.innerHTML = `
+          <div class="dropdown">
+            <button class="btn btn-outline-primary dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="fas fa-user me-2"></i>${userName}
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="userDropdown">
+              <li><a class="dropdown-item" href="dashboard.html"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a></li>
+              <li><a class="dropdown-item" href="profile.html"><i class="fas fa-user-edit me-2"></i>Profile</a></li>
+              <li><a class="dropdown-item" href="booking.html"><i class="fas fa-calendar-plus me-2"></i>Book Appointment</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="#" onclick="logout()"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+            </ul>
+          </div>
+        `;
+        
+        userMenuContainer.style.display = 'block';
+        signInContainer.style.display = 'none';
+      } else if (authNavItem && userNavItem) {
+        // Use the existing nav structure
+        // Hide Sign In, show Dashboard and Logout only
+      authNavItem.style.display = 'none';
+      userNavItem.style.display = 'block';
+      
+        const userName = session.user?.firstName || session.user?.name || 'User';
+        
+        // Update user menu content with proper accessibility
+        const userMenu = userNavItem.querySelector('.user-menu');
+        if (userMenu) {
+          userMenu.innerHTML = `
+            <div class="user-avatar" onclick="toggleUserMenu()" 
+                 aria-expanded="false" 
+                 aria-controls="userDropdown" 
+                 aria-label="User menu for ${userName}"
+                 role="button" 
+                 tabindex="0"
+                 onkeydown="if(event.key==='Enter'||event.key===' ')toggleUserMenu()">
+              <img src="images/default-avatar.svg" alt="User Avatar" id="userAvatar">
+              <span class="user-name" id="userName">${userName}</span>
+              <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="user-dropdown" id="userDropdown" role="menu">
+              <a href="dashboard.html" class="dropdown-item" role="menuitem">
+                <i class="fas fa-tachometer-alt"></i>
+                Dashboard
+              </a>
+              <a href="#" class="dropdown-item" id="logoutLink" role="menuitem">
+                <i class="fas fa-sign-out-alt"></i>
+                Logout
+              </a>
+            </div>
+          `;
+          
+          // Add logout functionality
+          const logoutLink = userMenu.querySelector('#logoutLink');
+          if (logoutLink) {
+            logoutLink.addEventListener('click', (e) => {
+              e.preventDefault();
+              logout();
+            });
+          }
+        }
+      }
     } else {
-        localStorage.removeItem('careGridToken');
-        sessionStorage.removeItem('careGridToken');
+      // Show Sign In only, hide user menu
+      if (authNavItem && userNavItem) {
+        authNavItem.style.display = 'block';
+        userNavItem.style.display = 'none';
+      }
+      if (userMenuContainer && signInContainer) {
+        userMenuContainer.style.display = 'none';
+        signInContainer.style.display = 'block';
+      }
     }
+  } catch (error) {
+    console.error('Error rendering navigation:', error);
+    // Fallback to showing sign in on error
+    authNavItem.style.display = 'block';
+    userNavItem.style.display = 'none';
+  }
+}
+
+export function logout() {
+  // Clear all possible token storage locations
+  localStorage.removeItem('careGridToken');
+  sessionStorage.removeItem('careGridToken');
   localStorage.removeItem('careGridCurrentUser');
   sessionStorage.removeItem('careGridCurrentUser');
   
+  // Use apiService to clear auth data if available
+  if (window.apiService && typeof window.apiService.clearAuthData === 'function') {
+    window.apiService.clearAuthData();
+  }
+  
   // Dispatch auth state change event
   window.dispatchEvent(new CustomEvent('authStateChanged'));
+  
+  // Update navigation immediately
+  setTimeout(() => renderNavAuth(), 50);
   
   // Redirect to home
   window.location.href = '/';
 }
 
+// Toggle user menu dropdown
+function toggleUserMenu() {
+  const dropdown = document.getElementById('userDropdown');
+  const avatar = document.querySelector('.user-avatar');
+  
+  if (dropdown && avatar) {
+    const isOpen = dropdown.style.display === 'block';
+    dropdown.style.display = isOpen ? 'none' : 'block';
+    avatar.setAttribute('aria-expanded', !isOpen);
+    
+    // Close dropdown when clicking outside
+    if (!isOpen) {
+      const handleClickOutside = (event) => {
+        if (!dropdown.contains(event.target) && !avatar.contains(event.target)) {
+          dropdown.style.display = 'none';
+          avatar.setAttribute('aria-expanded', 'false');
+          document.removeEventListener('click', handleClickOutside);
+        }
+      };
+      setTimeout(() => document.addEventListener('click', handleClickOutside), 0);
+    }
+  }
+}
+
 // Make functions globally available
 window.renderNavAuth = renderNavAuth;
 window.logout = logout;
+window.getSession = getSession;
+window.toggleUserMenu = toggleUserMenu;
 
 // Update auth state on auth changes
 window.addEventListener('authStateChanged', renderNavAuth);
@@ -153,5 +225,5 @@ window.addEventListener('userDataLoaded', function(event) {
   renderNavAuth();
 });
 
-// Initial render
+// Initial render when DOM is loaded
 document.addEventListener('DOMContentLoaded', renderNavAuth);

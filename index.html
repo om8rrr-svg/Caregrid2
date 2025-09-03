@@ -107,21 +107,7 @@
                 <li id="authNavItem"><a href="auth.html" class="nav-link">Sign In</a></li>
                 <li id="userNavItem" style="display: none;">
                     <div class="user-menu">
-                        <div class="user-avatar" onclick="toggleUserMenu()" aria-expanded="false" aria-controls="userDropdown" role="button" tabindex="0">
-                            <img src="images/default-avatar.svg" alt="User Avatar" id="userAvatar">
-                            <span id="userName">User</span>
-                            <i class="fas fa-chevron-down"></i>
-                        </div>
-                        <div class="user-dropdown" id="userDropdown" hidden>
-                            <a href="dashboard.html" class="dropdown-item">
-                                <i class="fas fa-tachometer-alt"></i>
-                                Dashboard
-                            </a>
-                            <a href="#" class="dropdown-item" onclick="logout()">
-                                <i class="fas fa-sign-out-alt"></i>
-                                Logout
-                            </a>
-                        </div>
+                        <!-- User menu content populated by header.js -->
                     </div>
                 </li>
                 <li><a href="list-clinic.html" class="nav-link cta-nav">List Your Clinic</a></li>
@@ -268,6 +254,52 @@
         </div>
     </section>
 
+    <!-- Mobile Sticky Filter Bar -->
+    <div class="mobile-filter-bar sticky-filters" id="mobileFilterBar">
+        <div class="filter-chips-container">
+            <div class="filter-chips chips" id="filterChips" role="tablist" aria-label="Filter options">
+                <!-- Filter chips populated by JavaScript -->
+            </div>
+            <button class="more-filters-btn chip" id="moreFiltersBtn" style="display: none;" aria-label="Show more filters">
+                <span class="more-count">+2</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Filter Bottom Sheet -->
+    <div class="filter-bottom-sheet bottom-sheet" id="filterBottomSheet">
+        <div class="bottom-sheet-content">
+            <div class="bottom-sheet-header">
+                <h3>Filters</h3>
+                <button class="close-sheet-btn" id="closeSheetBtn" aria-label="Close filters">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="bottom-sheet-body">
+                <div class="filter-section">
+                    <h4>Category</h4>
+                    <div class="filter-options" id="categoryFilters"></div>
+                </div>
+                <div class="filter-section">
+                    <h4>Location</h4>
+                    <div class="filter-options" id="locationFilters"></div>
+                </div>
+                <div class="filter-section">
+                    <h4>Rating</h4>
+                    <div class="filter-options" id="ratingFilters"></div>
+                </div>
+                <div class="filter-section">
+                    <h4>Sort By</h4>
+                    <div class="filter-options" id="sortFilters"></div>
+                </div>
+            </div>
+            <div class="bottom-sheet-footer">
+                <button class="filter-btn secondary" id="clearFiltersBtn">Clear All</button>
+                <button class="filter-btn primary" id="applyFiltersBtn">Apply Filters</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Categories Section -->
     <section class="categories" id="categories">
         <div class="container">
@@ -309,8 +341,8 @@
         </div>
     </section>
 
-    <!-- Locations Section -->
-    <section class="locations">
+    <!-- Locations Section - Hidden on Mobile, using sticky filter bar instead -->
+    <section class="locations desktop-only">
         <div class="container">
             <header>
                 <h2 class="section-title" data-aos="fade-up">Choose Your Location</h2>

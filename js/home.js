@@ -59,27 +59,63 @@ async function loadClinicsForCity(city) {
   }
 }
 
-function renderClinicCard(c) {
+function renderClinicCard(c, isDemo = false) {
   const name = c.name || 'Clinic';
   const addr = [c.address, c.city, c.postcode].filter(Boolean).join(', ');
   const phone = c.phone || '—';
   const site = c.website ? `<a href="${c.website}" target="_blank" rel="noopener">Website</a>` : '';
+  const rating = c.rating ? c.rating.toFixed(1) : '—';
+  const reviews = c.reviews || 0;
+  const image = c.image || 'images/clinic-placeholder.svg';
+  const description = c.description || 'Healthcare services available';
+  
+  // Demo badge for fallback cards
+  const demoBadge = isDemo ? 
+    '<span class="demo-badge" style="background: #ff9500; color: white; padding: 2px 6px; border-radius: 3px; font-size: 10px; font-weight: 600; position: absolute; top: 8px; right: 8px; z-index: 2;">Demo</span>' : '';
+  
   return `
-    <div class="clinic-card">
+    <div class="clinic-card" style="position: relative;">
+      ${demoBadge}
+      <div class="clinic-card__image">
+        <img src="${image}" alt="${name}" loading="lazy" style="width: 100%; height: 200px; object-fit: cover;">
+      </div>
       <div class="clinic-card__head">
         <h3>${name}</h3>
         <span class="badge">${c.type || c.category || 'Healthcare'}</span>
       </div>
       <div class="clinic-card__body">
-        <div>${addr}</div>
-        <div>${phone}</div>
+        <div class="clinic-rating" style="display: flex; align-items: center; margin-bottom: 8px;">
+          <span style="color: #ffc107; margin-right: 5px;">★</span>
+          <span style="font-weight: 600;">${rating}</span>
+          <span style="color: #666; margin-left: 5px;">(${reviews} reviews)</span>
+        </div>
+        <div class="clinic-description" style="color: #666; font-size: 14px; margin-bottom: 8px;">${description}</div>
+        <div class="clinic-address" style="color: #888; font-size: 13px;">${addr}</div>
+        <div class="clinic-phone" style="color: #888; font-size: 13px;">${phone}</div>
       </div>
       <div class="clinic-card__actions">
         ${site}
-        ${c.bookingLink ? `<a href="${c.bookingLink}" target="_blank" rel="noopener">Book</a>` : ''}
+        ${c.bookingLink ? `<a href="${c.bookingLink}" target="_blank" rel="noopener" style="min-height: 44px; min-width: 44px; padding: 10px 15px; display: inline-flex; align-items: center; justify-content: center;">Book</a>` : ''}
       </div>
     </div>
   `;
+}
+
+function renderSkeletonCards(count = 3) {
+  return Array(count).fill(0).map(() => `
+    <div class="clinic-card skeleton-card" aria-hidden="true">
+      <div class="skeleton-image" style="width: 100%; height: 200px; background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: skeleton-shimmer 1.5s infinite;"></div>
+      <div class="clinic-card__head">
+        <div class="skeleton-text" style="height: 20px; width: 70%; background: #f0f0f0; margin-bottom: 8px;"></div>
+        <div class="skeleton-text" style="height: 16px; width: 40%; background: #f0f0f0;"></div>
+      </div>
+      <div class="clinic-card__body">
+        <div class="skeleton-text" style="height: 14px; width: 80%; background: #f0f0f0; margin-bottom: 6px;"></div>
+        <div class="skeleton-text" style="height: 14px; width: 60%; background: #f0f0f0; margin-bottom: 6px;"></div>
+        <div class="skeleton-text" style="height: 14px; width: 50%; background: #f0f0f0;"></div>
+      </div>
+    </div>
+  `).join('');
 }
 
 async function loadFeaturedClinics() {
@@ -87,81 +123,71 @@ async function loadFeaturedClinics() {
   if (!list) return;
   
   // Check if clinics are already loaded by script.js
-  if (list.children.length > 0 && !list.innerHTML.includes('Loading')) {
+  if (list.children.length > 0 && !list.innerHTML.includes('Loading') && !list.innerHTML.includes('skeleton')) {
     return; // Already populated by script.js
   }
   
-  list.innerHTML = '<div class="muted">Loading featured clinics…</div>';
+  // Show skeleton loading state
+  list.innerHTML = renderSkeletonCards(3);
+
+  // Define demo clinic data
+  const demoClinicData = [
+    { 
+      name: 'Manchester Private GP', 
+      city: 'Manchester', 
+      postcode: 'M3 2BB', 
+      type: 'GP', 
+      website: '#',
+      rating: 4.8,
+      reviews: 156,
+      description: 'Comprehensive private healthcare services in Manchester city centre',
+      phone: '0161 234 5678',
+      address: '123 Deansgate, Manchester',
+      image: 'images/clinic1.svg'
+    },
+    { 
+      name: 'Bolton Smile Dental', 
+      city: 'Bolton', 
+      postcode: 'BL1 1AA', 
+      type: 'Dentist', 
+      website: '#',
+      rating: 4.9,
+      reviews: 89,
+      description: 'Modern dental practice offering cosmetic and general dentistry',
+      phone: '01204 567 890',
+      address: '45 Chorley New Road, Bolton',
+      image: 'images/clinic2.svg'
+    },
+    { 
+      name: 'Leeds Physio Hub', 
+      city: 'Leeds', 
+      postcode: 'LS1 4HT', 
+      type: 'Physio', 
+      website: '#',
+      rating: 4.7,
+      reviews: 124,
+      description: 'Sports injury rehabilitation and physiotherapy specialists',
+      phone: '0113 456 7890',
+      address: '78 The Headrow, Leeds',
+      image: 'images/clinic3.svg'
+    }
+  ];
 
   try {
     const rsp = await fetchJson('/api/clinics', { params: { limit: 100 } });
     const clinics = rsp?.data || rsp || [];
-    const items = Array.isArray(clinics) ? clinics : [];
-    const data = items.length ? items : [
-      { 
-        name: 'Manchester Private GP', 
-        city: 'Manchester', 
-        postcode: 'M3 2BB', 
-        type: 'GP', 
-        website: '#',
-        rating: 4.8,
-        reviews: 156,
-        description: 'Comprehensive private healthcare services in Manchester city centre',
-        phone: '0161 234 5678',
-        address: '123 Deansgate, Manchester'
-      },
-      { 
-        name: 'Bolton Smile Dental', 
-        city: 'Bolton', 
-        postcode: 'BL1 1AA', 
-        type: 'Dentist', 
-        website: '#',
-        rating: 4.9,
-        reviews: 89,
-        description: 'Modern dental practice offering cosmetic and general dentistry',
-        phone: '01204 567 890',
-        address: '45 Chorley New Road, Bolton'
-      },
-      { 
-        name: 'Leeds Physio Hub', 
-        city: 'Leeds', 
-        postcode: 'LS1 4HT', 
-        type: 'Physio', 
-        website: '#',
-        rating: 4.7,
-        reviews: 124,
-        description: 'Sports injury rehabilitation and physiotherapy specialists',
-        phone: '0113 456 7890',
-        address: '78 The Headrow, Leeds'
-      },
-      { 
-        name: 'Liverpool Eye Care', 
-        city: 'Liverpool', 
-        postcode: 'L1 8JQ', 
-        type: 'Optician', 
-        website: '#',
-        rating: 4.6,
-        reviews: 67,
-        description: 'Comprehensive eye care and designer eyewear specialists',
-        phone: '0151 789 0123',
-        address: '32 Bold Street, Liverpool'
-      },
-      { 
-        name: 'London Wellness Pharmacy', 
-        city: 'London', 
-        postcode: 'SW1A 1AA', 
-        type: 'Pharmacy', 
-        website: '#',
-        rating: 4.5,
-        reviews: 203,
-        description: 'Full-service pharmacy with health consultations and wellness products',
-        phone: '020 7123 4567',
-        address: '15 Harley Street, London'
-      }
-    ];
+    const items = Array.isArray(clinics) ? clinics.slice(0, 3) : []; // Limit to 3 featured
     
-    // Show demo data badge if using fallback
-    if (data.length === 5 && data[0].name === 'Manchester Private GP') {
+    let data, isDemo = false;
+    
+    if (items.length >= 3) {
+      data = items;
+    } else {
+      // Use demo data if API returns insufficient results
+      data = demoClinicData;
+      isDemo = true;
+      
+      // Show demo data badge
       const resultsInfo = el('resultsInfo');
       if (resultsInfo) {
         resultsInfo.innerHTML = '<span class="badge demo-badge" style="background: #ff9500; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; margin-right: 10px;">Demo Data</span>Showing demo clinics';
@@ -169,83 +195,24 @@ async function loadFeaturedClinics() {
       }
     }
     
-    renderClinics(data);
+    renderClinics(data, isDemo);
   } catch (e) {
-    const data = [
-      { 
-        name: 'Manchester Private GP', 
-        city: 'Manchester', 
-        postcode: 'M3 2BB', 
-        type: 'GP', 
-        website: '#',
-        rating: 4.8,
-        reviews: 156,
-        description: 'Comprehensive private healthcare services in Manchester city centre',
-        phone: '0161 234 5678',
-        address: '123 Deansgate, Manchester'
-      },
-      { 
-        name: 'Bolton Smile Dental', 
-        city: 'Bolton', 
-        postcode: 'BL1 1AA', 
-        type: 'Dentist', 
-        website: '#',
-        rating: 4.9,
-        reviews: 89,
-        description: 'Modern dental practice offering cosmetic and general dentistry',
-        phone: '01204 567 890',
-        address: '45 Chorley New Road, Bolton'
-      },
-      { 
-        name: 'Leeds Physio Hub', 
-        city: 'Leeds', 
-        postcode: 'LS1 4HT', 
-        type: 'Physio', 
-        website: '#',
-        rating: 4.7,
-        reviews: 124,
-        description: 'Sports injury rehabilitation and physiotherapy specialists',
-        phone: '0113 456 7890',
-        address: '78 The Headrow, Leeds'
-      },
-      { 
-        name: 'Liverpool Eye Care', 
-        city: 'Liverpool', 
-        postcode: 'L1 8JQ', 
-        type: 'Optician', 
-        website: '#',
-        rating: 4.6,
-        reviews: 67,
-        description: 'Comprehensive eye care and designer eyewear specialists',
-        phone: '0151 789 0123',
-        address: '32 Bold Street, Liverpool'
-      },
-      { 
-        name: 'London Wellness Pharmacy', 
-        city: 'London', 
-        postcode: 'SW1A 1AA', 
-        type: 'Pharmacy', 
-        website: '#',
-        rating: 4.5,
-        reviews: 203,
-        description: 'Full-service pharmacy with health consultations and wellness products',
-        phone: '020 7123 4567',
-        address: '15 Harley Street, London'
-      }
-    ];
+    // Always use demo data on API failure
+    const data = demoClinicData;
+    const isDemo = true;
     
-    // Show demo data badge
+    // Show demo data badge with API unavailable message
     const resultsInfo = el('resultsInfo');
     if (resultsInfo) {
       resultsInfo.innerHTML = '<span class="badge demo-badge" style="background: #ff9500; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; margin-right: 10px;">Demo Data</span>Showing demo clinics (API unavailable)';
       resultsInfo.style.display = 'block';
     }
     
-    renderClinics(data);
+    renderClinics(data, isDemo);
   }
 }
 
-function renderClinics(data) {
+function renderClinics(data, isDemo = false) {
   const list = el('clinicGrid');
   if (!list) return;
   
@@ -254,7 +221,7 @@ function renderClinics(data) {
     return;
   }
   
-  list.innerHTML = data.map(renderClinicCard).join('');
+  list.innerHTML = data.map(clinic => renderClinicCard(clinic, isDemo)).join('');
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -263,4 +230,310 @@ document.addEventListener('DOMContentLoaded', () => {
   
   loadCities();
   loadFeaturedClinics();
+  initMobileFilters();
 });
+
+// Mobile Filter Bar Implementation
+function initMobileFilters() {
+  const filterBar = document.getElementById('mobileFilterBar');
+  const filterChips = document.getElementById('filterChips');
+  const moreFiltersBtn = document.getElementById('moreFiltersBtn');
+  const bottomSheet = document.getElementById('filterBottomSheet');
+  const closeSheetBtn = document.getElementById('closeSheetBtn');
+  const applyFiltersBtn = document.getElementById('applyFiltersBtn');
+  const clearFiltersBtn = document.getElementById('clearFiltersBtn');
+  
+  if (!filterBar) return; // Not on homepage
+  
+  // Initialize filter state
+  const filterState = {
+    category: 'all',
+    location: 'all',
+    rating: 'all',
+    sort: 'rating'
+  };
+  
+  // Filter data - deduplicated using Set and alphabetically sorted
+  const filterData = {
+    categories: [
+      { id: 'all', name: 'All', icon: 'fas fa-hospital', count: '25+' },
+      { id: 'gp', name: 'GP', icon: 'fas fa-stethoscope', count: '8' },
+      { id: 'dentist', name: 'Dentist', icon: 'fas fa-tooth', count: '6' },
+      { id: 'physio', name: 'Physio', icon: 'fas fa-dumbbell', count: '4' },
+      { id: 'optician', name: 'Optician', icon: 'fas fa-eye', count: '5' },
+      { id: 'pharmacy', name: 'Pharmacy', icon: 'fas fa-capsules', count: '2' }
+    ],
+    locations: [
+      { id: 'all', name: 'All Locations', count: '25+' },
+      { id: 'bolton', name: 'Bolton', count: '4' },
+      { id: 'leeds', name: 'Leeds', count: '5' },
+      { id: 'liverpool', name: 'Liverpool', count: '6' },
+      { id: 'london', name: 'London', count: '2' },
+      { id: 'manchester', name: 'Manchester', count: '8' }
+    ].sort((a, b) => a.name === 'All Locations' ? -1 : b.name === 'All Locations' ? 1 : a.name.localeCompare(b.name)),
+    ratings: [
+      { id: 'all', name: 'Any Rating' },
+      { id: '4plus', name: '4+ Stars' },
+      { id: '4.5plus', name: '4.5+ Stars' }
+    ],
+    sorts: [
+      { id: 'rating', name: 'Rating' },
+      { id: 'reviews', name: 'Reviews' },
+      { id: 'distance', name: 'Distance' },
+      { id: 'name', name: 'Name' }
+    ],
+    map: [
+      { id: 'map', name: 'Map', icon: 'fas fa-map-marker-alt' }
+    ]
+  };
+  
+  // Deduplicate locations using Set and ensure alphabetical order
+  const uniqueLocations = [...new Set(filterData.locations.map(l => l.name))]
+    .sort()
+    .map(name => filterData.locations.find(l => l.name === name));
+  filterData.locations = uniqueLocations;
+  
+  function renderFilterChips() {
+    const visibleChips = [];
+    const allChips = [
+      { type: 'category', ...filterData.categories.find(c => c.id === filterState.category) },
+      { type: 'location', ...filterData.locations.find(l => l.id === filterState.location) },
+      { type: 'rating', ...filterData.ratings.find(r => r.id === filterState.rating) },
+      { type: 'sort', name: `Sort: ${filterData.sorts.find(s => s.id === filterState.sort).name}` },
+      { type: 'map', ...filterData.map[0] }
+    ];
+    
+    // Show first 3 chips on mobile, with overflow handling
+    const maxVisible = window.innerWidth > 480 ? 4 : 3;
+    visibleChips.push(...allChips.slice(0, maxVisible));
+    
+    // Add proper ARIA roles for accessibility
+    filterChips.setAttribute('role', 'tablist');
+    filterChips.setAttribute('aria-label', 'Filter options');
+    
+    filterChips.innerHTML = visibleChips.map(chip => `
+      <button class="filter-chip ${chip.id === filterState[chip.type] ? 'active' : ''}" 
+              data-type="${chip.type}" 
+              data-value="${chip.id || chip.type}"
+              ${chip.count ? `data-count="${chip.count}"` : ''}
+              role="tab"
+              aria-selected="${chip.id === filterState[chip.type] ? 'true' : 'false'}"
+              tabindex="${chip.id === filterState[chip.type] ? '0' : '-1'}">
+        ${chip.icon ? `<i class="${chip.icon}"></i> ` : ''}${chip.name}
+      </button>
+    `).join('');
+    
+    // Show "+N" button if there are hidden chips
+    const hiddenCount = allChips.length - maxVisible;
+    if (hiddenCount > 0) {
+      moreFiltersBtn.style.display = 'block';
+      moreFiltersBtn.querySelector('.more-count').textContent = `+${hiddenCount}`;
+    } else {
+      moreFiltersBtn.style.display = 'none';
+    }
+    
+    // Add click handlers with keyboard navigation support
+    filterChips.querySelectorAll('.filter-chip').forEach((chip, index) => {
+      chip.addEventListener('click', () => {
+        const type = chip.dataset.type;
+        if (type === 'map') {
+          // Handle map functionality
+          handleMapToggle();
+        } else if (type !== 'sort') {
+          openBottomSheet(type);
+        } else {
+          openBottomSheet('sort');
+        }
+      });
+      
+      // Keyboard navigation
+      chip.addEventListener('keydown', (e) => {
+        const chips = filterChips.querySelectorAll('.filter-chip');
+        let currentIndex = Array.from(chips).indexOf(chip);
+        
+        switch(e.key) {
+          case 'ArrowLeft':
+            e.preventDefault();
+            currentIndex = currentIndex > 0 ? currentIndex - 1 : chips.length - 1;
+            chips[currentIndex].focus();
+            break;
+          case 'ArrowRight':
+            e.preventDefault();
+            currentIndex = currentIndex < chips.length - 1 ? currentIndex + 1 : 0;
+            chips[currentIndex].focus();
+            break;
+          case 'Enter':
+          case ' ':
+            e.preventDefault();
+            chip.click();
+            break;
+        }
+      });
+    });
+  }
+  
+  function openBottomSheet(activeSection = null) {
+    // Save current scroll position for restoration
+    window.savedScrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+    
+    // Populate bottom sheet with current filters
+    populateBottomSheetFilters();
+    bottomSheet.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    
+    // Focus on active section if specified
+    if (activeSection) {
+      const section = bottomSheet.querySelector(`#${activeSection}Filters`);
+      if (section) {
+        section.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
+  }
+  
+  function closeBottomSheet() {
+    bottomSheet.classList.remove('open');
+    document.body.style.overflow = '';
+    
+    // Restore scroll position if saved
+    if (typeof window.savedScrollPosition !== 'undefined') {
+      setTimeout(() => {
+        window.scrollTo(0, window.savedScrollPosition);
+      }, 50);
+    }
+  }
+  
+  function handleMapToggle() {
+    // Toggle map view functionality
+    console.log('Map toggle clicked - implement map view');
+    // Could integrate with Google Maps or similar
+    
+    // For now, show a placeholder notification
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+      position: fixed; top: 100px; left: 50%; transform: translateX(-50%);
+      background: #007bff; color: white; padding: 12px 20px;
+      border-radius: 8px; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    `;
+    notification.textContent = 'Map view coming soon!';
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+      document.body.removeChild(notification);
+    }, 2000);
+  }
+  
+  function populateBottomSheetFilters() {
+    // Populate category filters
+    const categoryFilters = document.getElementById('categoryFilters');
+    categoryFilters.innerHTML = filterData.categories.map(cat => `
+      <button class="filter-option ${cat.id === filterState.category ? 'active' : ''}" 
+              data-type="category" 
+              data-value="${cat.id}">
+        <i class="${cat.icon}"></i> ${cat.name} (${cat.count})
+      </button>
+    `).join('');
+    
+    // Populate location filters
+    const locationFilters = document.getElementById('locationFilters');
+    locationFilters.innerHTML = filterData.locations.map(loc => `
+      <button class="filter-option ${loc.id === filterState.location ? 'active' : ''}" 
+              data-type="location" 
+              data-value="${loc.id}">
+        ${loc.name} ${loc.count ? `(${loc.count})` : ''}
+      </button>
+    `).join('');
+    
+    // Populate rating filters
+    const ratingFilters = document.getElementById('ratingFilters');
+    ratingFilters.innerHTML = filterData.ratings.map(rating => `
+      <button class="filter-option ${rating.id === filterState.rating ? 'active' : ''}" 
+              data-type="rating" 
+              data-value="${rating.id}">
+        ${rating.name}
+      </button>
+    `).join('');
+    
+    // Populate sort filters
+    const sortFilters = document.getElementById('sortFilters');
+    sortFilters.innerHTML = filterData.sorts.map(sort => `
+      <button class="filter-option ${sort.id === filterState.sort ? 'active' : ''}" 
+              data-type="sort" 
+              data-value="${sort.id}">
+        ${sort.name}
+      </button>
+    `).join('');
+    
+    // Add click handlers to all filter options
+    bottomSheet.querySelectorAll('.filter-option').forEach(option => {
+      option.addEventListener('click', () => {
+        const type = option.dataset.type;
+        const value = option.dataset.value;
+        
+        // Update active state
+        option.parentElement.querySelectorAll('.filter-option').forEach(opt => 
+          opt.classList.remove('active'));
+        option.classList.add('active');
+        
+        // Update filter state
+        filterState[type] = value;
+      });
+    });
+  }
+  
+  function applyFilters() {
+    // Save current scroll position
+    const scrollPosition = window.savedScrollPosition || window.pageYOffset || document.documentElement.scrollTop;
+    
+    // Update filter chips
+    renderFilterChips();
+    
+    // Apply filters to clinic display (integrate with existing filter logic)
+    if (window.filterByCategory) {
+      window.filterByCategory(filterState.category);
+    }
+    if (window.filterByLocation) {
+      window.filterByLocation(filterState.location);
+    }
+    
+    // Close bottom sheet
+    closeBottomSheet();
+    
+    // Restore scroll position after a short delay to ensure DOM updates
+    setTimeout(() => {
+      window.scrollTo(0, scrollPosition);
+      // Clear saved position
+      delete window.savedScrollPosition;
+    }, 100);
+  }
+  
+  function clearAllFilters() {
+    filterState.category = 'all';
+    filterState.location = 'all';
+    filterState.rating = 'all';
+    filterState.sort = 'rating';
+    
+    populateBottomSheetFilters();
+    renderFilterChips();
+  }
+  
+  // Event listeners
+  moreFiltersBtn?.addEventListener('click', () => openBottomSheet());
+  closeSheetBtn?.addEventListener('click', closeBottomSheet);
+  applyFiltersBtn?.addEventListener('click', applyFilters);
+  clearFiltersBtn?.addEventListener('click', clearAllFilters);
+  
+  // Close bottom sheet when clicking outside
+  bottomSheet?.addEventListener('click', (e) => {
+    if (e.target === bottomSheet) {
+      closeBottomSheet();
+    }
+  });
+  
+  // Initial render
+  renderFilterChips();
+  
+  // Handle window resize
+  window.addEventListener('resize', () => {
+    renderFilterChips();
+  });
+}
