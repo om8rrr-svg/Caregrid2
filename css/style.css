@@ -8078,3 +8078,61 @@ footer {
         display: flex;
     }
 }
+
+/* reCAPTCHA v2 Styling */
+.recaptcha-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 1rem 0;
+    min-height: 78px;
+    border-radius: 8px;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.recaptcha-container:hover {
+    border-color: #667eea;
+    background: #f0f4ff;
+}
+
+.recaptcha-container iframe {
+    border-radius: 4px;
+}
+
+/* Demo reCAPTCHA styling */
+.recaptcha-container div[style*="border: 2px dashed"] {
+    border-radius: 8px !important;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    font-weight: 500 !important;
+    color: #667eea !important;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%) !important;
+    border: 2px dashed #667eea !important;
+}
+
+/* Error styling for reCAPTCHA */
+.recaptcha-container.error {
+    border-color: #dc3545;
+    background: #fff5f5;
+}
+
+.form-group-modern .error-message {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+    display: block;
+}
+
+/* Responsive reCAPTCHA */
+@media (max-width: 480px) {
+    .recaptcha-container {
+        margin: 0.75rem 0;
+        padding: 0.5rem;
+    }
+    
+    .recaptcha-container iframe {
+        transform: scale(0.85);
+        transform-origin: center;
+    }
+}

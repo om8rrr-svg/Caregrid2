@@ -31,12 +31,16 @@ export function renderNavAuth() {
     
     // If user data is available, use it; otherwise show loading
     if (currentUser && currentUser.firstName) {
-      userName = currentUser.firstName;
+      const firstName = currentUser.firstName || '';
+      const lastName = currentUser.lastName || '';
+      userName = `${firstName} ${lastName}`.trim() || firstName;
     } else if (window.apiService) {
       // Try to get user data from apiService
       const userData = window.apiService.getUserData();
       if (userData && userData.firstName) {
-        userName = userData.firstName;
+        const firstName = userData.firstName || '';
+        const lastName = userData.lastName || '';
+        userName = `${firstName} ${lastName}`.trim() || firstName;
       }
     }
     

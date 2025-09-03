@@ -182,12 +182,12 @@ const lazyLoadingConfigs = {
         trigger: 'interaction'
     },
     
-    // Load form security for forms (Contact, List Clinic pages)
-    formSecurity: {
-        scripts: ['js/form-security.js'],
-        trigger: 'form input, form textarea, form select',
-        method: 'focus'
-    },
+    // Load form security for forms (Contact, List Clinic pages) - DISABLED: Using Google reCAPTCHA instead
+    // formSecurity: {
+    //     scripts: ['js/form-security.js'],
+    //     trigger: 'form input, form textarea, form select',
+    //     method: 'focus'
+    // },
     
     // Load image lazy loader for pages with images
     imageLazyLoader: {

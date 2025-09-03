@@ -125,12 +125,27 @@ class AuthSystem {
         const rememberMe = document.getElementById('rememberMe').checked;
         
         // Clear previous errors
-        this.clearErrors(['emailError', 'passwordError']);
+        this.clearErrors(['emailError', 'passwordError', 'recaptchaError']);
         
         // Validate inputs
         if (!this.validateEmail(document.getElementById('email'), 'emailError') ||
             !this.validatePassword(document.getElementById('password'), 'passwordError')) {
             return;
+        }
+        
+        // Execute invisible reCAPTCHA v2
+        if (window.recaptchaService && !window.recaptchaService.demoMode) {
+            try {
+                const recaptchaResponse = await window.recaptchaService.execute('login');
+                if (!recaptchaResponse) {
+                    this.showError('recaptchaError', 'reCAPTCHA verification failed. Please try again.');
+                    return;
+                }
+            } catch (error) {
+                console.error('reCAPTCHA execution error:', error);
+                this.showError('recaptchaError', 'reCAPTCHA verification failed. Please try again.');
+                return;
+            }
         }
         
         // Show modern loading overlay
@@ -207,14 +222,34 @@ class AuthSystem {
         this.showLoading('signUpForm');
         
         try {
+            // Execute invisible reCAPTCHA for signup
+            let recaptchaToken = null;
+            if (window.recaptchaService && window.recaptchaService.isLoaded()) {
+                try {
+                    recaptchaToken = await window.recaptchaService.execute('signup');
+                    console.log('reCAPTCHA executed successfully for signup');
+                } catch (recaptchaError) {
+                    console.error('reCAPTCHA execution failed:', recaptchaError);
+                    this.showError('signUpEmailError', 'Security verification failed. Please try again.');
+                    return;
+                }
+            }
+            
             // Call API register endpoint
-            const response = await this.apiService.register({
+            const registerData = {
                 firstName: formData.firstName,
                 lastName: formData.lastName,
                 email: formData.email,
                 phone: formData.phone,
                 password: formData.password
-            });
+            };
+            
+            // Add reCAPTCHA token if available
+            if (recaptchaToken) {
+                registerData.recaptchaToken = recaptchaToken;
+            }
+            
+            const response = await this.apiService.register(registerData);
             
             console.log('Sign-up successful for:', response.data?.user?.firstName || response.user?.firstName || 'User');
             
@@ -301,9 +336,22 @@ class AuthSystem {
         this.showLoading('forgotPasswordForm');
         
         try {
+            // Execute invisible reCAPTCHA for forgot password
+            let recaptchaToken = null;
+            if (window.recaptchaService && window.recaptchaService.isLoaded()) {
+                try {
+                    recaptchaToken = await window.recaptchaService.execute('forgot_password');
+                    console.log('reCAPTCHA executed successfully for forgot password');
+                } catch (recaptchaError) {
+                    console.error('reCAPTCHA execution failed:', recaptchaError);
+                    this.showError('resetEmailError', 'Security verification failed. Please try again.');
+                    return;
+                }
+            }
+            
             // Call API forgot password endpoint
             console.log('Calling apiService.forgotPassword...');
-            await this.apiService.forgotPassword(email);
+            await this.apiService.forgotPassword(email, recaptchaToken);
             console.log('API call successful');
             
             // Store email for verification step
@@ -439,8 +487,21 @@ class AuthSystem {
         this.showLoading('newPasswordForm');
         
         try {
+            // Execute invisible reCAPTCHA for password reset
+            let recaptchaToken = null;
+            if (window.recaptchaService && window.recaptchaService.isLoaded()) {
+                try {
+                    recaptchaToken = await window.recaptchaService.execute('reset_password');
+                    console.log('reCAPTCHA executed successfully for password reset');
+                } catch (recaptchaError) {
+                    console.error('reCAPTCHA execution failed:', recaptchaError);
+                    this.showError('newPasswordError', 'Security verification failed. Please try again.');
+                    return;
+                }
+            }
+            
             // Call API reset password endpoint
-            await this.apiService.resetPassword(this.resetEmail, code, password);
+            await this.apiService.resetPassword(this.resetEmail, code, password, recaptchaToken);
             
             // Automatically sign the user in with the new password
             try {
@@ -815,7 +876,7 @@ class AuthSystem {
     // Check if user is authenticated
     isAuthenticated() {
         // Check for token in localStorage or sessionStorage directly
-        return !!(localStorage.getItem('authToken') || sessionStorage.getItem('authToken'));
+        return !!(localStorage.getItem('careGridToken') || sessionStorage.getItem('careGridToken'));
     }
     
     redirectAfterAuth() {
@@ -1407,24 +1468,48 @@ function simulateGoogleSignIn() {
 async function initializeRecaptcha() {
     try {
         if (window.recaptchaService && window.RECAPTCHA_SITE_KEY) {
-            await window.recaptchaService.init(window.RECAPTCHA_SITE_KEY);
+            // Initialize reCAPTCHA v2 for invisible verification
+            await window.recaptchaService.init(window.RECAPTCHA_SITE_KEY, 'v2');
             
-            // Protect forms with reCAPTCHA
-            const signinForm = document.getElementById('signinForm');
-            const signupForm = document.getElementById('signupForm');
-            const forgotPasswordForm = document.getElementById('forgotPasswordForm');
+            // Render invisible reCAPTCHA v2 widget
+            const recaptchaContainer = document.getElementById('recaptcha-container');
+            if (recaptchaContainer) {
+                try {
+                    // Hide the container since we're using invisible reCAPTCHA
+                    recaptchaContainer.style.display = 'none';
+                    
+                    window.recaptchaService.renderV2('recaptcha-container', {
+                        size: 'invisible',
+                        callback: function(response) {
+                            console.log('Invisible reCAPTCHA completed:', response);
+                            // Clear any previous error
+                            const errorElement = document.getElementById('recaptchaError');
+                            if (errorElement) {
+                                errorElement.textContent = '';
+                            }
+                        },
+                        'expired-callback': function() {
+                            console.log('reCAPTCHA expired');
+                            const errorElement = document.getElementById('recaptchaError');
+                            if (errorElement) {
+                                errorElement.textContent = 'reCAPTCHA expired. Please try again.';
+                            }
+                        },
+                        'error-callback': function() {
+                            console.log('reCAPTCHA error');
+                            const errorElement = document.getElementById('recaptchaError');
+                            if (errorElement) {
+                                errorElement.textContent = 'reCAPTCHA error. Please try again.';
+                            }
+                        }
+                    });
+                    console.log('Invisible reCAPTCHA v2 widget rendered successfully');
+                } catch (renderError) {
+                    console.error('Failed to render invisible reCAPTCHA widget:', renderError);
+                }
+            }
             
-            if (signinForm) {
-                window.recaptchaService.protectForm(signinForm);
-            }
-            if (signupForm) {
-                window.recaptchaService.protectForm(signupForm);
-            }
-            if (forgotPasswordForm) {
-                window.recaptchaService.protectForm(forgotPasswordForm);
-            }
-            
-            console.log('reCAPTCHA initialized successfully');
+            console.log('Invisible reCAPTCHA v2 initialized successfully');
         }
     } catch (error) {
         console.error('reCAPTCHA initialization failed:', error);

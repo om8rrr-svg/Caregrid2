@@ -120,6 +120,12 @@
                             </label>
                         </div>
                         
+                        <!-- Invisible reCAPTCHA v2 Widget (hidden) -->
+                        <div class="form-group-modern" style="display: none;">
+                            <div id="recaptcha-container" class="recaptcha-container"></div>
+                            <span class="error-message" id="recaptchaError"></span>
+                        </div>
+                        
                         <div id="authProgress" style="display:none">Logging you in…</div>
                         <div id="authError" class="error" style="display:none"></div>
                         
@@ -497,7 +503,7 @@
     <script type="module" src="js/auth.js"></script>
     
     <!-- Lazy Loading Script -->
-    <script src="js/lazy-loader.js?v=2025082509"></script>
+    <script src="js/lazy-loader.js?v=2025090120-nocaptcha"></script>
     
     <!-- Service Worker Cleanup -->
     <script>

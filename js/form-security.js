@@ -431,8 +431,13 @@ if (!document.getElementById('form-security-styles')) {
     document.head.appendChild(styleElement);
 }
 
-// Create global instance
-window.formSecurity = new FormSecurity();
+// Create global instance - but disable on auth page since we use Google reCAPTCHA there
+if (window.location.pathname.includes('auth.html')) {
+    // Disable captcha on auth page - using Google reCAPTCHA instead
+    window.formSecurity = new FormSecurity({ enableCaptcha: false });
+} else {
+    window.formSecurity = new FormSecurity();
+}
 
 // Export for module use
 if (typeof module !== 'undefined' && module.exports) {

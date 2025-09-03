@@ -553,7 +553,7 @@ class AdvancedSearch {
                     <a href="clinic-profile.html?id=${clinic.id}" class="btn btn-outline">
                         View Details
                     </a>
-                    <a href="booking.html?clinic=${clinic.id}" class="btn btn-primary">
+                    <a href="booking.html?clinicId=${clinic.id}" class="btn btn-primary">
                         Book Now
                     </a>
                 </div>

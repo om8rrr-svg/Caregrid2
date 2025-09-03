@@ -8,18 +8,40 @@ document.addEventListener('DOMContentLoaded', function() {
     // Wait for auth system to initialize before proceeding
     setTimeout(function() {
         initializeBookingSystem();
-    }, 150);
+    }, 300);
 });
 
 function initializeBookingSystem() {
     // Check authentication before initializing booking
     const authSystem = window.authSystem;
-    const isAuthenticated = authSystem && authSystem.isAuthenticated();
+    let isAuthenticated = false;
+    
+    // Try multiple ways to check authentication
+    if (authSystem && authSystem.isAuthenticated) {
+        isAuthenticated = authSystem.isAuthenticated();
+    } else {
+        // Fallback: check tokens directly
+        isAuthenticated = !!(localStorage.getItem('careGridToken') || sessionStorage.getItem('careGridToken'));
+    }
     
     if (!isAuthenticated) {
         console.log('User not authenticated - booking system not initialized');
+        // Try again after a longer delay
+        setTimeout(function() {
+            const retryAuth = !!(localStorage.getItem('careGridToken') || sessionStorage.getItem('careGridToken'));
+            if (retryAuth) {
+                console.log('Authentication found on retry - initializing booking system');
+                loadClinicData();
+                setupDatePicker();
+                setupTimeSlots();
+                setupFormValidation();
+                updateNavigationButtons();
+            }
+        }, 500);
         return;
     }
+    
+    console.log('User authenticated - initializing booking system');
     loadClinicData();
     setupDatePicker();
     setupTimeSlots();
@@ -32,7 +54,7 @@ function initializeBookingSystem() {
 // Load clinic data from URL parameters
 async function loadClinicData() {
     const urlParams = new URLSearchParams(window.location.search);
-    const clinicId = urlParams.get('clinicId');
+    const clinicId = urlParams.get('clinicId') || urlParams.get('clinic');
     
     if (clinicId) {
         try {
@@ -298,7 +320,15 @@ function validateCurrentStep() {
             // For authenticated users, personal information comes from their profile
             // We just need to validate medical history if provided
             const authSystem = window.authSystem;
-            const isAuthenticated = authSystem && authSystem.isAuthenticated();
+            let isAuthenticated = false;
+            
+            // Try multiple ways to check authentication
+            if (authSystem && authSystem.isAuthenticated) {
+                isAuthenticated = authSystem.isAuthenticated();
+            } else {
+                // Fallback: check tokens directly
+                isAuthenticated = !!(localStorage.getItem('careGridToken') || sessionStorage.getItem('careGridToken'));
+            }
             
             if (!isAuthenticated) {
                 alert('You must be signed in to proceed. Please sign in to continue.');
@@ -418,7 +448,15 @@ async function submitBooking() {
     try {
         // Check if user is authenticated - this is now required
         const authSystem = window.authSystem;
-        const isAuthenticated = authSystem && authSystem.isAuthenticated();
+        let isAuthenticated = false;
+        
+        // Try multiple ways to check authentication
+        if (authSystem && authSystem.isAuthenticated) {
+            isAuthenticated = authSystem.isAuthenticated();
+        } else {
+            // Fallback: check tokens directly
+            isAuthenticated = !!(localStorage.getItem('careGridToken') || sessionStorage.getItem('careGridToken'));
+        }
         
         if (!isAuthenticated) {
             alert('You must be signed in to book an appointment. Please sign in and try again.');
@@ -649,7 +687,17 @@ function getSelectedServiceName() {
 // Populate user profile information in step 3
 function populateUserProfileInfo() {
     const authSystem = window.authSystem;
-    if (!authSystem || !authSystem.isAuthenticated()) {
+    let isAuthenticated = false;
+    
+    // Try multiple ways to check authentication
+    if (authSystem && authSystem.isAuthenticated) {
+        isAuthenticated = authSystem.isAuthenticated();
+    } else {
+        // Fallback: check tokens directly
+        isAuthenticated = !!(localStorage.getItem('careGridToken') || sessionStorage.getItem('careGridToken'));
+    }
+    
+    if (!isAuthenticated) {
         return;
     }
     

@@ -1,6 +1,6 @@
 /**
  * Google reCAPTCHA Integration Module
- * Handles reCAPTCHA v3 loading, execution, and validation
+ * Handles reCAPTCHA v2 and v3 loading, execution, and validation
  */
 
 class RecaptchaService {
@@ -9,16 +9,21 @@ class RecaptchaService {
         this.isLoaded = false;
         this.loadPromise = null;
         this.demoMode = false;
+        this.version = 'v2'; // Default to v2 for visual verification
+        this.widgetId = null;
     }
 
     /**
      * Initialize reCAPTCHA with site key
      * @param {string} siteKey - reCAPTCHA site key
+     * @param {string} version - reCAPTCHA version ('v2' or 'v3')
      */
-    async init(siteKey) {
+    async init(siteKey, version = 'v2') {
         if (this.isLoaded) {
             return true;
         }
+
+        this.version = version;
 
         // Handle demo mode
         if (siteKey === 'demo-mode' || window.DEVELOPMENT_MODE) {
@@ -46,7 +51,7 @@ class RecaptchaService {
         try {
             this.loadPromise = this.loadRecaptchaScript();
             await this.loadPromise;
-            console.log('reCAPTCHA initialized successfully');
+            console.log(`reCAPTCHA ${this.version} initialized successfully`);
             return true;
         } catch (error) {
             console.error('reCAPTCHA initialization failed:', error);
@@ -72,7 +77,14 @@ class RecaptchaService {
             }
 
             const script = document.createElement('script');
-            script.src = `https://www.google.com/recaptcha/api.js?render=${this.siteKey}`;
+            
+            if (this.version === 'v3') {
+                script.src = `https://www.google.com/recaptcha/api.js?render=${this.siteKey}`;
+            } else {
+                // v2 - load without render parameter for explicit rendering
+                script.src = 'https://www.google.com/recaptcha/api.js';
+            }
+            
             script.async = true;
             script.defer = true;
 
@@ -101,6 +113,109 @@ class RecaptchaService {
     }
 
     /**
+     * Render reCAPTCHA v2 widget (visible or invisible)
+     * @param {string|HTMLElement} container - Container element or ID
+     * @param {Object} options - reCAPTCHA options
+     * @returns {number} Widget ID
+     */
+    renderV2(container, options = {}) {
+        if (this.demoMode) {
+            console.log('reCAPTCHA demo mode: rendering demo widget');
+            const element = typeof container === 'string' ? document.getElementById(container) : container;
+            if (element) {
+                element.innerHTML = '<div style="border: 2px dashed #ccc; padding: 20px; text-align: center; background: #f9f9f9;">Demo reCAPTCHA Widget</div>';
+            }
+            return 'demo-widget-id';
+        }
+
+        if (!this.isLoaded || this.version !== 'v2') {
+            throw new Error('reCAPTCHA v2 not initialized');
+        }
+
+        const defaultOptions = {
+            sitekey: this.siteKey,
+            theme: 'light',
+            size: 'invisible', // Use invisible reCAPTCHA by default
+            ...options
+        };
+
+        this.widgetId = window.grecaptcha.render(container, defaultOptions);
+        return this.widgetId;
+    }
+
+    /**
+     * Execute invisible reCAPTCHA v2
+     * @param {number} widgetId - Widget ID (optional, uses stored widgetId if not provided)
+     * @returns {Promise<string>} reCAPTCHA response token
+     */
+    async executeV2(widgetId = null) {
+        if (this.demoMode) {
+            console.log('reCAPTCHA demo mode: returning demo response');
+            return 'demo-response-' + Date.now();
+        }
+
+        if (!this.isLoaded || this.version !== 'v2') {
+            throw new Error('reCAPTCHA v2 not initialized');
+        }
+
+        const id = widgetId || this.widgetId;
+        return new Promise((resolve, reject) => {
+            try {
+                window.grecaptcha.execute(id);
+                // Set up a callback to get the response
+                const checkResponse = () => {
+                    const response = window.grecaptcha.getResponse(id);
+                    if (response) {
+                        resolve(response);
+                    } else {
+                        setTimeout(checkResponse, 100);
+                    }
+                };
+                setTimeout(checkResponse, 100);
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
+    /**
+     * Get reCAPTCHA v2 response token
+     * @param {number} widgetId - Widget ID (optional, uses stored widgetId if not provided)
+     * @returns {string} reCAPTCHA response token
+     */
+    getResponseV2(widgetId = null) {
+        if (this.demoMode) {
+            console.log('reCAPTCHA demo mode: returning demo response');
+            return 'demo-response-' + Date.now();
+        }
+
+        if (!this.isLoaded || this.version !== 'v2') {
+            throw new Error('reCAPTCHA v2 not initialized');
+        }
+
+        const id = widgetId || this.widgetId;
+        return window.grecaptcha.getResponse(id);
+    }
+
+    /**
+     * Reset reCAPTCHA v2 widget
+     * @param {number} widgetId - Widget ID (optional, uses stored widgetId if not provided)
+     */
+    resetV2(widgetId = null) {
+        if (this.demoMode) {
+            console.log('reCAPTCHA demo mode: resetting demo widget');
+            return;
+        }
+
+        if (!this.isLoaded || this.version !== 'v2') {
+            throw new Error('reCAPTCHA v2 not initialized');
+        }
+
+        const id = widgetId || this.widgetId;
+        window.grecaptcha.reset(id);
+    }
+
+    /**
      * Execute reCAPTCHA and get token
      * @param {string} action - Action name for reCAPTCHA v3
      * @returns {Promise<string>} reCAPTCHA token
@@ -118,6 +233,11 @@ class RecaptchaService {
 
         if (!window.grecaptcha) {
             throw new Error('reCAPTCHA not available');
+        }
+
+        if (this.version === 'v2') {
+            // For v2 invisible, execute and get response
+            return this.executeV2();
         }
 
         try {

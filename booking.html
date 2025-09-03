@@ -585,8 +585,7 @@
     <script type="module" src="js/api-base.js?v=2025082510"></script>
     <script type="module" src="js/api-service.js?v=2025082509"></script>
 <script type="module" src="js/script.js?v=2025082510"></script>
-<script src="js/booking.js?v=2025082510"></script>
-<!-- booking functionality loaded lazily --><script>
+<!-- booking functionality loaded lazily by lazy-loader.js --><script>
         // Ensure goToStep function is available for dev button
         document.addEventListener('DOMContentLoaded', function() {
             // Wait a bit for scripts to load
@@ -606,70 +605,7 @@
     </script>
     <script type="module" src="js/auth.js?v=2025082510"></script>
     
-    <!-- Authentication Check for Booking -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Wait for auth system to initialize
-            setTimeout(function() {
-                checkBookingAuthentication();
-            }, 100);
-        });
-        
-        function checkBookingAuthentication() {
-            // Check if user is authenticated
-            const authSystem = window.authSystem;
-            const isAuthenticated = authSystem && authSystem.isAuthenticated();
-            
-            if (!isAuthenticated) {
-                // Store current page as redirect target
-                sessionStorage.setItem('authRedirect', window.location.href);
-                
-                // Show authentication required message
-                const bookingForm = document.querySelector('.booking-form');
-                if (bookingForm) {
-                    bookingForm.innerHTML = `
-                        <div style="text-align: center; padding: 60px 40px;">
-                            <div style="width: 80px; height: 80px; background: #ffd700; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 30px; color: #2A6EF3; font-size: 2rem;">
-                                <i class="fas fa-lock"></i>
-                            </div>
-                            <h3 style="color: #2A6EF3; margin-bottom: 20px; font-size: 1.8rem;">Authentication Required</h3>
-                            <p style="color: #666; margin-bottom: 30px; font-size: 1.1rem; line-height: 1.6;">
-                                To book an appointment, you need to sign in to your account or create a new account.
-                                This ensures we can properly manage your appointments and send you confirmations.
-                            </p>
-                            <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
-                                <a href="auth.html" class="btn btn-primary" style="padding: 15px 30px; font-size: 1.1rem;">
-                                    <i class="fas fa-sign-in-alt" style="margin-right: 8px;"></i>
-                                    Sign In
-                                </a>
-                                <a href="signup.html" class="btn btn-secondary" style="padding: 15px 30px; font-size: 1.1rem;">
-                                    <i class="fas fa-user-plus" style="margin-right: 8px;"></i>
-                                    Create Account
-                                </a>
-                            </div>
-                            <p style="margin-top: 30px; color: #888; font-size: 0.9rem;">
-                                <i class="fas fa-info-circle" style="margin-right: 5px;"></i>
-                                Your booking will be automatically linked to your account after you sign in.
-                            </p>
-                        </div>
-                    `;
-                }
-                
-                // Hide navigation buttons
-                const navButtons = document.getElementById('navigationButtons');
-                if (navButtons) {
-                    navButtons.style.display = 'none';
-                }
-                
-                console.log('User not authenticated - redirecting to sign in');
-                return false;
-            }
-            
-            // User is authenticated, proceed with booking
-            console.log('User authenticated - allowing booking');
-            return true;
-        }
-    </script>
+    <!-- Authentication is now handled by booking.js -->
     
     <!-- Lazy Loading Script -->
     <script src="js/lazy-loader.js?v=2025082509"></script>

@@ -309,10 +309,15 @@ class APIService {
         }
     }
 
-    async forgotPassword(email) {
+    async forgotPassword(email, recaptchaToken = null) {
+        const requestBody = { email };
+        if (recaptchaToken) {
+            requestBody.recaptchaToken = recaptchaToken;
+        }
+        
         const response = await this.makeRequest('/auth/forgot-password', {
             method: 'POST',
-            body: JSON.stringify({ email })
+            body: JSON.stringify(requestBody)
         });
         return response;
     }
@@ -325,10 +330,15 @@ class APIService {
         return response;
     }
 
-    async resetPassword(email, code, password) {
+    async resetPassword(email, code, password, recaptchaToken = null) {
+        const requestBody = { email, code, password };
+        if (recaptchaToken) {
+            requestBody.recaptchaToken = recaptchaToken;
+        }
+        
         const response = await this.makeRequest('/auth/reset-password', {
             method: 'POST',
-            body: JSON.stringify({ email, code, password })
+            body: JSON.stringify(requestBody)
         });
         return response;
     }
