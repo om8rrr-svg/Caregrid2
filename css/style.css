@@ -170,7 +170,7 @@
 }
 
 /* Responsive Design for Legal/Privacy Pages */
-@media (max-width: 768px) {
+@media (max-width: 480px) {
     .legal-content {
         padding: 30px 0;
     }
@@ -2737,7 +2737,7 @@ body {
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
+@media (max-width: 480px) {
     .hamburger {
         display: flex;
     }
@@ -2776,7 +2776,7 @@ body {
     }
     
     .location-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     }
     
     /* Mobile dropdown style for locations */

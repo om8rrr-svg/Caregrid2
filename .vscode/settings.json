@@ -100,5 +100,10 @@
   "liveServer.settings.host": "localhost",
   "liveServer.settings.port": 8080,
   "liveServer.settings.root": "/",
-  "liveServer.settings.file": "index.html"
+  "liveServer.settings.file": "index.html",
+  "python.testing.pytestArgs": [
+    "."
+  ],
+  "python.testing.unittestEnabled": false,
+  "python.testing.pytestEnabled": true
 }

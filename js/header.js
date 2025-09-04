@@ -1,31 +1,35 @@
-// /js/header.js
+// Header navigation management
 import { buildUrl } from './api-base.js';
 
 function isAuthenticated() {
-  // Use apiService for consistent token management if available
-  if (window.apiService) {
-    return !!window.apiService.getStoredToken();
+  const token = localStorage.getItem('careGridToken') || sessionStorage.getItem('careGridToken');
+  if (!token) {
+    return false;
   }
-  // Fallback to direct storage access
-  return !!(localStorage.getItem('careGridToken') || sessionStorage.getItem('careGridToken'));
+  // Basic token validation - check if it's not expired
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.exp * 1000 > Date.now();
+  } catch {
+    return false;
+  }
 }
 
 function getCurrentUser() {
-  try {
-    return JSON.parse(localStorage.getItem('careGridCurrentUser') || sessionStorage.getItem('careGridCurrentUser') || 'null');
-  } catch {
-    return null;
-  }
+  return JSON.parse(localStorage.getItem('careGridCurrentUser') || sessionStorage.getItem('careGridCurrentUser') || 'null');
 }
 
 async function getSession() {
   try {
     const token = localStorage.getItem('careGridToken') || sessionStorage.getItem('careGridToken');
+    
     if (!token) {
       return { authenticated: false, user: null };
     }
 
-    const response = await fetch(buildUrl('/api/auth/me'), {
+    // Validate token
+    const response = await fetch(buildUrl('/api/auth/validate'), {
+      method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
@@ -33,10 +37,13 @@ async function getSession() {
     });
 
     if (response.ok) {
-      const userData = await response.json();
-      return { authenticated: true, user: userData };
+      const data = await response.json();
+      return {
+        authenticated: true,
+        user: data.user || getCurrentUser()
+      };
     } else {
-      // Token might be invalid, clear it
+      // Token is invalid, clean up
       localStorage.removeItem('careGridToken');
       sessionStorage.removeItem('careGridToken');
       localStorage.removeItem('careGridCurrentUser');
@@ -44,7 +51,7 @@ async function getSession() {
       return { authenticated: false, user: null };
     }
   } catch (error) {
-    console.error('Session check failed:', error);
+    console.error('Session validation error:', error);
     return { authenticated: false, user: null };
   }
 }
@@ -67,6 +74,7 @@ export async function renderNavAuth() {
       
       // If user data is available from currentUser, use it as fallback
       if (!userName || userName === 'User') {
+        const currentUser = getCurrentUser();
         if (currentUser && currentUser.firstName) {
           const firstName = currentUser.firstName || '';
           const lastName = currentUser.lastName || '';
@@ -82,80 +90,19 @@ export async function renderNavAuth() {
         }
       }
       
-      if (userMenuContainer && signInContainer) {
-        // Use the new Bootstrap dropdown structure
-        userMenuContainer.innerHTML = `
-          <div class="dropdown">
-            <button class="btn btn-outline-primary dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-              <i class="fas fa-user me-2"></i>${userName}
-            </button>
-            <ul class="dropdown-menu" aria-labelledby="userDropdown">
-              <li><a class="dropdown-item" href="dashboard.html"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a></li>
-              <li><a class="dropdown-item" href="profile.html"><i class="fas fa-user-edit me-2"></i>Profile</a></li>
-              <li><a class="dropdown-item" href="booking.html"><i class="fas fa-calendar-plus me-2"></i>Book Appointment</a></li>
-              <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item" href="#" onclick="logout()"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
-            </ul>
-          </div>
-        `;
-        
-        userMenuContainer.style.display = 'block';
-        signInContainer.style.display = 'none';
-      } else if (authNavItem && userNavItem) {
-        // Use the existing nav structure
-        // Hide Sign In, show Dashboard and Logout only
+      // Update user name in the existing navigation structure
+      const userNameElement = document.getElementById('userName');
+      if (userNameElement) {
+        userNameElement.textContent = userName;
+      }
+      
+      // Show user menu, hide sign in
       authNavItem.style.display = 'none';
       userNavItem.style.display = 'block';
-      
-        const userName = session.user?.firstName || session.user?.name || 'User';
-        
-        // Update user menu content with proper accessibility
-        const userMenu = userNavItem.querySelector('.user-menu');
-        if (userMenu) {
-          userMenu.innerHTML = `
-            <div class="user-avatar" onclick="toggleUserMenu()" 
-                 aria-expanded="false" 
-                 aria-controls="userDropdown" 
-                 aria-label="User menu for ${userName}"
-                 role="button" 
-                 tabindex="0"
-                 onkeydown="if(event.key==='Enter'||event.key===' ')toggleUserMenu()">
-              <img src="images/default-avatar.svg" alt="User Avatar" id="userAvatar">
-              <span class="user-name" id="userName">${userName}</span>
-              <i class="fas fa-chevron-down"></i>
-            </div>
-            <div class="user-dropdown" id="userDropdown" role="menu">
-              <a href="dashboard.html" class="dropdown-item" role="menuitem">
-                <i class="fas fa-tachometer-alt"></i>
-                Dashboard
-              </a>
-              <a href="#" class="dropdown-item" id="logoutLink" role="menuitem">
-                <i class="fas fa-sign-out-alt"></i>
-                Logout
-              </a>
-            </div>
-          `;
-          
-          // Add logout functionality
-          const logoutLink = userMenu.querySelector('#logoutLink');
-          if (logoutLink) {
-            logoutLink.addEventListener('click', (e) => {
-              e.preventDefault();
-              logout();
-            });
-          }
-        }
-      }
     } else {
       // Show Sign In only, hide user menu
-      if (authNavItem && userNavItem) {
-        authNavItem.style.display = 'block';
-        userNavItem.style.display = 'none';
-      }
-      if (userMenuContainer && signInContainer) {
-        userMenuContainer.style.display = 'none';
-        signInContainer.style.display = 'block';
-      }
+      authNavItem.style.display = 'block';
+      userNavItem.style.display = 'none';
     }
   } catch (error) {
     console.error('Error rendering navigation:', error);
@@ -172,52 +119,37 @@ export function logout() {
   localStorage.removeItem('careGridCurrentUser');
   sessionStorage.removeItem('careGridCurrentUser');
   
-  // Use apiService to clear auth data if available
-  if (window.apiService && typeof window.apiService.clearAuthData === 'function') {
-    window.apiService.clearAuthData();
-  }
-  
   // Dispatch auth state change event
   window.dispatchEvent(new CustomEvent('authStateChanged'));
   
-  // Update navigation immediately
-  setTimeout(() => renderNavAuth(), 50);
-  
-  // Redirect to home
-  window.location.href = '/';
+  // Redirect to home page
+  window.location.href = 'index.html';
 }
 
-// Toggle user menu dropdown
 function toggleUserMenu() {
-  const dropdown = document.getElementById('userDropdown');
-  const avatar = document.querySelector('.user-avatar');
+  const userDropdown = document.getElementById('userDropdown');
+  const userAvatar = document.querySelector('.user-avatar');
   
-  if (dropdown && avatar) {
-    const isOpen = dropdown.style.display === 'block';
-    dropdown.style.display = isOpen ? 'none' : 'block';
-    avatar.setAttribute('aria-expanded', !isOpen);
+  if (userDropdown && userAvatar) {
+    const isExpanded = userAvatar.getAttribute('aria-expanded') === 'true';
     
-    // Close dropdown when clicking outside
-    if (!isOpen) {
-      const handleClickOutside = (event) => {
-        if (!dropdown.contains(event.target) && !avatar.contains(event.target)) {
-          dropdown.style.display = 'none';
-          avatar.setAttribute('aria-expanded', 'false');
-          document.removeEventListener('click', handleClickOutside);
-        }
-      };
-      setTimeout(() => document.addEventListener('click', handleClickOutside), 0);
+    if (isExpanded) {
+      userDropdown.style.display = 'none';
+      userAvatar.setAttribute('aria-expanded', 'false');
+    } else {
+      userDropdown.style.display = 'block';
+      userAvatar.setAttribute('aria-expanded', 'true');
     }
   }
 }
 
-// Make functions globally available
+// Export functions to window for global access
 window.renderNavAuth = renderNavAuth;
 window.logout = logout;
 window.getSession = getSession;
 window.toggleUserMenu = toggleUserMenu;
 
-// Update auth state on auth changes
+// Listen for auth state changes
 window.addEventListener('authStateChanged', renderNavAuth);
 
 // Listen for user data updates
@@ -225,5 +157,5 @@ window.addEventListener('userDataLoaded', function(event) {
   renderNavAuth();
 });
 
-// Initial render when DOM is loaded
+// Initialize on DOM load
 document.addEventListener('DOMContentLoaded', renderNavAuth);

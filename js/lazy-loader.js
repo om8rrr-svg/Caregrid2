@@ -162,12 +162,12 @@ const lazyLoadingConfigs = {
         method: 'focus'
     },
     
-    // Load booking functionality when booking section is visible
-    booking: {
-        scripts: ['js/booking.js'],
-        trigger: '.booking-section, .book-appointment',
-        method: 'visible'
-    },
+    // Booking functionality is now loaded directly in booking.html
+    // booking: {
+    //     scripts: ['js/booking.js'],
+    //     trigger: '.booking-section, .book-appointment',
+    //     method: 'visible'
+    // },
     
     // Load dashboard functionality after user interaction
     dashboard: {

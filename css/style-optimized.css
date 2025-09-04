@@ -84,7 +84,7 @@ transform: rotate(-45deg) translate(-5px, 6px)}
 opacity: 0}
  .hamburger.active .bar:nth-child(3){
 transform: rotate(45deg) translate(-5px, -6px)}
- @media (max-width: 768px){
+ @media (max-width: 480px){
 .nav-container{
 padding: 0 20px}
  .nav-menu{
@@ -610,7 +610,7 @@ display: flex;align-items: center;gap: 15px;margin-bottom: 25px;position: relati
 content: '';position: absolute;bottom: -10px;left: 0;width: 60px;height: 3px;background: linear-gradient(135deg, #3b82f6, #8b5cf6);border-radius: 2px}
  .footer-bottom{
 border-top: 1px solid rgba(255, 255, 255, 0.1);padding-top: 30px;text-align: center;color: #94a3b8;position: relative;z-index: 2;backdrop-filter: blur(10px);font-weight: 500}
- @media (max-width: 768px){
+ @media (max-width: 480px){
 .hamburger{
 display: flex}
  .nav-menu{
@@ -626,7 +626,7 @@ font-size: 2rem}
  .category-grid{
 grid-template-columns: repeat(2, 1fr)}
  .location-grid{
-grid-template-columns: 1fr}
+grid-template-columns: repeat(auto-fit, minmax(200px, 1fr))}
  .locations .location-grid{
 display: none}
  .locations::after{

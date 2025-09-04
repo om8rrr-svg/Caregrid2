@@ -1799,6 +1799,7 @@
             loadClinicProfile();
         }
     </script>
+    <script src="js/config.js?v=2025082511"></script>
     <script type="module" src="js/api-base.js?v=2025082511"></script>
     <script type="module" src="js/api-service.js?v=2025082511"></script>
     <script type="module" src="js/auth.js?v=2025082511"></script>
@@ -1816,7 +1817,7 @@
             const id = urlParams.get('id');
             if (!id) return;
             
-            const res = await fetch(`/api/clinics?id=${id}`).catch(()=>null);
+            const res = await fetch(`${window.__API_BASE__ || 'http://localhost:3000'}/api/clinics?id=${id}`).catch(()=>null);
             const clinic = res ? await res.json() : {};
             const tel = document.querySelector("#cta-call");
             const eml = document.querySelector("#cta-email");
