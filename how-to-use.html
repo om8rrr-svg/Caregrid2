@@ -785,6 +785,7 @@
     </footer>
 
     <!-- Scripts -->
+    <script src="js/config.js?v=2025082512"></script>
     <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
     <script type="module" src="js/script.js?v=2025082510"></script>
     <script>
@@ -800,12 +801,14 @@
             const dropdown = document.getElementById('userDropdown');
             const avatar = document.querySelector('.user-avatar');
             
-            if (dropdown.hidden) {
-                dropdown.hidden = false;
-                avatar.setAttribute('aria-expanded', 'true');
-            } else {
-                dropdown.hidden = true;
-                avatar.setAttribute('aria-expanded', 'false');
+            if (dropdown && avatar) {
+                if (dropdown.hidden) {
+                    dropdown.hidden = false;
+                    avatar.setAttribute('aria-expanded', 'true');
+                } else {
+                    dropdown.hidden = true;
+                    avatar.setAttribute('aria-expanded', 'false');
+                }
             }
         }
 
@@ -813,10 +816,11 @@
         document.addEventListener('click', function(event) {
             const userMenu = document.querySelector('.user-menu');
             const dropdown = document.getElementById('userDropdown');
+            const avatar = document.querySelector('.user-avatar');
             
-            if (userMenu && !userMenu.contains(event.target)) {
+            if (userMenu && dropdown && avatar && !userMenu.contains(event.target)) {
                 dropdown.hidden = true;
-                document.querySelector('.user-avatar').setAttribute('aria-expanded', 'false');
+                avatar.setAttribute('aria-expanded', 'false');
             }
         });
 
@@ -840,6 +844,6 @@
             }
         });    </script>
     
-    <script type="module" src="js/header.js"></script>
+    <script type="module" src="js/header.js?v=1734915700"></script>
 </body>
 </html>

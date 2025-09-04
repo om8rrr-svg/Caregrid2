@@ -8,7 +8,7 @@ async function guard() {
   const t = window.apiService ? window.apiService.getStoredToken() : getToken();
   if (!t) {
     showError('No authentication token found. Please sign in.');
-    setTimeout(() => window.location.href = '/auth.html', 2000);
+    setTimeout(() => window.location.href = 'auth.html', 2000);
     return Promise.reject(new Error('no_token'));
   }
   
@@ -37,7 +37,7 @@ async function guard() {
       setTimeout(() => window.location.reload(), 3000);
     } else {
       showError('Invalid authentication. Redirecting to sign in...');
-      setTimeout(() => window.location.href = '/auth.html', 2000);
+      setTimeout(() => window.location.href = 'auth.html', 2000);
     }
     return Promise.reject(error);
   }

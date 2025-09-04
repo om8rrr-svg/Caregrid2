@@ -1,10 +1,10 @@
 // /js/api-base.js
-// Centralized API base configuration
+// Centralized API base configuration - LOCAL DEVELOPMENT MODE
 export const API_BASE =
   (typeof window !== 'undefined' && window.__API_BASE__) ||
   (typeof process !== 'undefined' && (process.env?.NEXT_PUBLIC_API_BASE || process.env?.API_BASE)) ||
-  // In browser environment, use relative '/api' to enable Vercel proxy rewrites
-  (typeof window !== 'undefined' ? '/api' : 'http://localhost:3000/api');
+  // Use local backend for development
+  'http://localhost:3000/api';
 
 export function buildUrl(path, params = {}) {
   const base = API_BASE.endsWith('/') ? API_BASE : API_BASE + '/';

@@ -535,6 +535,317 @@ class EmailService {
       </html>
     `;
   }
+
+  // Send alert email
+  async sendAlertEmail(alert, recipients = null) {
+    try {
+      const subject = `[CareGrid Alert] ${alert.severity.toUpperCase()}: ${alert.title}`;
+      
+      const htmlContent = this.generateAlertEmailTemplate(alert);
+      
+      const to = recipients || process.env.DEFAULT_ALERT_EMAIL || 'ops@caregrid.com';
+      
+      const mailOptions = {
+        from: process.env.EMAIL_FROM || 'noreply@caregrid.com',
+        to,
+        subject,
+        html: htmlContent
+      };
+      
+      if (this.transporter) {
+        const info = await this.transporter.sendMail(mailOptions);
+        console.log('✅ Alert email sent successfully:', info.messageId);
+        
+        if (process.env.NODE_ENV === 'development') {
+          console.log('📧 Preview URL:', nodemailer.getTestMessageUrl(info));
+        }
+        
+        return { success: true, messageId: info.messageId };
+      } else {
+        console.warn('⚠️ Email transporter not initialized - cannot send alert email');
+        return { success: false, error: 'Email service not configured' };
+      }
+      
+    } catch (error) {
+      console.error('❌ Failed to send alert email:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Generate alert email template
+  generateAlertEmailTemplate(alert) {
+    const severityColor = {
+      low: '#28a745',
+      medium: '#ffc107',
+      high: '#fd7e14',
+      critical: '#dc3545'
+    }[alert.severity] || '#6c757d';
+    
+    const statusColor = {
+      active: '#dc3545',
+      acknowledged: '#ffc107',
+      resolved: '#28a745'
+    }[alert.status] || '#6c757d';
+    
+    const severityIcon = {
+      low: '🟢',
+      medium: '🟡',
+      high: '🟠',
+      critical: '🔴'
+    }[alert.severity] || '⚪';
+    
+    return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CareGrid Alert</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f8f9fa;
+    }
+    .container {
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+      padding: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 8px;
+      color: white;
+    }
+    .alert-title {
+      color: white;
+      margin: 0;
+      font-size: 24px;
+    }
+    .alert-meta {
+      margin: 20px 0;
+      background: #f8fafc;
+      padding: 20px;
+      border-radius: 8px;
+      border-left: 4px solid ${severityColor};
+    }
+    .meta-item {
+      margin: 12px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .label {
+      font-weight: 600;
+      color: #475569;
+      min-width: 100px;
+    }
+    .value {
+      color: #1e293b;
+      flex: 1;
+      text-align: right;
+    }
+    .severity {
+      padding: 6px 12px;
+      border-radius: 20px;
+      color: white;
+      font-weight: 600;
+      font-size: 12px;
+      text-transform: uppercase;
+      background-color: ${severityColor};
+    }
+    .status {
+      padding: 6px 12px;
+      border-radius: 20px;
+      color: white;
+      font-weight: 600;
+      font-size: 12px;
+      text-transform: uppercase;
+      background-color: ${statusColor};
+    }
+    .description {
+      background: #eff6ff;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+      border-left: 4px solid #3b82f6;
+    }
+    .description h3 {
+      color: #1e40af;
+      margin-top: 0;
+    }
+    .metadata {
+      background: #f1f5f9;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+    .metadata h3 {
+      color: #334155;
+      margin-top: 0;
+    }
+    .metadata pre {
+      background: #ffffff;
+      padding: 15px;
+      border-radius: 4px;
+      overflow-x: auto;
+      border: 1px solid #e2e8f0;
+      font-size: 12px;
+    }
+    .actions {
+      background: #ecfdf5;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+      border-left: 4px solid #10b981;
+    }
+    .actions h3 {
+      color: #047857;
+      margin-top: 0;
+    }
+    .actions ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+    .actions li {
+      margin: 8px 0;
+      color: #1e293b;
+    }
+    .dashboard-link {
+      display: inline-block;
+      padding: 12px 24px;
+      background: #2563eb;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: 600;
+      margin: 10px 0;
+    }
+    .footer {
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid #e2e8f0;
+      text-align: center;
+      color: #64748b;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1 class="alert-title">${severityIcon} CareGrid System Alert</h1>
+    </div>
+    
+    <div class="alert-meta">
+      <div class="meta-item">
+        <span class="label">Alert ID:</span>
+        <span class="value">${alert.id}</span>
+      </div>
+      <div class="meta-item">
+        <span class="label">Type:</span>
+        <span class="value">${alert.type}</span>
+      </div>
+      <div class="meta-item">
+        <span class="label">Severity:</span>
+        <span class="value">
+          <span class="severity">${alert.severity.toUpperCase()}</span>
+        </span>
+      </div>
+      <div class="meta-item">
+        <span class="label">Status:</span>
+        <span class="value">
+          <span class="status">${alert.status.toUpperCase()}</span>
+        </span>
+      </div>
+      <div class="meta-item">
+        <span class="label">Created:</span>
+        <span class="value">${new Date(alert.createdAt).toLocaleString()}</span>
+      </div>
+    </div>
+    
+    <div class="description">
+      <h3>📋 Alert Description</h3>
+      <p><strong>${alert.title}</strong></p>
+      <p>${alert.description || 'No additional description provided.'}</p>
+    </div>
+    
+    ${alert.metadata && Object.keys(alert.metadata).length > 0 ? `
+    <div class="metadata">
+      <h3>📊 Additional Information</h3>
+      <pre>${JSON.stringify(alert.metadata, null, 2)}</pre>
+    </div>
+    ` : ''}
+    
+    <div class="actions">
+      <h3>🔧 Recommended Actions</h3>
+      <ul>
+        <li>Check the CareGrid Operations Dashboard for real-time status</li>
+        <li>Review system logs and performance metrics</li>
+        <li>Investigate the root cause of the issue</li>
+        <li>Acknowledge this alert once you begin investigation</li>
+        <li>Resolve the alert once the issue is fixed</li>
+      </ul>
+      <p>
+        <a href="${process.env.DASHBOARD_URL || 'http://localhost:3001'}" class="dashboard-link">
+          🚀 Open Operations Dashboard
+        </a>
+      </p>
+    </div>
+    
+    <div class="footer">
+      <p><strong>CareGrid Operations Monitoring</strong></p>
+      <p>This is an automated alert notification. Please do not reply to this email.</p>
+      <p>For support, contact: ${process.env.SUPPORT_EMAIL || 'support@caregrid.com'}</p>
+    </div>
+  </div>
+</body>
+</html>
+    `;
+  }
+
+  // Test alert email
+  async testAlertEmail() {
+    const testAlert = {
+      id: 'test-alert-' + Date.now(),
+      type: 'health_check_failed',
+      severity: 'high',
+      status: 'active',
+      title: 'Test Alert - Email Service Verification',
+      description: 'This is a test alert to verify the email notification system is working correctly.',
+      createdAt: new Date().toISOString(),
+      metadata: {
+        source: 'email_service_test',
+        timestamp: new Date().toISOString(),
+        testData: {
+          emailService: 'operational',
+          alerting: 'functional'
+        }
+      }
+    };
+    
+    return await this.sendAlertEmail(testAlert);
+  }
+
+  // Get email service status
+  getEmailServiceStatus() {
+    return {
+      initialized: !!this.transporter,
+      configured: !!(process.env.EMAIL_USER && process.env.EMAIL_PASSWORD),
+      service: process.env.EMAIL_SERVICE || 'gmail',
+      from: process.env.EMAIL_FROM || 'noreply@caregrid.com',
+      defaultAlertEmail: process.env.DEFAULT_ALERT_EMAIL || 'ops@caregrid.com',
+      timestamp: new Date().toISOString()
+    };
+  }
 }
 
 module.exports = new EmailService();

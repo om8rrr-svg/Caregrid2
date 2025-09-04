@@ -60,6 +60,16 @@ const clinicRoutes = require('./routes/clinics');
 const appointmentRoutes = require('./routes/appointments');
 const contactRoutes = require('./routes/contact');
 const debugRoutes = require('./routes/debug');
+const { router: healthRoutes, trackRequestMetrics } = require('./routes/health');
+const syntheticRoutes = require('./routes/synthetic');
+const alertingRoutes = require('./routes/alerting');
+const healthMonitoringRoutes = require('./routes/healthMonitoring');
+const maintenanceRoutes = require('./routes/maintenance');
+const featureFlagsRoutes = require('./routes/feature-flags');
+const { startScheduler } = require('./services/syntheticScheduler');
+const { initializeAlerting } = require('./services/alerting');
+const { initializeHealthScheduler } = require('./services/healthScheduler');
+const { initializeMaintenanceService, maintenanceMiddleware } = require('./services/maintenanceService');
 const { errorHandler } = require('./middleware/errorHandler');
 const { authenticateToken } = require('./middleware/auth');
 
@@ -152,119 +162,24 @@ app.use(express.urlencoded({ extended: true }));
 // Logging
 app.use(morgan('combined'));
 
-// Simple health check endpoint (accessible via /health)
-app.get('/health', (req, res) => res.json({ ok: true }));
+// Add request metrics tracking
+app.use(trackRequestMetrics);
 
-// Deployment status endpoint
-app.get('/deployment-status', async (req, res) => {
-  const fs = require('fs');
-  let dbSetupStatus = 'unknown';
-  let lastSetupAttempt = null;
-  
-  try {
-    if (fs.existsSync('/tmp/db-setup-failed')) {
-      dbSetupStatus = 'failed';
-      const stats = fs.statSync('/tmp/db-setup-failed');
-      lastSetupAttempt = stats.mtime;
-    } else {
-      dbSetupStatus = 'ok';
-    }
-  } catch (error) {
-    // Ignore file system errors
-  }
-  
-  // Try to test database connection
-  let dbConnection = 'unknown';
-  try {
-    const { testConnection } = require('./config/database');
-    await testConnection();
-    dbConnection = 'connected';
-  } catch (error) {
-    dbConnection = 'failed';
-  }
-  
-  const status = {
-    timestamp: new Date().toISOString(),
-    service: 'CareGrid API',
-    version: require('./package.json').version,
-    environment: process.env.NODE_ENV || 'development',
-    port: PORT,
-    database: {
-      setup_status: dbSetupStatus,
-      connection_status: dbConnection,
-      last_setup_attempt: lastSetupAttempt
-    },
-    environment_check: {
-      has_jwt_secret: !!process.env.JWT_SECRET,
-      has_database_config: !!(process.env.DATABASE_URL || (process.env.DB_HOST && process.env.DB_NAME)),
-      has_cors_config: !!process.env.CORS_ORIGIN,
-      has_email_config: !!(process.env.EMAIL_SERVICE && process.env.EMAIL_USER)
-    }
-  };
-  
-  const overallHealthy = dbConnection === 'connected' && 
-                        (dbSetupStatus === 'ok' || dbSetupStatus === 'unknown');
-  
-  res.status(overallHealthy ? 200 : 503).json(status);
+// Maintenance mode middleware (before routes)
+app.use(maintenanceMiddleware);
 
+// Legacy deployment status endpoint (redirects to new health system)
+app.get('/deployment-status', (req, res) => {
+  res.redirect(301, '/health/detailed');
 });
 
-// Database health check endpoint with retry logic
-app.get('/health/db', async (req, res) => {
-  const maxRetries = 3;
-  const retryDelay = 1000;
-  
-  for (let attempt = 1; attempt <= maxRetries; attempt++) {
-    try {
-      const { testConnection } = require('./config/database');
-      await testConnection();
-      res.status(200).json({
-        status: 'OK',
-        database: 'Connected',
-        timestamp: new Date().toISOString(),
-        attempt: attempt
-      });
-      return;
-    } catch (error) {
-      if (attempt === maxRetries) {
-        res.status(503).json({
-          status: 'ERROR',
-          database: 'Disconnected',
-          error: error.message,
-          timestamp: new Date().toISOString(),
-          attempts: maxRetries
-        });
-        return;
-      }
-      await new Promise(resolve => setTimeout(resolve, retryDelay));
-    }
-  }
+// Legacy health endpoints (redirect to new health system)
+app.get('/health/db', (req, res) => {
+  res.redirect(301, '/health/database');
 });
 
-// Comprehensive system health endpoint
-app.get('/health/system', async (req, res) => {
-  const health = {
-    status: 'OK',
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
-    environment: process.env.NODE_ENV || 'development',
-    version: '1.0.0',
-    memory: process.memoryUsage(),
-    database: 'Unknown'
-  };
-  
-  try {
-    const { testConnection } = require('./config/database');
-    await testConnection();
-    health.database = 'Connected';
-  } catch (error) {
-    health.database = 'Disconnected';
-    health.status = 'DEGRADED';
-    health.databaseError = error.message;
-  }
-  
-  const statusCode = health.status === 'OK' ? 200 : 503;
-  res.status(statusCode).json(health);
+app.get('/health/system', (req, res) => {
+  res.redirect(301, '/health/detailed');
 });
 
 // API freshness - no stale data for JSON endpoints
@@ -280,6 +195,12 @@ app.use('/api/clinics', clinicRoutes);
 app.use('/api/appointments', appointmentRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/debug', debugRoutes);
+app.use('/health', healthRoutes);
+app.use('/api/synthetic', syntheticRoutes);
+app.use('/api/alerts', alertingRoutes);
+app.use('/api/health-monitoring', healthMonitoringRoutes);
+app.use('/api/maintenance', maintenanceRoutes);
+app.use('/api/feature-flags', featureFlagsRoutes);
 
 // 404 handler
 app.use('*', (req, res) => {
@@ -291,23 +212,72 @@ app.use('*', (req, res) => {
 
 // Global error handler
 app.use(errorHandler);
-
 // Start server
 app.listen(PORT, () => {
   console.log(`🚀 CareGrid API server running on port ${PORT}`);
   console.log(`📊 Health check: http://localhost:${PORT}/health`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+  
+  // Start synthetic monitoring scheduler
+  startScheduler();
+  
+  // Initialize alerting system
+  initializeAlerting();
+  
+  // Initialize health monitoring scheduler
+  initializeHealthScheduler();
+  
+  // Initialize maintenance service
+  initializeMaintenanceService();
 });
 
 // Graceful shutdown
-process.on('SIGTERM', () => {
+const { gracefulShutdown } = require('./services/maintenanceService');
+
+process.on('SIGTERM', async () => {
   console.log('SIGTERM received, shutting down gracefully');
-  process.exit(0);
+  try {
+    await gracefulShutdown({ reason: 'SIGTERM signal received' });
+    process.exit(0);
+  } catch (error) {
+    console.error('Error during graceful shutdown:', error);
+    process.exit(1);
+  }
 });
 
-process.on('SIGINT', () => {
+process.on('SIGINT', async () => {
   console.log('SIGINT received, shutting down gracefully');
-  process.exit(0);
+  try {
+    await gracefulShutdown({ reason: 'SIGINT signal received' });
+    process.exit(0);
+  } catch (error) {
+    console.error('Error during graceful shutdown:', error);
+    process.exit(1);
+  }
 });
+
+// Handle uncaught exceptions
+process.on('uncaughtException', async (error) => {
+  console.error('Uncaught Exception:', error);
+  try {
+    await gracefulShutdown({ reason: 'Uncaught exception', gracePeriod: 5000 });
+    process.exit(1);
+  } catch (shutdownError) {
+    console.error('Error during emergency shutdown:', shutdownError);
+    process.exit(1);
+  }
+});
+
+// Handle unhandled promise rejections
+ process.on('unhandledRejection', async (reason, promise) => {
+   console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+   try {
+     await gracefulShutdown({ reason: 'Unhandled promise rejection', gracePeriod: 5000 });
+     process.exit(1);
+   } catch (shutdownError) {
+     console.error('Error during emergency shutdown:', shutdownError);
+     process.exit(1);
+   }
+ });
 
 module.exports = app;

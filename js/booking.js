@@ -1,7 +1,10 @@
 // Booking system functionality
-let bookingCurrentStep = 1;
-let selectedTimeSlot = null;
-let bookingData = {};
+(function() {
+    'use strict';
+    
+    let currentBookingStep = 1;
+    let selectedTimeSlot = null;
+    let bookingData = {};
 
 // Initialize booking system
 document.addEventListener('DOMContentLoaded', function() {
@@ -12,7 +15,10 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initializeBookingSystem() {
-    // Check authentication before initializing booking
+    // Always load clinic data first (doesn't require authentication)
+    loadClinicData();
+    
+    // Check authentication for booking functionality
     const authSystem = window.authSystem;
     let isAuthenticated = false;
     
@@ -25,13 +31,12 @@ function initializeBookingSystem() {
     }
     
     if (!isAuthenticated) {
-        console.log('User not authenticated - booking system not initialized');
-        // Try again after a longer delay
+        console.log('User not authenticated - limited booking functionality');
+        // Try again after a longer delay for full functionality
         setTimeout(function() {
             const retryAuth = !!(localStorage.getItem('careGridToken') || sessionStorage.getItem('careGridToken'));
             if (retryAuth) {
-                console.log('Authentication found on retry - initializing booking system');
-                loadClinicData();
+                console.log('Authentication found on retry - enabling full booking system');
                 setupDatePicker();
                 setupTimeSlots();
                 setupFormValidation();
@@ -41,8 +46,7 @@ function initializeBookingSystem() {
         return;
     }
     
-    console.log('User authenticated - initializing booking system');
-    loadClinicData();
+    console.log('User authenticated - initializing full booking system');
     setupDatePicker();
     setupTimeSlots();
     setupFormValidation();
@@ -55,6 +59,8 @@ function initializeBookingSystem() {
 async function loadClinicData() {
     const urlParams = new URLSearchParams(window.location.search);
     const clinicId = urlParams.get('clinicId') || urlParams.get('clinic');
+    
+    console.log('loadClinicData called with clinicId:', clinicId);
     
     if (clinicId) {
         try {
@@ -77,8 +83,10 @@ async function loadClinicData() {
             console.error('Failed to load clinic data from API:', error);
             
             // Fallback to local data if available
+            console.log('Attempting fallback to local data. clinicsData available:', !!window.clinicsData);
             if (window.clinicsData) {
                 const clinic = window.clinicsData.find(c => c.id == clinicId);
+                console.log('Found clinic in local data:', clinic);
                 if (clinic) {
                     document.getElementById('clinicName').textContent = clinic.name;
                     document.getElementById('clinicAddress').textContent = clinic.address;
@@ -235,24 +243,24 @@ function setupFormValidation() {
 // Navigation functions
 function nextStep() {
     if (validateCurrentStep()) {
-        if (bookingCurrentStep < 4) {
+        if (currentBookingStep < 4) {
             // Hide current step
-            document.getElementById(`bookingStep${bookingCurrentStep}`).classList.remove('active');
-            document.getElementById(`step${bookingCurrentStep}`).classList.remove('active');
-            document.getElementById(`step${bookingCurrentStep}`).classList.add('completed');
+            document.getElementById(`bookingStep${currentBookingStep}`).classList.remove('active');
+            document.getElementById(`step${currentBookingStep}`).classList.remove('active');
+            document.getElementById(`step${currentBookingStep}`).classList.add('completed');
             
             // Show next step
-            bookingCurrentStep++;
-            document.getElementById(`bookingStep${bookingCurrentStep}`).classList.add('active');
-            document.getElementById(`step${bookingCurrentStep}`).classList.add('active');
+            currentBookingStep++;
+            document.getElementById(`bookingStep${currentBookingStep}`).classList.add('active');
+            document.getElementById(`step${currentBookingStep}`).classList.add('active');
             
             // Update summary if on confirmation step
-            if (bookingCurrentStep === 4) {
+            if (currentBookingStep === 4) {
                 updateBookingSummary();
             }
             
             // Populate user profile info if on step 3
-            if (bookingCurrentStep === 3) {
+            if (currentBookingStep === 3) {
                 populateUserProfileInfo();
             }
             
@@ -265,16 +273,16 @@ function nextStep() {
 }
 
 function previousStep() {
-    if (bookingCurrentStep > 1) {
+    if (currentBookingStep > 1) {
         // Hide current step
-        document.getElementById(`bookingStep${bookingCurrentStep}`).classList.remove('active');
-        document.getElementById(`step${bookingCurrentStep}`).classList.remove('active');
+        document.getElementById(`bookingStep${currentBookingStep}`).classList.remove('active');
+        document.getElementById(`step${currentBookingStep}`).classList.remove('active');
         
         // Show previous step
-        bookingCurrentStep--;
-        document.getElementById(`bookingStep${bookingCurrentStep}`).classList.add('active');
-        document.getElementById(`step${bookingCurrentStep}`).classList.add('active');
-        document.getElementById(`step${bookingCurrentStep}`).classList.remove('completed');
+        currentBookingStep--;
+        document.getElementById(`bookingStep${currentBookingStep}`).classList.add('active');
+        document.getElementById(`step${currentBookingStep}`).classList.add('active');
+        document.getElementById(`step${currentBookingStep}`).classList.remove('completed');
         
         updateNavigationButtons();
     }
@@ -282,7 +290,7 @@ function previousStep() {
 
 // Validate current step
 function validateCurrentStep() {
-    switch(bookingCurrentStep) {
+    switch(currentBookingStep) {
         case 1:
             const serviceType = document.getElementById('serviceType').value;
             const reason = document.getElementById('appointmentReason').value.trim();
@@ -375,7 +383,7 @@ function updateNavigationButtons() {
     
     // Show/hide previous button
     if (prevBtn) {
-        if (bookingCurrentStep > 1) {
+        if (currentBookingStep > 1) {
             prevBtn.style.display = 'block';
         } else {
             prevBtn.style.display = 'none';
@@ -383,7 +391,7 @@ function updateNavigationButtons() {
     }
     
     // Update next button text
-    if (bookingCurrentStep === 4) {
+    if (currentBookingStep === 4) {
         nextBtn.textContent = 'Confirm Booking';
         nextBtn.innerHTML = 'Confirm Booking';
     } else {
@@ -392,7 +400,7 @@ function updateNavigationButtons() {
     }
     
     // Disable next button on step 2 if no time slot selected
-    if (bookingCurrentStep === 2 && !selectedTimeSlot) {
+    if (currentBookingStep === 2 && !selectedTimeSlot) {
         nextBtn.disabled = true;
         nextBtn.style.opacity = '0.5';
     } else {
@@ -554,23 +562,23 @@ function goToStep(targetStep) {
     if (targetStep < 1 || targetStep > 4) return;
     
     // Hide current step
-    document.getElementById(`bookingStep${bookingCurrentStep}`).classList.remove('active');
-    document.getElementById(`step${bookingCurrentStep}`).classList.remove('active');
+    document.getElementById(`bookingStep${currentBookingStep}`).classList.remove('active');
+    document.getElementById(`step${currentBookingStep}`).classList.remove('active');
     
     // Update current step
-    bookingCurrentStep = targetStep;
+    currentBookingStep = targetStep;
     
     // Show target step
-    document.getElementById(`bookingStep${bookingCurrentStep}`).classList.add('active');
-    document.getElementById(`step${bookingCurrentStep}`).classList.add('active');
+    document.getElementById(`bookingStep${currentBookingStep}`).classList.add('active');
+    document.getElementById(`step${currentBookingStep}`).classList.add('active');
     
     // Mark previous steps as completed
-    for (let i = 1; i < bookingCurrentStep; i++) {
+    for (let i = 1; i < currentBookingStep; i++) {
         document.getElementById(`step${i}`).classList.add('completed');
     }
     
     // Update summary if on confirmation step
-    if (bookingCurrentStep === 4) {
+    if (currentBookingStep === 4) {
         updateBookingSummary();
     }
     
@@ -729,8 +737,10 @@ function populateUserProfileInfo() {
     console.log('User profile info populated:', currentUser);
 }
 
-// Export functions for global access
-window.nextStep = nextStep;
-window.previousStep = previousStep;
-window.goToStep = goToStep;
-window.closeBookingModal = closeBookingModal;
+    // Export functions for global access
+    window.nextStep = nextStep;
+    window.previousStep = previousStep;
+    window.goToStep = goToStep;
+    window.closeBookingModal = closeBookingModal;
+    
+})(); // End of IIFE

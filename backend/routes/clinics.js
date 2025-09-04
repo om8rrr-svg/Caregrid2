@@ -217,19 +217,14 @@ router.get('/', optionalAuth, asyncHandler(async (req, res) => {
 router.get('/:id', optionalAuth, asyncHandler(async (req, res) => {
   const { id } = req.params;
   
-  // Check if ID is a number (frontend_id) or UUID (database id)
-  const isNumericId = /^\d+$/.test(id);
-  const whereClause = isNumericId ? 'c.frontend_id = $1' : 'c.id = $1';
-  const queryParam = isNumericId ? parseInt(id, 10) : id;
-  
   const result = await query(
     `SELECT 
       c.id, c.name, c.type, c.description, c.address, c.city, c.postcode,
       c.phone, c.email, c.website, c.rating, c.review_count, c.is_premium,
       c.logo_url, c.created_at, c.updated_at, c.frontend_id
      FROM clinics c
-     WHERE ${whereClause}`,
-    [queryParam]
+     WHERE c.id = $1`,
+    [id]
   );
   
   if (result.rows.length === 0) {
