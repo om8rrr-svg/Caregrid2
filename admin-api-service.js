@@ -11,27 +11,27 @@ class AdminAPIService {
         this.token = this.getStoredToken();
     }
 
-    // Token management
+    // Token management - standardized to use localStorage with single token key
     getStoredToken() {
-        return localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken');
+        return localStorage.getItem('careGridToken');
     }
 
-    setToken(token, remember = false) {
+    setToken(token) {
         this.token = token;
-        if (remember) {
-            localStorage.setItem('adminToken', token);
-            sessionStorage.removeItem('adminToken');
-        } else {
-            sessionStorage.setItem('adminToken', token);
-            localStorage.removeItem('adminToken');
-        }
-        this.token = this.getStoredToken();
+        localStorage.setItem('careGridToken', token);
+        // Clean up old token keys for migration
+        localStorage.removeItem('adminToken');
+        sessionStorage.removeItem('adminToken');
+        sessionStorage.removeItem('careGridToken');
     }
 
     removeToken() {
         this.token = null;
+        localStorage.removeItem('careGridToken');
+        // Clean up old token keys
         localStorage.removeItem('adminToken');
         sessionStorage.removeItem('adminToken');
+        sessionStorage.removeItem('careGridToken');
     }
 
     // HTTP request helper
@@ -43,6 +43,7 @@ class AdminAPIService {
                 ...options.headers
             },
             credentials: 'include',
+            cache: 'no-store', // Ensure fresh data for all admin API calls
             ...options
         };
 

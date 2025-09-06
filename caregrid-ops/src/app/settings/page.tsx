@@ -8,6 +8,7 @@ import { PageHeader } from '@/components/layout/Layout';
 import { Settings, Save, RefreshCw, Shield, Bell, Database, Globe, Users, Key } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { RoleRestricted, RoleButton } from '@/components/auth/RoleRestricted';
 
 interface SettingsSection {
   id: string;
@@ -25,6 +26,7 @@ interface SettingItem {
   value: any;
   options?: { label: string; value: any }[];
   required?: boolean;
+  requiredRoles?: string[]; // Add role requirements
 }
 
 function SettingsPage() {
@@ -59,6 +61,7 @@ function SettingsPage() {
           description: 'Enable maintenance mode to restrict access',
           type: 'boolean',
           value: false,
+          requiredRoles: ['admin'],
         },
       ],
     },
@@ -294,13 +297,16 @@ function SettingsPage() {
           title="Settings"
           description="Configure application settings and preferences"
           action={
-            <Button
+            <RoleButton
+              requiredRoles={['admin']}
               onClick={handleSave}
-              loading={isSaving}
-              icon={Save}
+              disabled={isSaving}
+              tooltipMessage="Only administrators can save settings"
+              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
             >
-              Save Changes
-            </Button>
+              <Save className="w-4 h-4" />
+              <span>{isSaving ? 'Saving...' : 'Save Changes'}</span>
+            </RoleButton>
           }
         />
 
@@ -339,11 +345,27 @@ function SettingsPage() {
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                           {setting.label}
                           {setting.required && <span className="text-red-500 ml-1">*</span>}
+                          {setting.requiredRoles && (
+                            <span className="text-xs text-orange-600 ml-2">
+                              (Admin only)
+                            </span>
+                          )}
                         </label>
                         <p className="text-sm text-gray-600">{setting.description}</p>
                       </div>
                       <div>
-                        {renderSettingInput(section, setting)}
+                        {setting.requiredRoles ? (
+                          <RoleRestricted 
+                            requiredRoles={setting.requiredRoles as any}
+                            disabled
+                            showTooltip
+                            tooltipMessage={`Requires ${setting.requiredRoles.join(' or ')} role`}
+                          >
+                            {renderSettingInput(section, setting)}
+                          </RoleRestricted>
+                        ) : (
+                          renderSettingInput(section, setting)
+                        )}
                       </div>
                     </div>
                   ))}

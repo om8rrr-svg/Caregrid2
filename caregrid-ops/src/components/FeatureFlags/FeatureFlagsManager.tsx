@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Flag, Settings, TrendingUp, Plus, Eye } from 'lucide-react';
+import { RoleRestricted, RoleButton } from '@/components/auth/RoleRestricted';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface FeatureFlag {
   id: number;
@@ -210,17 +212,24 @@ const FeatureFlagsManager: React.FC = () => {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button onClick={() => setMessage({ type: 'success', text: 'Create flag feature coming soon!' })}>
+          <RoleButton
+            requiredRoles={['admin']}
+            onClick={() => setMessage({ type: 'success', text: 'Create flag feature coming soon!' })}
+            tooltipMessage="Only administrators can create feature flags"
+            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+          >
             <Plus className="h-4 w-4 mr-2" />
             New Flag
-          </Button>
-          <Button 
-            variant="outline" 
+          </RoleButton>
+          <RoleButton
+            requiredRoles={['admin']}
             onClick={() => setMessage({ type: 'success', text: 'Create experiment feature coming soon!' })}
+            tooltipMessage="Only administrators can create experiments"
+            className="flex items-center px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 disabled:opacity-50"
           >
             <Plus className="h-4 w-4 mr-2" />
             New Experiment
-          </Button>
+          </RoleButton>
         </div>
       </div>
 
@@ -277,22 +286,36 @@ const FeatureFlagsManager: React.FC = () => {
                   </span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <label className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      checked={flag.enabled}
-                      onChange={(e) => updateFlag(flag.name, { enabled: e.target.checked })}
-                      className="rounded"
-                    />
-                    <span className="text-sm">Enabled</span>
-                  </label>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setSelectedFlag(flag)}
+                  <RoleRestricted
+                    requiredRoles={['admin']}
+                    disabled
+                    showTooltip
+                    tooltipMessage="Only administrators can toggle feature flags"
                   >
-                    <Settings className="h-4 w-4" />
-                  </Button>
+                    <label className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        checked={flag.enabled}
+                        onChange={(e) => updateFlag(flag.name, { enabled: e.target.checked })}
+                        className="rounded"
+                      />
+                      <span className="text-sm">Enabled</span>
+                    </label>
+                  </RoleRestricted>
+                  <RoleRestricted
+                    requiredRoles={['admin']}
+                    disabled
+                    showTooltip
+                    tooltipMessage="Only administrators can modify feature flags"
+                  >
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setSelectedFlag(flag)}
+                    >
+                      <Settings className="h-4 w-4" />
+                    </Button>
+                  </RoleRestricted>
                 </div>
               </CardHeader>
               <CardContent>
@@ -335,17 +358,24 @@ const FeatureFlagsManager: React.FC = () => {
                   </span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <select
-                    value={experiment.status}
-                    onChange={(e) => updateExperimentStatus(experiment.name, e.target.value)}
-                    className="border rounded px-2 py-1 text-sm"
+                  <RoleRestricted
+                    requiredRoles={['admin']}
+                    disabled
+                    showTooltip
+                    tooltipMessage="Only administrators can modify experiment status"
                   >
-                    <option value="draft">Draft</option>
-                    <option value="active">Active</option>
-                    <option value="paused">Paused</option>
-                    <option value="completed">Completed</option>
-                    <option value="archived">Archived</option>
-                  </select>
+                    <select
+                      value={experiment.status}
+                      onChange={(e) => updateExperimentStatus(experiment.name, e.target.value)}
+                      className="border rounded px-2 py-1 text-sm"
+                    >
+                      <option value="draft">Draft</option>
+                      <option value="active">Active</option>
+                      <option value="paused">Paused</option>
+                      <option value="completed">Completed</option>
+                      <option value="archived">Archived</option>
+                    </select>
+                  </RoleRestricted>
                 </div>
               </CardHeader>
               <CardContent>

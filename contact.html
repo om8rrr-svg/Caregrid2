@@ -14,14 +14,14 @@
     <meta property="og:title" content="Contact Us - CareGrid Healthcare Directory">
     <meta property="og:description" content="Contact CareGrid for healthcare directory support, clinic listings, or general inquiries. Get in touch with our team today.">
     <meta property="og:url" content="https://www.caregrid.co.uk/contact.html">
-    <meta property="og:image" content="https://www.caregrid.co.uk/og-image.jpg">
+    <meta property="og:image" content="https://www.caregrid.co.uk/og-image.svg">
     <meta property="og:site_name" content="CareGrid">
     
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Contact Us - CareGrid Healthcare Directory">
     <meta name="twitter:description" content="Contact CareGrid for healthcare directory support, clinic listings, or general inquiries. Get help from our team.">
-    <meta name="twitter:image" content="https://www.caregrid.co.uk/og-image.jpg">
+    <meta name="twitter:image" content="https://www.caregrid.co.uk/og-image.svg">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="assets/fontawesome/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -718,27 +718,85 @@
     <script src="js/api-service.js"></script>
     <script type="module" src="js/script.js"></script>
     <script>
-        // Contact form handling
+        // Enhanced contact form handling with better validation
         document.getElementById('contactForm').addEventListener('submit', async function(e) {
             e.preventDefault();
+            
+            // Clear previous errors
+            clearContactErrors();
             
             // Get form data
             const formData = new FormData(this);
             const data = Object.fromEntries(formData);
             
-            // Validate required fields
-            const requiredFields = ['firstName', 'lastName', 'email', 'subject', 'message', 'privacy'];
+            // Enhanced validation with inline errors
             let isValid = true;
             
-            for (let field of requiredFields) {
-                if (!data[field] || (field === 'privacy' && !document.getElementById('privacy').checked)) {
+            // First name validation
+            if (!data.firstName?.trim()) {
+                showContactError('firstName', 'First name is required');
+                isValid = false;
+            } else if (data.firstName.trim().length < 2) {
+                showContactError('firstName', 'First name must be at least 2 characters');
+                isValid = false;
+            }
+            
+            // Last name validation
+            if (!data.lastName?.trim()) {
+                showContactError('lastName', 'Last name is required');
+                isValid = false;
+            } else if (data.lastName.trim().length < 2) {
+                showContactError('lastName', 'Last name must be at least 2 characters');
+                isValid = false;
+            }
+            
+            // Email validation
+            if (!data.email?.trim()) {
+                showContactError('email', 'Email address is required');
+                isValid = false;
+            } else {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(data.email.trim())) {
+                    showContactError('email', 'Please enter a valid email address');
                     isValid = false;
-                    break;
                 }
             }
             
+            // Phone validation (optional but if provided, must be valid)
+            if (data.phone?.trim()) {
+                const phoneRegex = /^(?:\+44|0)[\s-]?(?:\d{2,4}[\s-]?\d{3,4}[\s-]?\d{3,4}|\d{3}[\s-]?\d{3}[\s-]?\d{4})$/;
+                if (!phoneRegex.test(data.phone.replace(/\s/g, ''))) {
+                    showContactError('phone', 'Please enter a valid UK phone number');
+                    isValid = false;
+                }
+            }
+            
+            // Subject validation
+            if (!data.subject) {
+                showContactError('subject', 'Please select a subject');
+                isValid = false;
+            }
+            
+            // Message validation
+            if (!data.message?.trim()) {
+                showContactError('message', 'Message is required');
+                isValid = false;
+            } else if (data.message.trim().length < 10) {
+                showContactError('message', 'Please provide more details (at least 10 characters)');
+                isValid = false;
+            } else if (data.message.trim().length > 2000) {
+                showContactError('message', 'Message is too long (maximum 2000 characters)');
+                isValid = false;
+            }
+            
+            // Privacy policy validation
+            if (!document.getElementById('privacy').checked) {
+                showContactError('privacy', 'You must accept the privacy policy to continue');
+                isValid = false;
+            }
+            
             if (!isValid) {
-                showMessage('error', 'Please fill in all required fields and accept the privacy policy.');
+                showMessage('error', 'Please correct the errors above and try again.');
                 return;
             }
             
@@ -755,8 +813,9 @@
                 // Show success message
                 showMessage('success', 'Thank you for your message! We will get back to you soon.');
                 
-                // Reset form
+                // Reset form and clear any remaining errors
                 this.reset();
+                clearContactErrors();
                 
                 // Restore button state
                 submitButton.textContent = originalText;
@@ -772,6 +831,156 @@
                 submitButton.disabled = false;
             }
         });
+        
+        // Add real-time validation for contact form
+        function setupContactFormValidation() {
+            const form = document.getElementById('contactForm');
+            const fields = form.querySelectorAll('input, select, textarea');
+            
+            fields.forEach(field => {
+                // Validate on blur (when user leaves the field)
+                field.addEventListener('blur', function() {
+                    validateContactField(this);
+                });
+                
+                // Clear errors on input (when user starts typing)
+                field.addEventListener('input', function() {
+                    clearContactFieldError(this);
+                });
+            });
+        }
+        
+        function validateContactField(field) {
+            const value = field.value.trim();
+            const fieldName = field.name;
+            
+            // Skip validation for empty optional fields
+            if (!value && !field.required && fieldName !== 'phone') {
+                return true;
+            }
+            
+            switch (fieldName) {
+                case 'firstName':
+                case 'lastName':
+                    if (!value) {
+                        showContactError(field.id, `${fieldName === 'firstName' ? 'First' : 'Last'} name is required`);
+                        return false;
+                    } else if (value.length < 2) {
+                        showContactError(field.id, `${fieldName === 'firstName' ? 'First' : 'Last'} name must be at least 2 characters`);
+                        return false;
+                    }
+                    break;
+                    
+                case 'email':
+                    if (!value) {
+                        showContactError(field.id, 'Email address is required');
+                        return false;
+                    } else {
+                        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                        if (!emailRegex.test(value)) {
+                            showContactError(field.id, 'Please enter a valid email address');
+                            return false;
+                        }
+                    }
+                    break;
+                    
+                case 'phone':
+                    if (value) {
+                        const phoneRegex = /^(?:\+44|0)[\s-]?(?:\d{2,4}[\s-]?\d{3,4}[\s-]?\d{3,4}|\d{3}[\s-]?\d{3}[\s-]?\d{4})$/;
+                        if (!phoneRegex.test(value.replace(/\s/g, ''))) {
+                            showContactError(field.id, 'Please enter a valid UK phone number');
+                            return false;
+                        }
+                    }
+                    break;
+                    
+                case 'message':
+                    if (!value) {
+                        showContactError(field.id, 'Message is required');
+                        return false;
+                    } else if (value.length < 10) {
+                        showContactError(field.id, 'Please provide more details (at least 10 characters)');
+                        return false;
+                    } else if (value.length > 2000) {
+                        showContactError(field.id, 'Message is too long (maximum 2000 characters)');
+                        return false;
+                    }
+                    break;
+            }
+            
+            clearContactFieldError(field);
+            return true;
+        }
+        
+        function showContactError(fieldId, message) {
+            const field = document.getElementById(fieldId);
+            if (!field) return;
+            
+            // Clear any existing error for this field
+            clearContactFieldError(field);
+            
+            // Create error element
+            const errorElement = document.createElement('div');
+            errorElement.className = 'contact-field-error';
+            errorElement.style.cssText = `
+                color: #dc2626;
+                font-size: 0.875rem;
+                margin-top: 5px;
+                padding: 6px 10px;
+                background-color: #fef2f2;
+                border: 1px solid #fecaca;
+                border-radius: 4px;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            `;
+            
+            errorElement.innerHTML = `
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                </svg>
+                ${message}
+            `;
+            
+            // Add error styling to field
+            field.style.borderColor = '#dc2626';
+            field.style.backgroundColor = '#fef2f2';
+            
+            // Insert error after field's parent form-group
+            const formGroup = field.closest('.form-group');
+            if (formGroup) {
+                formGroup.appendChild(errorElement);
+            }
+        }
+        
+        function clearContactFieldError(field) {
+            const formGroup = field.closest('.form-group');
+            if (formGroup) {
+                const existingError = formGroup.querySelector('.contact-field-error');
+                if (existingError) {
+                    existingError.remove();
+                }
+            }
+            
+            // Reset field styling
+            field.style.borderColor = '';
+            field.style.backgroundColor = '';
+        }
+        
+        function clearContactErrors() {
+            const errors = document.querySelectorAll('.contact-field-error');
+            errors.forEach(error => error.remove());
+            
+            // Reset all field styles
+            const fields = document.querySelectorAll('#contactForm input, #contactForm select, #contactForm textarea');
+            fields.forEach(field => {
+                field.style.borderColor = '';
+                field.style.backgroundColor = '';
+            });
+        }
+        
+        // Initialize contact form validation
+        setupContactFormValidation();
         
         function showMessage(type, customMessage = null) {
             const successMsg = document.getElementById('successMessage');
@@ -834,6 +1043,7 @@
     <script type="module" src="js/api-base.js"></script>
     <script type="module" src="js/header.js"></script>
     <script type="module" src="js/auth.js"></script>
+    <script type="module" src="js/consent.js"></script>
     
     <!-- Lazy Loading Script -->
     <script src="js/lazy-loader.js"></script>

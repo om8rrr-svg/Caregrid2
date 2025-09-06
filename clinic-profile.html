@@ -14,14 +14,14 @@
     <meta id="ogTitle" property="og:title" content="Clinic Profile - CareGrid Healthcare Directory">
     <meta id="ogDescription" property="og:description" content="Find detailed information about healthcare clinics and providers. View services, ratings, and book appointments.">
     <meta property="og:url" content="https://www.caregrid.co.uk/clinic-profile.html">
-    <meta id="ogImage" property="og:image" content="https://www.caregrid.co.uk/og-image.jpg">
+    <meta id="ogImage" property="og:image" content="https://www.caregrid.co.uk/og-image.svg">
     <meta property="og:site_name" content="CareGrid">
     
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
     <meta id="twitterTitle" name="twitter:title" content="Clinic Profile - CareGrid Healthcare Directory">
     <meta id="twitterDescription" name="twitter:description" content="Find detailed information about healthcare clinics and providers. View services, ratings, and book appointments.">
-    <meta id="twitterImage" name="twitter:image" content="https://www.caregrid.co.uk/og-image.jpg">
+    <meta id="twitterImage" name="twitter:image" content="https://www.caregrid.co.uk/og-image.svg">
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1019,7 +1019,7 @@
                     "ratingValue": clinic.rating ? clinic.rating.toString() : "0",
                     "reviewCount": (clinic.reviews || clinic.reviewCount || clinic.review_count || 0).toString()
                 },
-                "image": clinic.image || clinic.logoUrl || "https://www.caregrid.co.uk/og-image.jpg",
+                "image": clinic.image || clinic.logoUrl || "https://www.caregrid.co.uk/og-image.svg",
                 "medicalSpecialty": [formatType(clinic.type)],
                 "paymentAccepted": ["Cash", "Credit Card", "Bank Transfer"],
                 "currenciesAccepted": "GBP"

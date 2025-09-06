@@ -5,8 +5,10 @@ import { verifyToken, type CustomJWTPayload } from '@/lib/auth/jwt';
 // Define protected routes and their required roles
 const PROTECTED_ROUTES = {
   '/dashboard': ['admin', 'manager', 'viewer'],
+  '/alerts': ['admin', 'manager', 'viewer'],
   '/incidents': ['admin', 'manager'],
   '/metrics': ['admin', 'manager'],
+  '/feature-flags': ['admin', 'manager'],
   '/settings': ['admin'],
 } as const;
 

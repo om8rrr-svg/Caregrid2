@@ -51,8 +51,63 @@ function validateEnvironment() {
   }
 }
 
+// Database migration runner
+const { MigrationRunner } = require('./services/migrationRunner');
+
+async function runStartupMigrations() {
+  // Skip migrations in development if explicitly disabled
+  if (process.env.SKIP_MIGRATIONS === 'true') {
+    console.log('⏭️  Skipping migrations (SKIP_MIGRATIONS=true)');
+    return;
+  }
+
+  console.log('🚀 Running startup migrations...');
+  const migrationRunner = new MigrationRunner();
+  
+  try {
+    // Run migrations
+    const migrationResult = await migrationRunner.runMigrations();
+    
+    if (!migrationResult.success) {
+      console.error('❌ Migration failed:', migrationResult.error);
+      if (process.env.NODE_ENV === 'production') {
+        console.error('🛑 Cannot start server without successful migrations in production');
+        process.exit(1);
+      }
+      return;
+    }
+    
+    // Run seeds if migrations were successful
+    const seedResult = await migrationRunner.runSeeds();
+    
+    if (!seedResult.success) {
+      console.warn('⚠️  Seeding failed:', seedResult.error);
+      // Don't exit on seed failure, just warn
+    } else if (seedResult.seeded) {
+      console.log(`✅ Database seeded with ${seedResult.clinicsSeeded} clinics`);
+    }
+    
+  } catch (error) {
+    console.error('❌ Startup migration error:', error.message);
+    if (process.env.NODE_ENV === 'production') {
+      console.error('🛑 Cannot start server without successful migrations in production');
+      process.exit(1);
+    }
+  }
+}
+
 // Validate environment before starting
 validateEnvironment();
+
+// Run migrations before setting up routes
+runStartupMigrations().then(() => {
+  console.log('✅ Startup migrations completed');
+}).catch(error => {
+  console.error('❌ Failed to complete startup migrations:', error.message);
+  if (process.env.NODE_ENV === 'production') {
+    process.exit(1);
+  }
+});
 
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
@@ -100,11 +155,51 @@ app.use(compression({
   }
 }));
 
-// Security middleware
-app.use(helmet());
+// Security middleware with enhanced configuration
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdnjs.cloudflare.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://cdn.jsdelivr.net", "https://va.vercel-scripts.com"],
+      imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'", "https://caregrid-backend.onrender.com", "https://vitals.vercel-insights.com"],
+      frameSrc: ["'none'"],
+      objectSrc: ["'none'"],
+      upgradeInsecureRequests: []
+    }
+  },
+  crossOriginEmbedderPolicy: false, // Allow embedding for Vercel analytics
+  hsts: {
+    maxAge: 31536000, // 1 year
+    includeSubDomains: true,
+    preload: true
+  },
+  frameguard: {
+    action: 'deny' // X-Frame-Options: DENY
+  },
+  noSniff: true, // X-Content-Type-Options: nosniff
+  referrerPolicy: {
+    policy: 'strict-origin-when-cross-origin'
+  },
+  xssFilter: true
+}));
+
+// Additional security headers
+app.use((req, res, next) => {
+  // Cache control for API responses
+  if (req.path.startsWith('/api/')) {
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+    res.set('Surrogate-Control', 'no-store');
+  }
+  next();
+});
 
 // CORS configuration
-const allowlist = (process.env.CORS_ORIGINS || 'http://localhost:3000,http://localhost:5173,http://localhost:8000,http://localhost:8080,http://127.0.0.1:8000,http://127.0.0.1:8080,https://caregrid2-ddk7.vercel.app,https://caregrid2.vercel.app')
+const allowlist = (process.env.CORS_ORIGINS || 'http://localhost:3000,http://localhost:5173,http://localhost:8000,http://localhost:8080,http://127.0.0.1:8000,http://127.0.0.1:8080,https://www.caregrid.co.uk,https://caregrid.co.uk,https://caregrid-ops.vercel.app,https://caregrid2-ddk7.vercel.app,https://caregrid2.vercel.app')
   .split(',')
   .map(s => s.trim())
   .filter(Boolean);
@@ -127,29 +222,67 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-// Return clean preflight responses
-app.options('*', cors(corsOptions));
+// Return clean preflight responses with explicit 204 status
+app.options('*', (req, res) => {
+  // Set CORS headers
+  const origin = req.headers.origin;
+  if (!origin || allowlist.includes(origin) || vercelPreviewRegex.test(origin)) {
+    res.header('Access-Control-Allow-Origin', origin || '*');
+    res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization,X-Requested-With');
+    res.header('Access-Control-Max-Age', '86400');
+  }
+  res.status(204).end();
+});
 
-// Rate limiting
+// Rate limiting - production-tuned
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 500, // limit each IP to 500 requests per windowMs (increased for development/testing)
+  max: process.env.NODE_ENV === 'production' ? 300 : 500, // Stricter in production
   message: {
     error: 'Too many requests from this IP, please try again later.',
     retryAfter: '15 minutes'
   },
   standardHeaders: true,
-  legacyHeaders: false
+  legacyHeaders: false,
+  skip: (req) => {
+    // Skip rate limiting for health checks
+    return req.path.startsWith('/health');
+  }
 });
 app.use(limiter);
 
-// Stricter rate limiting for auth endpoints
+// Stricter rate limiting for authentication endpoints
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 200, // limit each IP to 200 auth requests per windowMs (increased for development/testing)
+  max: process.env.NODE_ENV === 'production' ? 50 : 200, // Much stricter for auth in production
   message: {
     error: 'Too many authentication attempts, please try again later.',
     retryAfter: '15 minutes'
+  },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+// Contact form rate limiting
+const contactLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 10, // Only 10 contact form submissions per hour
+  message: {
+    error: 'Too many contact form submissions, please try again later.',
+    retryAfter: '1 hour'
+  },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+// Booking rate limiting
+const bookingLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 20, // 20 bookings per hour per IP
+  message: {
+    error: 'Too many booking attempts, please try again later.',
+    retryAfter: '1 hour'
   },
   standardHeaders: true,
   legacyHeaders: false
@@ -192,8 +325,8 @@ app.use('/api', (req, res, next) => {
 app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/users', authenticateToken, userRoutes);
 app.use('/api/clinics', clinicRoutes);
-app.use('/api/appointments', appointmentRoutes);
-app.use('/api/contact', contactRoutes);
+app.use('/api/appointments', bookingLimiter, appointmentRoutes);
+app.use('/api/contact', contactLimiter, contactRoutes);
 app.use('/api/debug', debugRoutes);
 app.use('/health', healthRoutes);
 app.use('/api/synthetic', syntheticRoutes);

@@ -2,7 +2,7 @@
 import { buildUrl } from './api-base.js';
 
 function isAuthenticated() {
-  const token = localStorage.getItem('careGridToken') || sessionStorage.getItem('careGridToken');
+  const token = localStorage.getItem('careGridToken');
   if (!token) {
     return false;
   }
@@ -21,7 +21,7 @@ function getCurrentUser() {
 
 async function getSession() {
   try {
-    const token = localStorage.getItem('careGridToken') || sessionStorage.getItem('careGridToken');
+    const token = localStorage.getItem('careGridToken');
     
     if (!token) {
       return { authenticated: false, user: null };

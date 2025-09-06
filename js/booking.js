@@ -27,14 +27,14 @@ function initializeBookingSystem() {
         isAuthenticated = authSystem.isAuthenticated();
     } else {
         // Fallback: check tokens directly
-        isAuthenticated = !!(localStorage.getItem('careGridToken') || sessionStorage.getItem('careGridToken'));
+        isAuthenticated = !!localStorage.getItem('careGridToken');
     }
     
     if (!isAuthenticated) {
         console.log('User not authenticated - limited booking functionality');
         // Try again after a longer delay for full functionality
         setTimeout(function() {
-            const retryAuth = !!(localStorage.getItem('careGridToken') || sessionStorage.getItem('careGridToken'));
+            const retryAuth = !!localStorage.getItem('careGridToken');
             if (retryAuth) {
                 console.log('Authentication found on retry - enabling full booking system');
                 setupDatePicker();
@@ -288,41 +288,61 @@ function previousStep() {
     }
 }
 
-// Validate current step
+// Enhanced validation with inline error messages
 function validateCurrentStep() {
+    clearBookingErrors(); // Clear previous errors
+    let isValid = true;
+    
     switch(currentBookingStep) {
         case 1:
             const serviceType = document.getElementById('serviceType').value;
             const reason = document.getElementById('appointmentReason').value.trim();
             
             if (!serviceType) {
-                alert('Please select a service type.');
-                return false;
+                showBookingError('serviceType', 'Please select a service type');
+                isValid = false;
             }
             if (!reason) {
-                alert('Please provide a reason for your visit.');
-                return false;
+                showBookingError('appointmentReason', 'Please provide a reason for your visit');
+                isValid = false;
+            } else if (reason.length < 10) {
+                showBookingError('appointmentReason', 'Please provide more details (at least 10 characters)');
+                isValid = false;
             }
             
-            bookingData.serviceType = serviceType;
-            bookingData.reason = reason;
-            return true;
+            if (isValid) {
+                bookingData.serviceType = serviceType;
+                bookingData.reason = reason;
+            }
+            return isValid;
             
         case 2:
             const date = document.getElementById('appointmentDate').value;
             
             if (!date) {
-                alert('Please select a date.');
-                return false;
-            }
-            if (!selectedTimeSlot) {
-                alert('Please select a time slot.');
-                return false;
+                showBookingError('appointmentDate', 'Please select a date');
+                isValid = false;
+            } else {
+                const selectedDate = new Date(date);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                if (selectedDate < today) {
+                    showBookingError('appointmentDate', 'Please select a future date');
+                    isValid = false;
+                }
             }
             
-            bookingData.date = date;
-            bookingData.time = selectedTimeSlot;
-            return true;
+            if (!selectedTimeSlot) {
+                showBookingError('timeSlots', 'Please select a time slot');
+                isValid = false;
+            }
+            
+            if (isValid) {
+                bookingData.date = date;
+                bookingData.time = selectedTimeSlot;
+            }
+            return isValid;
             
         case 3:
             // For authenticated users, personal information comes from their profile
@@ -335,17 +355,20 @@ function validateCurrentStep() {
                 isAuthenticated = authSystem.isAuthenticated();
             } else {
                 // Fallback: check tokens directly
-                isAuthenticated = !!(localStorage.getItem('careGridToken') || sessionStorage.getItem('careGridToken'));
+                isAuthenticated = !!localStorage.getItem('careGridToken');
             }
             
             if (!isAuthenticated) {
-                alert('You must be signed in to proceed. Please sign in to continue.');
-                window.location.href = 'auth.html';
+                showBookingError('authentication', 'You must be signed in to proceed. Please sign in to continue.');
+                setTimeout(() => {
+                    window.location.href = 'auth.html';
+                }, 2000);
                 return false;
             }
             
             // Get medical history (optional field)
-            bookingData.medicalHistory = document.getElementById('medicalHistory').value.trim();
+            const medicalHistory = document.getElementById('medicalHistory')?.value.trim() || '';
+            bookingData.medicalHistory = medicalHistory;
             
             // Get current user data from auth system
             const currentUser = authSystem.getCurrentUser();
@@ -359,15 +382,134 @@ function validateCurrentStep() {
             return true;
             
         case 4:
-            const termsAccepted = document.getElementById('termsAccepted').checked;
+            const termsAccepted = document.getElementById('termsAccepted')?.checked;
             if (!termsAccepted) {
-                alert('Please accept the terms and conditions.');
+                showBookingError('termsAccepted', 'Please accept the terms and conditions to proceed');
                 return false;
             }
             return true;
             
         default:
             return true;
+    }
+}
+
+// Show booking validation errors with better UX
+function showBookingError(fieldId, message) {
+    const field = document.getElementById(fieldId);
+    if (!field) {
+        // If field not found, show general error
+        showBookingMessage(message, 'error');
+        return;
+    }
+    
+    // Find or create error container
+    let errorContainer = field.parentNode.querySelector('.booking-error');
+    if (!errorContainer) {
+        errorContainer = document.createElement('div');
+        errorContainer.className = 'booking-error';
+        errorContainer.style.cssText = `
+            color: #dc2626;
+            font-size: 0.875rem;
+            margin-top: 5px;
+            padding: 8px 12px;
+            background-color: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        `;
+        
+        // Insert after the field or its parent container
+        const insertAfter = field.closest('.form-group') || field.closest('.time-slot-container') || field;
+        insertAfter.parentNode.insertBefore(errorContainer, insertAfter.nextSibling);
+    }
+    
+    errorContainer.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+        </svg>
+        ${message}
+    `;
+    
+    // Add error styling to field
+    field.style.borderColor = '#dc2626';
+    field.style.backgroundColor = '#fef2f2';
+    
+    // Focus the field for better UX
+    field.focus();
+    
+    // Auto-remove error on field interaction
+    const removeError = () => {
+        if (errorContainer && errorContainer.parentNode) {
+            errorContainer.remove();
+        }
+        field.style.borderColor = '';
+        field.style.backgroundColor = '';
+        field.removeEventListener('input', removeError);
+        field.removeEventListener('change', removeError);
+    };
+    
+    field.addEventListener('input', removeError);
+    field.addEventListener('change', removeError);
+}
+
+// Clear all booking errors
+function clearBookingErrors() {
+    const errors = document.querySelectorAll('.booking-error');
+    errors.forEach(error => error.remove());
+    
+    // Reset field styles
+    const fields = document.querySelectorAll('#bookingForm input, #bookingForm select, #bookingForm textarea');
+    fields.forEach(field => {
+        field.style.borderColor = '';
+        field.style.backgroundColor = '';
+    });
+}
+
+// Show general booking messages
+function showBookingMessage(message, type = 'info') {
+    // Find or create message container
+    let messageContainer = document.querySelector('.booking-message');
+    if (!messageContainer) {
+        messageContainer = document.createElement('div');
+        messageContainer.className = 'booking-message';
+        
+        // Insert at the top of the current step
+        const currentStep = document.querySelector(`#bookingStep${currentBookingStep}`);
+        if (currentStep) {
+            currentStep.insertBefore(messageContainer, currentStep.firstChild);
+        }
+    }
+    
+    const colors = {
+        error: { bg: '#fef2f2', border: '#fecaca', text: '#dc2626' },
+        success: { bg: '#f0fdf4', border: '#bbf7d0', text: '#16a34a' },
+        info: { bg: '#eff6ff', border: '#bfdbfe', text: '#1d4ed8' }
+    };
+    
+    const color = colors[type] || colors.info;
+    
+    messageContainer.style.cssText = `
+        padding: 12px 16px;
+        margin-bottom: 20px;
+        border-radius: 6px;
+        background-color: ${color.bg};
+        border: 1px solid ${color.border};
+        color: ${color.text};
+        font-weight: 500;
+    `;
+    
+    messageContainer.textContent = message;
+    
+    // Auto-remove after 5 seconds for non-error messages
+    if (type !== 'error') {
+        setTimeout(() => {
+            if (messageContainer && messageContainer.parentNode) {
+                messageContainer.remove();
+            }
+        }, 5000);
     }
 }
 
@@ -463,7 +605,7 @@ async function submitBooking() {
             isAuthenticated = authSystem.isAuthenticated();
         } else {
             // Fallback: check tokens directly
-            isAuthenticated = !!(localStorage.getItem('careGridToken') || sessionStorage.getItem('careGridToken'));
+            isAuthenticated = !!localStorage.getItem('careGridToken');
         }
         
         if (!isAuthenticated) {
@@ -702,7 +844,7 @@ function populateUserProfileInfo() {
         isAuthenticated = authSystem.isAuthenticated();
     } else {
         // Fallback: check tokens directly
-        isAuthenticated = !!(localStorage.getItem('careGridToken') || sessionStorage.getItem('careGridToken'));
+        isAuthenticated = !!localStorage.getItem('careGridToken');
     }
     
     if (!isAuthenticated) {

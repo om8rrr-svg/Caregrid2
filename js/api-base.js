@@ -26,7 +26,8 @@ export async function fetchJson(path, { params, method = 'GET', headers = {}, bo
       method,
       headers: { 'Content-Type': 'application/json', ...headers },
       body: body ? JSON.stringify(body) : undefined,
-      signal: ac.signal
+      signal: ac.signal,
+      cache: 'no-store' // Ensure fresh data for all API calls
     });
   } catch (err) {
     clearTimeout(t);
@@ -44,5 +45,5 @@ export async function fetchJson(path, { params, method = 'GET', headers = {}, bo
 }
 
 export function getToken() {
-  return localStorage.getItem('careGridToken') || sessionStorage.getItem('careGridToken');
+    return localStorage.getItem('careGridToken');
 }

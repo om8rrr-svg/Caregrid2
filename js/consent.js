@@ -126,17 +126,34 @@ function showConsentToast(message, type = 'info') {
 }
 
 export function loadAnalyticsIfConsented() {
-  if (getConsent() === true) {
-    // Load Google Analytics
-    if (typeof gtag !== 'undefined' && !window.analyticsLoaded) {
-      window.analyticsLoaded = true;
-      console.log('Analytics loaded with user consent');
+  if (getConsent() === true && window.CareGridConfig?.analytics?.enabled) {
+    const gaId = window.CareGridConfig.analytics.gaId;
+    
+    // Only load if we have a valid GA ID (not placeholder)
+    if (gaId && gaId !== 'G-PLACEHOLDER123') {
+      // Load Google Analytics
+      const script = document.createElement('script');
+      script.async = true;
+      script.src = `https://www.googletagmanager.com/gtag/js?id=${gaId}`;
+      document.head.appendChild(script);
+      
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', gaId, {
+        anonymize_ip: true,
+        cookie_flags: 'SameSite=None;Secure'
+      });
       
       // Track page view
-      gtag('config', 'GA_MEASUREMENT_ID', {
+      gtag('event', 'page_view', {
         page_title: document.title,
         page_location: window.location.href
       });
+      
+      console.log('📊 Analytics loaded with consent');
+    } else {
+      console.log('📊 Analytics disabled - no valid GA ID configured');
     }
     
     // Load other analytics services here if needed

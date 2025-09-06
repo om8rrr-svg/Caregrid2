@@ -14,14 +14,14 @@
     <meta property="og:title" content="Sign Up - CareGrid Healthcare Directory">
     <meta property="og:description" content="Create your CareGrid account to manage appointments, save favorite clinics, and access personalized healthcare services.">
     <meta property="og:url" content="https://www.caregrid.co.uk/signup.html">
-    <meta property="og:image" content="https://www.caregrid.co.uk/og-image.jpg">
+    <meta property="og:image" content="https://www.caregrid.co.uk/og-image.svg">
     <meta property="og:site_name" content="CareGrid">
     
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Sign Up - CareGrid Healthcare Directory">
     <meta name="twitter:description" content="Create your CareGrid account to manage appointments and access personalized healthcare services.">
-    <meta name="twitter:image" content="https://www.caregrid.co.uk/og-image.jpg">
+    <meta name="twitter:image" content="https://www.caregrid.co.uk/og-image.svg">
     
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
@@ -37,14 +37,7 @@
     <!-- Facebook SDK -->
     <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js"></script>
     
-    <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'GA_MEASUREMENT_ID');
-    </script>
+    <!-- Analytics handled by consent management system -->
 </head>
 <body>
     <!-- Navigation -->
@@ -782,7 +775,9 @@
             initFacebookAuth();
         });
     </script>    <!-- Lazy Loading Script -->
+    <script src="js/config.js"></script>
     <script src="js/lazy-loader.js"></script>
+    <script type="module" src="js/consent.js"></script>
 
     <!-- Footer -->
     <footer>

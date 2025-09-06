@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { PageHeader } from '@/components/layout/Layout';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatNumber, formatPercentage, getStatusColor, cn } from '@/lib/utils';
+import { toggleMaintenance, getMaintenanceStatus, runSynthetic } from '@/lib/api/ops';
 import {
   Activity,
   AlertTriangle,
@@ -28,6 +29,7 @@ import type { Alert, AlertSeverity } from '@/types';
 import { MetricsDashboard } from './MetricsDashboard';
 import { RealTimeAlerts } from './RealTimeAlerts';
 import { DashboardGrid, GridItem, WidgetSizes, useResponsive } from './ResponsiveGrid';
+import { RoleRestricted, RoleButton } from '@/components/auth/RoleRestricted';
 
 // Health status type
 type HealthStatus = 'healthy' | 'degraded' | 'unhealthy';
@@ -100,268 +102,221 @@ const mockRecentAlerts: RecentAlert[] = [
   },
 ];
 
-// Dashboard Component
+// Main Dashboard Component
 export function Dashboard() {
   const { state } = useAuth();
-  const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastUpdated, setLastUpdated] = useState(new Date());
-  const [activeTab, setActiveTab] = useState<'overview' | 'metrics' | 'alerts'>('overview');
+  const [isMaintenanceMode, setIsMaintenanceMode] = useState(false);
+  const [isRunningTest, setIsRunningTest] = useState(false);
   const { isMobile, isTablet } = useResponsive();
 
-  const handleRefresh = async () => {
-    setIsRefreshing(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setLastUpdated(new Date());
-    setIsRefreshing(false);
-  };
-
-  // Auto-refresh every 30 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       setLastUpdated(new Date());
     }, 30000);
 
+    // Check maintenance status on mount
+    const checkMaintenance = async () => {
+      try {
+        const status = await getMaintenanceStatus();
+        setIsMaintenanceMode(status.enabled);
+      } catch (error) {
+        console.error('Failed to check maintenance status:', error);
+      }
+    };
+
+    checkMaintenance();
     return () => clearInterval(interval);
   }, []);
 
-  const overallHealth = mockServiceHealth.every(service => service.status === 'healthy') 
-    ? 'healthy' 
-    : mockServiceHealth.some(service => service.status === 'unhealthy')
-    ? 'unhealthy'
-    : 'degraded';
+  const handleMaintenanceToggle = async () => {
+    try {
+      const newStatus = await toggleMaintenance(!isMaintenanceMode);
+      setIsMaintenanceMode(newStatus.enabled);
+    } catch (error) {
+      console.error('Failed to toggle maintenance mode:', error);
+    }
+  };
+
+  const handleRunSynthetic = async () => {
+    setIsRunningTest(true);
+    try {
+      await runSynthetic();
+    } catch (error) {
+      console.error('Failed to run synthetic test:', error);
+    } finally {
+      setIsRunningTest(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="Operations Dashboard"
-        description="Monitor system health, performance metrics, and real-time alerts"
-        actions={
-          <div className="flex items-center space-x-2">
+        description="Monitor system health, performance metrics, and operational status"
+        action={
+          <div className="flex gap-2">
+            <RoleRestricted requiredRoles={['admin', 'manager']}>
+              <RoleButton
+                onClick={handleRunSynthetic}
+                disabled={isRunningTest}
+                className="btn btn-outline btn-sm"
+                requiredRoles={['admin', 'manager']}
+              >
+                <Zap className="h-4 w-4 mr-2" />
+                {isRunningTest ? 'Running...' : 'Run Test'}
+              </RoleButton>
+            </RoleRestricted>
+            <RoleRestricted requiredRoles={['admin']}>
+              <RoleButton
+                onClick={handleMaintenanceToggle}
+                className={`btn btn-sm ${isMaintenanceMode ? 'btn-destructive' : 'btn-outline'}`}
+                requiredRoles={['admin']}
+              >
+                <Settings className="h-4 w-4 mr-2" />
+                {isMaintenanceMode ? 'Exit Maintenance' : 'Maintenance Mode'}
+              </RoleButton>
+            </RoleRestricted>
             <Button
-              onClick={handleRefresh}
-              disabled={isRefreshing}
-              className="flex items-center space-x-2"
+              onClick={() => setLastUpdated(new Date())}
+              variant="outline"
+              size="sm"
             >
-              <RefreshCw className={cn('h-4 w-4', isRefreshing && 'animate-spin')} />
-              <span>Refresh</span>
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Refresh
             </Button>
           </div>
         }
       />
 
-      {/* Tab Navigation */}
-      <div className="border-b border-gray-200">
-        <nav className="-mb-px flex space-x-8">
-          {[
-            { id: 'overview', label: 'Overview', icon: Activity },
-            { id: 'metrics', label: 'Metrics', icon: BarChart3 },
-            { id: 'alerts', label: 'Alerts', icon: AlertTriangle },
-          ].map(({ id, label, icon: Icon }) => (
-            <button
-              key={id}
-              onClick={() => setActiveTab(id as any)}
-              className={cn(
-                'flex items-center space-x-2 py-2 px-1 border-b-2 font-medium text-sm',
-                activeTab === id
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              )}
-            >
-              <Icon className="h-4 w-4" />
-              <span>{label}</span>
-            </button>
-          ))}
-        </nav>
-      </div>
+      {isMaintenanceMode && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+          <div className="flex items-center">
+            <AlertTriangle className="h-5 w-5 text-yellow-600 mr-2" />
+            <span className="text-yellow-800 font-medium">
+              System is currently in maintenance mode
+            </span>
+          </div>
+        </div>
+      )}
 
-      {/* Tab Content */}
-      {activeTab === 'overview' && (
-        <div className="space-y-6">
-          {/* System Overview */}
-          <DashboardGrid>
-            <GridItem {...WidgetSizes.small}>
-              <StatCard
-                title="System Uptime"
-                value={`${mockSystemMetrics.uptime}%`}
-                icon={<CheckCircle className="h-6 w-6 text-green-500" />}
-                trend={{ value: 0.02, isPositive: true }}
-              />
-            </GridItem>
-            <GridItem {...WidgetSizes.small}>
-              <StatCard
-                title="Response Time"
-                value={`${mockSystemMetrics.responseTime}ms`}
-                icon={<Clock className="h-6 w-6 text-blue-500" />}
-                trend={{ value: 12, isPositive: false }}
-              />
-            </GridItem>
-            <GridItem {...WidgetSizes.small}>
-              <StatCard
-                title="Throughput"
-                value={formatNumber(mockSystemMetrics.throughput)}
-                subtitle="requests/min"
-                icon={<TrendingUp className="h-6 w-6 text-purple-500" />}
-                trend={{ value: 8.5, isPositive: true }}
-              />
-            </GridItem>
-            <GridItem {...WidgetSizes.small}>
-              <StatCard
-                title="Error Rate"
-                value={`${mockSystemMetrics.errorRate}%`}
-                icon={<AlertTriangle className="h-6 w-6 text-red-500" />}
-                trend={{ value: 0.01, isPositive: false }}
-              />
-            </GridItem>
-          </DashboardGrid>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* System Health */}
-        <div className="lg:col-span-2">
+      {/* System Overview */}
+      <DashboardGrid>
+        <GridItem {...WidgetSizes.small}>
           <Card>
             <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center space-x-2">
-                  <Activity className="w-5 h-5" />
-                  <span>Service Health</span>
-                </CardTitle>
-                <div className="flex items-center space-x-2">
-                  <div className={`w-3 h-3 rounded-full ${
-                    overallHealth === 'healthy' ? 'bg-green-500' :
-                    overallHealth === 'degraded' ? 'bg-yellow-500' : 'bg-red-500'
-                  }`} />
-                  <span className="text-sm font-medium capitalize">{overallHealth}</span>
+              <CardTitle>System Uptime</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{mockSystemMetrics.uptime}%</div>
+            </CardContent>
+          </Card>
+        </GridItem>
+        <GridItem {...WidgetSizes.small}>
+          <Card>
+            <CardHeader>
+              <CardTitle>Response Time</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{mockSystemMetrics.responseTime}ms</div>
+            </CardContent>
+          </Card>
+        </GridItem>
+        <GridItem {...WidgetSizes.small}>
+          <Card>
+            <CardHeader>
+              <CardTitle>Throughput</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{formatNumber(mockSystemMetrics.throughput)}/min</div>
+            </CardContent>
+          </Card>
+        </GridItem>
+        <GridItem {...WidgetSizes.small}>
+          <Card>
+            <CardHeader>
+              <CardTitle>Error Rate</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{formatPercentage(mockSystemMetrics.errorRate)}%</div>
+            </CardContent>
+          </Card>
+        </GridItem>
+      </DashboardGrid>
+
+      {/* Service Health */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Service Health</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {mockServiceHealth.map((service) => (
+              <div key={service.name} className="flex items-center justify-between p-3 border rounded-lg">
+                <div className="flex items-center space-x-3">
+                  <div className={cn(
+                    "w-3 h-3 rounded-full",
+                    getStatusColor(service.status)
+                  )} />
+                  <div>
+                    <div className="font-medium">{service.name}</div>
+                    <div className="text-sm text-gray-500">
+                      {service.responseTime}ms • {service.uptime}% uptime
+                    </div>
+                  </div>
+                </div>
+                <div className="text-sm font-medium capitalize">
+                  {service.status}
                 </div>
               </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {mockServiceHealth.map((service, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                  >
-                    <div className="flex items-center space-x-3">
-                      <div className={`w-3 h-3 rounded-full ${
-                        service.status === 'healthy' ? 'bg-green-500' :
-                        service.status === 'degraded' ? 'bg-yellow-500' :
-                        service.status === 'unhealthy' ? 'bg-red-500' : 'bg-gray-500'
-                      }`} />
-                      <div>
-                        <p className="font-medium text-gray-900">{service.name}</p>
-                        <p className="text-sm text-gray-500">
-                          {service.responseTime}ms • {formatPercentage(service.uptime)}% uptime
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <span className={`text-sm font-medium capitalize ${
-                        service.status === 'healthy' ? 'text-green-600' :
-                        service.status === 'degraded' ? 'text-yellow-600' :
-                        service.status === 'unhealthy' ? 'text-red-600' : 'text-gray-600'
-                      }`}>
-                        {service.status}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
-        {/* Recent Alerts */}
-        <div>
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <AlertTriangle className="w-5 h-5" />
-                <span>Recent Alerts</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {mockRecentAlerts.map((alert) => (
-                  <div key={alert.id} className="border-l-4 border-l-orange-400 pl-3 py-2">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-gray-900">
-                          {alert.title}
-                        </p>
-                        <p className="text-xs text-gray-500 mt-1">
-                          {alert.service} • {alert.timestamp.toLocaleTimeString()}
-                        </p>
-                      </div>
-                      <span className={`text-xs px-2 py-1 rounded-full ${
-                        alert.severity === 'critical'
-                          ? 'bg-red-100 text-red-800'
-                          : alert.severity === 'high'
-                          ? 'bg-orange-100 text-orange-800'
-                          : alert.severity === 'medium'
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : 'bg-blue-100 text-blue-800'
-                      }`}>
-                        {alert.severity}
-                      </span>
+      {/* Metrics Dashboard */}
+      <MetricsDashboard />
+
+      {/* Recent Alerts */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Recent Alerts</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {mockRecentAlerts.map((alert) => (
+              <div key={alert.id} className="flex items-center justify-between p-3 border rounded-lg">
+                <div className="flex items-center space-x-3">
+                  <AlertTriangle className={cn(
+                    "h-4 w-4",
+                    alert.severity === 'high' ? 'text-red-500' :
+                    alert.severity === 'medium' ? 'text-yellow-500' :
+                    'text-blue-500'
+                  )} />
+                  <div>
+                    <div className="font-medium">{alert.title}</div>
+                    <div className="text-sm text-gray-500">
+                      {alert.service} • {alert.timestamp.toLocaleTimeString()}
                     </div>
                   </div>
-                ))}
+                </div>
+                <div className={cn(
+                  "px-2 py-1 rounded-full text-xs font-medium",
+                  alert.severity === 'high' ? 'bg-red-100 text-red-800' :
+                  alert.severity === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                  'bg-blue-100 text-blue-800'
+                )}>
+                  {alert.severity}
+                </div>
               </div>
-              <div className="mt-4">
-                <Button variant="outline" size="sm" fullWidth>
-                  View All Alerts
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
+      {/* Real-time Alerts */}
+      <RealTimeAlerts />
 
-
-          {/* Quick Actions */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Zap className="w-5 h-5" />
-                <span>Quick Actions</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <Button variant="outline" className="h-20 flex-col space-y-2">
-                  <Server className="w-6 h-6" />
-                  <span>Health Check</span>
-                </Button>
-                <Button variant="outline" className="h-20 flex-col space-y-2">
-                  <Database className="w-6 h-6" />
-                  <span>Database Status</span>
-                </Button>
-                <Button variant="outline" className="h-20 flex-col space-y-2">
-                  <BarChart3 className="w-6 h-6" />
-                  <span>View Metrics</span>
-                </Button>
-                <Button variant="outline" className="h-20 flex-col space-y-2">
-                  <Settings className="w-6 h-6" />
-                  <span>System Config</span>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
-      {/* Metrics Tab */}
-      {activeTab === 'metrics' && (
-        <MetricsDashboard />
-      )}
-
-      {/* Alerts Tab */}
-      {activeTab === 'alerts' && (
-        <RealTimeAlerts />
-      )}
-
-      {/* Footer Info */}
       <div className="text-center text-sm text-gray-500">
         Last updated: {lastUpdated.toLocaleTimeString()} • Auto-refresh: 30s
       </div>
@@ -369,37 +324,33 @@ export function Dashboard() {
   );
 }
 
-// Widget Components for Dashboard
+// Additional widget components
 export function MetricsWidget() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>System Metrics</CardTitle>
+        <CardTitle className="flex items-center">
+          <BarChart3 className="h-5 w-5 mr-2" />
+          Performance Metrics
+        </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">CPU Usage</span>
-            <span className="font-medium">67%</span>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <div className="text-sm text-gray-500">CPU Usage</div>
+            <div className="text-2xl font-bold">67%</div>
+            <div className="flex items-center text-sm text-green-600">
+              <TrendingDown className="h-3 w-3 mr-1" />
+              -2.3%
+            </div>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div className="bg-blue-600 h-2 rounded-full" style={{ width: '67%' }} />
-          </div>
-          
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">Memory Usage</span>
-            <span className="font-medium">84%</span>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div className="bg-orange-500 h-2 rounded-full" style={{ width: '84%' }} />
-          </div>
-          
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">Disk Usage</span>
-            <span className="font-medium">45%</span>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div className="bg-green-500 h-2 rounded-full" style={{ width: '45%' }} />
+          <div>
+            <div className="text-sm text-gray-500">Memory Usage</div>
+            <div className="text-2xl font-bold">84%</div>
+            <div className="flex items-center text-sm text-red-600">
+              <TrendingUp className="h-3 w-3 mr-1" />
+              +1.2%
+            </div>
           </div>
         </div>
       </CardContent>
@@ -411,23 +362,16 @@ export function ActiveUsersWidget() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center space-x-2">
-          <Users className="w-5 h-5" />
-          <span>Active Users</span>
+        <CardTitle className="flex items-center">
+          <Users className="h-5 w-5 mr-2" />
+          Active Users
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="text-center">
-          <div className="text-3xl font-bold text-blue-600">
-            {formatNumber(mockSystemMetrics.activeUsers)}
-          </div>
-          <p className="text-sm text-gray-600 mt-1">Currently online</p>
-          <div className="mt-4 flex justify-center space-x-4 text-sm">
-            <div>
-              <span className="font-medium">Peak today:</span>
-              <span className="ml-1 text-gray-600">487</span>
-            </div>
-          </div>
+        <div className="text-3xl font-bold">1,247</div>
+        <div className="flex items-center text-sm text-green-600 mt-1">
+          <TrendingUp className="h-3 w-3 mr-1" />
+          +12% from last hour
         </div>
       </CardContent>
     </Card>

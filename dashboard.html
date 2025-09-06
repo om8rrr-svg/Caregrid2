@@ -11,7 +11,7 @@
     <meta property="og:title" content="Dashboard | CareGrid">
     <meta property="og:description" content="Manage your appointments, favorites, and healthcare preferences on CareGrid.">
     <meta property="og:url" content="https://www.caregrid.co.uk/dashboard">
-    <meta property="og:image" content="https://www.caregrid.co.uk/og-image.jpg">
+    <meta property="og:image" content="https://www.caregrid.co.uk/og-image.svg">
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="robots" content="noindex, nofollow">
@@ -25,14 +25,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/fontawesome/css/all.min.css">
     
-    <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'GA_MEASUREMENT_ID');
-    </script>
+    <!-- Analytics handled by consent management system -->
     
     <!-- Dashboard Skeleton and Toast Styles -->
     <style>
@@ -503,7 +496,7 @@
                 console.log('Dashboard: Checking authentication state...');
                 
                 const currentUser = JSON.parse(localStorage.getItem('careGridCurrentUser') || sessionStorage.getItem('careGridCurrentUser') || 'null');
-                const token = localStorage.getItem('careGridToken') || sessionStorage.getItem('careGridToken');
+                const token = localStorage.getItem('careGridToken');
                 
                 console.log('Dashboard: Current user:', currentUser);
                 console.log('Dashboard: Token exists:', !!token);
@@ -599,6 +592,7 @@
     <script src="js/lazy-loader.js?v=2025082509"></script>
     
     <!-- Header and Consent Scripts -->
+    <script src="js/config.js"></script>
     <script type="module" src="js/header.js"></script>
     <script type="module" src="js/consent.js"></script>
     

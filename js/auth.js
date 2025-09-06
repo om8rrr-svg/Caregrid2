@@ -83,16 +83,13 @@ class AuthSystem {
             newPasswordForm.addEventListener('submit', (e) => this.handleResetPassword(e));
         }
         
-        // Real-time validation for sign-in
-        const emailInput = document.getElementById('email');
-        if (emailInput) {
-            emailInput.addEventListener('blur', (e) => this.validateEmail(e.target, 'emailError'));
-        }
+        // Enhanced real-time validation setup
+        this.setupRealTimeValidation();
     }
     
     async checkExistingAuth() {
         // try to auto-continue only if token exists
-        const t = localStorage.getItem('careGridToken') || sessionStorage.getItem('careGridToken');
+        const t = localStorage.getItem('careGridToken');
         if (!t) return; // show sign-in form normally
 
         try {
@@ -166,7 +163,7 @@ class AuthSystem {
             }
             
             // Store token using apiService for consistency
-            this.apiService.setToken(token, true);
+            this.apiService.setToken(token);
             this.currentUser = user;
             
             // Store user data in localStorage to match dashboard expectations
@@ -261,7 +258,7 @@ class AuthSystem {
                 throw new Error('No token received from server');
             }
             
-            this.apiService.setToken(token, true);
+            this.apiService.setToken(token);
             this.currentUser = user;
             
             // Store user data in localStorage to match dashboard expectations
@@ -542,15 +539,15 @@ class AuthSystem {
     validateSignUpForm(data) {
         let isValid = true;
         
-        // First name validation
-        if (!data.firstName.trim()) {
-            this.showError('firstNameError', 'First name is required');
+        // Enhanced first name validation
+        const firstNameInput = document.getElementById('firstName');
+        if (!this.validateNameField(firstNameInput, 'firstNameError', 'First')) {
             isValid = false;
         }
         
-        // Last name validation
-        if (!data.lastName.trim()) {
-            this.showError('lastNameError', 'Last name is required');
+        // Enhanced last name validation
+        const lastNameInput = document.getElementById('lastName');
+        if (!this.validateNameField(lastNameInput, 'lastNameError', 'Last')) {
             isValid = false;
         }
         
@@ -578,6 +575,8 @@ class AuthSystem {
         if (!data.agreeTerms) {
             this.showError('agreeTermsError', 'You must agree to the terms and conditions');
             isValid = false;
+        } else {
+            this.clearError('agreeTermsError');
         }
         
         return isValid;
@@ -585,15 +584,30 @@ class AuthSystem {
     
     validateEmail(input, errorId) {
         const email = input.value.trim();
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         
         if (!email) {
             this.showError(errorId, 'Email is required');
             return false;
         }
         
+        if (email.length > 254) {
+            this.showError(errorId, 'Email address is too long');
+            return false;
+        }
+        
+        // More comprehensive email validation
+        const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
         if (!emailRegex.test(email)) {
             this.showError(errorId, 'Please enter a valid email address');
+            return false;
+        }
+        
+        // Check for common typos in domain
+        const domain = email.split('@')[1]?.toLowerCase();
+        const suspiciousDomains = ['gmial.com', 'gmai.com', 'yahooo.com', 'hotmial.com', 'outlok.com'];
+        
+        if (suspiciousDomains.includes(domain)) {
+            this.showError(errorId, 'Please check your email address for typos');
             return false;
         }
         
@@ -603,8 +617,6 @@ class AuthSystem {
     
     validatePhone(input) {
         const phone = input.value.trim();
-        // UK phone number regex - more flexible to match backend validation
-        const ukPhoneRegex = /^(\+44\s?7\d{3}|\(?07\d{3}\)?)\s?\d{3}\s?\d{3}$|^(\+44\s?[1-9]\d{8,9}|0[1-9]\d{8,9})$/;
         
         // Phone is optional, so if empty, it's valid
         if (!phone) {
@@ -612,8 +624,18 @@ class AuthSystem {
             return true;
         }
         
-        // If phone is provided, validate UK format
-        if (!ukPhoneRegex.test(phone.replace(/[\s\-\(\)]/g, ''))) {
+        // Remove all spaces, hyphens, and parentheses for validation
+        const cleanPhone = phone.replace(/[\s\-\(\)]/g, '');
+        
+        // Check length after cleaning
+        if (cleanPhone.length < 10 || cleanPhone.length > 15) {
+            this.showError('phoneError', 'Phone number must be between 10-15 digits');
+            return false;
+        }
+        
+        // Enhanced UK phone number validation
+        const ukPhoneRegex = /^(?:\+44|0044|44|0)(?:[1-9]\d{8,9})$/;
+        if (!ukPhoneRegex.test(cleanPhone)) {
             this.showError('phoneError', 'Please enter a valid UK phone number (e.g., 07123456789 or +44 7123 456789)');
             return false;
         }
@@ -635,23 +657,39 @@ class AuthSystem {
             return false;
         }
         
-        if (!/[A-Z]/.test(password)) {
-            this.showError(errorId, 'Password must contain at least one uppercase letter');
+        if (password.length > 128) {
+            this.showError(errorId, 'Password must be less than 128 characters');
             return false;
         }
         
-        if (!/[a-z]/.test(password)) {
-            this.showError(errorId, 'Password must contain at least one lowercase letter');
+        // Check for required character types
+        const hasUppercase = /[A-Z]/.test(password);
+        const hasLowercase = /[a-z]/.test(password);
+        const hasNumber = /\d/.test(password);
+        const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+        
+        const requirements = [];
+        if (!hasUppercase) requirements.push('one uppercase letter');
+        if (!hasLowercase) requirements.push('one lowercase letter');
+        if (!hasNumber) requirements.push('one number');
+        if (!hasSpecialChar) requirements.push('one special character');
+        
+        if (requirements.length > 0) {
+            this.showError(errorId, `Password must contain at least ${requirements.join(', ')}`);
             return false;
         }
         
-        if (!/\d/.test(password)) {
-            this.showError(errorId, 'Password must contain at least one number');
+        // Check for common weak passwords
+        const commonPasswords = ['password', '12345678', 'qwerty123', 'abc123456', 'password123', 'welcome123'];
+        if (commonPasswords.includes(password.toLowerCase())) {
+            this.showError(errorId, 'This password is too common. Please choose a stronger password');
             return false;
         }
         
-        if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-            this.showError(errorId, 'Password must contain at least one special character');
+        // Check for sequential characters
+        const hasSequential = /(?:abc|bcd|cde|def|efg|fgh|ghi|hij|ijk|jkl|klm|lmn|mno|nop|opq|pqr|qrs|rst|stu|tuv|uvw|vwx|wxy|xyz|123|234|345|456|567|678|789)/i.test(password);
+        if (hasSequential) {
+            this.showError(errorId, 'Password should not contain sequential characters');
             return false;
         }
         
@@ -674,6 +712,133 @@ class AuthSystem {
         }
         
         this.clearError('confirmPasswordError');
+        return true;
+    }
+    
+    setupRealTimeValidation() {
+        // Sign-in form validation
+        const emailInput = document.getElementById('email');
+        if (emailInput) {
+            emailInput.addEventListener('blur', (e) => this.validateEmail(e.target, 'emailError'));
+            emailInput.addEventListener('input', (e) => {
+                if (e.target.value.trim()) {
+                    this.clearError('emailError');
+                }
+            });
+        }
+        
+        // Sign-up form validation
+        const signUpEmailInput = document.getElementById('signUpEmail');
+        if (signUpEmailInput) {
+            signUpEmailInput.addEventListener('blur', (e) => this.validateEmail(e.target, 'signUpEmailError'));
+            signUpEmailInput.addEventListener('input', (e) => {
+                if (e.target.value.trim()) {
+                    this.clearError('signUpEmailError');
+                }
+            });
+        }
+        
+        const firstNameInput = document.getElementById('firstName');
+        if (firstNameInput) {
+            firstNameInput.addEventListener('blur', (e) => this.validateNameField(e.target, 'firstNameError', 'First'));
+            firstNameInput.addEventListener('input', (e) => {
+                if (e.target.value.trim()) {
+                    this.clearError('firstNameError');
+                }
+            });
+        }
+        
+        const lastNameInput = document.getElementById('lastName');
+        if (lastNameInput) {
+            lastNameInput.addEventListener('blur', (e) => this.validateNameField(e.target, 'lastNameError', 'Last'));
+            lastNameInput.addEventListener('input', (e) => {
+                if (e.target.value.trim()) {
+                    this.clearError('lastNameError');
+                }
+            });
+        }
+        
+        const phoneInput = document.getElementById('phone');
+        if (phoneInput) {
+            phoneInput.addEventListener('blur', (e) => this.validatePhone(e.target));
+            phoneInput.addEventListener('input', (e) => {
+                if (e.target.value.trim()) {
+                    this.clearError('phoneError');
+                }
+            });
+        }
+        
+        const signUpPasswordInput = document.getElementById('signUpPassword');
+        if (signUpPasswordInput) {
+            signUpPasswordInput.addEventListener('blur', (e) => this.validatePassword(e.target, 'signUpPasswordError'));
+            signUpPasswordInput.addEventListener('input', (e) => {
+                if (e.target.value) {
+                    this.clearError('signUpPasswordError');
+                }
+                // Also validate confirm password if it has a value
+                const confirmPasswordInput = document.getElementById('confirmPassword');
+                if (confirmPasswordInput && confirmPasswordInput.value) {
+                    this.validatePasswordMatch();
+                }
+            });
+        }
+        
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+        if (confirmPasswordInput) {
+            confirmPasswordInput.addEventListener('blur', () => this.validatePasswordMatch());
+            confirmPasswordInput.addEventListener('input', (e) => {
+                if (e.target.value) {
+                    this.clearError('confirmPasswordError');
+                }
+            });
+        }
+        
+        // Reset password form validation
+        const resetEmailInput = document.getElementById('resetEmail');
+        if (resetEmailInput) {
+            resetEmailInput.addEventListener('blur', (e) => this.validateEmail(e.target, 'resetEmailError'));
+            resetEmailInput.addEventListener('input', (e) => {
+                if (e.target.value.trim()) {
+                    this.clearError('resetEmailError');
+                }
+            });
+        }
+        
+        const newPasswordInput = document.getElementById('newPassword');
+        if (newPasswordInput) {
+            newPasswordInput.addEventListener('blur', (e) => this.validatePassword(e.target, 'newPasswordError'));
+            newPasswordInput.addEventListener('input', (e) => {
+                if (e.target.value) {
+                    this.clearError('newPasswordError');
+                }
+            });
+        }
+    }
+    
+    validateNameField(input, errorId, fieldType) {
+        const value = input.value.trim();
+        
+        if (!value) {
+            this.showError(errorId, `${fieldType} name is required`);
+            return false;
+        }
+        
+        if (value.length < 2) {
+            this.showError(errorId, `${fieldType} name must be at least 2 characters`);
+            return false;
+        }
+        
+        if (value.length > 50) {
+            this.showError(errorId, `${fieldType} name must be less than 50 characters`);
+            return false;
+        }
+        
+        if (!/^[a-zA-Z\s'-]+$/.test(value)) {
+            this.showError(errorId, `${fieldType} name can only contain letters, spaces, hyphens, and apostrophes`);
+            return false;
+        }
+        
+        this.clearError(errorId);
         return true;
     }
     
@@ -875,8 +1040,8 @@ class AuthSystem {
     
     // Check if user is authenticated
     isAuthenticated() {
-        // Check for token in localStorage or sessionStorage directly
-        return !!(localStorage.getItem('careGridToken') || sessionStorage.getItem('careGridToken'));
+        // Check for token in localStorage only
+        return !!localStorage.getItem('careGridToken');
     }
     
     redirectAfterAuth() {
@@ -1372,7 +1537,7 @@ async function handleGoogleSignInSuccess(result) {
     try {
         // Store token and user data
         if (result.tokens && result.tokens.accessToken) {
-            window.apiService.setToken(result.tokens.accessToken, true);
+            window.apiService.setToken(result.tokens.accessToken);
         }
         
         if (result.user) {

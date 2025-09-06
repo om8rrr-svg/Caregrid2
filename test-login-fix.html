@@ -122,7 +122,7 @@
             
             // Check what dashboard.html would see
             const storedUser = JSON.parse(localStorage.getItem('careGridCurrentUser') || sessionStorage.getItem('careGridCurrentUser') || 'null');
-            const storedToken = localStorage.getItem('careGridToken') || sessionStorage.getItem('careGridToken');
+            const storedToken = localStorage.getItem('careGridToken');
             
             log(`Stored user: ${JSON.stringify(storedUser)}`);
             log(`Stored token: ${storedToken}`);
@@ -184,7 +184,7 @@
             // Replicate dashboard.html checkAuthenticationState logic
             try {
                 const currentUser = JSON.parse(localStorage.getItem('careGridCurrentUser') || sessionStorage.getItem('careGridCurrentUser') || 'null');
-                const token = localStorage.getItem('careGridToken') || sessionStorage.getItem('careGridToken');
+                const token = localStorage.getItem('careGridToken');
                 
                 log(`Dashboard sees user: ${JSON.stringify(currentUser)}`);
                 log(`Dashboard sees token: ${!!token ? 'YES' : 'NO'}`);

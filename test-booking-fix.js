@@ -65,7 +65,8 @@ async function testBooking(data, testName) {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(data)
+            body: JSON.stringify(data),
+            cache: 'no-store' // Ensure fresh data
         });
         
         console.log('Response status:', response.status);

@@ -27,22 +27,16 @@ class APIService {
         ]);
     }
 
-    // Token management
+    // Token management - standardized to use localStorage only
     getStoredToken() {
-        return localStorage.getItem('careGridToken') || sessionStorage.getItem('careGridToken');
+        return localStorage.getItem('careGridToken');
     }
 
-    setToken(token, remember = false) {
+    setToken(token) {
         this.token = token;
-        if (remember) {
-            localStorage.setItem('careGridToken', token);
-            sessionStorage.removeItem('careGridToken');
-        } else {
-            sessionStorage.setItem('careGridToken', token);
-            localStorage.removeItem('careGridToken');
-        }
-        // Ensure the instance token is updated
-        this.token = this.getStoredToken();
+        localStorage.setItem('careGridToken', token);
+        // Clean up old sessionStorage for migration
+        sessionStorage.removeItem('careGridToken');
     }
 
     removeToken() {
@@ -117,6 +111,7 @@ class APIService {
             },
             credentials: 'omit', // using Bearer token, not cookies
             signal: controller.signal,
+            cache: 'no-store', // Ensure fresh data for all API calls
             ...options
         };
 
@@ -168,6 +163,9 @@ class APIService {
                 throw new Error(data.error || data.message || `HTTP error! status: ${response.status}`);
             }
 
+            // Dispatch API success event for service banner
+            window.dispatchEvent(new CustomEvent('api-success'));
+
             return data;
         } catch (error) {
             clearTimeout(timeoutId); // Clear timeout on error
@@ -177,6 +175,11 @@ class APIService {
                 console.error('API Request failed:', error);
                 console.error('Error details:', error.message);
             }
+            
+            // Dispatch API error event for service banner
+            window.dispatchEvent(new CustomEvent('api-error', {
+                detail: error.message || 'Network connection failed'
+            }));
             
             // Handle specific error cases
             if (error.name === 'AbortError') {
@@ -426,6 +429,9 @@ class APIService {
                 if (!response.ok) {
                     throw new Error(data.error || data.message || `HTTP error! status: ${response.status}`);
                 }
+
+                // Dispatch API success event for service banner
+                window.dispatchEvent(new CustomEvent('api-success'));
 
                 return data;
                 
