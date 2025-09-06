@@ -84,7 +84,7 @@ transform: rotate(-45deg) translate(-5px, 6px)}
 opacity: 0}
  .hamburger.active .bar:nth-child(3){
 transform: rotate(45deg) translate(-5px, -6px)}
- @media (max-width: 480px){
+ @media (max-width: 768px){
 .nav-container{
 padding: 0 20px}
  .nav-menu{
@@ -221,7 +221,7 @@ padding: 50px 0;background: #F8FAFC}
  .mobile-location-select{
 display: none}
  .location-grid{
-display: grid;grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));gap: 25px;max-width: 1000px;margin: 0 auto}
+display: grid;grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));gap: 25px;max-width: 1000px;margin: 0 auto}
  .location-btn{
 background: white;border: 2px solid #E8F4FD;padding: 35px;border-radius: 20px;cursor: pointer;transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);text-align: left;display: flex;flex-direction: column;gap: 8px;box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);position: relative;overflow: hidden}
  .location-btn::before{
@@ -610,7 +610,7 @@ display: flex;align-items: center;gap: 15px;margin-bottom: 25px;position: relati
 content: '';position: absolute;bottom: -10px;left: 0;width: 60px;height: 3px;background: linear-gradient(135deg, #3b82f6, #8b5cf6);border-radius: 2px}
  .footer-bottom{
 border-top: 1px solid rgba(255, 255, 255, 0.1);padding-top: 30px;text-align: center;color: #94a3b8;position: relative;z-index: 2;backdrop-filter: blur(10px);font-weight: 500}
- @media (max-width: 480px){
+ @media (max-width: 768px){
 .hamburger{
 display: flex}
  .nav-menu{
@@ -626,9 +626,7 @@ font-size: 2rem}
  .category-grid{
 grid-template-columns: repeat(2, 1fr)}
  .location-grid{
-grid-template-columns: repeat(auto-fit, minmax(200px, 1fr))}
- .locations .location-grid{
-display: none}
+grid-template-columns: repeat(auto-fit, minmax(150px, 1fr))}
  .locations::after{
 content: '';display: block;width: 100%}
  .mobile-location-select{
