@@ -62,7 +62,7 @@ function renderBanner() {
   
   div.innerHTML = `
     <span style="flex: 1; min-width: 200px; text-align: center;">
-      🍪 We use cookies to improve your experience and for analytics.
+      We use cookies to improve your experience and for analytics.
     </span>
     <div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;">
       <button id="consentAccept" class="btn" style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 13px;">
