@@ -1,0 +1,35 @@
+{
+  "name": "caregrid-frontend",
+  "version": "1.0.0",
+  "description": "CareGrid - Healthcare Clinic Directory Platform",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx http-server . -p 3000",
+    "build": "echo 'Static site - no build required'",
+    "smoke": "node scripts/smoke.js",
+    "test": "echo 'No tests specified'"
+  },
+  "dependencies": {
+    "@vercel/speed-insights": "^1.2.0",
+    "node-fetch": "^2.7.0"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/care-grid-uk/caregrid2.git"
+  },
+  "keywords": [
+    "healthcare",
+    "clinic",
+    "directory",
+    "booking",
+    "medical"
+  ],
+  "author": "CareGrid Team",
+  "license": "MIT"
+}

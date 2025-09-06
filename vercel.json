@@ -23,7 +23,7 @@
       "permanent": false
     }
   ],
-  "errorDocument": "404.html",
+
   "headers": [
     {
       "source": "/api/(.*)",
@@ -47,7 +47,7 @@
       ]
     },
     {
-      "source": "/(.*\\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot))",
+      "source": "/static/(.*)",
       "headers": [
         {
           "key": "Cache-Control",

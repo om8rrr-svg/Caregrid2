@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Use CareGrid - Your Guide to Finding Private Healthcare | CareGrid</title>
+    <meta name="description" content="Learn how to use CareGrid to find and book the best private healthcare providers. Step-by-step guide with modern interface for GPs, dentists, physios and more.">
+    <meta name="keywords" content="how to use caregrid, book healthcare, private healthcare guide, find doctors, healthcare booking">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="How to Use CareGrid - Your Healthcare Booking Guide">
+    <meta property="og:description" content="Learn how to use CareGrid to find and book the best private healthcare providers across the UK.">
+    <meta property="og:url" content="https://www.caregrid.co.uk/how-to-use.html">
+    <meta property="og:image" content="https://www.caregrid.co.uk/og-image.jpg">
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="How to Use CareGrid - Your Healthcare Booking Guide">
+    <meta name="twitter:description" content="Learn how to use CareGrid to find and book the best private healthcare providers across the UK.">
+    
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <link rel="stylesheet" href="css/style.css?v=2025082509">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/fontawesome/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+    
+    <style>
+        /* How to Use Page Specific Styles */
+        .how-to-hero {
+            background: linear-gradient(135deg, #2A6EF3 0%, #1E5BC7 100%);
+            color: white;
+            padding: 120px 0 80px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .how-to-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+        
+        .how-to-hero .container {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .how-to-hero h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(45deg, #ffffff, #E6F0FF);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .how-to-hero p {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .hero-features {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin-top: 3rem;
+            flex-wrap: wrap;
+        }
+        
+        .hero-feature {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .hero-feature i {
+            font-size: 1.5rem;
+            color: #E6F0FF;
+        }
+        
+        /* Modern Step Cards */
+        .modern-steps {
+            padding: 100px 0;
+            background: linear-gradient(180deg, #F8FAFE 0%, #ffffff 100%);
+        }
+        
+        .steps-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 3rem;
+            margin-top: 4rem;
+        }
+        
+        .modern-step-card {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 10px 40px rgba(42, 110, 243, 0.1);
+            position: relative;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(42, 110, 243, 0.1);
+            overflow: hidden;
+        }
+        
+        .modern-step-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #2A6EF3, #1E5BC7);
+        }
+        
+        .modern-step-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 60px rgba(42, 110, 243, 0.15);
+        }
+        
+        .step-number-modern {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #2A6EF3, #1E5BC7);
+            color: white;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 15px rgba(42, 110, 243, 0.3);
+        }
+        
+        .step-image {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #E6F0FF, #F8FAFE);
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .step-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 15px;
+        }
+        
+        .step-image i {
+            font-size: 4rem;
+            color: #2A6EF3;
+            opacity: 0.6;
+        }
+        
+        .modern-step-card h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #2C3E50;
+            margin-bottom: 1rem;
+        }
+        
+        .modern-step-card p {
+            color: #5A6C7D;
+            line-height: 1.7;
+            margin-bottom: 1.5rem;
+        }
+        
+        .step-features {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .step-features li {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+            color: #5A6C7D;
+            font-size: 0.95rem;
+        }
+        
+        .step-features li i {
+            color: #2A6EF3;
+            width: 16px;
+        }
+        
+        /* Mobile App Section */
+        .mobile-app-section {
+            padding: 100px 0;
+            background: linear-gradient(135deg, #2C3E50 0%, #34495e 100%);
+            color: white;
+            text-align: center;
+        }
+        
+        .app-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+            margin-top: 3rem;
+        }
+        
+        .app-text {
+            text-align: left;
+        }
+        
+        .app-text h3 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+        
+        .app-text p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+        
+        .app-features {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 2rem;
+        }
+        
+        .app-features li {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+        
+        .app-features li i {
+            color: #E6F0FF;
+            width: 20px;
+        }
+        
+        .app-mockup {
+            position: relative;
+            text-align: center;
+        }
+        
+        .phone-mockup {
+            width: 280px;
+            height: 560px;
+            background: linear-gradient(145deg, #1a1a1a, #2d2d2d);
+            border-radius: 40px;
+            padding: 20px;
+            margin: 0 auto;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, #2A6EF3 0%, #1E5BC7 100%);
+            border-radius: 25px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .phone-screen i {
+            font-size: 4rem;
+            color: white;
+            margin-bottom: 1rem;
+            opacity: 0.9;
+        }
+        
+        .phone-screen .app-title {
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .phone-screen .app-subtitle {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
+        
+        /* Video Placeholder Section */
+        .video-section {
+            padding: 100px 0;
+            background: white;
+        }
+        
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 3rem;
+            margin-top: 3rem;
+        }
+        
+        .video-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .video-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .video-thumbnail {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #2A6EF3, #1E5BC7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .play-button {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: #2A6EF3;
+            transition: all 0.3s ease;
+        }
+        
+        .play-button:hover {
+            background: white;
+            transform: scale(1.1);
+        }
+        
+        .video-info {
+            padding: 1.5rem;
+        }
+        
+        .video-info h4 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2C3E50;
+            margin-bottom: 0.5rem;
+        }
+        
+        .video-info p {
+            color: #5A6C7D;
+            line-height: 1.6;
+        }
+        
+        /* Support Section */
+        .support-section {
+            padding: 80px 0;
+            background: linear-gradient(135deg, #F8FAFE 0%, #E6F0FF 100%);
+            text-align: center;
+        }
+        
+        .support-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .support-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(42, 110, 243, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .support-card:hover {
+            transform: translateY(-3px);
+        }
+        
+        .support-card i {
+            font-size: 3rem;
+            color: #2A6EF3;
+            margin-bottom: 1rem;
+        }
+        
+        .support-card h4 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #2C3E50;
+            margin-bottom: 1rem;
+        }
+        
+        .support-card p {
+            color: #5A6C7D;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+        
+        .support-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #2A6EF3;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background 0.3s ease;
+        }
+        
+        .support-btn:hover {
+            background: #1E5BC7;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .how-to-hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .how-to-hero p {
+                font-size: 1.1rem;
+            }
+            
+            .hero-features {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+            
+            .steps-container {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            
+            .modern-step-card {
+                padding: 2rem;
+            }
+            
+            .app-content {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+                text-align: center;
+            }
+            
+            .app-text {
+                text-align: center;
+            }
+            
+            .phone-mockup {
+                width: 240px;
+                height: 480px;
+            }
+            
+            .video-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            
+            .support-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <a href="index.html">
+                    <img src="images/logo.svg" alt="CareGrid - Healthcare Directory Platform Logo" class="logo">
+                    <span class="logo-text">CareGrid</span>
+                </a>
+            </div>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="how-to-use.html" class="nav-link active">How to Use</a></li>
+                <li><a href="contact.html" class="nav-link">Contact</a></li>
+                <li id="authNavItem"><a href="auth.html" class="nav-link">Sign In</a></li>
+                <li id="userNavItem" style="display: none;">
+                    <div class="user-menu">
+                        <div class="user-avatar" onclick="toggleUserMenu()" aria-expanded="false" aria-controls="userDropdown" role="button" tabindex="0">
+                            <img src="images/default-avatar.svg" alt="User Avatar" id="userAvatar">
+                            <span id="userName">User</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="user-dropdown" id="userDropdown" hidden>
+                            <a href="dashboard.html" class="dropdown-item">
+                                <i class="fas fa-tachometer-alt"></i>
+                                Dashboard
+                            </a>
+                            <a href="#" class="dropdown-item" onclick="logout()">
+                                <i class="fas fa-sign-out-alt"></i>
+                                Logout
+                            </a>
+                        </div>
+                    </div>
+                </li>
+                <li><a href="list-clinic.html" class="nav-link cta-nav">List Your Clinic</a></li>
+            </ul>
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="how-to-hero">
+        <div class="container">
+            <h1 data-aos="fade-up">How to Use CareGrid</h1>
+            <p data-aos="fade-up" data-aos-delay="100">Your comprehensive guide to finding and booking the best private healthcare providers across the UK</p>
+            
+            <div class="hero-features" data-aos="fade-up" data-aos-delay="200" style="display: flex; flex-wrap: nowrap; justify-content: center; align-items: center; gap: 2rem;">
+                <div class="hero-feature" style="display: flex; align-items: center; justify-content: center; text-align: center;">
+                    <span>Mobile Friendly</span>
+                </div>
+                <div class="hero-feature" style="display: flex; align-items: center; justify-content: center; text-align: center;">
+                    <span>Book in Minutes</span>
+                </div>
+                <div class="hero-feature" style="display: flex; align-items: center; justify-content: center; text-align: center;">
+                    <span>Trusted Providers</span>
+                </div>
+                <div class="hero-feature" style="display: flex; align-items: center; justify-content: center; text-align: center;">
+                    <span>Verified Reviews</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mobile App Section -->
+    <section class="mobile-app-section">
+        <div class="container">
+            <h2 class="section-title" data-aos="fade-up" style="color: white;">Healthcare at Your Fingertips</h2>
+            <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">Access CareGrid anywhere, anytime with our mobile-optimized platform</p>
+            
+            <div class="app-content">
+                <div class="app-text" data-aos="fade-right" data-aos-delay="200">
+                    <h3>Mobile-First Experience</h3>
+                    <p>CareGrid is designed with mobile users in mind. Whether you're at home, work, or on-the-go, finding and booking healthcare has never been easier.</p>
+                    
+                    <ul class="app-features">
+                        <li><span>Responsive design for all devices</span></li>
+                        <li><span>Touch-friendly interface</span></li>
+                        <li><span>Works online and offline</span></li>
+                        <li><span>Real-time synchronization</span></li>
+                    </ul>
+                    
+                    <a href="index.html" class="btn primary-btn" style="background: linear-gradient(135deg, #2A6EF3 0%, #1E5BC7 100%); padding: 15px 30px; border-radius: 50px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 10px 30px rgba(42, 110, 243, 0.3); transition: all 0.3s ease;">Start Using CareGrid</a>
+                </div>
+                
+                <div class="app-mockup" data-aos="fade-left" data-aos-delay="300">
+                    <div class="phone-mockup">
+                        <div class="phone-screen">
+                            <i class="fas fa-heartbeat"></i>
+                            <div class="app-title">CareGrid Mobile</div>
+                            <div class="app-subtitle">Healthcare in your pocket</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modern Steps Section -->
+    <section class="modern-steps">
+        <div class="container">
+            <h2 class="section-title" data-aos="fade-up">Simple Steps to Better Healthcare</h2>
+            <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">Find your perfect healthcare provider in three modern, easy steps</p>
+            
+            <div class="steps-container">
+                <div class="modern-step-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="step-number-modern">1</div>
+                    <div class="step-image">
+                        <img src="images/samedaydoctor_manchester.jpg" alt="Healthcare Search Interface" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <i class="fas fa-search" style="display: none;"></i>
+                    </div>
+                    <h3>Search & Discover</h3>
+                    <p>Use our intelligent search to find healthcare providers by location, specialty, and availability. Filter by ratings, services, and distance to find exactly what you need.</p>
+                    <ul class="step-features">
+                        <li><i class="fas fa-map-marker-alt"></i>Location-based search</li>
+                        <li><i class="fas fa-filter"></i>Advanced filtering options</li>
+                        <li><i class="fas fa-star"></i>Verified ratings & reviews</li>
+                        <li><i class="fas fa-clock"></i>Real-time availability</li>
+                    </ul>
+                </div>
+                
+                <div class="modern-step-card" data-aos="fade-up" data-aos-delay="300">
+                    <div class="step-number-modern">2</div>
+                    <div class="step-image">
+                        <img src="images/private_gp_extra_manchester.jpg" alt="Healthcare Provider Comparison" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <i class="fas fa-balance-scale" style="display: none;"></i>
+                    </div>
+                    <h3>Compare & Choose</h3>
+                    <p>Review detailed provider profiles with comprehensive information about services, qualifications, patient reviews, and pricing to make informed decisions.</p>
+                    <ul class="step-features">
+                        <li><i class="fas fa-user-md"></i>Detailed provider profiles</li>
+                        <li><i class="fas fa-comments"></i>Patient testimonials</li>
+                        <li><i class="fas fa-certificate"></i>Qualifications & specialties</li>
+                        <li><i class="fas fa-pound-sign"></i>Transparent pricing</li>
+                    </ul>
+                </div>
+                
+                <div class="modern-step-card" data-aos="fade-up" data-aos-delay="400">
+                    <div class="step-number-modern">3</div>
+                    <div class="step-image">
+                        <img src="images/pall_mall_medical.jpg" alt="Healthcare Appointment Booking" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <i class="fas fa-calendar-check" style="display: none;"></i>
+                    </div>
+                    <h3>Book & Connect</h3>
+                    <p>Contact your chosen provider directly through secure messaging or book appointments online. Get confirmation and reminders for your healthcare appointments.</p>
+                    <ul class="step-features">
+                        <li><i class="fas fa-phone"></i>Direct contact options</li>
+                        <li><i class="fas fa-calendar-alt"></i>Online booking system</li>
+                        <li><i class="fas fa-bell"></i>Automated reminders</li>
+                        <li><i class="fas fa-lock"></i>Secure messaging</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+    <!-- Video Section -->
+    <section class="video-section">
+        <div class="container">
+            <h2 class="section-title" data-aos="fade-up">Watch How It Works</h2>
+            <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">Learn from our video guides and tutorials</p>
+            
+            <div class="video-grid">
+                <div class="video-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="video-thumbnail" onclick="alert('Video: Getting Started with CareGrid - Coming Soon!')">
+                        <div class="play-button">
+                            <i class="fas fa-play"></i>
+                        </div>
+                    </div>
+                    <div class="video-info">
+                        <h4>Getting Started with CareGrid</h4>
+                        <p>A comprehensive walkthrough of finding and booking your first healthcare appointment on CareGrid.</p>
+                    </div>
+                </div>
+                
+                <div class="video-card" data-aos="fade-up" data-aos-delay="300">
+                    <div class="video-thumbnail" onclick="alert('Video: Advanced Search Features - Coming Soon!')">
+                        <div class="play-button">
+                            <i class="fas fa-play"></i>
+                        </div>
+                    </div>
+                    <div class="video-info">
+                        <h4>Advanced Search Features</h4>
+                        <p>Learn how to use filters, search by specialty, and find exactly the healthcare provider you need.</p>
+                    </div>
+                </div>
+                
+                <div class="video-card" data-aos="fade-up" data-aos-delay="400">
+                    <div class="video-thumbnail" onclick="alert('Video: Managing Your Healthcare - Coming Soon!')">
+                        <div class="play-button">
+                            <i class="fas fa-play"></i>
+                        </div>
+                    </div>
+                    <div class="video-info">
+                        <h4>Managing Your Healthcare</h4>
+                        <p>Discover how to track appointments, manage favorites, and get the most out of your CareGrid account.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Support Section -->
+    <section class="support-section">
+        <div class="container">
+            <h2 class="section-title" data-aos="fade-up">Need Help?</h2>
+            <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">We're here to support you every step of the way</p>
+            
+            <div class="support-grid">
+                <div class="support-card" data-aos="fade-up" data-aos-delay="200">
+                    <i class="fas fa-question-circle"></i>
+                    <h4>FAQ</h4>
+                    <p>Find answers to common questions about using CareGrid and booking healthcare appointments.</p>
+                    <a href="contact.html#faq" class="support-btn">
+                        <span>View FAQ</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+                
+                <div class="support-card" data-aos="fade-up" data-aos-delay="300">
+                    <i class="fas fa-headset"></i>
+                    <h4>Live Support</h4>
+                    <p>Chat with our friendly support team for real-time assistance with your healthcare bookings.</p>
+                    <a href="contact.html" class="support-btn">
+                        <span>Contact Support</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+                
+                <div class="support-card" data-aos="fade-up" data-aos-delay="400">
+                    <i class="fas fa-book"></i>
+                    <h4>User Guide</h4>
+                    <p>Download our comprehensive user guide for detailed instructions on using all CareGrid features.</p>
+                    <a href="#" class="support-btn" onclick="alert('User Guide download - Coming Soon!')">
+                        <span>Download Guide</span>
+                        <i class="fas fa-download"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-logo">
+                        <img src="images/logo.svg" alt="CareGrid - Find Private Healthcare Near You" class="logo" loading="lazy">
+                        <span class="logo-text">CareGrid</span>
+                    </div>
+                    <p>Connecting patients with trusted private healthcare providers across the UK.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>For Patients</h4>
+                    <ul>
+                        <li><a href="index.html?category=gp">Find a GP</a></li>
+                        <li><a href="index.html?category=dentist">Find a Dentist</a></li>
+                        <li><a href="index.html?category=physiotherapy">Find a Physiotherapist</a></li>
+                        <li><a href="index.html?category=aesthetic">Aesthetic Clinics</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>For Clinics</h4>
+                    <ul>
+                        <li><a href="list-clinic.html">List Your Clinic</a></li>
+                        <li><a href="pricing.html">Pricing Plans</a></li>
+                        <li><a href="contact.html">Support</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <ul>
+                        <li><a href="how-to-use.html">How to Use</a></li>
+                        <li><a href="contact.html">Contact Us</a></li>
+                        <li><a href="terms.html">Terms of Service</a></li>
+                        <li><a href="privacy.html">Privacy Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2024 CareGrid. All rights reserved.</p>
+                <div class="footer-social">
+                    <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+                    <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    <script type="module" src="js/script.js?v=2025082510"></script>
+    <script>
+        // Initialize AOS animations
+        AOS.init({
+            duration: 1000,
+            once: true,
+            offset: 100
+        });
+
+        // Mobile menu functionality
+        function toggleUserMenu() {
+            const dropdown = document.getElementById('userDropdown');
+            const avatar = document.querySelector('.user-avatar');
+            
+            if (dropdown.hidden) {
+                dropdown.hidden = false;
+                avatar.setAttribute('aria-expanded', 'true');
+            } else {
+                dropdown.hidden = true;
+                avatar.setAttribute('aria-expanded', 'false');
+            }
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const userMenu = document.querySelector('.user-menu');
+            const dropdown = document.getElementById('userDropdown');
+            
+            if (userMenu && !userMenu.contains(event.target)) {
+                dropdown.hidden = true;
+                document.querySelector('.user-avatar').setAttribute('aria-expanded', 'false');
+            }
+        });
+
+        // Logout function
+        function logout() {
+            localStorage.removeItem('caregrid_token');
+            sessionStorage.removeItem('caregrid_token');
+            window.location.href = 'index.html';
+        }
+
+        // Mobile hamburger menu
+        document.addEventListener('DOMContentLoaded', function() {
+            const hamburger = document.querySelector('.hamburger');
+            const navMenu = document.querySelector('.nav-menu');
+            
+            if (hamburger && navMenu) {
+                hamburger.addEventListener('click', function() {
+                    hamburger.classList.toggle('active');
+                    navMenu.classList.toggle('active');
+                });
+            }
+        });    </script>
+    
+    <script type="module" src="js/header.js"></script>
+</body>
+</html>

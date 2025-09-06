@@ -16,7 +16,7 @@ CREATE INDEX IF NOT EXISTS idx_clinics_name_search ON clinics(LOWER(name));
 CREATE INDEX IF NOT EXISTS idx_clinics_frontend_id ON clinics(frontend_id) WHERE frontend_id IS NOT NULL;
 
 -- Full-text search indexes for better search performance
-CREATE INDEX IF NOT EXISTS idx_clinics_search_text ON clinics
+CREATE INDEX IF NOT EXISTS idx_clinics_search_text ON clinics 
   USING gin(to_tsvector('english', name || ' ' || COALESCE(description, '') || ' ' || city));
 
 -- Indexes for users table (authentication and search)
@@ -27,7 +27,7 @@ CREATE INDEX IF NOT EXISTS idx_users_verification_token ON users(verification_to
 CREATE INDEX IF NOT EXISTS idx_users_reset_token ON users(reset_token) WHERE reset_token IS NOT NULL;
 
 -- Indexes for clinic_services table (if it exists)
-CREATE INDEX IF NOT EXISTS idx_clinic_services_clinic_active ON clinic_services(clinic_id, is_active)
+CREATE INDEX IF NOT EXISTS idx_clinic_services_clinic_active ON clinic_services(clinic_id, is_active) 
   WHERE EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'clinic_services');
 
 -- Indexes for contact_messages table
@@ -35,11 +35,11 @@ CREATE INDEX IF NOT EXISTS idx_contact_messages_status_created ON contact_messag
 CREATE INDEX IF NOT EXISTS idx_contact_messages_email ON contact_messages(email);
 
 -- Partial indexes for better performance on filtered queries
-CREATE INDEX IF NOT EXISTS idx_appointments_active_future ON appointments(appointment_date, appointment_time)
+CREATE INDEX IF NOT EXISTS idx_appointments_active_future ON appointments(appointment_date, appointment_time) 
   WHERE status IN ('pending', 'confirmed');
-CREATE INDEX IF NOT EXISTS idx_clinics_active_premium ON clinics(rating DESC, review_count DESC)
+CREATE INDEX IF NOT EXISTS idx_clinics_active_premium ON clinics(rating DESC, review_count DESC) 
   WHERE is_active = true AND is_premium = true;
-CREATE INDEX IF NOT EXISTS idx_clinics_active_standard ON clinics(rating DESC, review_count DESC)
+CREATE INDEX IF NOT EXISTS idx_clinics_active_standard ON clinics(rating DESC, review_count DESC) 
   WHERE is_active = true AND is_premium = false;
 
 -- Covering indexes for frequently accessed columns together
