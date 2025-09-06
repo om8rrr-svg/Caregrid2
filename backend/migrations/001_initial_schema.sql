@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS clinics (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name VARCHAR(255) NOT NULL,
+    type VARCHAR(100),
     description TEXT,
     address TEXT NOT NULL,
     city VARCHAR(100) NOT NULL,
@@ -33,12 +34,17 @@ CREATE TABLE IF NOT EXISTS clinics (
     email VARCHAR(255),
     website VARCHAR(255),
     image_url VARCHAR(500),
+    logo_url VARCHAR(500),
     services TEXT[],
     opening_hours JSONB,
     rating DECIMAL(2,1) DEFAULT 0.0,
     review_count INTEGER DEFAULT 0,
     verified BOOLEAN DEFAULT false,
     featured BOOLEAN DEFAULT false,
+    is_premium BOOLEAN DEFAULT false,
+    is_active BOOLEAN DEFAULT true,
+    frontend_id VARCHAR(255),
+    owner_id UUID REFERENCES users(id),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
