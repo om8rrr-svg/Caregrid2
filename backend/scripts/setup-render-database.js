@@ -53,6 +53,9 @@ async function setupRenderDatabase() {
       // Run migrations
       await runMigrations(client);
       
+      // Run seeds to populate initial data
+      await runSeeds(client);
+      
       console.log('\n✅ Database setup completed successfully!');
       console.log('\n🎯 Next steps:');
       console.log('   1. Test the API: python3 test_api_mode.py');
@@ -177,6 +180,69 @@ async function runMigrations(client) {
   console.log(`\n✅ Applied ${migrationFiles.length} migrations successfully!`);
 }
 
+async function runSeeds(client) {
+  console.log('\n🌱 Running database seeds...');
+  
+  const seedsDir = path.join(__dirname, '..', 'seeds');
+  
+  if (!fs.existsSync(seedsDir)) {
+    console.log('📁 No seeds directory found, skipping seeds.');
+    return;
+  }
+  
+  const seedFiles = fs.readdirSync(seedsDir)
+    .filter(file => file.endsWith('.sql'))
+    .sort();
+  
+  if (seedFiles.length === 0) {
+    console.log('📄 No seed files found.');
+    return;
+  }
+  
+  // Create seeds table if it doesn't exist
+  await client.query(`
+    CREATE TABLE IF NOT EXISTS seeds (
+      id SERIAL PRIMARY KEY,
+      filename VARCHAR(255) NOT NULL UNIQUE,
+      executed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+  
+  for (const file of seedFiles) {
+    // Check if seed has already been run
+    const result = await client.query(
+      'SELECT 1 FROM seeds WHERE filename = $1',
+      [file]
+    );
+    
+    if (result.rows.length > 0) {
+      console.log(`⏭️  Skipping seed ${file} (already executed)`);
+      continue;
+    }
+    
+    console.log(`🌱 Running seed: ${file}`);
+    
+    const seedPath = path.join(seedsDir, file);
+    const seedSQL = fs.readFileSync(seedPath, 'utf8');
+    
+    try {
+      await client.query('BEGIN');
+      await client.query(seedSQL);
+      await client.query(
+        'INSERT INTO seeds (filename) VALUES ($1)',
+        [file]
+      );
+      await client.query('COMMIT');
+      console.log(`✅ Seed ${file} completed successfully`);
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw new Error(`Seed ${file} failed: ${error.message}`);
+    }
+  }
+  
+  console.log('✅ All seeds completed successfully!');
+}
+
 if (require.main === module) {
   setupRenderDatabase()
     .then(() => {
@@ -192,4 +258,4 @@ if (require.main === module) {
     });
 }
 
-module.exports = { setupRenderDatabase, runMigrations };
+module.exports = { setupRenderDatabase, runMigrations, runSeeds };
