@@ -221,7 +221,7 @@ padding: 50px 0;background: #F8FAFC}
  .mobile-location-select{
 display: none}
  .location-grid{
-display: grid;grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));gap: 25px;max-width: 1000px;margin: 0 auto}
+display: grid;grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));gap: 20px;max-width: 1200px;margin: 0 auto}
  .location-btn{
 background: white;border: 2px solid #E8F4FD;padding: 35px;border-radius: 20px;cursor: pointer;transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);text-align: left;display: flex;flex-direction: column;gap: 8px;box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);position: relative;overflow: hidden}
  .location-btn::before{
@@ -626,7 +626,7 @@ font-size: 2rem}
  .category-grid{
 grid-template-columns: repeat(2, 1fr)}
  .location-grid{
-grid-template-columns: repeat(auto-fit, minmax(150px, 1fr))}
+grid-template-columns: repeat(auto-fit, minmax(140px, 1fr))}
  .locations::after{
 content: '';display: block;width: 100%}
  .mobile-location-select{
