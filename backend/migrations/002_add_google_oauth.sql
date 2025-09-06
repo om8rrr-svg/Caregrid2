@@ -8,6 +8,8 @@ ALTER TABLE users ADD COLUMN IF NOT EXISTS google_id VARCHAR(255) UNIQUE;
 ALTER TABLE users ALTER COLUMN password_hash DROP NOT NULL;
 
 -- Add constraint to ensure either password_hash or google_id is present
+-- Drop existing constraint if it exists, then recreate it
+ALTER TABLE users DROP CONSTRAINT IF EXISTS check_auth_method;
 ALTER TABLE users ADD CONSTRAINT check_auth_method 
     CHECK (
         (password_hash IS NOT NULL AND google_id IS NULL) OR 

@@ -96,7 +96,8 @@ INSERT INTO feature_flags (name, description, enabled, rollout_percentage, targe
 ('enhanced_monitoring', 'Enhanced monitoring capabilities with real-time alerts', true, 25, '{"role": "admin"}', '{}'),
 ('beta_features', 'Access to beta features for testing', false, 10, '{"plan": "premium"}', '{"account_age_days": {"operator": "gt", "value": 30}}'),
 ('mobile_app_integration', 'Mobile app integration features', false, 0, '{}', '{}'),
-('advanced_analytics', 'Advanced analytics and reporting features', true, 50, '{"role": "manager"}', '{}');
+('advanced_analytics', 'Advanced analytics and reporting features', true, 50, '{"role": "manager"}', '{}')
+ON CONFLICT (name) DO NOTHING;
 
 -- Insert sample A/B experiments
 INSERT INTO ab_experiments (name, description, feature_flag_id, variants, traffic_allocation, status, start_date, end_date, success_metrics) VALUES
@@ -109,7 +110,8 @@ INSERT INTO ab_experiments (name, description, feature_flag_id, variants, traffi
  (SELECT id FROM feature_flags WHERE name = 'enhanced_monitoring'),
  '[{"name": "control", "weight": 50}, {"name": "immediate_alerts", "weight": 50}]',
  50, 'active', CURRENT_TIMESTAMP - INTERVAL '7 days', CURRENT_TIMESTAMP + INTERVAL '23 days',
- '["alert_response_time", "issue_resolution_time", "user_satisfaction"]');
+ '["alert_response_time", "issue_resolution_time", "user_satisfaction"]')
+ON CONFLICT (name) DO NOTHING;
 
 -- Create a function to update the updated_at timestamp
 CREATE OR REPLACE FUNCTION update_updated_at_column()
@@ -121,8 +123,10 @@ END;
 $$ language 'plpgsql';
 
 -- Create triggers to automatically update the updated_at column
+DROP TRIGGER IF EXISTS update_feature_flags_updated_at ON feature_flags;
 CREATE TRIGGER update_feature_flags_updated_at BEFORE UPDATE ON feature_flags
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_ab_experiments_updated_at ON ab_experiments;
 CREATE TRIGGER update_ab_experiments_updated_at BEFORE UPDATE ON ab_experiments
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();

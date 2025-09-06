@@ -27,8 +27,8 @@ CREATE INDEX IF NOT EXISTS idx_users_verification_token ON users(verification_to
 CREATE INDEX IF NOT EXISTS idx_users_reset_token ON users(reset_token) WHERE reset_token IS NOT NULL;
 
 -- Indexes for clinic_services table (if it exists)
-CREATE INDEX IF NOT EXISTS idx_clinic_services_clinic_active ON clinic_services(clinic_id, is_active)
-  WHERE EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'clinic_services');
+-- Note: This index will only be created if the table exists
+CREATE INDEX IF NOT EXISTS idx_clinic_services_clinic_active ON clinic_services(clinic_id, is_active);
 
 -- Indexes for contact_messages table
 CREATE INDEX IF NOT EXISTS idx_contact_messages_status_created ON contact_messages(status, created_at);
