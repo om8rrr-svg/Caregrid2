@@ -1179,6 +1179,15 @@ body {
     margin: 0 auto;
 }
 
+/* More specific rule for desktop-only location grid */
+.desktop-only.location-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
 .location-btn {
     background: white;
     border: 2px solid #E8F4FD;
