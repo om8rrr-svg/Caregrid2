@@ -15,11 +15,22 @@ if (process.env.DATABASE_URL) {
   dbConfig = {
     connectionString: process.env.DATABASE_URL,
     ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
-    max: 20, // maximum number of clients in the pool
-    idleTimeoutMillis: 30000, // how long a client is allowed to remain idle
-    connectionTimeoutMillis: 2000, // how long to wait when connecting a client
+    // Optimized connection pool settings
+    max: process.env.NODE_ENV === 'production' ? 25 : 15, // maximum number of clients in the pool
+    min: 2, // minimum number of clients in the pool
+    idleTimeoutMillis: 20000, // reduced idle timeout for faster cleanup
+    connectionTimeoutMillis: 5000, // increased connection timeout for reliability
+    acquireTimeoutMillis: 60000, // time to wait for connection from pool
+    createTimeoutMillis: 30000, // time to wait for new connection creation
+    destroyTimeoutMillis: 5000, // time to wait for connection destruction
+    reapIntervalMillis: 1000, // frequency to check for idle connections
+    createRetryIntervalMillis: 200, // retry interval for failed connections
+    // Performance optimizations
+    statement_timeout: 30000, // 30 second query timeout
+    query_timeout: 30000, // 30 second query timeout
+    application_name: 'caregrid-backend'
   };
-  console.log('🔗 Using DATABASE_URL for connection');
+  console.log('🔗 Using DATABASE_URL for connection with optimized pool settings');
 } else if (process.env.DB_PASSWORD) {
   // Use individual environment variables only if DB_PASSWORD is set
   dbConfig = {
@@ -29,11 +40,22 @@ if (process.env.DATABASE_URL) {
     password: process.env.DB_PASSWORD,
     port: process.env.DB_PORT || 5432,
     ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
-    max: 20, // maximum number of clients in the pool
-    idleTimeoutMillis: 30000, // how long a client is allowed to remain idle
-    connectionTimeoutMillis: 2000, // how long to wait when connecting a client
+    // Optimized connection pool settings
+    max: process.env.NODE_ENV === 'production' ? 25 : 15, // maximum number of clients in the pool
+    min: 2, // minimum number of clients in the pool
+    idleTimeoutMillis: 20000, // reduced idle timeout for faster cleanup
+    connectionTimeoutMillis: 5000, // increased connection timeout for reliability
+    acquireTimeoutMillis: 60000, // time to wait for connection from pool
+    createTimeoutMillis: 30000, // time to wait for new connection creation
+    destroyTimeoutMillis: 5000, // time to wait for connection destruction
+    reapIntervalMillis: 1000, // frequency to check for idle connections
+    createRetryIntervalMillis: 200, // retry interval for failed connections
+    // Performance optimizations
+    statement_timeout: 30000, // 30 second query timeout
+    query_timeout: 30000, // 30 second query timeout
+    application_name: 'caregrid-backend'
   };
-  console.log('🔗 Using individual DB_* environment variables');
+  console.log('🔗 Using individual DB_* environment variables with optimized pool settings');
 } else {
   // No database configured - use mock for testing
   console.log('🧪 No database configured - using mock data for testing');
@@ -59,7 +81,15 @@ if (!useMock) {
   });
 }
 
-// Helper function to execute queries
+// Performance tracking
+let queryStats = {
+  totalQueries: 0,
+  slowQueries: 0,
+  averageQueryTime: 0,
+  totalQueryTime: 0
+};
+
+// Helper function to execute queries with performance monitoring
 const query = async (text, params) => {
   const start = Date.now();
   try {
@@ -68,11 +98,34 @@ const query = async (text, params) => {
     if (useMock) {
       // Use mock database
       res = await mockDb.query(text, params);
-      console.log('🧪 Mock query executed', { text: text.substring(0, 50) + '...', duration: Date.now() - start, rows: res.rowCount });
+      const duration = Date.now() - start;
+      console.log('🧪 Mock query executed', { text: text.substring(0, 50) + '...', duration, rows: res.rowCount });
     } else {
-      // Use real database
+      // Use real database with performance monitoring
       res = await pool.query(text, params);
-      console.log('📊 Executed query', { text: text.substring(0, 50) + '...', duration: Date.now() - start, rows: res.rowCount });
+      const duration = Date.now() - start;
+      
+      // Update performance statistics
+      queryStats.totalQueries++;
+      queryStats.totalQueryTime += duration;
+      queryStats.averageQueryTime = queryStats.totalQueryTime / queryStats.totalQueries;
+      
+      // Track slow queries (>1000ms)
+      if (duration > 1000) {
+        queryStats.slowQueries++;
+        console.warn('🐌 Slow query detected', { 
+          text: text.substring(0, 100) + '...', 
+          duration, 
+          rows: res.rowCount,
+          params: params ? params.length : 0
+        });
+      } else {
+        console.log('📊 Query executed', { 
+          text: text.substring(0, 50) + '...', 
+          duration, 
+          rows: res.rowCount 
+        });
+      }
     }
     
     return res;
@@ -167,11 +220,37 @@ const closePool = async () => {
   }
 };
 
+// Get performance statistics
+const getQueryStats = () => {
+  return {
+    ...queryStats,
+    slowQueryPercentage: queryStats.totalQueries > 0 ? 
+      (queryStats.slowQueries / queryStats.totalQueries * 100).toFixed(2) : 0,
+    poolStats: pool ? {
+      totalCount: pool.totalCount,
+      idleCount: pool.idleCount,
+      waitingCount: pool.waitingCount
+    } : null
+  };
+};
+
+// Reset performance statistics
+const resetQueryStats = () => {
+  queryStats = {
+    totalQueries: 0,
+    slowQueries: 0,
+    averageQueryTime: 0,
+    totalQueryTime: 0
+  };
+};
+
 module.exports = {
   pool,
   query,
   getClient,
   transaction,
   testConnection,
-  closePool
+  closePool,
+  getQueryStats,
+  resetQueryStats
 };

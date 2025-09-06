@@ -2114,14 +2114,29 @@ function handleURLParameters() {
 }
 
 // Load clinics from API
-async function loadClinicsFromAPI() {
+// Enhanced clinic loading with retry mechanism and caching
+async function loadClinicsFromAPI(retryCount = 0) {
+    const maxRetries = 3;
+    const baseDelay = 1000; // 1 second
+    
     // Show loading status
     showAPIStatus('Loading clinics...', 'info');
     
     try {
         // Only log in development mode
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-            console.log('Attempting to connect to API at:', window.apiService.baseURL);
+            console.log(`Attempting to connect to API at: ${window.apiService.baseURL} (attempt ${retryCount + 1}/${maxRetries + 1})`);
+        }
+        
+        // Check for cached data first (valid for 5 minutes)
+        const cachedData = getCachedClinics();
+        if (cachedData && retryCount === 0) {
+            clinicsData = cachedData;
+            showAPIStatus('Cached data loaded', 'success');
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                console.log('✅ Using cached clinic data');
+            }
+            return;
         }
         
         // Request all clinics with graceful degradation
@@ -2131,6 +2146,10 @@ async function loadClinicsFromAPI() {
         const clinics = response.data || response;
         if (clinics && Array.isArray(clinics) && clinics.length > 0) {
             clinicsData = clinics;
+            
+            // Cache the successful response
+            setCachedClinics(clinics);
+            
             // Only log success in development mode
             if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
                 console.log('✅ Loaded', clinics.length, 'clinics from API');
@@ -2140,28 +2159,133 @@ async function loadClinicsFromAPI() {
             showAPIStatus('Live data loaded', 'success');
         } else {
             // API returned empty data, use fallback
+            loadFallbackData();
             showAPIStatus('Using sample data', 'info');
         }
     } catch (error) {
-        // Handle different types of errors gracefully
-        if (error.message === 'BACKEND_UNAVAILABLE') {
-            // Backend is unavailable, use fallback data silently
-            showAPIStatus('Demo mode', 'offline');
-        } else if (error.message === 'timeout') {
-            // Timeout occurred, show user-friendly message and fallback
-            showAPIStatus('Slow connection - using sample data', 'offline');
-        } else {
-            // Other errors - still use fallback but show different status
-            showAPIStatus('Demo mode', 'offline');
+        // Implement retry logic with exponential backoff
+        if (retryCount < maxRetries && shouldRetry(error)) {
+            const delay = baseDelay * Math.pow(2, retryCount); // Exponential backoff
+            
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                console.warn(`⚠️ API request failed (attempt ${retryCount + 1}), retrying in ${delay}ms:`, error.message);
+            }
+            
+            showAPIStatus(`Connection issue - retrying... (${retryCount + 1}/${maxRetries})`, 'warning');
+            
+            setTimeout(() => {
+                loadClinicsFromAPI(retryCount + 1);
+            }, delay);
+            return;
         }
+        
+        // All retries exhausted or non-retryable error
+        handleAPIError(error);
+        loadFallbackData();
         
         // Only log errors in development mode
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-            console.warn('❌ Failed to load clinics from API, using fallback data:', error.message);
+            console.warn('❌ Failed to load clinics from API after retries, using fallback data:', error.message);
+        }
+    }
+}
+
+// Determine if an error should trigger a retry
+function shouldRetry(error) {
+    const retryableErrors = [
+        'timeout',
+        'NETWORK_ERROR',
+        'RATE_LIMITED',
+        'SERVER_ERROR'
+    ];
+    
+    return retryableErrors.some(retryableError => 
+        error.message.includes(retryableError) || 
+        error.name === retryableError
+    );
+}
+
+// Handle API errors with appropriate user messaging
+function handleAPIError(error) {
+    if (error.message === 'BACKEND_UNAVAILABLE') {
+        showAPIStatus('Demo mode', 'offline');
+    } else if (error.message === 'timeout') {
+        showAPIStatus('Slow connection - using sample data', 'offline');
+    } else if (error.message === 'RATE_LIMITED') {
+        showAPIStatus('Service busy - using sample data', 'warning');
+    } else {
+        showAPIStatus('Demo mode', 'offline');
+    }
+}
+
+// Load fallback data when API is unavailable
+function loadFallbackData() {
+    // clinicsData is already populated with sample data from the beginning of the file
+    // This function can be extended to load from localStorage or other sources
+    
+    // Try to load from localStorage as secondary fallback
+    const localData = localStorage.getItem('clinics_backup');
+    if (localData) {
+        try {
+            const parsedData = JSON.parse(localData);
+            if (Array.isArray(parsedData) && parsedData.length > 0) {
+                clinicsData = parsedData;
+                if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                    console.log('📦 Loaded backup data from localStorage');
+                }
+                return;
+            }
+        } catch (e) {
+            // Invalid localStorage data, continue with default sample data
+        }
+    }
+    
+    // Default sample data is already loaded at the top of the file
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        console.log('📋 Using default sample data');
+    }
+}
+
+// Cache management functions
+function setCachedClinics(clinics) {
+    const cacheData = {
+        data: clinics,
+        timestamp: Date.now(),
+        version: '1.0'
+    };
+    
+    try {
+        localStorage.setItem('clinics_cache', JSON.stringify(cacheData));
+        // Also store as backup
+        localStorage.setItem('clinics_backup', JSON.stringify(clinics));
+    } catch (e) {
+        // localStorage might be full or disabled
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            console.warn('Failed to cache clinic data:', e.message);
+        }
+    }
+}
+
+function getCachedClinics() {
+    try {
+        const cached = localStorage.getItem('clinics_cache');
+        if (!cached) return null;
+        
+        const cacheData = JSON.parse(cached);
+        const cacheAge = Date.now() - cacheData.timestamp;
+        const maxAge = 5 * 60 * 1000; // 5 minutes
+        
+        if (cacheAge < maxAge && cacheData.data && Array.isArray(cacheData.data)) {
+            return cacheData.data;
         }
         
-        // Keep the existing sample data as fallback - this ensures the app works
-        // clinicsData is already populated with sample data from the beginning of the file
+        // Cache expired, remove it
+        localStorage.removeItem('clinics_cache');
+        return null;
+    } catch (e) {
+        // Invalid cache data
+        localStorage.removeItem('clinics_cache');
+        return null;
     }
 }
 
@@ -2231,6 +2355,30 @@ function showAPIStatus(message, status) {
         }, 3000);
     }
 }
+
+// Enhanced API error handling with detailed feedback
+window.addEventListener('api-error', (event) => {
+    const errorDetail = event.detail;
+    let message = typeof errorDetail === 'string' ? errorDetail : errorDetail.message;
+    
+    // Provide context-specific error messages
+    if (errorDetail.endpoint) {
+        if (errorDetail.endpoint.includes('/clinics')) {
+            message = 'Unable to load clinic data. Showing cached results.';
+        } else if (errorDetail.endpoint.includes('/auth')) {
+            message = 'Authentication service temporarily unavailable.';
+        } else if (errorDetail.endpoint.includes('/appointments')) {
+            message = 'Appointment service temporarily unavailable.';
+        }
+    }
+    
+    showAPIStatus(message, 'error');
+    
+    // Log detailed error info in development
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        console.warn('API Error Details:', errorDetail);
+    }
+});
 
 function setupEventListeners() {
     // Mobile menu toggle

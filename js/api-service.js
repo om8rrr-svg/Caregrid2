@@ -88,7 +88,7 @@ class APIService {
         }
     }
 
-    // HTTP request helper
+    // HTTP request helper with enhanced error handling
     async makeRequest(endpoint, options = {}) {
         // Use buildUrl to ensure proper URL construction
         const url = buildUrl(`/api${endpoint}`, {});
@@ -101,7 +101,8 @@ class APIService {
         // Add timeout to prevent indefinite loading - shorter timeout for clinics endpoint
         const controller = new AbortController();
         const isClinicRequest = endpoint.includes('/clinics');
-        const timeoutMs = isClinicRequest ? 10000 : 30000; // 10s for clinics, 30s for others
+        const isAuthRequest = endpoint.includes('/auth');
+        const timeoutMs = isClinicRequest ? 8000 : (isAuthRequest ? 12000 : 30000); // Optimized timeouts
         const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
         
         const config = {
@@ -175,33 +176,41 @@ class APIService {
                 console.error('Error details:', error.message);
             }
             
-            // Dispatch API error event for service banner
+            // Dispatch API error event for service banner with enhanced details
             window.dispatchEvent(new CustomEvent('api-error', {
-                detail: error.message || 'Network connection failed'
+                detail: {
+                    message: error.message || 'Network connection failed',
+                    endpoint: endpoint,
+                    timestamp: new Date().toISOString()
+                }
             }));
             
-            // Handle specific error cases
+            // Handle specific error cases with improved user messaging
             if (error.name === 'AbortError') {
                 // For auth requests, let fallback handle timeout gracefully
-                const isAuthRequest = endpoint.includes('/auth');
-                if (isAuthRequest) {
+                if (isAuthRequest || isClinicRequest) {
                     throw new Error('BACKEND_UNAVAILABLE');
                 }
                 throw new Error('Request timed out. Please check your connection and try again.');
             }
             
             if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
-                // For clinic requests or auth requests, let fallback handle it gracefully
-                const isAuthRequest = endpoint.includes('/auth');
+                // Network connectivity issues - handle gracefully for critical endpoints
                 if (isClinicRequest || isAuthRequest) {
                     throw new Error('BACKEND_UNAVAILABLE');
                 }
-                throw new Error('Network connection failed. Please check your connection.');
+                throw new Error('Network connection failed. Please check your internet connection.');
+            }
+            
+            // Handle server errors with user-friendly messages
+            if (error.message.includes('500') || error.message.includes('Internal Server Error')) {
+                throw new Error('Server temporarily unavailable. Please try again in a moment.');
             }
             
             // For authentication errors, provide clearer messaging
             if (error.message.includes('Authentication failed') || error.message.includes('401')) {
-                throw new Error('Authentication failed');
+                this.clearAuthData(); // Clear invalid auth data
+                throw new Error('Session expired. Please log in again.');
             }
             
             // Pass through specific authentication error messages from backend
@@ -210,6 +219,11 @@ class APIService {
                 error.message.includes('email address') ||
                 error.message.includes('sign up')) {
                 throw error; // Pass the specific error message through
+            }
+            
+            // Handle rate limiting with better messaging
+            if (error.message.includes('Too many requests') || error.message.includes('429')) {
+                throw new Error('Too many requests. Please wait a moment before trying again.');
             }
             
             throw error;

@@ -51,8 +51,8 @@ function validateEnvironment() {
   }
 }
 
-// Database migration runner
-const { MigrationRunner } = require('./services/migrationRunner');
+// Database migration runner - using setup scripts instead
+// Migrations are handled by scripts/setup-render-database.js or scripts/run-performance-migration.js
 
 async function runStartupMigrations() {
   // Skip migrations in development if explicitly disabled
@@ -61,49 +61,19 @@ async function runStartupMigrations() {
     return;
   }
 
-  console.log('🚀 Running startup migrations...');
-  const migrationRunner = new MigrationRunner();
-  
-  try {
-    // Run migrations
-    const migrationResult = await migrationRunner.runMigrations();
-    
-    if (!migrationResult.success) {
-      console.error('❌ Migration failed:', migrationResult.error);
-      if (process.env.NODE_ENV === 'production') {
-        console.error('🛑 Cannot start server without successful migrations in production');
-        process.exit(1);
-      }
-      return;
-    }
-    
-    // Run seeds if migrations were successful
-    const seedResult = await migrationRunner.runSeeds();
-    
-    if (!seedResult.success) {
-      console.warn('⚠️  Seeding failed:', seedResult.error);
-      // Don't exit on seed failure, just warn
-    } else if (seedResult.seeded) {
-      console.log(`✅ Database seeded with ${seedResult.clinicsSeeded} clinics`);
-    }
-    
-  } catch (error) {
-    console.error('❌ Startup migration error:', error.message);
-    if (process.env.NODE_ENV === 'production') {
-      console.error('🛑 Cannot start server without successful migrations in production');
-      process.exit(1);
-    }
-  }
+  console.log('ℹ️  Database migrations should be run separately using setup scripts');
+  console.log('   - Use: node scripts/setup-render-database.js');
+  console.log('   - Or: node scripts/run-performance-migration.js');
 }
 
 // Validate environment before starting
 validateEnvironment();
 
-// Run migrations before setting up routes
+// Run startup checks
 runStartupMigrations().then(() => {
-  console.log('✅ Startup migrations completed');
+  console.log('✅ Startup checks completed');
 }).catch(error => {
-  console.error('❌ Failed to complete startup migrations:', error.message);
+  console.error('❌ Failed to complete startup checks:', error.message);
   if (process.env.NODE_ENV === 'production') {
     process.exit(1);
   }

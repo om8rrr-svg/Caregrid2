@@ -392,8 +392,11 @@ class AdvancedSearch {
         }, this.debounceDelay);
     }
     
-    async applyFiltersWithAPI() {
+    async applyFiltersWithAPI(retryCount = 0) {
         if (this.isLoading) return;
+        
+        const maxRetries = 2;
+        const baseDelay = 1000; // 1 second
         
         this.isLoading = true;
         this.showLoadingState();
@@ -413,14 +416,18 @@ class AdvancedSearch {
                 params.search = this.searchInput.value.trim();
             }
             
-            console.log('Applying filters with API params:', params);
+            // Only log in development mode
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                console.log(`Applying filters with API params (attempt ${retryCount + 1}/${maxRetries + 1}):`, params);
+            }
             
-            // Use AbortController for timeout
+            // Use AbortController for timeout with dynamic timeout based on retry
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 30000);
+            const timeout = retryCount === 0 ? 15000 : 30000; // Shorter timeout for first attempt
+            const timeoutId = setTimeout(() => controller.abort(), timeout);
             
-            // Call API with filters
-            const response = await fetch(this.apiService.buildUrl('/api/clinics'), {
+            // Call API with filters using the enhanced API service
+            const response = await this.apiService.makeRequestWithRetry('/api/clinics', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -431,29 +438,157 @@ class AdvancedSearch {
             
             clearTimeout(timeoutId);
             
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            }
-            
-            const data = await response.json();
+            // Handle response
+            const data = response.data || response;
             
             // Update the clinic cards with filtered results
             this.updateClinicsDisplay(data.clinics || []);
             this.updateResultsCount(data.total || 0);
             
-        } catch (error) {
-            console.error('Filter API error:', error);
+            // Cache successful search results
+            this.cacheSearchResults(params, data);
             
-            if (error.name === 'AbortError') {
-                this.showError('Request timeout. Please try again.');
-            } else {
-                this.showError('Failed to apply filters. Using local filtering as fallback.');
-                // Fallback to local filtering
-                this.filterClinicsByAdvancedFilters();
+        } catch (error) {
+            // Implement retry logic with exponential backoff
+            if (retryCount < maxRetries && this.shouldRetrySearch(error)) {
+                const delay = baseDelay * Math.pow(2, retryCount);
+                
+                if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                    console.warn(`⚠️ Search API request failed (attempt ${retryCount + 1}), retrying in ${delay}ms:`, error.message);
+                }
+                
+                this.showRetryMessage(retryCount + 1, maxRetries);
+                
+                setTimeout(() => {
+                    this.applyFiltersWithAPI(retryCount + 1);
+                }, delay);
+                return;
             }
+            
+            // All retries exhausted or non-retryable error
+            this.handleSearchError(error);
+            
         } finally {
             this.isLoading = false;
             this.hideLoadingState();
+        }
+    }
+    
+    // Determine if a search error should trigger a retry
+    shouldRetrySearch(error) {
+        const retryableErrors = [
+            'timeout',
+            'NETWORK_ERROR',
+            'RATE_LIMITED',
+            'SERVER_ERROR',
+            'AbortError'
+        ];
+        
+        return retryableErrors.some(retryableError => 
+            error.message.includes(retryableError) || 
+            error.name === retryableError ||
+            (error.status >= 500 && error.status < 600) // Server errors
+        );
+    }
+    
+    // Handle search errors with appropriate fallbacks
+    handleSearchError(error) {
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            console.error('Search API error after retries:', error);
+        }
+        
+        if (error.name === 'AbortError') {
+            this.showError('Search timeout. Using local search as fallback.');
+        } else if (error.message.includes('RATE_LIMITED')) {
+            this.showError('Service busy. Using local search as fallback.');
+        } else if (error.message.includes('BACKEND_UNAVAILABLE')) {
+            this.showError('Service temporarily unavailable. Using local search.');
+        } else {
+            this.showError('Search service unavailable. Using local search as fallback.');
+        }
+        
+        // Always fallback to local filtering
+        this.filterClinicsByAdvancedFilters();
+    }
+    
+    // Show retry message to user
+    showRetryMessage(attempt, maxAttempts) {
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        if (loadingIndicator) {
+            const messageEl = loadingIndicator.querySelector('.loading-message');
+            if (messageEl) {
+                messageEl.textContent = `Retrying search... (${attempt}/${maxAttempts})`;
+            }
+        }
+        
+        // Also show a temporary toast message
+        const toast = document.createElement('div');
+        toast.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #ff9800;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 4px;
+            z-index: 10001;
+            font-size: 14px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        `;
+        toast.textContent = `Search failed. Retrying... (${attempt}/${maxAttempts})`;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
+            }
+        }, 3000);
+    }
+    
+    // Cache search results for better performance
+    cacheSearchResults(params, data) {
+        try {
+            const cacheKey = `search_${JSON.stringify(params)}`;
+            const cacheData = {
+                data: data,
+                timestamp: Date.now(),
+                params: params
+            };
+            
+            localStorage.setItem(cacheKey, JSON.stringify(cacheData));
+            
+            // Clean old cache entries (keep only last 10)
+            this.cleanSearchCache();
+        } catch (e) {
+            // localStorage might be full, ignore caching errors
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                console.warn('Failed to cache search results:', e.message);
+            }
+        }
+    }
+    
+    // Clean old search cache entries
+    cleanSearchCache() {
+        try {
+            const searchKeys = Object.keys(localStorage).filter(key => key.startsWith('search_'));
+            
+            if (searchKeys.length > 10) {
+                // Sort by timestamp and remove oldest entries
+                const entries = searchKeys.map(key => {
+                    try {
+                        const data = JSON.parse(localStorage.getItem(key));
+                        return { key, timestamp: data.timestamp || 0 };
+                    } catch {
+                        return { key, timestamp: 0 };
+                    }
+                }).sort((a, b) => a.timestamp - b.timestamp);
+                
+                // Remove oldest entries
+                const toRemove = entries.slice(0, entries.length - 10);
+                toRemove.forEach(entry => localStorage.removeItem(entry.key));
+            }
+        } catch (e) {
+            // Ignore cache cleanup errors
         }
     }
     
@@ -497,10 +632,26 @@ class AdvancedSearch {
                 border-radius: 8px;
                 z-index: 10000;
                 display: none;
+                text-align: center;
+                min-width: 200px;
             ">
-                <i class="fas fa-spinner fa-spin"></i>
-                <span style="margin-left: 10px;">Applying filters...</span>
+                <div class="loading-spinner" style="
+                    width: 20px;
+                    height: 20px;
+                    border: 2px solid #ffffff40;
+                    border-top: 2px solid #ffffff;
+                    border-radius: 50%;
+                    animation: spin 1s linear infinite;
+                    margin: 0 auto 10px;
+                "></div>
+                <div class="loading-message">Searching clinics...</div>
             </div>
+            <style>
+                @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
+            </style>
         `;
         document.body.appendChild(indicator);
         return indicator;

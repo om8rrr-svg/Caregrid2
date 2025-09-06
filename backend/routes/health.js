@@ -378,8 +378,91 @@ router.get('/metrics', (req, res) => {
   });
 });
 
+// Database performance metrics endpoint
+router.get('/metrics/database', async (req, res) => {
+  try {
+    const { getQueryStats } = require('../config/database');
+    const queryStats = getQueryStats();
+    
+    res.json({
+      success: true,
+      data: {
+        queryPerformance: {
+          totalQueries: queryStats.totalQueries,
+          slowQueries: queryStats.slowQueries,
+          averageQueryTime: Math.round(queryStats.averageQueryTime * 100) / 100,
+          slowQueryPercentage: queryStats.slowQueryPercentage,
+          totalQueryTime: Math.round(queryStats.totalQueryTime)
+        },
+        connectionPool: queryStats.poolStats || {
+          totalCount: 0,
+          idleCount: 0,
+          waitingCount: 0
+        },
+        recommendations: generatePerformanceRecommendations(queryStats)
+      },
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to retrieve database metrics',
+      message: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+// Generate performance recommendations based on metrics
+function generatePerformanceRecommendations(stats) {
+  const recommendations = [];
+  
+  if (stats.slowQueryPercentage > 10) {
+    recommendations.push({
+      type: 'warning',
+      message: `High percentage of slow queries (${stats.slowQueryPercentage}%). Consider query optimization or adding indexes.`,
+      priority: 'high'
+    });
+  }
+  
+  if (stats.averageQueryTime > 500) {
+    recommendations.push({
+      type: 'warning', 
+      message: `Average query time is high (${Math.round(stats.averageQueryTime)}ms). Review query patterns and database indexes.`,
+      priority: 'medium'
+    });
+  }
+  
+  if (stats.poolStats && stats.poolStats.waitingCount > 0) {
+    recommendations.push({
+      type: 'info',
+      message: `${stats.poolStats.waitingCount} connections waiting. Consider increasing pool size if this persists.`,
+      priority: 'medium'
+    });
+  }
+  
+  if (stats.totalQueries > 1000 && stats.slowQueryPercentage < 5) {
+    recommendations.push({
+      type: 'success',
+      message: 'Database performance is good. Query optimization is working well.',
+      priority: 'low'
+    });
+  }
+  
+  return recommendations;
+}
+
 // Reset metrics (for testing/debugging)
 router.post('/metrics/reset', (req, res) => {
+  try {
+    const { resetQueryStats } = require('../config/database');
+    
+    // Reset database query statistics
+    resetQueryStats();
+  } catch (error) {
+    console.warn('Could not reset database query stats:', error.message);
+  }
+  
   performanceMetrics = {
     requests: {
       total: 0,
