@@ -34,11 +34,11 @@ function shouldSuppressAlert(alertType, identifier = 'default') {
   const key = `${alertType}_${identifier}`;
   const lastAlert = alertState.lastAlerts[key];
   const suppressionWindow = SUPPRESSION_WINDOWS[alertType] || 300000;
-  
+
   if (!lastAlert) {
     return false;
   }
-  
+
   const timeSinceLastAlert = Date.now() - lastAlert;
   return timeSinceLastAlert < suppressionWindow;
 }
@@ -53,7 +53,7 @@ function recordAlert(alertType, identifier = 'default') {
 function monitorHealthStatus(healthData) {
   try {
     alertState.lastHealthCheck = Date.now();
-    
+
     // Check overall health status
     if (healthData.status === 'unhealthy') {
       if (!shouldSuppressAlert(ALERT_TYPES.HEALTH_CHECK_FAILED)) {
@@ -70,7 +70,7 @@ function monitorHealthStatus(healthData) {
         recordAlert(ALERT_TYPES.HEALTH_CHECK_FAILED);
       }
     }
-    
+
     // Check database health
     if (healthData.checks && healthData.checks.database) {
       const dbHealth = healthData.checks.database;
@@ -90,11 +90,11 @@ function monitorHealthStatus(healthData) {
         }
       }
     }
-    
+
     // Check API services
     if (healthData.checks && healthData.checks.apiServices) {
       const apiServices = healthData.checks.apiServices;
-      
+
       Object.entries(apiServices).forEach(([serviceName, serviceHealth]) => {
         if (serviceHealth.status === 'degraded' || serviceHealth.status === 'unhealthy') {
           if (!shouldSuppressAlert(ALERT_TYPES.DEPENDENCY_FAILURE, serviceName)) {
@@ -114,11 +114,11 @@ function monitorHealthStatus(healthData) {
         }
       });
     }
-    
+
     // Check system resources
     if (healthData.system) {
       const system = healthData.system;
-      
+
       // Memory usage
       if (system.memory && system.memory.usage > ALERT_THRESHOLDS.MEMORY_USAGE_THRESHOLD) {
         if (!shouldSuppressAlert(ALERT_TYPES.SYSTEM_RESOURCE_EXHAUSTION, 'memory')) {
@@ -138,15 +138,15 @@ function monitorHealthStatus(healthData) {
         }
       }
     }
-    
+
     // Check performance metrics
     if (healthData.performance) {
       const performance = healthData.performance;
-      
+
       // Error rate
       if (performance.requests) {
         const errorRate = (performance.requests.failed / performance.requests.total) * 100;
-        
+
         if (errorRate > ALERT_THRESHOLDS.ERROR_RATE_THRESHOLD) {
           if (!shouldSuppressAlert(ALERT_TYPES.HIGH_ERROR_RATE)) {
             createAlert(
@@ -164,7 +164,7 @@ function monitorHealthStatus(healthData) {
             recordAlert(ALERT_TYPES.HIGH_ERROR_RATE);
           }
         }
-        
+
         // Response time
         if (performance.requests.averageResponseTime > ALERT_THRESHOLDS.RESPONSE_TIME_THRESHOLD) {
           if (!shouldSuppressAlert(ALERT_TYPES.PERFORMANCE_DEGRADATION, 'response_time')) {
@@ -184,7 +184,7 @@ function monitorHealthStatus(healthData) {
         }
       }
     }
-    
+
   } catch (error) {
     console.error('Error monitoring health status:', error);
   }
@@ -196,9 +196,9 @@ function monitorSyntheticResults(syntheticData) {
     if (!syntheticData || !syntheticData.summary) {
       return;
     }
-    
+
     const summary = syntheticData.summary;
-    
+
     // Check overall success rate
     if (summary.successRate < ALERT_THRESHOLDS.SYNTHETIC_SUCCESS_RATE) {
       if (!shouldSuppressAlert(ALERT_TYPES.SYNTHETIC_TRANSACTION_FAILED, 'overall')) {
@@ -217,7 +217,7 @@ function monitorSyntheticResults(syntheticData) {
         recordAlert(ALERT_TYPES.SYNTHETIC_TRANSACTION_FAILED, 'overall');
       }
     }
-    
+
     // Check individual transaction types
     if (syntheticData.transactionTypes) {
       syntheticData.transactionTypes.forEach(transactionType => {
@@ -241,11 +241,11 @@ function monitorSyntheticResults(syntheticData) {
         }
       });
     }
-    
+
     // Check for recent failures
     if (syntheticData.recentFailures && syntheticData.recentFailures.length > 0) {
       const recentFailureCount = syntheticData.recentFailures.length;
-      
+
       if (recentFailureCount >= ALERT_THRESHOLDS.SYNTHETIC_FAILURE_COUNT) {
         if (!shouldSuppressAlert(ALERT_TYPES.SYNTHETIC_TRANSACTION_FAILED, 'recent_failures')) {
           createAlert(
@@ -264,7 +264,7 @@ function monitorSyntheticResults(syntheticData) {
         }
       }
     }
-    
+
   } catch (error) {
     console.error('Error monitoring synthetic results:', error);
   }
@@ -276,13 +276,13 @@ function monitorTransactionFailure(transactionResult) {
     if (transactionResult.status === 'failure') {
       const transactionType = transactionResult.type;
       const key = `consecutive_${transactionType}`;
-      
+
       // Track consecutive failures
       if (!alertState.consecutiveFailures[key]) {
         alertState.consecutiveFailures[key] = 0;
       }
       alertState.consecutiveFailures[key]++;
-      
+
       // Alert on consecutive failures
       if (alertState.consecutiveFailures[key] >= ALERT_THRESHOLDS.SYNTHETIC_FAILURE_COUNT) {
         if (!shouldSuppressAlert(ALERT_TYPES.SYNTHETIC_TRANSACTION_FAILED, `consecutive_${transactionType}`)) {
@@ -307,7 +307,7 @@ function monitorTransactionFailure(transactionResult) {
       const key = `consecutive_${transactionType}`;
       alertState.consecutiveFailures[key] = 0;
     }
-    
+
   } catch (error) {
     console.error('Error monitoring transaction failure:', error);
   }

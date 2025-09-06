@@ -76,12 +76,12 @@ function startScheduler() {
     console.log('🔄 Synthetic monitoring scheduler is disabled');
     return;
   }
-  
+
   console.log('🚀 Starting synthetic monitoring scheduler...');
-  
+
   schedulerStatus.enabled = true;
   schedulerStatus.startTime = new Date().toISOString();
-  
+
   // Schedule each enabled task
   Object.entries(schedulerConfig.schedules).forEach(([name, schedule]) => {
     if (schedule.enabled) {
@@ -92,7 +92,7 @@ function startScheduler() {
           scheduled: false,
           timezone: 'UTC'
         });
-        
+
         task.start();
         activeTasks.set(name, {
           task,
@@ -101,7 +101,7 @@ function startScheduler() {
           runCount: 0,
           errors: []
         });
-        
+
         console.log(`📅 Scheduled synthetic transaction: ${name} (${schedule.cron})`);
       } catch (error) {
         console.error(`❌ Failed to schedule ${name}:`, error.message);
@@ -113,7 +113,7 @@ function startScheduler() {
       }
     }
   });
-  
+
   schedulerStatus.activeTasks = activeTasks.size;
   console.log(`✅ Synthetic monitoring scheduler started with ${activeTasks.size} active tasks`);
 }
@@ -123,7 +123,7 @@ function startScheduler() {
  */
 function stopScheduler() {
   console.log('🛑 Stopping synthetic monitoring scheduler...');
-  
+
   activeTasks.forEach((taskInfo, name) => {
     try {
       taskInfo.task.stop();
@@ -132,11 +132,11 @@ function stopScheduler() {
       console.error(`❌ Error stopping task ${name}:`, error.message);
     }
   });
-  
+
   activeTasks.clear();
   schedulerStatus.enabled = false;
   schedulerStatus.activeTasks = 0;
-  
+
   console.log('✅ Synthetic monitoring scheduler stopped');
 }
 
@@ -149,10 +149,10 @@ async function executeScheduledTransaction(taskName, schedule) {
     console.error(`❌ Task info not found for: ${taskName}`);
     return;
   }
-  
+
   try {
     console.log(`🔄 Executing scheduled synthetic transaction: ${taskName}`);
-    
+
     let result;
     if (schedule.transaction === 'ALL') {
       result = await runAllSyntheticTransactions();
@@ -165,17 +165,17 @@ async function executeScheduledTransaction(taskName, schedule) {
         }
       });
     }
-    
+
     // Update task info
     taskInfo.lastRun = new Date().toISOString();
     taskInfo.runCount++;
-    
+
     // Update scheduler status
     schedulerStatus.lastRun = new Date().toISOString();
     schedulerStatus.totalRuns++;
-    
+
     console.log(`✅ Completed scheduled synthetic transaction: ${taskName}`);
-    
+
     // Log results for monitoring
     if (Array.isArray(result)) {
       const failed = result.filter(r => r.status !== 'success');
@@ -185,22 +185,22 @@ async function executeScheduledTransaction(taskName, schedule) {
     } else if (result.status !== 'success') {
       console.warn(`⚠️  Scheduled transaction ${taskName} failed:`, result.error?.message);
     }
-    
+
   } catch (error) {
     console.error(`❌ Error executing scheduled transaction ${taskName}:`, error.message);
-    
+
     // Track error
     taskInfo.errors.push({
       error: error.message,
       timestamp: new Date().toISOString()
     });
-    
+
     schedulerStatus.errors.push({
       task: taskName,
       error: error.message,
       timestamp: new Date().toISOString()
     });
-    
+
     // Limit error history
     if (taskInfo.errors.length > 10) {
       taskInfo.errors = taskInfo.errors.slice(-10);
@@ -225,7 +225,7 @@ function getSchedulerStatus() {
     errorCount: info.errors.length,
     recentErrors: info.errors.slice(-3)
   }));
-  
+
   return {
     ...schedulerStatus,
     tasks,
@@ -247,7 +247,7 @@ function updateSchedulerConfig(updates) {
       Object.entries(updates.schedules).forEach(([name, config]) => {
         if (schedulerConfig.schedules[name]) {
           Object.assign(schedulerConfig.schedules[name], config);
-          
+
           // If task is currently active and being disabled, stop it
           if (config.enabled === false && activeTasks.has(name)) {
             const taskInfo = activeTasks.get(name);
@@ -255,7 +255,7 @@ function updateSchedulerConfig(updates) {
             activeTasks.delete(name);
             console.log(`📅 Disabled scheduled task: ${name}`);
           }
-          
+
           // If task is being enabled and scheduler is running, start it
           if (config.enabled === true && schedulerStatus.enabled && !activeTasks.has(name)) {
             const schedule = schedulerConfig.schedules[name];
@@ -265,7 +265,7 @@ function updateSchedulerConfig(updates) {
               scheduled: false,
               timezone: 'UTC'
             });
-            
+
             task.start();
             activeTasks.set(name, {
               task,
@@ -274,26 +274,26 @@ function updateSchedulerConfig(updates) {
               runCount: 0,
               errors: []
             });
-            
+
             console.log(`📅 Enabled scheduled task: ${name}`);
           }
         }
       });
     }
-    
+
     // Update global enabled status
     if (typeof updates.enabled === 'boolean') {
       schedulerConfig.enabled = updates.enabled;
-      
+
       if (updates.enabled && !schedulerStatus.enabled) {
         startScheduler();
       } else if (!updates.enabled && schedulerStatus.enabled) {
         stopScheduler();
       }
     }
-    
+
     schedulerStatus.activeTasks = activeTasks.size;
-    
+
     return {
       success: true,
       message: 'Scheduler configuration updated',
@@ -316,10 +316,10 @@ async function triggerTask(taskName) {
   if (!schedule) {
     throw new Error(`Task not found: ${taskName}`);
   }
-  
+
   console.log(`🔄 Manually triggering task: ${taskName}`);
   await executeScheduledTransaction(taskName, schedule);
-  
+
   return {
     success: true,
     message: `Task ${taskName} executed successfully`,

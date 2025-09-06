@@ -10,7 +10,7 @@ require('dotenv').config();
 function validateEnvironment() {
   const warnings = [];
   const errors = [];
-  
+
   // Critical environment variables
   if (!process.env.JWT_SECRET) {
     if (process.env.NODE_ENV === 'production') {
@@ -20,11 +20,11 @@ function validateEnvironment() {
       process.env.JWT_SECRET = 'fallback-jwt-secret-for-development-only';
     }
   }
-  
+
   // Database configuration
   const hasDatabaseUrl = !!process.env.DATABASE_URL;
   const hasDbVars = process.env.DB_HOST && process.env.DB_NAME && process.env.DB_USER;
-  
+
   if (!hasDatabaseUrl && !hasDbVars) {
     if (process.env.NODE_ENV === 'production') {
       errors.push('Database configuration missing: need DATABASE_URL or DB_* variables');
@@ -32,20 +32,20 @@ function validateEnvironment() {
       warnings.push('Database not configured - some features may not work');
     }
   }
-  
+
   // Log warnings and errors
   if (warnings.length > 0) {
     console.warn('⚠️  Environment warnings:');
     warnings.forEach(warning => console.warn(`   • ${warning}`));
   }
-  
+
   if (errors.length > 0) {
     console.error('❌ Environment errors:');
     errors.forEach(error => console.error(`   • ${error}`));
     console.error('🛑 Server cannot start with these configuration errors');
     process.exit(1);
   }
-  
+
   if (warnings.length === 0 && errors.length === 0) {
     console.log('✅ Environment configuration validated');
   }
@@ -63,11 +63,11 @@ async function runStartupMigrations() {
 
   console.log('🚀 Running startup migrations...');
   const migrationRunner = new MigrationRunner();
-  
+
   try {
     // Run migrations
     const migrationResult = await migrationRunner.runMigrations();
-    
+
     if (!migrationResult.success) {
       console.error('❌ Migration failed:', migrationResult.error);
       if (process.env.NODE_ENV === 'production') {
@@ -76,17 +76,17 @@ async function runStartupMigrations() {
       }
       return;
     }
-    
+
     // Run seeds if migrations were successful
     const seedResult = await migrationRunner.runSeeds();
-    
+
     if (!seedResult.success) {
       console.warn('⚠️  Seeding failed:', seedResult.error);
       // Don't exit on seed failure, just warn
     } else if (seedResult.seeded) {
       console.log(`✅ Database seeded with ${seedResult.clinicsSeeded} clinics`);
     }
-    
+
   } catch (error) {
     console.error('❌ Startup migration error:', error.message);
     if (process.env.NODE_ENV === 'production') {
@@ -337,9 +337,9 @@ app.use('/api/feature-flags', featureFlagsRoutes);
 
 // 404 handler
 app.use('*', (req, res) => {
-  res.status(404).json({ 
+  res.status(404).json({
     error: 'Endpoint not found',
-    path: req.originalUrl 
+    path: req.originalUrl
   });
 });
 
@@ -350,16 +350,16 @@ app.listen(PORT, () => {
   console.log(`🚀 CareGrid API server running on port ${PORT}`);
   console.log(`📊 Health check: http://localhost:${PORT}/health`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-  
+
   // Start synthetic monitoring scheduler
   startScheduler();
-  
+
   // Initialize alerting system
   initializeAlerting();
-  
+
   // Initialize health monitoring scheduler
   initializeHealthScheduler();
-  
+
   // Initialize maintenance service
   initializeMaintenanceService();
 });

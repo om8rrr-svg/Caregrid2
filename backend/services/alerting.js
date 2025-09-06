@@ -126,7 +126,7 @@ const defaultEscalationPolicies = [
 function initializeAlerting() {
   alertRules = [...defaultAlertRules];
   escalationPolicies = [...defaultEscalationPolicies];
-  
+
   // Initialize default notification channels
   notificationChannels = [
     {
@@ -145,14 +145,14 @@ function initializeAlerting() {
       enabled: true
     }
   ];
-  
+
   console.log('🚨 Alerting system initialized');
 }
 
 // Create alert
 function createAlert(type, severity, message, metadata = {}) {
   const alertId = `${type}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-  
+
   const alert = {
     id: alertId,
     type,
@@ -167,23 +167,23 @@ function createAlert(type, severity, message, metadata = {}) {
     escalationLevel: 0,
     notificationsSent: []
   };
-  
+
   // Store alert
   alertHistory.push(alert);
   activeAlerts.set(alertId, alert);
-  
+
   // Process alert rules
   processAlert(alert);
-  
+
   return alert;
 }
 
 // Process alert against rules
 function processAlert(alert) {
-  const matchingRules = alertRules.filter(rule => 
+  const matchingRules = alertRules.filter(rule =>
     rule.enabled && rule.type === alert.type
   );
-  
+
   for (const rule of matchingRules) {
     if (evaluateAlertCondition(alert, rule.condition)) {
       triggerNotifications(alert, rule);
@@ -201,16 +201,16 @@ function evaluateAlertCondition(alert, condition) {
 // Trigger notifications
 async function triggerNotifications(alert, rule) {
   const escalationPolicy = escalationPolicies.find(p => p.id === rule.escalationPolicy);
-  
+
   if (!escalationPolicy) {
     console.error(`Escalation policy not found: ${rule.escalationPolicy}`);
     return;
   }
-  
+
   // Start escalation process
   for (let i = 0; i < escalationPolicy.steps.length; i++) {
     const step = escalationPolicy.steps[i];
-    
+
     setTimeout(async () => {
       if (activeAlerts.has(alert.id) && !alert.acknowledgedAt) {
         await sendNotifications(alert, step, i);
@@ -222,12 +222,12 @@ async function triggerNotifications(alert, rule) {
 // Send notifications
 async function sendNotifications(alert, escalationStep, level) {
   const notifications = [];
-  
+
   for (const channelType of escalationStep.channels) {
     for (const recipient of escalationStep.recipients) {
       try {
         let result;
-        
+
         switch (channelType) {
           case NOTIFICATION_CHANNELS.EMAIL:
             result = await sendEmailNotification(alert, recipient, level);
@@ -242,7 +242,7 @@ async function sendNotifications(alert, escalationStep, level) {
             console.warn(`Unsupported notification channel: ${channelType}`);
             continue;
         }
-        
+
         notifications.push({
           channel: channelType,
           recipient,
@@ -251,7 +251,7 @@ async function sendNotifications(alert, escalationStep, level) {
           success: result.success,
           error: result.error
         });
-        
+
       } catch (error) {
         console.error(`Failed to send ${channelType} notification:`, error);
         notifications.push({
@@ -265,7 +265,7 @@ async function sendNotifications(alert, escalationStep, level) {
       }
     }
   }
-  
+
   // Update alert with notification history
   alert.notificationsSent.push(...notifications);
   alert.escalationLevel = Math.max(alert.escalationLevel, level);
@@ -275,9 +275,9 @@ async function sendNotifications(alert, escalationStep, level) {
 async function sendEmailNotification(alert, recipient, level) {
   try {
     const emailService = require('./emailService');
-    
+
     const result = await emailService.sendAlertEmail(alert, recipient);
-    
+
     if (result.success) {
       console.log(`📧 Email notification sent for alert ${alert.id} to ${recipient}`);
       return {
@@ -325,7 +325,7 @@ async function sendWebhookNotification(alert, webhookUrl, level) {
         'User-Agent': 'CareGrid-Alerting/1.0'
       }
     });
-    
+
     return { success: true, statusCode: response.status };
   } catch (error) {
     return { success: false, error: error.message };
@@ -363,8 +363,8 @@ function generateEmailTemplate(alert, level) {
                     <p><strong>Type:</strong> ${alert.type}</p>
                     <p><strong>Timestamp:</strong> ${alert.timestamp}</p>
                     <p><strong>Escalation Level:</strong> ${level + 1}</p>
-                    ${alert.metadata && Object.keys(alert.metadata).length > 0 ? 
-                      `<p><strong>Additional Info:</strong></p><pre>${JSON.stringify(alert.metadata, null, 2)}</pre>` : 
+                    ${alert.metadata && Object.keys(alert.metadata).length > 0 ?
+                      `<p><strong>Additional Info:</strong></p><pre>${JSON.stringify(alert.metadata, null, 2)}</pre>` :
                       ''
                     }
                 </div>
@@ -398,10 +398,10 @@ function acknowledgeAlert(alertId, acknowledgedBy) {
   if (!alert) {
     throw new Error('Alert not found');
   }
-  
+
   alert.acknowledgedBy = acknowledgedBy;
   alert.acknowledgedAt = new Date().toISOString();
-  
+
   console.log(`Alert ${alertId} acknowledged by ${acknowledgedBy}`);
   return alert;
 }
@@ -412,13 +412,13 @@ function resolveAlert(alertId, resolvedBy) {
   if (!alert) {
     throw new Error('Alert not found');
   }
-  
+
   alert.status = 'resolved';
   alert.resolvedAt = new Date().toISOString();
   alert.resolvedBy = resolvedBy;
-  
+
   activeAlerts.delete(alertId);
-  
+
   console.log(`Alert ${alertId} resolved by ${resolvedBy}`);
   return alert;
 }
@@ -431,19 +431,19 @@ function getActiveAlerts() {
 // Get alert history
 function getAlertHistory(limit = 100, filters = {}) {
   let filtered = alertHistory;
-  
+
   if (filters.severity) {
     filtered = filtered.filter(alert => alert.severity === filters.severity);
   }
-  
+
   if (filters.type) {
     filtered = filtered.filter(alert => alert.type === filters.type);
   }
-  
+
   if (filters.status) {
     filtered = filtered.filter(alert => alert.status === filters.status);
   }
-  
+
   return filtered
     .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
     .slice(0, limit);
@@ -454,10 +454,10 @@ function getAlertStatistics() {
   const now = new Date();
   const last24h = new Date(now.getTime() - 24 * 60 * 60 * 1000);
   const last7d = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-  
+
   const recent24h = alertHistory.filter(alert => new Date(alert.timestamp) > last24h);
   const recent7d = alertHistory.filter(alert => new Date(alert.timestamp) > last7d);
-  
+
   return {
     total: alertHistory.length,
     active: activeAlerts.size,
@@ -490,7 +490,7 @@ function addAlertRule(rule) {
     ...rule,
     createdAt: new Date().toISOString()
   };
-  
+
   alertRules.push(newRule);
   return newRule;
 }
@@ -501,13 +501,13 @@ function updateAlertRule(ruleId, updates) {
   if (ruleIndex === -1) {
     throw new Error('Alert rule not found');
   }
-  
+
   alertRules[ruleIndex] = {
     ...alertRules[ruleIndex],
     ...updates,
     updatedAt: new Date().toISOString()
   };
-  
+
   return alertRules[ruleIndex];
 }
 
@@ -517,7 +517,7 @@ function deleteAlertRule(ruleId) {
   if (ruleIndex === -1) {
     throw new Error('Alert rule not found');
   }
-  
+
   const deletedRule = alertRules.splice(ruleIndex, 1)[0];
   return deletedRule;
 }

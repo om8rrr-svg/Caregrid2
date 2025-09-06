@@ -14,7 +14,7 @@ class EmailService {
       console.log('📧 Email service:', process.env.EMAIL_SERVICE);
       console.log('📧 Email user:', process.env.EMAIL_USER);
       console.log('📧 Email from:', process.env.EMAIL_FROM);
-      
+
       this.transporter = nodemailer.createTransport({
         service: process.env.EMAIL_SERVICE || 'gmail',
         auth: {
@@ -37,7 +37,7 @@ class EmailService {
     try {
       // Create a test account for development
       const testAccount = await nodemailer.createTestAccount();
-      
+
       this.transporter = nodemailer.createTransport({
         host: 'smtp.ethereal.email',
         port: 587,
@@ -47,7 +47,7 @@ class EmailService {
           pass: testAccount.pass
         }
       });
-      
+
       console.log('📧 Email service initialized with test account');
       console.log('Test account:', testAccount.user);
     } catch (error) {
@@ -71,14 +71,14 @@ class EmailService {
       };
 
       const info = await this.transporter.sendMail(mailOptions);
-      
+
       // Log the result
       if (process.env.NODE_ENV !== 'production') {
         console.log('📧 Verification email sent successfully');
         console.log('Message ID:', info.messageId);
         console.log('Preview URL:', nodemailer.getTestMessageUrl(info));
       }
-      
+
       return {
         success: true,
         messageId: info.messageId,
@@ -91,7 +91,7 @@ class EmailService {
       console.error('  EMAIL_PASSWORD:', process.env.EMAIL_PASSWORD ? 'Set' : 'Missing');
       console.error('  EMAIL_SERVICE:', process.env.EMAIL_SERVICE || 'Not set (default: gmail)');
       console.error('  NODE_ENV:', process.env.NODE_ENV || 'Not set');
-      
+
       // Provide more specific error messages
       let userFriendlyError = 'Failed to send verification email';
       if (error.code === 'EDNS' || error.code === 'ENOTFOUND') {
@@ -101,7 +101,7 @@ class EmailService {
       } else if (error.code === 'ETIMEDOUT' || error.code === 'ETIMEOUT') {
         userFriendlyError = 'Email service timeout. Please try again.';
       }
-      
+
       return {
         success: false,
         error: userFriendlyError,
@@ -183,23 +183,23 @@ class EmailService {
             <div class="logo">CareGrid</div>
             <h2>Password Reset Request</h2>
           </div>
-          
+
           <p>Hello,</p>
-          
+
           <p>We received a request to reset your password for your CareGrid account. Use the verification code below to proceed with resetting your password:</p>
-          
+
           <div class="code-container">
             <p><strong>Your Verification Code:</strong></p>
             <div class="verification-code">${code}</div>
             <p><small>This code will expire in 15 minutes</small></p>
           </div>
-          
+
           <div class="warning">
             <strong>Security Notice:</strong> If you didn't request this password reset, please ignore this email. Your account remains secure.
           </div>
-          
+
           <p>If you have any questions or need assistance, please contact our support team.</p>
-          
+
           <div class="footer">
             <p>Best regards,<br>The CareGrid Team</p>
             <p><small>This is an automated message. Please do not reply to this email.</small></p>
@@ -220,12 +220,12 @@ class EmailService {
       };
 
       const info = await this.transporter.sendMail(mailOptions);
-      
+
       if (process.env.NODE_ENV !== 'production') {
         console.log('📧 Welcome email sent successfully');
         console.log('Preview URL:', nodemailer.getTestMessageUrl(info));
       }
-      
+
       return {
         success: true,
         messageId: info.messageId
@@ -279,7 +279,7 @@ class EmailService {
       };
 
       const info = await this.transporter.sendMail(mailOptions);
-      
+
       if (process.env.NODE_ENV !== 'production') {
         console.log('📧 Contact form notification sent successfully');
         console.log('Preview URL:', nodemailer.getTestMessageUrl(info));
@@ -308,12 +308,12 @@ class EmailService {
       };
 
       const info = await this.transporter.sendMail(mailOptions);
-      
+
       if (process.env.NODE_ENV !== 'production') {
         console.log('📧 Booking confirmation email sent successfully');
         console.log('Preview URL:', nodemailer.getTestMessageUrl(info));
       }
-      
+
       return {
         success: true,
         messageId: info.messageId,
@@ -351,7 +351,7 @@ class EmailService {
             <div class="logo">CareGrid</div>
             <h2>New Contact Form Submission</h2>
           </div>
-          
+
           <div class="info-section">
             <p><span class="info-label">Name:</span> ${contactData.firstName} ${contactData.lastName}</p>
             <p><span class="info-label">Email:</span> ${contactData.email}</p>
@@ -359,12 +359,12 @@ class EmailService {
             <p><span class="info-label">Subject:</span> ${contactData.subject}</p>
             <p><span class="info-label">Submitted:</span> ${new Date().toLocaleString()}</p>
           </div>
-          
+
           <div class="message-content">
             <h3>Message:</h3>
             <p>${contactData.message.replace(/\n/g, '<br>')}</p>
           </div>
-          
+
           <p><small>This message was sent from the CareGrid contact form.</small></p>
         </div>
       </body>
@@ -374,7 +374,7 @@ class EmailService {
 
   generateBookingConfirmationTemplate(bookingData) {
     const { appointment, clinic } = bookingData;
-    
+
     return `
       <!DOCTYPE html>
       <html>
@@ -478,30 +478,30 @@ class EmailService {
             <h2 style="color: #2a6ef3; margin: 0;">Appointment Confirmed!</h2>
             <p style="color: #666; margin: 10px 0 0 0;">Your appointment has been successfully booked</p>
           </div>
-          
+
           <div class="booking-details">
             <h3 style="margin: 0 0 20px 0; color: #2a6ef3;">Appointment Details</h3>
-            
+
             <div class="detail-row">
               <strong>Booking Reference:</strong>
               <span class="booking-ref">${appointment.reference}</span>
             </div>
-            
+
             <div class="detail-row">
               <strong>Clinic:</strong>
               <span>${clinic.name}</span>
             </div>
-            
+
             <div class="detail-row">
               <strong>Date & Time:</strong>
               <span>${new Date(appointment.appointmentDate).toLocaleDateString('en-GB')} at ${appointment.appointmentTime}</span>
             </div>
-            
+
             <div class="detail-row">
               <strong>Service:</strong>
               <span>${appointment.treatmentType}</span>
             </div>
-            
+
             ${appointment.notes ? `
             <div class="detail-row">
               <strong>Notes:</strong>
@@ -509,7 +509,7 @@ class EmailService {
             </div>
             ` : ''}
           </div>
-          
+
           <div class="important-info">
             <strong>Important Information:</strong>
             <ul style="margin: 10px 0; padding-left: 20px;">
@@ -518,13 +518,13 @@ class EmailService {
               <li>If you need to cancel or reschedule, please contact the clinic at least 24 hours in advance</li>
             </ul>
           </div>
-          
+
           <div style="text-align: center; margin: 30px 0;">
             <a href="${process.env.FRONTEND_URL || 'https://caregrid.vercel.app'}/dashboard.html" class="btn">
               View Dashboard
             </a>
           </div>
-          
+
           <div class="footer">
             <p>Thank you for choosing CareGrid for your healthcare needs.</p>
             <p><strong>Need help?</strong> Contact our support team or visit your dashboard to manage your appointments.</p>
@@ -540,32 +540,32 @@ class EmailService {
   async sendAlertEmail(alert, recipients = null) {
     try {
       const subject = `[CareGrid Alert] ${alert.severity.toUpperCase()}: ${alert.title}`;
-      
+
       const htmlContent = this.generateAlertEmailTemplate(alert);
-      
+
       const to = recipients || process.env.DEFAULT_ALERT_EMAIL || 'ops@caregrid.com';
-      
+
       const mailOptions = {
         from: process.env.EMAIL_FROM || 'noreply@caregrid.com',
         to,
         subject,
         html: htmlContent
       };
-      
+
       if (this.transporter) {
         const info = await this.transporter.sendMail(mailOptions);
         console.log('✅ Alert email sent successfully:', info.messageId);
-        
+
         if (process.env.NODE_ENV === 'development') {
           console.log('📧 Preview URL:', nodemailer.getTestMessageUrl(info));
         }
-        
+
         return { success: true, messageId: info.messageId };
       } else {
         console.warn('⚠️ Email transporter not initialized - cannot send alert email');
         return { success: false, error: 'Email service not configured' };
       }
-      
+
     } catch (error) {
       console.error('❌ Failed to send alert email:', error);
       return { success: false, error: error.message };
@@ -580,20 +580,20 @@ class EmailService {
       high: '#fd7e14',
       critical: '#dc3545'
     }[alert.severity] || '#6c757d';
-    
+
     const statusColor = {
       active: '#dc3545',
       acknowledged: '#ffc107',
       resolved: '#28a745'
     }[alert.status] || '#6c757d';
-    
+
     const severityIcon = {
       low: '🟢',
       medium: '🟡',
       high: '🟠',
       critical: '🔴'
     }[alert.severity] || '⚪';
-    
+
     return `
 <!DOCTYPE html>
 <html>
@@ -744,7 +744,7 @@ class EmailService {
     <div class="header">
       <h1 class="alert-title">${severityIcon} CareGrid System Alert</h1>
     </div>
-    
+
     <div class="alert-meta">
       <div class="meta-item">
         <span class="label">Alert ID:</span>
@@ -771,20 +771,20 @@ class EmailService {
         <span class="value">${new Date(alert.createdAt).toLocaleString()}</span>
       </div>
     </div>
-    
+
     <div class="description">
       <h3>📋 Alert Description</h3>
       <p><strong>${alert.title}</strong></p>
       <p>${alert.description || 'No additional description provided.'}</p>
     </div>
-    
+
     ${alert.metadata && Object.keys(alert.metadata).length > 0 ? `
     <div class="metadata">
       <h3>📊 Additional Information</h3>
       <pre>${JSON.stringify(alert.metadata, null, 2)}</pre>
     </div>
     ` : ''}
-    
+
     <div class="actions">
       <h3>🔧 Recommended Actions</h3>
       <ul>
@@ -800,7 +800,7 @@ class EmailService {
         </a>
       </p>
     </div>
-    
+
     <div class="footer">
       <p><strong>CareGrid Operations Monitoring</strong></p>
       <p>This is an automated alert notification. Please do not reply to this email.</p>
@@ -831,7 +831,7 @@ class EmailService {
         }
       }
     };
-    
+
     return await this.sendAlertEmail(testAlert);
   }
 

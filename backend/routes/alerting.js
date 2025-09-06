@@ -22,7 +22,7 @@ router.get('/', (req, res) => {
     const statistics = getAlertStatistics();
     const activeAlerts = getActiveAlerts();
     const recentAlerts = getAlertHistory(10);
-    
+
     res.json({
       status: 'active',
       timestamp: new Date().toISOString(),
@@ -50,7 +50,7 @@ router.get('/', (req, res) => {
 router.get('/active', (req, res) => {
   try {
     const activeAlerts = getActiveAlerts();
-    
+
     res.json({
       alerts: activeAlerts,
       count: activeAlerts.length,
@@ -74,14 +74,14 @@ router.get('/history', (req, res) => {
       type,
       status
     } = req.query;
-    
+
     const filters = {};
     if (severity) filters.severity = severity;
     if (type) filters.type = type;
     if (status) filters.status = status;
-    
+
     const history = getAlertHistory(parseInt(limit), filters);
-    
+
     res.json({
       alerts: history,
       count: history.length,
@@ -101,7 +101,7 @@ router.get('/history', (req, res) => {
 router.get('/statistics', (req, res) => {
   try {
     const statistics = getAlertStatistics();
-    
+
     res.json({
       statistics,
       timestamp: new Date().toISOString()
@@ -119,30 +119,30 @@ router.get('/statistics', (req, res) => {
 router.post('/create', (req, res) => {
   try {
     const { type, severity, message, metadata } = req.body;
-    
+
     if (!type || !severity || !message) {
       return res.status(400).json({
         error: 'Missing required fields',
         required: ['type', 'severity', 'message']
       });
     }
-    
+
     if (!Object.values(ALERT_TYPES).includes(type)) {
       return res.status(400).json({
         error: 'Invalid alert type',
         validTypes: Object.values(ALERT_TYPES)
       });
     }
-    
+
     if (!Object.values(ALERT_SEVERITY).includes(severity)) {
       return res.status(400).json({
         error: 'Invalid alert severity',
         validSeverities: Object.values(ALERT_SEVERITY)
       });
     }
-    
+
     const alert = createAlert(type, severity, message, metadata || {});
-    
+
     res.status(201).json({
       message: 'Alert created successfully',
       alert,
@@ -162,15 +162,15 @@ router.post('/:alertId/acknowledge', (req, res) => {
   try {
     const { alertId } = req.params;
     const { acknowledgedBy } = req.body;
-    
+
     if (!acknowledgedBy) {
       return res.status(400).json({
         error: 'Missing acknowledgedBy field'
       });
     }
-    
+
     const alert = acknowledgeAlert(alertId, acknowledgedBy);
-    
+
     res.json({
       message: 'Alert acknowledged successfully',
       alert,
@@ -191,15 +191,15 @@ router.post('/:alertId/resolve', (req, res) => {
   try {
     const { alertId } = req.params;
     const { resolvedBy } = req.body;
-    
+
     if (!resolvedBy) {
       return res.status(400).json({
         error: 'Missing resolvedBy field'
       });
     }
-    
+
     const alert = resolveAlert(alertId, resolvedBy);
-    
+
     res.json({
       message: 'Alert resolved successfully',
       alert,
@@ -219,7 +219,7 @@ router.post('/:alertId/resolve', (req, res) => {
 router.get('/rules', (req, res) => {
   try {
     const rules = getAlertRules();
-    
+
     res.json({
       rules,
       count: rules.length,
@@ -238,16 +238,16 @@ router.get('/rules', (req, res) => {
 router.post('/rules', (req, res) => {
   try {
     const rule = req.body;
-    
+
     if (!rule.name || !rule.type || !rule.severity) {
       return res.status(400).json({
         error: 'Missing required fields',
         required: ['name', 'type', 'severity']
       });
     }
-    
+
     const newRule = addAlertRule(rule);
-    
+
     res.status(201).json({
       message: 'Alert rule created successfully',
       rule: newRule,
@@ -267,9 +267,9 @@ router.put('/rules/:ruleId', (req, res) => {
   try {
     const { ruleId } = req.params;
     const updates = req.body;
-    
+
     const updatedRule = updateAlertRule(ruleId, updates);
-    
+
     res.json({
       message: 'Alert rule updated successfully',
       rule: updatedRule,
@@ -289,9 +289,9 @@ router.put('/rules/:ruleId', (req, res) => {
 router.delete('/rules/:ruleId', (req, res) => {
   try {
     const { ruleId } = req.params;
-    
+
     const deletedRule = deleteAlertRule(ruleId);
-    
+
     res.json({
       message: 'Alert rule deleted successfully',
       rule: deletedRule,
@@ -329,7 +329,7 @@ router.get('/config', (req, res) => {
 router.post('/test', (req, res) => {
   try {
     const { severity = ALERT_SEVERITY.LOW, message = 'Test alert' } = req.body;
-    
+
     const alert = createAlert(
       ALERT_TYPES.HEALTH_CHECK_FAILED,
       severity,
@@ -340,7 +340,7 @@ router.post('/test', (req, res) => {
         timestamp: new Date().toISOString()
       }
     );
-    
+
     res.json({
       message: 'Test alert created successfully',
       alert,
@@ -360,18 +360,18 @@ router.get('/health', (req, res) => {
   try {
     const statistics = getAlertStatistics();
     const activeAlerts = getActiveAlerts();
-    
-    const criticalAlerts = activeAlerts.filter(alert => 
+
+    const criticalAlerts = activeAlerts.filter(alert =>
       alert.severity === ALERT_SEVERITY.CRITICAL
     ).length;
-    
-    const highAlerts = activeAlerts.filter(alert => 
+
+    const highAlerts = activeAlerts.filter(alert =>
       alert.severity === ALERT_SEVERITY.HIGH
     ).length;
-    
-    const status = criticalAlerts > 0 ? 'critical' : 
+
+    const status = criticalAlerts > 0 ? 'critical' :
                   highAlerts > 5 ? 'degraded' : 'healthy';
-    
+
     res.json({
       status,
       timestamp: new Date().toISOString(),
@@ -385,7 +385,7 @@ router.get('/health', (req, res) => {
       details: {
         alertingSystemActive: true,
         rulesConfigured: getAlertRules().length,
-        lastAlert: activeAlerts.length > 0 ? 
+        lastAlert: activeAlerts.length > 0 ?
           activeAlerts[activeAlerts.length - 1].timestamp : null
       }
     });

@@ -18,13 +18,13 @@ router.get('/', async (req, res) => {
   try {
     const summary = getSyntheticSummary();
     const results = getSyntheticResults();
-    
+
     const overviewData = {
       status: 'active',
       timestamp: new Date().toISOString(),
       ...summary
     };
-    
+
     // Monitor synthetic results for alerting
     monitorSyntheticResults({
       summary,
@@ -40,10 +40,10 @@ router.get('/', async (req, res) => {
           successRate: total > 0 ? (successful / total) * 100 : 0
         };
       }),
-      recentFailures: results.history.filter(r => r.status !== TRANSACTION_STATUS.SUCCESS && 
+      recentFailures: results.history.filter(r => r.status !== TRANSACTION_STATUS.SUCCESS &&
         Date.now() - new Date(r.startTime).getTime() < 3600000) // Last hour
     });
-    
+
     res.json(overviewData);
   } catch (error) {
     console.error('Error getting synthetic overview:', error);
@@ -62,22 +62,22 @@ router.get('/results', async (req, res) => {
   try {
     const { limit = 50, type, status } = req.query;
     const results = getSyntheticResults();
-    
+
     let filteredHistory = results.history;
-    
+
     // Filter by transaction type
     if (type && Object.values(TRANSACTION_TYPES).includes(type)) {
       filteredHistory = filteredHistory.filter(t => t.type === type);
     }
-    
+
     // Filter by status
     if (status && Object.values(TRANSACTION_STATUS).includes(status)) {
       filteredHistory = filteredHistory.filter(t => t.status === status);
     }
-    
+
     // Limit results
     filteredHistory = filteredHistory.slice(0, parseInt(limit));
-    
+
     res.json({
       timestamp: new Date().toISOString(),
       summary: results.summary,
@@ -105,19 +105,19 @@ router.get('/results', async (req, res) => {
 router.post('/run', async (req, res) => {
   try {
     const { type, options = {} } = req.body;
-    
+
     if (!type || !Object.values(TRANSACTION_TYPES).includes(type)) {
       return res.status(400).json({
         error: 'Invalid transaction type',
         validTypes: Object.values(TRANSACTION_TYPES)
       });
     }
-    
+
     const result = await executeSyntheticTransaction(type, options);
-    
+
     // Monitor individual transaction result for alerting
     monitorTransactionFailure(result);
-    
+
     res.json({
       message: 'Synthetic transaction executed',
       transaction: result,
@@ -139,12 +139,12 @@ router.post('/run', async (req, res) => {
 router.post('/run-all', async (req, res) => {
   try {
     const results = await runAllSyntheticTransactions();
-    
+
     // Monitor each transaction result for alerting
     results.forEach(result => {
       monitorTransactionFailure(result);
     });
-    
+
     const summary = {
       total: results.length,
       successful: results.filter(r => r.status === TRANSACTION_STATUS.SUCCESS).length,
@@ -153,7 +153,7 @@ router.post('/run-all', async (req, res) => {
         results.reduce((sum, r) => sum + (r.duration || 0), 0) / results.length
       )
     };
-    
+
     res.json({
       message: 'All synthetic transactions executed',
       summary,
@@ -180,7 +180,7 @@ router.get('/types', (req, res) => {
       value,
       description: getTransactionDescription(value)
     }));
-    
+
     res.json({
       timestamp: new Date().toISOString(),
       transactionTypes: types,
@@ -203,18 +203,18 @@ router.get('/health', async (req, res) => {
   try {
     const summary = getSyntheticSummary();
     const recentResults = getSyntheticResults().history.slice(0, 10);
-    
+
     // Determine health status based on recent results
     const recentFailures = recentResults.filter(r => r.status !== TRANSACTION_STATUS.SUCCESS).length;
     const failureRate = recentResults.length > 0 ? (recentFailures / recentResults.length) * 100 : 0;
-    
+
     let healthStatus = 'healthy';
     if (failureRate > 50) {
       healthStatus = 'unhealthy';
     } else if (failureRate > 20) {
       healthStatus = 'degraded';
     }
-    
+
     res.json({
       status: healthStatus,
       timestamp: new Date().toISOString(),
@@ -250,16 +250,16 @@ router.get('/transaction/:id', (req, res) => {
   try {
     const { id } = req.params;
     const results = getSyntheticResults();
-    
+
     const transaction = results.history.find(t => t.id === id);
-    
+
     if (!transaction) {
       return res.status(404).json({
         error: 'Transaction not found',
         transactionId: id
       });
     }
-    
+
     res.json({
       timestamp: new Date().toISOString(),
       transaction
@@ -280,7 +280,7 @@ router.get('/transaction/:id', (req, res) => {
 router.delete('/results', (req, res) => {
   try {
     const results = getSyntheticResults();
-    
+
     // Clear history but keep summary structure
     results.history.length = 0;
     results.summary = {
@@ -290,7 +290,7 @@ router.delete('/results', (req, res) => {
       averageResponseTime: 0,
       lastRun: null
     };
-    
+
     res.json({
       message: 'Synthetic transaction history cleared',
       timestamp: new Date().toISOString()
@@ -316,7 +316,7 @@ function getTransactionDescription(type) {
     [TRANSACTION_TYPES.USER_REGISTRATION]: 'Tests user registration and account creation',
     [TRANSACTION_TYPES.CONTACT_FORM]: 'Tests contact form submission and processing'
   };
-  
+
   return descriptions[type] || 'Unknown transaction type';
 }
 

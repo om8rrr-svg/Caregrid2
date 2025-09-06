@@ -2,13 +2,13 @@ name: Deploy Backend to Render
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
     paths:
       - 'backend/**'
       - 'render.yaml'
       - '.github/workflows/deploy.yml'
   pull_request:
-    branches: [ main ]
+    branches: [main]
     paths:
       - 'backend/**'
       - 'render.yaml'
@@ -20,95 +20,95 @@ permissions:
 jobs:
   validate-and-test:
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        cache: 'npm'
-        cache-dependency-path: backend/package-lock.json
-        
-    - name: Validate environment configuration
-      run: |
-        cd backend
-        echo "Validating required files..."
-        test -f package.json || { echo "❌ package.json not found"; exit 1; }
-        test -f server.js || { echo "❌ server.js not found"; exit 1; }
-        test -f scripts/setup-render-database.js || { echo "❌ Database setup script not found"; exit 1; }
-        echo "✅ All required files present"
-        
-    - name: Install backend dependencies
-      run: |
-        cd backend
-        npm ci --production=false
-        
-    - name: Lint code (if configured)
-      run: |
-        cd backend
-        if npm run lint --silent 2>/dev/null; then
-          npm run lint
-        else
-          echo "⚠️ No lint script configured, skipping"
-        fi
-        
-    - name: Run backend tests
-      run: |
-        cd backend
-        if npm run test --silent 2>/dev/null; then
-          npm test
-        else
-          echo "⚠️ No test script configured, skipping"
-        fi
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Validate environment configuration
+        run: |
+          cd backend
+          echo "Validating required files..."
+          test -f package.json || { echo "❌ package.json not found"; exit 1; }
+          test -f server.js || { echo "❌ server.js not found"; exit 1; }
+          test -f scripts/setup-render-database.js || { echo "❌ Database setup script not found"; exit 1; }
+          echo "✅ All required files present"
+
+      - name: Install backend dependencies
+        run: |
+          cd backend
+          npm ci --production=false
+
+      - name: Lint code (if configured)
+        run: |
+          cd backend
+          if npm run lint --silent 2>/dev/null; then
+            npm run lint
+          else
+            echo "⚠️ No lint script configured, skipping"
+          fi
+
+      - name: Run backend tests
+        run: |
+          cd backend
+          if npm run test --silent 2>/dev/null; then
+            npm test
+          else
+            echo "⚠️ No test script configured, skipping"
+          fi
 
   deploy-backend:
     needs: validate-and-test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
-    
+
     steps:
-    - name: Deploy to Render with monitoring
-      env:
-        RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
-      run: |
-        if [ -z "$RENDER_DEPLOY_HOOK" ]; then
-          echo "❌ RENDER_DEPLOY_HOOK not configured in repository secrets"
-          exit 1
-        fi
-        
-        echo "🚀 Triggering deployment to Render..."
-        response=$(curl -s -w "\n%{http_code}" -X POST "$RENDER_DEPLOY_HOOK")
-        http_code=$(echo "$response" | tail -n1)
-        
-        if [ "$http_code" -eq 200 ] || [ "$http_code" -eq 201 ]; then
-          echo "✅ Deployment triggered successfully (HTTP $http_code)"
-          echo "🔗 Monitor deployment at: https://dashboard.render.com"
-        else
-          echo "❌ Deployment failed (HTTP $http_code)"
-          echo "Response: $(echo "$response" | head -n -1)"
-          exit 1
-        fi
-        
-    - name: Wait and verify deployment
-      run: |
-        echo "⏳ Waiting 30 seconds for deployment to start..."
-        sleep 30
-        
-        echo "🔍 Checking health endpoint..."
-        for i in {1..5}; do
-          if curl -f -s https://caregrid-backend.onrender.com/health > /dev/null; then
-            echo "✅ Backend is responding (attempt $i)"
-            break
-          else
-            echo "⏳ Backend not ready yet (attempt $i/5)"
-            if [ $i -eq 5 ]; then
-              echo "⚠️ Backend health check failed after 5 attempts"
-              echo "💡 Check Render dashboard for deployment status"
-            else
-              sleep 15
-            fi
+      - name: Deploy to Render with monitoring
+        env:
+          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+        run: |
+          if [ -z "$RENDER_DEPLOY_HOOK" ]; then
+            echo "❌ RENDER_DEPLOY_HOOK not configured in repository secrets"
+            exit 1
           fi
-        done
+
+          echo "🚀 Triggering deployment to Render..."
+          response=$(curl -s -w "\n%{http_code}" -X POST "$RENDER_DEPLOY_HOOK")
+          http_code=$(echo "$response" | tail -n1)
+
+          if [ "$http_code" -eq 200 ] || [ "$http_code" -eq 201 ]; then
+            echo "✅ Deployment triggered successfully (HTTP $http_code)"
+            echo "🔗 Monitor deployment at: https://dashboard.render.com"
+          else
+            echo "❌ Deployment failed (HTTP $http_code)"
+            echo "Response: $(echo "$response" | head -n -1)"
+            exit 1
+          fi
+
+      - name: Wait and verify deployment
+        run: |
+          echo "⏳ Waiting 30 seconds for deployment to start..."
+          sleep 30
+
+          echo "🔍 Checking health endpoint..."
+          for i in {1..5}; do
+            if curl -f -s https://caregrid-backend.onrender.com/health > /dev/null; then
+              echo "✅ Backend is responding (attempt $i)"
+              break
+            else
+              echo "⏳ Backend not ready yet (attempt $i/5)"
+              if [ $i -eq 5 ]; then
+                echo "⚠️ Backend health check failed after 5 attempts"
+                echo "💡 Check Render dashboard for deployment status"
+              else
+                sleep 15
+              fi
+            fi
+          done

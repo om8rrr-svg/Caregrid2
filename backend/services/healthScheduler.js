@@ -41,27 +41,27 @@ let scheduledTasks = {};
  */
 function initializeHealthScheduler() {
   console.log('🏥 Initializing health monitoring scheduler...');
-  
+
   // Schedule basic health checks
   scheduledTasks.basic = cron.schedule(HEALTH_CHECK_CONFIG.intervals.basic, async () => {
     await performHealthCheck('basic', checkBasicHealth);
   }, { scheduled: false });
-  
+
   // Schedule detailed health checks
   scheduledTasks.detailed = cron.schedule(HEALTH_CHECK_CONFIG.intervals.detailed, async () => {
     await performHealthCheck('detailed', checkDetailedHealth);
   }, { scheduled: false });
-  
+
   // Schedule database health checks
   scheduledTasks.database = cron.schedule(HEALTH_CHECK_CONFIG.intervals.database, async () => {
     await performHealthCheck('database', checkDatabaseHealth);
   }, { scheduled: false });
-  
+
   // Schedule dependency health checks
   scheduledTasks.dependencies = cron.schedule(HEALTH_CHECK_CONFIG.intervals.dependencies, async () => {
     await performHealthCheck('dependencies', checkDependenciesHealth);
   }, { scheduled: false });
-  
+
   console.log('✅ Health monitoring scheduler initialized');
 }
 
@@ -70,12 +70,12 @@ function initializeHealthScheduler() {
  */
 function startHealthScheduler() {
   console.log('🚀 Starting health monitoring scheduler...');
-  
+
   Object.keys(scheduledTasks).forEach(taskName => {
     scheduledTasks[taskName].start();
     console.log(`📅 Started ${taskName} health checks (${HEALTH_CHECK_CONFIG.intervals[taskName]})`);
   });
-  
+
   console.log('✅ Health monitoring scheduler started');
 }
 
@@ -84,12 +84,12 @@ function startHealthScheduler() {
  */
 function stopHealthScheduler() {
   console.log('🛑 Stopping health monitoring scheduler...');
-  
+
   Object.keys(scheduledTasks).forEach(taskName => {
     scheduledTasks[taskName].stop();
     console.log(`⏹️ Stopped ${taskName} health checks`);
   });
-  
+
   console.log('✅ Health monitoring scheduler stopped');
 }
 
@@ -99,21 +99,21 @@ function stopHealthScheduler() {
 async function performHealthCheck(checkType, checkFunction) {
   const startTime = Date.now();
   const state = healthState[checkType];
-  
+
   try {
     console.log(`🔍 Performing ${checkType} health check...`);
-    
+
     const result = await checkFunction();
     const responseTime = Date.now() - startTime;
-    
+
     // Check if response time exceeds threshold
     if (responseTime > HEALTH_CHECK_CONFIG.thresholds.responseTime) {
       throw new Error(`Health check response time exceeded threshold: ${responseTime}ms`);
     }
-    
+
     // Health check passed
     await handleHealthCheckSuccess(checkType, result, responseTime);
-    
+
   } catch (error) {
     console.error(`❌ ${checkType} health check failed:`, error.message);
     await handleHealthCheckFailure(checkType, error);
@@ -126,14 +126,14 @@ async function performHealthCheck(checkType, checkFunction) {
 async function handleHealthCheckSuccess(checkType, result, responseTime) {
   const state = healthState[checkType];
   const wasUnhealthy = state.status === 'unhealthy';
-  
+
   // Update state
   state.status = 'healthy';
   state.lastCheck = new Date().toISOString();
   state.consecutiveFailures = 0;
-  
+
   console.log(`✅ ${checkType} health check passed (${responseTime}ms)`);
-  
+
   // If recovering from unhealthy state, create recovery alert
   if (wasUnhealthy && state.recovering) {
     state.recovering = false;
@@ -148,7 +148,7 @@ async function handleHealthCheckSuccess(checkType, result, responseTime) {
         result: typeof result === 'object' ? JSON.stringify(result) : result
       }
     });
-    
+
     console.log(`🎉 ${checkType} health check recovered`);
   }
 }
@@ -158,16 +158,16 @@ async function handleHealthCheckSuccess(checkType, result, responseTime) {
  */
 async function handleHealthCheckFailure(checkType, error) {
   const state = healthState[checkType];
-  
+
   state.consecutiveFailures++;
   state.lastCheck = new Date().toISOString();
-  
+
   // Check if we've reached the failure threshold
   if (state.consecutiveFailures >= HEALTH_CHECK_CONFIG.thresholds.consecutiveFailures) {
     if (state.status !== 'unhealthy') {
       state.status = 'unhealthy';
       state.recovering = true;
-      
+
       // Create alert for health check failure
       await createAlert({
         type: 'health_check_failed',
@@ -180,9 +180,9 @@ async function handleHealthCheckFailure(checkType, error) {
           failedAt: new Date().toISOString()
         }
       });
-      
+
       console.log(`🚨 ${checkType} health check marked as unhealthy`);
-      
+
       // Attempt recovery if enabled
       if (HEALTH_CHECK_CONFIG.recovery.enabled) {
         await attemptRecovery(checkType, error);
@@ -196,7 +196,7 @@ async function handleHealthCheckFailure(checkType, error) {
  */
 async function attemptRecovery(checkType, error) {
   console.log(`🔧 Attempting recovery for ${checkType}...`);
-  
+
   const recoveryProcedures = {
     database: async () => {
       // Database recovery procedures
@@ -223,10 +223,10 @@ async function attemptRecovery(checkType, error) {
       return { attempted: 'detailed_service_refresh' };
     }
   };
-  
+
   try {
     const recoveryResult = await recoveryProcedures[checkType]();
-    
+
     // Create recovery attempt alert
     await createAlert({
       type: 'recovery_attempted',
@@ -239,12 +239,12 @@ async function attemptRecovery(checkType, error) {
         originalError: error.message
       }
     });
-    
+
     console.log(`🔧 Recovery attempted for ${checkType}:`, recoveryResult);
-    
+
   } catch (recoveryError) {
     console.error(`❌ Recovery failed for ${checkType}:`, recoveryError.message);
-    
+
     await createAlert({
       type: 'recovery_failed',
       severity: 'high',
@@ -269,7 +269,7 @@ function getSeverityForCheckType(checkType) {
     detailed: 'medium',
     basic: 'medium'
   };
-  
+
   return severityMap[checkType] || 'medium';
 }
 
@@ -293,16 +293,16 @@ async function checkDetailedHealth() {
   try {
     // Use the existing detailed health endpoint
     const healthData = await getHealthData();
-    
+
     // Check if any critical components are unhealthy
     if (healthData.database?.status !== 'healthy') {
       throw new Error('Database is unhealthy');
     }
-    
+
     if (healthData.dependencies && Object.values(healthData.dependencies).some(dep => dep.status !== 'healthy')) {
       throw new Error('One or more dependencies are unhealthy');
     }
-    
+
     return healthData;
   } catch (error) {
     throw new Error(`Detailed health check failed: ${error.message}`);
@@ -324,12 +324,12 @@ async function checkDatabaseHealth() {
       password: process.env.DB_PASSWORD,
       ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
     });
-    
+
     const client = await pool.connect();
     const result = await client.query('SELECT NOW()');
     client.release();
     await pool.end();
-    
+
     return {
       status: 'healthy',
       timestamp: result.rows[0].now,
@@ -348,16 +348,16 @@ async function checkDependenciesHealth() {
     emailService: await checkEmailService(),
     // Add other dependency checks here
   };
-  
+
   // Check if any dependency is unhealthy
   const unhealthyDeps = Object.entries(dependencies)
     .filter(([name, status]) => status.status !== 'healthy')
     .map(([name]) => name);
-  
+
   if (unhealthyDeps.length > 0) {
     throw new Error(`Unhealthy dependencies: ${unhealthyDeps.join(', ')}`);
   }
-  
+
   return dependencies;
 }
 

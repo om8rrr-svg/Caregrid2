@@ -41,10 +41,10 @@ router.get('/config', (req, res) => {
 router.put('/config', (req, res) => {
   try {
     const { intervals, thresholds, recovery } = req.body;
-    
+
     // Validate configuration
     const updates = {};
-    
+
     if (intervals) {
       // Validate cron expressions (basic validation)
       Object.entries(intervals).forEach(([key, cronExpr]) => {
@@ -54,7 +54,7 @@ router.put('/config', (req, res) => {
       });
       updates.intervals = intervals;
     }
-    
+
     if (thresholds) {
       // Validate threshold values
       if (thresholds.responseTime && (typeof thresholds.responseTime !== 'number' || thresholds.responseTime <= 0)) {
@@ -68,7 +68,7 @@ router.put('/config', (req, res) => {
       }
       updates.thresholds = thresholds;
     }
-    
+
     if (recovery) {
       // Validate recovery configuration
       if (recovery.enabled !== undefined && typeof recovery.enabled !== 'boolean') {
@@ -79,17 +79,17 @@ router.put('/config', (req, res) => {
       }
       updates.recovery = recovery;
     }
-    
+
     // Update configuration
     updateHealthCheckConfig(updates);
-    
+
     res.json({
       message: 'Health monitoring configuration updated successfully',
       timestamp: new Date().toISOString(),
       updates,
       newConfiguration: HEALTH_CHECK_CONFIG
     });
-    
+
   } catch (error) {
     console.error('Error updating health monitoring config:', error);
     res.status(400).json({
@@ -120,29 +120,29 @@ router.get('/intervals', (req, res) => {
 router.put('/intervals', (req, res) => {
   try {
     const { intervals } = req.body;
-    
+
     if (!intervals || typeof intervals !== 'object') {
       return res.status(400).json({
         error: 'Invalid request',
         message: 'intervals object is required'
       });
     }
-    
+
     // Validate cron expressions
     Object.entries(intervals).forEach(([key, cronExpr]) => {
       if (typeof cronExpr !== 'string' || cronExpr.split(' ').length !== 5) {
         throw new Error(`Invalid cron expression for ${key}: ${cronExpr}`);
       }
     });
-    
+
     updateHealthCheckConfig({ intervals });
-    
+
     res.json({
       message: 'Health check intervals updated successfully',
       timestamp: new Date().toISOString(),
       intervals: HEALTH_CHECK_CONFIG.intervals
     });
-    
+
   } catch (error) {
     console.error('Error updating health check intervals:', error);
     res.status(400).json({
@@ -173,14 +173,14 @@ router.get('/thresholds', (req, res) => {
 router.put('/thresholds', (req, res) => {
   try {
     const { thresholds } = req.body;
-    
+
     if (!thresholds || typeof thresholds !== 'object') {
       return res.status(400).json({
         error: 'Invalid request',
         message: 'thresholds object is required'
       });
     }
-    
+
     // Validate threshold values
     if (thresholds.responseTime && (typeof thresholds.responseTime !== 'number' || thresholds.responseTime <= 0)) {
       throw new Error('responseTime must be a positive number');
@@ -194,15 +194,15 @@ router.put('/thresholds', (req, res) => {
     if (thresholds.recoveryChecks && (typeof thresholds.recoveryChecks !== 'number' || thresholds.recoveryChecks <= 0)) {
       throw new Error('recoveryChecks must be a positive number');
     }
-    
+
     updateHealthCheckConfig({ thresholds });
-    
+
     res.json({
       message: 'Health check thresholds updated successfully',
       timestamp: new Date().toISOString(),
       thresholds: HEALTH_CHECK_CONFIG.thresholds
     });
-    
+
   } catch (error) {
     console.error('Error updating health check thresholds:', error);
     res.status(400).json({
@@ -233,14 +233,14 @@ router.get('/recovery', (req, res) => {
 router.put('/recovery', (req, res) => {
   try {
     const { recovery } = req.body;
-    
+
     if (!recovery || typeof recovery !== 'object') {
       return res.status(400).json({
         error: 'Invalid request',
         message: 'recovery object is required'
       });
     }
-    
+
     // Validate recovery configuration
     if (recovery.enabled !== undefined && typeof recovery.enabled !== 'boolean') {
       throw new Error('recovery.enabled must be a boolean');
@@ -254,15 +254,15 @@ router.put('/recovery', (req, res) => {
     if (recovery.initialDelay && (typeof recovery.initialDelay !== 'number' || recovery.initialDelay <= 0)) {
       throw new Error('recovery.initialDelay must be a positive number');
     }
-    
+
     updateHealthCheckConfig({ recovery });
-    
+
     res.json({
       message: 'Recovery configuration updated successfully',
       timestamp: new Date().toISOString(),
       recovery: HEALTH_CHECK_CONFIG.recovery
     });
-    
+
   } catch (error) {
     console.error('Error updating recovery configuration:', error);
     res.status(400).json({
@@ -279,7 +279,7 @@ router.get('/health', (req, res) => {
     const activeChecks = status.checks.filter(check => check.status === 'healthy').length;
     const totalChecks = status.checks.length;
     const healthPercentage = totalChecks > 0 ? (activeChecks / totalChecks) * 100 : 0;
-    
+
     res.json({
       status: healthPercentage >= 75 ? 'healthy' : healthPercentage >= 50 ? 'degraded' : 'unhealthy',
       timestamp: new Date().toISOString(),

@@ -50,7 +50,7 @@ const config = {
 async function executeSyntheticTransaction(type, options = {}) {
   const startTime = Date.now();
   const transactionId = `${type}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-  
+
   const transaction = {
     id: transactionId,
     type,
@@ -86,7 +86,7 @@ async function executeSyntheticTransaction(type, options = {}) {
       default:
         throw new Error(`Unknown transaction type: ${type}`);
     }
-    
+
     transaction.status = TRANSACTION_STATUS.SUCCESS;
   } catch (error) {
     transaction.status = TRANSACTION_STATUS.FAILURE;
@@ -96,13 +96,13 @@ async function executeSyntheticTransaction(type, options = {}) {
       code: error.code || 'UNKNOWN'
     };
   }
-  
+
   transaction.endTime = Date.now();
   transaction.duration = transaction.endTime - transaction.startTime;
-  
+
   // Store transaction result
   storeTransactionResult(transaction);
-  
+
   return transaction;
 }
 
@@ -116,7 +116,7 @@ async function executeApiHealthCheck(transaction) {
     { name: 'database_health', url: '/health/database' },
     { name: 'dependencies_health', url: '/health/dependencies' }
   ];
-  
+
   for (const step of steps) {
     const stepStart = Date.now();
     try {
@@ -124,7 +124,7 @@ async function executeApiHealthCheck(transaction) {
         timeout: config.timeout,
         validateStatus: (status) => status < 500
       });
-      
+
       transaction.steps.push({
         name: step.name,
         status: 'success',
@@ -152,14 +152,14 @@ async function executeUserLogin(transaction, options) {
     email: 'test@caregrid.com',
     password: 'TestPassword123!'
   };
-  
+
   // Step 1: Get login page
   const step1Start = Date.now();
   try {
     const loginPageResponse = await axios.get(`${config.baseUrl}/auth/login`, {
       timeout: config.timeout
     });
-    
+
     transaction.steps.push({
       name: 'get_login_page',
       status: 'success',
@@ -175,7 +175,7 @@ async function executeUserLogin(transaction, options) {
     });
     throw error;
   }
-  
+
   // Step 2: Attempt login
   const step2Start = Date.now();
   try {
@@ -186,7 +186,7 @@ async function executeUserLogin(transaction, options) {
       timeout: config.timeout,
       validateStatus: (status) => status < 500
     });
-    
+
     transaction.steps.push({
       name: 'login_attempt',
       status: loginResponse.status === 200 ? 'success' : 'failure',
@@ -194,7 +194,7 @@ async function executeUserLogin(transaction, options) {
       statusCode: loginResponse.status,
       hasToken: !!(loginResponse.data && loginResponse.data.token)
     });
-    
+
     if (loginResponse.status !== 200) {
       throw new Error(`Login failed with status ${loginResponse.status}`);
     }
@@ -215,7 +215,7 @@ async function executeUserLogin(transaction, options) {
 async function executeClinicSearch(transaction, options) {
   const searchQuery = options.searchQuery || 'dental';
   const location = options.location || 'London';
-  
+
   // Step 1: Search clinics
   const step1Start = Date.now();
   try {
@@ -227,7 +227,7 @@ async function executeClinicSearch(transaction, options) {
       },
       timeout: config.timeout
     });
-    
+
     transaction.steps.push({
       name: 'clinic_search',
       status: 'success',
@@ -235,7 +235,7 @@ async function executeClinicSearch(transaction, options) {
       statusCode: searchResponse.status,
       resultCount: searchResponse.data?.clinics?.length || 0
     });
-    
+
     if (!searchResponse.data?.clinics?.length) {
       throw new Error('No clinics found in search results');
     }
@@ -262,7 +262,7 @@ async function executeAppointmentBooking(transaction, options) {
     patientEmail: 'test.patient@example.com',
     patientPhone: '+44123456789'
   };
-  
+
   // Step 1: Get available slots
   const step1Start = Date.now();
   try {
@@ -273,7 +273,7 @@ async function executeAppointmentBooking(transaction, options) {
       },
       timeout: config.timeout
     });
-    
+
     transaction.steps.push({
       name: 'get_available_slots',
       status: 'success',
@@ -290,7 +290,7 @@ async function executeAppointmentBooking(transaction, options) {
     });
     throw error;
   }
-  
+
   // Step 2: Create booking (simulation)
   const step2Start = Date.now();
   try {
@@ -298,7 +298,7 @@ async function executeAppointmentBooking(transaction, options) {
       timeout: config.timeout,
       validateStatus: (status) => status < 500
     });
-    
+
     transaction.steps.push({
       name: 'create_booking',
       status: bookingResponse.status === 201 ? 'success' : 'failure',
@@ -328,14 +328,14 @@ async function executeUserRegistration(transaction, options) {
     lastName: 'User',
     phone: '+44123456789'
   };
-  
+
   const step1Start = Date.now();
   try {
     const registrationResponse = await axios.post(`${config.baseUrl}/api/auth/register`, userData, {
       timeout: config.timeout,
       validateStatus: (status) => status < 500
     });
-    
+
     transaction.steps.push({
       name: 'user_registration',
       status: registrationResponse.status === 201 ? 'success' : 'failure',
@@ -343,7 +343,7 @@ async function executeUserRegistration(transaction, options) {
       statusCode: registrationResponse.status,
       userId: registrationResponse.data?.user?.id
     });
-    
+
     if (registrationResponse.status !== 201) {
       throw new Error(`Registration failed with status ${registrationResponse.status}`);
     }
@@ -368,14 +368,14 @@ async function executeContactForm(transaction, options) {
     subject: 'Synthetic Test',
     message: 'This is a synthetic transaction test message.'
   };
-  
+
   const step1Start = Date.now();
   try {
     const contactResponse = await axios.post(`${config.baseUrl}/api/contact`, contactData, {
       timeout: config.timeout,
       validateStatus: (status) => status < 500
     });
-    
+
     transaction.steps.push({
       name: 'contact_form_submission',
       status: contactResponse.status === 200 ? 'success' : 'failure',
@@ -383,7 +383,7 @@ async function executeContactForm(transaction, options) {
       statusCode: contactResponse.status,
       messageId: contactResponse.data?.messageId
     });
-    
+
     if (contactResponse.status !== 200) {
       throw new Error(`Contact form submission failed with status ${contactResponse.status}`);
     }
@@ -404,12 +404,12 @@ async function executeContactForm(transaction, options) {
 function storeTransactionResult(transaction) {
   // Add to history
   transactionResults.history.unshift(transaction);
-  
+
   // Limit history size
   if (transactionResults.history.length > config.maxHistorySize) {
     transactionResults.history = transactionResults.history.slice(0, config.maxHistorySize);
   }
-  
+
   // Update summary
   transactionResults.summary.total++;
   if (transaction.status === TRANSACTION_STATUS.SUCCESS) {
@@ -417,7 +417,7 @@ function storeTransactionResult(transaction) {
   } else {
     transactionResults.summary.failed++;
   }
-  
+
   // Calculate average response time
   const totalDuration = transactionResults.history.reduce((sum, t) => sum + (t.duration || 0), 0);
   transactionResults.summary.averageResponseTime = Math.round(totalDuration / transactionResults.history.length);
@@ -429,7 +429,7 @@ function storeTransactionResult(transaction) {
  */
 async function runAllSyntheticTransactions() {
   const results = [];
-  
+
   for (const type of Object.values(TRANSACTION_TYPES)) {
     try {
       const result = await executeSyntheticTransaction(type);
@@ -444,7 +444,7 @@ async function runAllSyntheticTransactions() {
       });
     }
   }
-  
+
   return results;
 }
 
@@ -467,10 +467,10 @@ function getSyntheticResults() {
  */
 function getSyntheticSummary() {
   const recentResults = transactionResults.history.slice(0, 50);
-  const successRate = transactionResults.summary.total > 0 
+  const successRate = transactionResults.summary.total > 0
     ? Math.round((transactionResults.summary.successful / transactionResults.summary.total) * 100)
     : 0;
-  
+
   return {
     summary: {
       ...transactionResults.summary,
@@ -485,7 +485,7 @@ function getSyntheticSummary() {
         total: typeResults.length,
         successful: typeSuccessful,
         successRate: typeResults.length > 0 ? Math.round((typeSuccessful / typeResults.length) * 100) : 0,
-        averageResponseTime: typeResults.length > 0 
+        averageResponseTime: typeResults.length > 0
           ? Math.round(typeResults.reduce((sum, t) => sum + (t.duration || 0), 0) / typeResults.length)
           : 0
       };

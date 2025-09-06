@@ -48,7 +48,7 @@ class MigrationRunner {
         process_id VARCHAR(255)
       )
     `;
-    
+
     await client.query(createLockTableSQL);
   }
 
@@ -63,7 +63,7 @@ class MigrationRunner {
         executed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `;
-    
+
     await client.query(createMigrationsTableSQL);
   }
 
@@ -81,9 +81,9 @@ class MigrationRunner {
 
     // Try to acquire lock
     const result = await client.query(
-      `INSERT INTO ${this.lockTableName} (locked_by, process_id) 
-       SELECT $1, $2 
-       WHERE NOT EXISTS (SELECT 1 FROM ${this.lockTableName}) 
+      `INSERT INTO ${this.lockTableName} (locked_by, process_id)
+       SELECT $1, $2
+       WHERE NOT EXISTS (SELECT 1 FROM ${this.lockTableName})
        RETURNING id`,
       [lockIdentifier, processId]
     );
@@ -93,17 +93,17 @@ class MigrationRunner {
       const existingLock = await client.query(
         `SELECT * FROM ${this.lockTableName} ORDER BY locked_at DESC LIMIT 1`
       );
-      
+
       if (existingLock.rows.length > 0) {
         const lock = existingLock.rows[0];
         const lockAge = Date.now() - new Date(lock.locked_at).getTime();
-        
+
         if (lockAge > this.lockTimeout) {
           // Force release expired lock
           await this.releaseLock(client);
           return this.acquireLock(client); // Retry
         }
-        
+
         throw new Error(`Migration lock held by ${lock.locked_by} (${lock.process_id})`);
       }
     }
@@ -133,7 +133,7 @@ class MigrationRunner {
    */
   getAvailableMigrations() {
     const migrationsDir = path.join(__dirname, '..', 'migrations');
-    
+
     if (!fs.existsSync(migrationsDir)) {
       console.log('📁 No migrations directory found');
       return [];
@@ -152,20 +152,20 @@ class MigrationRunner {
     const migrationSQL = fs.readFileSync(migrationPath, 'utf8');
 
     console.log(`🔄 Executing migration: ${filename}`);
-    
+
     // Execute migration in a transaction
     await client.query('BEGIN');
-    
+
     try {
       // Execute the migration SQL
       await client.query(migrationSQL);
-      
+
       // Record the migration as executed
       await client.query(
         `INSERT INTO ${this.migrationsTable} (filename) VALUES ($1)`,
         [filename]
       );
-      
+
       await client.query('COMMIT');
       console.log(`✅ Migration completed: ${filename}`);
     } catch (error) {
@@ -196,7 +196,7 @@ class MigrationRunner {
       // Get migrations
       const availableMigrations = this.getAvailableMigrations();
       const executedMigrations = await this.getExecutedMigrations(client);
-      
+
       const pendingMigrations = availableMigrations.filter(
         migration => !executedMigrations.includes(migration)
       );
@@ -207,7 +207,7 @@ class MigrationRunner {
       }
 
       console.log(`📋 Found ${pendingMigrations.length} pending migrations`);
-      
+
       // Execute pending migrations
       for (const migration of pendingMigrations) {
         await this.executeMigration(client, migration);
@@ -253,7 +253,7 @@ class MigrationRunner {
 
       // Run seed files
       const seedsDir = path.join(__dirname, '..', 'seeds');
-      
+
       if (!fs.existsSync(seedsDir)) {
         console.log('📁 No seeds directory found');
         return { success: true, seeded: false, reason: 'No seeds directory' };
@@ -269,11 +269,11 @@ class MigrationRunner {
       }
 
       console.log(`🌱 Running ${seedFiles.length} seed files`);
-      
+
       for (const seedFile of seedFiles) {
         const seedPath = path.join(seedsDir, seedFile);
         const seedSQL = fs.readFileSync(seedPath, 'utf8');
-        
+
         console.log(`🌱 Executing seed: ${seedFile}`);
         await client.query(seedSQL);
         console.log(`✅ Seed completed: ${seedFile}`);
@@ -282,7 +282,7 @@ class MigrationRunner {
       // Verify seeding
       const newClinicCount = await client.query('SELECT COUNT(*) FROM clinics');
       const seededClinics = parseInt(newClinicCount.rows[0].count);
-      
+
       console.log(`✅ Successfully seeded ${seededClinics} clinics`);
       return { success: true, seeded: true, clinicsSeeded: seededClinics };
 

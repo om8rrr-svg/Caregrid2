@@ -54,7 +54,7 @@ router.get('/', authenticateToken, (req, res) => {
 router.post('/enable', authenticateToken, async (req, res) => {
   try {
     const { reason, message, endTime, allowedIPs, gracePeriod } = req.body;
-    
+
     // Validate required fields
     if (!reason) {
       return res.status(400).json({
@@ -62,7 +62,7 @@ router.post('/enable', authenticateToken, async (req, res) => {
         message: 'reason is required'
       });
     }
-    
+
     // Parse endTime if provided
     let parsedEndTime = null;
     if (endTime) {
@@ -73,7 +73,7 @@ router.post('/enable', authenticateToken, async (req, res) => {
           message: 'endTime must be a valid ISO date string'
         });
       }
-      
+
       if (parsedEndTime <= new Date()) {
         return res.status(400).json({
           error: 'Invalid request',
@@ -81,7 +81,7 @@ router.post('/enable', authenticateToken, async (req, res) => {
         });
       }
     }
-    
+
     // Validate gracePeriod
     if (gracePeriod !== undefined && (typeof gracePeriod !== 'number' || gracePeriod < 0)) {
       return res.status(400).json({
@@ -89,7 +89,7 @@ router.post('/enable', authenticateToken, async (req, res) => {
         message: 'gracePeriod must be a positive number'
       });
     }
-    
+
     // Validate allowedIPs
     if (allowedIPs && !Array.isArray(allowedIPs)) {
       return res.status(400).json({
@@ -97,7 +97,7 @@ router.post('/enable', authenticateToken, async (req, res) => {
         message: 'allowedIPs must be an array'
       });
     }
-    
+
     const result = await enableMaintenanceMode({
       reason,
       message,
@@ -105,13 +105,13 @@ router.post('/enable', authenticateToken, async (req, res) => {
       allowedIPs: allowedIPs || [],
       gracePeriod: gracePeriod || 30000
     });
-    
+
     res.json({
       message: 'Maintenance mode enabled successfully',
       timestamp: new Date().toISOString(),
       maintenance: result.state
     });
-    
+
   } catch (error) {
     console.error('Error enabling maintenance mode:', error);
     res.status(500).json({
@@ -125,13 +125,13 @@ router.post('/enable', authenticateToken, async (req, res) => {
 router.post('/disable', authenticateToken, async (req, res) => {
   try {
     const result = await disableMaintenanceMode();
-    
+
     res.json({
       message: 'Maintenance mode disabled successfully',
       timestamp: new Date().toISOString(),
       maintenance: result.state
     });
-    
+
   } catch (error) {
     console.error('Error disabling maintenance mode:', error);
     res.status(500).json({
@@ -145,7 +145,7 @@ router.post('/disable', authenticateToken, async (req, res) => {
 router.post('/toggle', authenticateToken, async (req, res) => {
   try {
     const currentState = getMaintenanceState();
-    
+
     if (currentState.enabled) {
       const result = await disableMaintenanceMode();
       res.json({
@@ -155,7 +155,7 @@ router.post('/toggle', authenticateToken, async (req, res) => {
       });
     } else {
       const { reason, message, endTime, allowedIPs, gracePeriod } = req.body;
-      
+
       const result = await enableMaintenanceMode({
         reason: reason || 'Manual toggle',
         message,
@@ -163,14 +163,14 @@ router.post('/toggle', authenticateToken, async (req, res) => {
         allowedIPs: allowedIPs || [],
         gracePeriod: gracePeriod || 30000
       });
-      
+
       res.json({
         message: 'Maintenance mode enabled',
         timestamp: new Date().toISOString(),
         maintenance: result.state
       });
     }
-    
+
   } catch (error) {
     console.error('Error toggling maintenance mode:', error);
     res.status(500).json({
@@ -184,14 +184,14 @@ router.post('/toggle', authenticateToken, async (req, res) => {
 router.post('/shutdown', authenticateToken, async (req, res) => {
   try {
     const { reason, message, gracePeriod } = req.body;
-    
+
     // Send response before initiating shutdown
     res.json({
       message: 'Graceful shutdown initiated',
       timestamp: new Date().toISOString(),
       gracePeriod: gracePeriod || 30000
     });
-    
+
     // Initiate shutdown after a short delay to ensure response is sent
     setTimeout(async () => {
       try {
@@ -200,7 +200,7 @@ router.post('/shutdown', authenticateToken, async (req, res) => {
           message: message || 'System is shutting down for maintenance.',
           gracePeriod: gracePeriod || 30000
         });
-        
+
         // Exit the process
         process.exit(0);
       } catch (error) {
@@ -208,7 +208,7 @@ router.post('/shutdown', authenticateToken, async (req, res) => {
         process.exit(1);
       }
     }, 1000);
-    
+
   } catch (error) {
     console.error('Error initiating shutdown:', error);
     res.status(500).json({
@@ -222,7 +222,7 @@ router.post('/shutdown', authenticateToken, async (req, res) => {
 router.get('/health', (req, res) => {
   try {
     const state = getMaintenanceState();
-    
+
     res.json({
       status: 'healthy',
       timestamp: new Date().toISOString(),

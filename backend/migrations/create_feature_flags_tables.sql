@@ -100,7 +100,7 @@ INSERT INTO feature_flags (name, description, enabled, rollout_percentage, targe
 
 -- Insert sample A/B experiments
 INSERT INTO ab_experiments (name, description, feature_flag_id, variants, traffic_allocation, status, start_date, end_date, success_metrics) VALUES
-('dashboard_layout_test', 'Test different dashboard layouts for user engagement', 
+('dashboard_layout_test', 'Test different dashboard layouts for user engagement',
  (SELECT id FROM feature_flags WHERE name = 'new_dashboard_ui'),
  '[{"name": "control", "weight": 50}, {"name": "variant_a", "weight": 25}, {"name": "variant_b", "weight": 25}]',
  100, 'draft', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '30 days',
