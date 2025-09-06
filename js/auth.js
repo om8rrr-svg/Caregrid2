@@ -540,15 +540,37 @@ class AuthSystem {
         let isValid = true;
         
         // Enhanced first name validation
-        const firstNameInput = document.getElementById('firstName');
-        if (!this.validateNameField(firstNameInput, 'firstNameError', 'First')) {
+        if (!data.firstName.trim()) {
+            this.showError('firstNameError', 'First name is required');
             isValid = false;
+        } else if (data.firstName.trim().length < 2) {
+            this.showError('firstNameError', 'First name must be at least 2 characters');
+            isValid = false;
+        } else if (data.firstName.trim().length > 50) {
+            this.showError('firstNameError', 'First name must be less than 50 characters');
+            isValid = false;
+        } else if (!/^[a-zA-Z\s'-]+$/.test(data.firstName.trim())) {
+            this.showError('firstNameError', 'First name can only contain letters, spaces, hyphens, and apostrophes');
+            isValid = false;
+        } else {
+            this.clearError('firstNameError');
         }
         
         // Enhanced last name validation
-        const lastNameInput = document.getElementById('lastName');
-        if (!this.validateNameField(lastNameInput, 'lastNameError', 'Last')) {
+        if (!data.lastName.trim()) {
+            this.showError('lastNameError', 'Last name is required');
             isValid = false;
+        } else if (data.lastName.trim().length < 2) {
+            this.showError('lastNameError', 'Last name must be at least 2 characters');
+            isValid = false;
+        } else if (data.lastName.trim().length > 50) {
+            this.showError('lastNameError', 'Last name must be less than 50 characters');
+            isValid = false;
+        } else if (!/^[a-zA-Z\s'-]+$/.test(data.lastName.trim())) {
+            this.showError('lastNameError', 'Last name can only contain letters, spaces, hyphens, and apostrophes');
+            isValid = false;
+        } else {
+            this.clearError('lastNameError');
         }
         
         // Email validation

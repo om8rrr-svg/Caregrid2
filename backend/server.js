@@ -10,7 +10,7 @@ require('dotenv').config();
 function validateEnvironment() {
   const warnings = [];
   const errors = [];
-
+  
   // Critical environment variables
   if (!process.env.JWT_SECRET) {
     if (process.env.NODE_ENV === 'production') {
@@ -20,11 +20,11 @@ function validateEnvironment() {
       process.env.JWT_SECRET = 'fallback-jwt-secret-for-development-only';
     }
   }
-
+  
   // Database configuration
   const hasDatabaseUrl = !!process.env.DATABASE_URL;
   const hasDbVars = process.env.DB_HOST && process.env.DB_NAME && process.env.DB_USER;
-
+  
   if (!hasDatabaseUrl && !hasDbVars) {
     if (process.env.NODE_ENV === 'production') {
       errors.push('Database configuration missing: need DATABASE_URL or DB_* variables');
@@ -32,20 +32,20 @@ function validateEnvironment() {
       warnings.push('Database not configured - some features may not work');
     }
   }
-
+  
   // Log warnings and errors
   if (warnings.length > 0) {
     console.warn('⚠️  Environment warnings:');
     warnings.forEach(warning => console.warn(`   • ${warning}`));
   }
-
+  
   if (errors.length > 0) {
     console.error('❌ Environment errors:');
     errors.forEach(error => console.error(`   • ${error}`));
     console.error('🛑 Server cannot start with these configuration errors');
     process.exit(1);
   }
-
+  
   if (warnings.length === 0 && errors.length === 0) {
     console.log('✅ Environment configuration validated');
   }
@@ -63,11 +63,11 @@ async function runStartupMigrations() {
 
   console.log('🚀 Running startup migrations...');
   const migrationRunner = new MigrationRunner();
-
+  
   try {
     // Run migrations
     const migrationResult = await migrationRunner.runMigrations();
-
+    
     if (!migrationResult.success) {
       console.error('❌ Migration failed:', migrationResult.error);
       if (process.env.NODE_ENV === 'production') {
@@ -76,17 +76,17 @@ async function runStartupMigrations() {
       }
       return;
     }
-
+    
     // Run seeds if migrations were successful
     const seedResult = await migrationRunner.runSeeds();
-
+    
     if (!seedResult.success) {
       console.warn('⚠️  Seeding failed:', seedResult.error);
       // Don't exit on seed failure, just warn
     } else if (seedResult.seeded) {
       console.log(`✅ Database seeded with ${seedResult.clinicsSeeded} clinics`);
     }
-
+    
   } catch (error) {
     console.error('❌ Startup migration error:', error.message);
     if (process.env.NODE_ENV === 'production') {
@@ -235,54 +235,26 @@ app.options('*', (req, res) => {
   res.status(204).end();
 });
 
-// Rate limiting - production-tuned
+// Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: process.env.NODE_ENV === 'production' ? 300 : 500, // Stricter in production
+  max: 500, // limit each IP to 500 requests per windowMs (increased for development/testing)
   message: {
     error: 'Too many requests from this IP, please try again later.',
     retryAfter: '15 minutes'
   },
   standardHeaders: true,
-  legacyHeaders: false,
-  skip: (req) => {
-    // Skip rate limiting for health checks
-    return req.path.startsWith('/health');
-  }
+  legacyHeaders: false
 });
 app.use(limiter);
 
-// Stricter rate limiting for authentication endpoints
+// Stricter rate limiting for auth endpoints
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: process.env.NODE_ENV === 'production' ? 50 : 200, // Much stricter for auth in production
+  max: 200, // limit each IP to 200 auth requests per windowMs (increased for development/testing)
   message: {
     error: 'Too many authentication attempts, please try again later.',
     retryAfter: '15 minutes'
-  },
-  standardHeaders: true,
-  legacyHeaders: false
-});
-
-// Contact form rate limiting
-const contactLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
-  max: 10, // Only 10 contact form submissions per hour
-  message: {
-    error: 'Too many contact form submissions, please try again later.',
-    retryAfter: '1 hour'
-  },
-  standardHeaders: true,
-  legacyHeaders: false
-});
-
-// Booking rate limiting
-const bookingLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
-  max: 20, // 20 bookings per hour per IP
-  message: {
-    error: 'Too many booking attempts, please try again later.',
-    retryAfter: '1 hour'
   },
   standardHeaders: true,
   legacyHeaders: false
@@ -325,8 +297,8 @@ app.use('/api', (req, res, next) => {
 app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/users', authenticateToken, userRoutes);
 app.use('/api/clinics', clinicRoutes);
-app.use('/api/appointments', bookingLimiter, appointmentRoutes);
-app.use('/api/contact', contactLimiter, contactRoutes);
+app.use('/api/appointments', appointmentRoutes);
+app.use('/api/contact', contactRoutes);
 app.use('/api/debug', debugRoutes);
 app.use('/health', healthRoutes);
 app.use('/api/synthetic', syntheticRoutes);
@@ -337,9 +309,9 @@ app.use('/api/feature-flags', featureFlagsRoutes);
 
 // 404 handler
 app.use('*', (req, res) => {
-  res.status(404).json({
+  res.status(404).json({ 
     error: 'Endpoint not found',
-    path: req.originalUrl
+    path: req.originalUrl 
   });
 });
 
@@ -350,16 +322,16 @@ app.listen(PORT, () => {
   console.log(`🚀 CareGrid API server running on port ${PORT}`);
   console.log(`📊 Health check: http://localhost:${PORT}/health`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-
+  
   // Start synthetic monitoring scheduler
   startScheduler();
-
+  
   // Initialize alerting system
   initializeAlerting();
-
+  
   // Initialize health monitoring scheduler
   initializeHealthScheduler();
-
+  
   // Initialize maintenance service
   initializeMaintenanceService();
 });

@@ -21,7 +21,7 @@ function getCurrentUser() {
 
 async function getSession() {
   try {
-    const token = localStorage.getItem('careGridToken');
+    const token = localStorage.getItem('careGridToken') || sessionStorage.getItem('careGridToken');
     
     if (!token) {
       return { authenticated: false, user: null };

@@ -19,19 +19,11 @@
         }
     }
     
-    // Google Analytics Configuration
-    // Replace with your actual GA4 Measurement ID (format: G-XXXXXXXXXX)
-    const GA_MEASUREMENT_ID = 'G-PLACEHOLDER123'; // TODO: Replace with actual GA4 ID
-    
     // Expose configuration for debugging
     window.CareGridConfig = {
         apiBase: window.__API_BASE__,
         isLocal: isLocalDevelopment,
-        environment: isLocalDevelopment ? 'development' : 'production',
-        analytics: {
-            gaId: GA_MEASUREMENT_ID,
-            enabled: !isLocalDevelopment // Disable analytics in local development
-        }
+        environment: isLocalDevelopment ? 'development' : 'production'
     };
     
 })();

@@ -111,7 +111,6 @@ class APIService {
             },
             credentials: 'omit', // using Bearer token, not cookies
             signal: controller.signal,
-            cache: 'no-store', // Ensure fresh data for all API calls
             ...options
         };
 

@@ -288,61 +288,41 @@ function previousStep() {
     }
 }
 
-// Enhanced validation with inline error messages
+// Validate current step
 function validateCurrentStep() {
-    clearBookingErrors(); // Clear previous errors
-    let isValid = true;
-    
     switch(currentBookingStep) {
         case 1:
             const serviceType = document.getElementById('serviceType').value;
             const reason = document.getElementById('appointmentReason').value.trim();
             
             if (!serviceType) {
-                showBookingError('serviceType', 'Please select a service type');
-                isValid = false;
+                alert('Please select a service type.');
+                return false;
             }
             if (!reason) {
-                showBookingError('appointmentReason', 'Please provide a reason for your visit');
-                isValid = false;
-            } else if (reason.length < 10) {
-                showBookingError('appointmentReason', 'Please provide more details (at least 10 characters)');
-                isValid = false;
+                alert('Please provide a reason for your visit.');
+                return false;
             }
             
-            if (isValid) {
-                bookingData.serviceType = serviceType;
-                bookingData.reason = reason;
-            }
-            return isValid;
+            bookingData.serviceType = serviceType;
+            bookingData.reason = reason;
+            return true;
             
         case 2:
             const date = document.getElementById('appointmentDate').value;
             
             if (!date) {
-                showBookingError('appointmentDate', 'Please select a date');
-                isValid = false;
-            } else {
-                const selectedDate = new Date(date);
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-                
-                if (selectedDate < today) {
-                    showBookingError('appointmentDate', 'Please select a future date');
-                    isValid = false;
-                }
+                alert('Please select a date.');
+                return false;
             }
-            
             if (!selectedTimeSlot) {
-                showBookingError('timeSlots', 'Please select a time slot');
-                isValid = false;
+                alert('Please select a time slot.');
+                return false;
             }
             
-            if (isValid) {
-                bookingData.date = date;
-                bookingData.time = selectedTimeSlot;
-            }
-            return isValid;
+            bookingData.date = date;
+            bookingData.time = selectedTimeSlot;
+            return true;
             
         case 3:
             // For authenticated users, personal information comes from their profile
@@ -359,16 +339,13 @@ function validateCurrentStep() {
             }
             
             if (!isAuthenticated) {
-                showBookingError('authentication', 'You must be signed in to proceed. Please sign in to continue.');
-                setTimeout(() => {
-                    window.location.href = 'auth.html';
-                }, 2000);
+                alert('You must be signed in to proceed. Please sign in to continue.');
+                window.location.href = 'auth.html';
                 return false;
             }
             
             // Get medical history (optional field)
-            const medicalHistory = document.getElementById('medicalHistory')?.value.trim() || '';
-            bookingData.medicalHistory = medicalHistory;
+            bookingData.medicalHistory = document.getElementById('medicalHistory').value.trim();
             
             // Get current user data from auth system
             const currentUser = authSystem.getCurrentUser();
@@ -382,134 +359,15 @@ function validateCurrentStep() {
             return true;
             
         case 4:
-            const termsAccepted = document.getElementById('termsAccepted')?.checked;
+            const termsAccepted = document.getElementById('termsAccepted').checked;
             if (!termsAccepted) {
-                showBookingError('termsAccepted', 'Please accept the terms and conditions to proceed');
+                alert('Please accept the terms and conditions.');
                 return false;
             }
             return true;
             
         default:
             return true;
-    }
-}
-
-// Show booking validation errors with better UX
-function showBookingError(fieldId, message) {
-    const field = document.getElementById(fieldId);
-    if (!field) {
-        // If field not found, show general error
-        showBookingMessage(message, 'error');
-        return;
-    }
-    
-    // Find or create error container
-    let errorContainer = field.parentNode.querySelector('.booking-error');
-    if (!errorContainer) {
-        errorContainer = document.createElement('div');
-        errorContainer.className = 'booking-error';
-        errorContainer.style.cssText = `
-            color: #dc2626;
-            font-size: 0.875rem;
-            margin-top: 5px;
-            padding: 8px 12px;
-            background-color: #fef2f2;
-            border: 1px solid #fecaca;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        `;
-        
-        // Insert after the field or its parent container
-        const insertAfter = field.closest('.form-group') || field.closest('.time-slot-container') || field;
-        insertAfter.parentNode.insertBefore(errorContainer, insertAfter.nextSibling);
-    }
-    
-    errorContainer.innerHTML = `
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-        </svg>
-        ${message}
-    `;
-    
-    // Add error styling to field
-    field.style.borderColor = '#dc2626';
-    field.style.backgroundColor = '#fef2f2';
-    
-    // Focus the field for better UX
-    field.focus();
-    
-    // Auto-remove error on field interaction
-    const removeError = () => {
-        if (errorContainer && errorContainer.parentNode) {
-            errorContainer.remove();
-        }
-        field.style.borderColor = '';
-        field.style.backgroundColor = '';
-        field.removeEventListener('input', removeError);
-        field.removeEventListener('change', removeError);
-    };
-    
-    field.addEventListener('input', removeError);
-    field.addEventListener('change', removeError);
-}
-
-// Clear all booking errors
-function clearBookingErrors() {
-    const errors = document.querySelectorAll('.booking-error');
-    errors.forEach(error => error.remove());
-    
-    // Reset field styles
-    const fields = document.querySelectorAll('#bookingForm input, #bookingForm select, #bookingForm textarea');
-    fields.forEach(field => {
-        field.style.borderColor = '';
-        field.style.backgroundColor = '';
-    });
-}
-
-// Show general booking messages
-function showBookingMessage(message, type = 'info') {
-    // Find or create message container
-    let messageContainer = document.querySelector('.booking-message');
-    if (!messageContainer) {
-        messageContainer = document.createElement('div');
-        messageContainer.className = 'booking-message';
-        
-        // Insert at the top of the current step
-        const currentStep = document.querySelector(`#bookingStep${currentBookingStep}`);
-        if (currentStep) {
-            currentStep.insertBefore(messageContainer, currentStep.firstChild);
-        }
-    }
-    
-    const colors = {
-        error: { bg: '#fef2f2', border: '#fecaca', text: '#dc2626' },
-        success: { bg: '#f0fdf4', border: '#bbf7d0', text: '#16a34a' },
-        info: { bg: '#eff6ff', border: '#bfdbfe', text: '#1d4ed8' }
-    };
-    
-    const color = colors[type] || colors.info;
-    
-    messageContainer.style.cssText = `
-        padding: 12px 16px;
-        margin-bottom: 20px;
-        border-radius: 6px;
-        background-color: ${color.bg};
-        border: 1px solid ${color.border};
-        color: ${color.text};
-        font-weight: 500;
-    `;
-    
-    messageContainer.textContent = message;
-    
-    // Auto-remove after 5 seconds for non-error messages
-    if (type !== 'error') {
-        setTimeout(() => {
-            if (messageContainer && messageContainer.parentNode) {
-                messageContainer.remove();
-            }
-        }, 5000);
     }
 }
 

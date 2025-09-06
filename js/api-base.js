@@ -26,8 +26,7 @@ export async function fetchJson(path, { params, method = 'GET', headers = {}, bo
       method,
       headers: { 'Content-Type': 'application/json', ...headers },
       body: body ? JSON.stringify(body) : undefined,
-      signal: ac.signal,
-      cache: 'no-store' // Ensure fresh data for all API calls
+      signal: ac.signal
     });
   } catch (err) {
     clearTimeout(t);
