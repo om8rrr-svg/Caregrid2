@@ -32,6 +32,7 @@ class AuthSystem {
         this.bindEvents();
         this.checkAuthState();
         this.setupPasswordStrength();
+        this.setupFormValidation();
         
         // Only check existing auth once during initialization
         await this.checkExistingAuth();
@@ -735,6 +736,20 @@ class AuthSystem {
         
         this.clearError('confirmPasswordError');
         return true;
+    }
+    
+    setupFormValidation() {
+        // Initialize enhanced form validation if available
+        if (window.FormValidator) {
+            const forms = document.querySelectorAll('form[data-validate]');
+            forms.forEach(form => {
+                new window.FormValidator(form, {
+                    realTimeValidation: true,
+                    showSuccessStates: true,
+                    debounceDelay: 300
+                });
+            });
+        }
     }
     
     setupRealTimeValidation() {

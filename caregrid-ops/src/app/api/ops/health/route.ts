@@ -30,14 +30,54 @@ const getSystemHealth = async (): Promise<SystemHealth> => {
     return await res.json().catch(() => ({}));
   });
 
-  // Test database connectivity
+  // Test database connectivity and data completeness
   const database = await timed(async () => {
     const ctrl = new AbortController();
     const to = setTimeout(() => ctrl.abort(), 30_000);
-    const res = await fetch(`${API_BASE}/api/clinics?limit=1`, { signal: ctrl.signal });
+    const res = await fetch(`${API_BASE}/api/clinics`, { signal: ctrl.signal });
     clearTimeout(to);
     if (!res.ok) throw new Error(`db probe ${res.status}`);
-    return await res.json().catch(() => ({}));
+    const data = await res.json().catch(() => ({}));
+    
+    // Check data completeness - expect at least 10 clinics in a healthy system
+    const clinics = data.clinics || data.data || data || [];
+    const clinicCount = Array.isArray(clinics) ? clinics.length : 0;
+    
+    if (clinicCount < 10) {
+      throw new Error(`incomplete data: only ${clinicCount} clinics returned, expected at least 10`);
+    }
+    
+    return { ...data, clinicCount };
+  });
+
+  // Test deployment health
+  const deploymentHealth = await timed(async () => {
+    const ctrl = new AbortController();
+    const to = setTimeout(() => ctrl.abort(), 10_000);
+    const res = await fetch('/api/deployments', { signal: ctrl.signal });
+    clearTimeout(to);
+    if (!res.ok) throw new Error(`deployment check ${res.status}`);
+    const data = await res.json();
+    const failedDeployments = data.deployments?.filter((d: any) => d.status === 'failed') || [];
+    if (failedDeployments.length > 0) {
+      throw new Error(`${failedDeployments.length} failed deployments`);
+    }
+    return data;
+  });
+
+  // Test configuration validation
+  const configHealth = await timed(async () => {
+    const ctrl = new AbortController();
+    const to = setTimeout(() => ctrl.abort(), 10_000);
+    const res = await fetch('/api/deployments/config', { signal: ctrl.signal });
+    clearTimeout(to);
+    if (!res.ok) throw new Error(`config check ${res.status}`);
+    const data = await res.json();
+    const criticalIssues = data.issues?.filter((i: any) => i.severity === 'critical') || [];
+    if (criticalIssues.length > 0) {
+      throw new Error(`${criticalIssues.length} critical config issues`);
+    }
+    return data;
   });
 
   const services: HealthCheck[] = [
@@ -61,6 +101,8 @@ const getSystemHealth = async (): Promise<SystemHealth> => {
       timestamp: new Date(),
       details: {
         endpoint: `${API_BASE}/api/clinics`,
+        clinicCount: database.ok ? database.data?.clinicCount : undefined,
+        dataCompleteness: database.ok ? 'complete' : 'incomplete',
         error: database.ok ? undefined : database.error,
       },
     },
@@ -84,6 +126,28 @@ const getSystemHealth = async (): Promise<SystemHealth> => {
       details: {
         provider: 'SendGrid',
         quotaUsed: '23%',
+      },
+    },
+    {
+      id: '5',
+      service: 'deployment-status',
+      status: deploymentHealth.ok ? 'healthy' : 'unhealthy',
+      responseTime: deploymentHealth.latencyMs,
+      timestamp: new Date(),
+      details: {
+        endpoint: '/api/deployments',
+        error: deploymentHealth.ok ? undefined : deploymentHealth.error,
+      },
+    },
+    {
+      id: '6',
+      service: 'configuration',
+      status: configHealth.ok ? 'healthy' : 'degraded',
+      responseTime: configHealth.latencyMs,
+      timestamp: new Date(),
+      details: {
+        endpoint: '/api/deployments/config',
+        error: configHealth.ok ? undefined : configHealth.error,
       },
     },
   ];

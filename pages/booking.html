@@ -24,6 +24,10 @@
     <meta name="twitter:image" content="https://www.caregrid.co.uk/og-image.svg">
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
     <link rel="stylesheet" href="css/style.css?v=2025082509">
+    <link rel="stylesheet" href="css/accessibility.css">
+    <link rel="stylesheet" href="css/skeleton-loading.css">
+    <link rel="stylesheet" href="css/form-validation.css">
+    <link rel="stylesheet" href="css/mobile-optimization.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/fontawesome/css/all.min.css">
     <style>
@@ -355,7 +359,7 @@
     <!-- Booking Form -->
     <section class="booking-section">
         <div class="booking-container">
-            <div class="booking-form">
+            <div class="booking-form" data-validate>
                 <!-- Clinic Summary -->
                 <div class="clinic-summary" id="clinicSummary">
                     <img src="images/clinic1.svg" alt="Clinic" id="clinicImage">
@@ -379,7 +383,7 @@
                     <h3>Select Service</h3>
                     <div class="form-group">
                         <label for="serviceType">Service Type</label>
-                        <select id="serviceType" required>
+                        <select id="serviceType" data-validate="required" required>
                             <option value="">Choose a service...</option>
                             <option value="consultation">General Consultation</option>
                             <option value="checkup">Health Check-up</option>
@@ -398,7 +402,7 @@
                     <h3>Select Date & Time</h3>
                     <div class="form-group">
                         <label for="appointmentDate">Preferred Date</label>
-                        <input type="date" id="appointmentDate" required>
+                        <input type="date" id="appointmentDate" data-validate="required,date" required>
                     </div>
                     <div class="form-group">
                         <label>Available Time Slots</label>
@@ -442,6 +446,12 @@
                     <div class="form-group">
                         <label for="medicalHistory">Relevant Medical History (Optional)</label>
                         <textarea id="medicalHistory" rows="3" placeholder="Any relevant medical conditions, allergies, or current medications that the clinic should be aware of..."></textarea>
+                    </div>
+                    
+                    <!-- Progressive Disclosure: Insurance Details -->
+                    <div class="form-group insurance-details" style="display: none;">
+                        <label for="insuranceProvider">Insurance Provider</label>
+                        <input type="text" id="insuranceProvider" name="insuranceProvider" placeholder="Enter your insurance provider">
                     </div>
                 </div>
 
@@ -610,7 +620,10 @@
     
     <!-- Authentication is now handled by booking.js -->
     
-    <!-- Lazy Loading Script -->
+    <!-- Enhanced Loading Scripts -->
+    <script src="js/skeleton-loader.js"></script>
+    <script src="js/form-validator.js"></script>
+    <script src="js/mobile-enhancements.js"></script>
     <script src="js/lazy-loader.js?v=2025082509"></script>
     <!-- Load clinic data for booking page -->
     <script src="js/clinic-data.js"></script>

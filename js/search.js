@@ -593,9 +593,15 @@ class AdvancedSearch {
     }
     
     showLoadingState() {
-        // Show loading spinner
-        const loadingIndicator = document.getElementById('loadingIndicator') || this.createLoadingIndicator();
-        loadingIndicator.style.display = 'block';
+        // Show skeleton loading state for search results
+        const resultsContainer = document.querySelector('.clinics-grid') || document.querySelector('.clinic-cards');
+        if (resultsContainer && window.skeletonLoader) {
+            window.skeletonLoader.show(resultsContainer, 'search-results', { count: 4 });
+        } else {
+            // Fallback to loading spinner
+            const loadingIndicator = document.getElementById('loadingIndicator') || this.createLoadingIndicator();
+            loadingIndicator.style.display = 'block';
+        }
         
         // Disable filter controls
         if (this.advancedFilters) {
@@ -605,9 +611,16 @@ class AdvancedSearch {
     }
     
     hideLoadingState() {
-        const loadingIndicator = document.getElementById('loadingIndicator');
-        if (loadingIndicator) {
-            loadingIndicator.style.display = 'none';
+        // Hide skeleton loading state for search results
+        const resultsContainer = document.querySelector('.clinics-grid') || document.querySelector('.clinic-cards');
+        if (resultsContainer && window.skeletonLoader && window.skeletonLoader.isLoading(resultsContainer)) {
+            window.skeletonLoader.hide(resultsContainer);
+        } else {
+            // Fallback to hiding loading spinner
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            if (loadingIndicator) {
+                loadingIndicator.style.display = 'none';
+            }
         }
         
         // Re-enable filter controls

@@ -12,6 +12,9 @@
     
     <!-- Stylesheets -->
     <link rel="stylesheet" href="css/style.css?v=2025082509">
+    <link rel="stylesheet" href="css/skeleton-loading.css">
+    <link rel="stylesheet" href="css/form-validation.css">
+    <link rel="stylesheet" href="css/mobile-optimization.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/fontawesome/css/all.min.css">
     
@@ -90,15 +93,15 @@
                     </div>
 
                     <!-- Sign In Form -->
-                    <form id="signinForm" class="modern-auth-form">
+                    <form id="signinForm" class="modern-auth-form" data-validate>
                         <div class="form-group-modern">
-                            <input type="email" id="email" name="email" placeholder="Email" required class="modern-input">
+                            <input type="email" id="email" name="email" placeholder="Email" data-validate="required,email" required class="modern-input">
                             <span class="error-message" id="emailError"></span>
                         </div>
                         
                         <div class="form-group-modern">
                             <div class="password-input-modern">
-                                <input type="password" id="password" name="password" placeholder="Password" required class="modern-input">
+                                <input type="password" id="password" name="password" placeholder="Password" data-validate="required" required class="modern-input">
                                 <button type="button" class="password-toggle-modern" onclick="togglePassword('password')">
                                     <i class="fas fa-eye"></i>
                                 </button>
@@ -223,10 +226,10 @@
                             <span class="step">3</span>
                         </div>
                         
-                        <form id="forgotPasswordForm">
+                        <form id="forgotPasswordForm" data-validate>
                             <div class="form-group">
                                 <label for="resetEmail">Email Address</label>
-                                <input type="email" id="resetEmail" name="email" placeholder="Enter your email address" required>
+                                <input type="email" id="resetEmail" name="email" placeholder="Enter your email address" data-validate="required,email" required>
                                 <span class="error-message" id="resetEmailError"></span>
                             </div>
                             
@@ -251,10 +254,10 @@
                             <span class="step">3</span>
                         </div>
                         
-                        <form id="verificationForm">
+                        <form id="verificationForm" data-validate>
                             <div class="form-group">
                                 <label for="verificationCode">Verification Code</label>
-                                <input type="text" id="verificationCode" name="code" placeholder="Enter 6-digit code" maxlength="6" required>
+                                <input type="text" id="verificationCode" name="code" placeholder="Enter 6-digit code" maxlength="6" data-validate="required" required>
                                 <span class="error-message" id="verificationCodeError"></span>
                                 <p class="form-help">We've sent a 6-digit code to <span id="emailDisplay"></span></p>
                             </div>
@@ -281,7 +284,7 @@
                             <span class="step active">3</span>
                         </div>
                         
-                        <form id="newPasswordForm">
+                        <form id="newPasswordForm" data-validate>
                             <div class="password-requirements">
                                 <h4>Password Requirements:</h4>
                                 <ul>
@@ -296,10 +299,13 @@
                             <div class="form-group">
                                 <label for="newPassword">New Password</label>
                                 <div class="password-input">
-                                    <input type="password" id="newPassword" name="password" placeholder="Enter new password" required>
+                                    <input type="password" id="newPassword" name="password" placeholder="Enter new password" data-validate="required,password" required>
                                     <button type="button" class="password-toggle" onclick="togglePassword('newPassword')">
                                         <i class="fas fa-eye"></i>
                                     </button>
+                                </div>
+                                <div class="password-strength" style="display: none;">
+                                    <div class="password-strength-bar"></div>
                                 </div>
                                 <span class="error-message" id="newPasswordError"></span>
                             </div>
@@ -307,7 +313,7 @@
                             <div class="form-group">
                                 <label for="confirmNewPassword">Confirm New Password</label>
                                 <div class="password-input">
-                                    <input type="password" id="confirmNewPassword" name="confirmPassword" placeholder="Confirm new password" required>
+                                    <input type="password" id="confirmNewPassword" name="confirmPassword" placeholder="Confirm new password" data-validate="required" required>
                                     <button type="button" class="password-toggle" onclick="togglePassword('confirmNewPassword')">
                                         <i class="fas fa-eye"></i>
                                     </button>
@@ -499,7 +505,10 @@
     <!-- Lazy Loading Script -->
     <script src="js/config.js"></script>
     <script type="module" src="js/consent.js"></script>
+    <script src="js/form-validator.js"></script>
+    <script src="js/mobile-enhancements.js"></script>
     <script src="js/lazy-loader.js?v=2025090120-nocaptcha"></script>
+    <script src="js/skeleton-loader.js"></script>
     
     <!-- Service Worker Cleanup -->
     <script>

@@ -24,6 +24,7 @@ import {
   PieChart,
   LineChart,
   Zap,
+  Rocket,
 } from 'lucide-react';
 import type { Alert, AlertSeverity } from '@/types';
 import { MetricsDashboard } from './MetricsDashboard';
@@ -34,7 +35,7 @@ import { RoleRestricted, RoleButton } from '@/components/auth/RoleRestricted';
 // Health status type
 type HealthStatus = 'healthy' | 'degraded' | 'unhealthy';
 
-// Mock data interfaces
+// Real data interfaces
 interface SystemMetrics {
   uptime: number;
   responseTime: number;
@@ -59,48 +60,38 @@ interface RecentAlert {
   service: string;
 }
 
-// Mock data
-const mockSystemMetrics: SystemMetrics = {
-  uptime: 99.97,
-  responseTime: 245,
-  throughput: 1247,
-  errorRate: 0.03,
-  activeUsers: 342,
-  totalRequests: 45678,
-};
+// Empty state components
+const EmptyMetricsState = () => (
+  <div className="text-center py-8">
+    <BarChart3 className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+    <h3 className="text-lg font-medium text-gray-900 mb-2">No Metrics Available</h3>
+    <p className="text-gray-500 mb-4">System metrics will appear here once monitoring is configured.</p>
+    <Button variant="outline" size="sm">
+      <Settings className="h-4 w-4 mr-2" />
+      Configure Monitoring
+    </Button>
+  </div>
+);
 
-const mockServiceHealth: ServiceHealth[] = [
-  { name: 'API Gateway', status: 'healthy', responseTime: 120, uptime: 99.99 },
-  { name: 'Database', status: 'healthy', responseTime: 45, uptime: 99.95 },
-  { name: 'Auth Service', status: 'healthy', responseTime: 89, uptime: 99.98 },
-  { name: 'File Storage', status: 'degraded', responseTime: 340, uptime: 98.76 },
-  { name: 'Email Service', status: 'healthy', responseTime: 156, uptime: 99.87 },
-  { name: 'Analytics', status: 'healthy', responseTime: 203, uptime: 99.92 },
-];
+const EmptyServicesState = () => (
+  <div className="text-center py-8">
+    <Server className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+    <h3 className="text-lg font-medium text-gray-900 mb-2">No Services Monitored</h3>
+    <p className="text-gray-500 mb-4">Service health data will appear here once services are registered for monitoring.</p>
+    <Button variant="outline" size="sm">
+      <Settings className="h-4 w-4 mr-2" />
+      Add Services
+    </Button>
+  </div>
+);
 
-const mockRecentAlerts: RecentAlert[] = [
-  {
-    id: '1',
-    title: 'High response time detected',
-    severity: 'medium',
-    timestamp: new Date(Date.now() - 15 * 60 * 1000),
-    service: 'File Storage',
-  },
-  {
-    id: '2',
-    title: 'Database connection pool exhausted',
-    severity: 'high',
-    timestamp: new Date(Date.now() - 45 * 60 * 1000),
-    service: 'Database',
-  },
-  {
-    id: '3',
-    title: 'Unusual traffic spike detected',
-    severity: 'low',
-    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
-    service: 'API Gateway',
-  },
-];
+const EmptyAlertsState = () => (
+  <div className="text-center py-8">
+    <CheckCircle className="h-12 w-12 text-green-400 mx-auto mb-4" />
+    <h3 className="text-lg font-medium text-gray-900 mb-2">No Recent Alerts</h3>
+    <p className="text-gray-500">All systems are running smoothly. Alerts will appear here when issues are detected.</p>
+  </div>
+);
 
 // Main Dashboard Component
 export function Dashboard() {
@@ -108,6 +99,9 @@ export function Dashboard() {
   const [lastUpdated, setLastUpdated] = useState(new Date());
   const [isMaintenanceMode, setIsMaintenanceMode] = useState(false);
   const [isRunningTest, setIsRunningTest] = useState(false);
+  const [systemMetrics, setSystemMetrics] = useState<SystemMetrics | null>(null);
+  const [serviceHealth, setServiceHealth] = useState<ServiceHealth[]>([]);
+  const [recentAlerts, setRecentAlerts] = useState<RecentAlert[]>([]);
   const { isMobile, isTablet } = useResponsive();
 
   useEffect(() => {
@@ -201,48 +195,56 @@ export function Dashboard() {
       )}
 
       {/* System Overview */}
-      <DashboardGrid>
-        <GridItem {...WidgetSizes.small}>
-          <Card>
-            <CardHeader>
-              <CardTitle>System Uptime</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{mockSystemMetrics.uptime}%</div>
-            </CardContent>
-          </Card>
-        </GridItem>
-        <GridItem {...WidgetSizes.small}>
-          <Card>
-            <CardHeader>
-              <CardTitle>Response Time</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{mockSystemMetrics.responseTime}ms</div>
-            </CardContent>
-          </Card>
-        </GridItem>
-        <GridItem {...WidgetSizes.small}>
-          <Card>
-            <CardHeader>
-              <CardTitle>Throughput</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{formatNumber(mockSystemMetrics.throughput)}/min</div>
-            </CardContent>
-          </Card>
-        </GridItem>
-        <GridItem {...WidgetSizes.small}>
-          <Card>
-            <CardHeader>
-              <CardTitle>Error Rate</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{formatPercentage(mockSystemMetrics.errorRate)}%</div>
-            </CardContent>
-          </Card>
-        </GridItem>
-      </DashboardGrid>
+      {systemMetrics ? (
+        <DashboardGrid>
+          <GridItem {...WidgetSizes.small}>
+            <Card>
+              <CardHeader>
+                <CardTitle>System Uptime</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{systemMetrics.uptime}%</div>
+              </CardContent>
+            </Card>
+          </GridItem>
+          <GridItem {...WidgetSizes.small}>
+            <Card>
+              <CardHeader>
+                <CardTitle>Response Time</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{systemMetrics.responseTime}ms</div>
+              </CardContent>
+            </Card>
+          </GridItem>
+          <GridItem {...WidgetSizes.small}>
+            <Card>
+              <CardHeader>
+                <CardTitle>Throughput</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{formatNumber(systemMetrics.throughput)}/min</div>
+              </CardContent>
+            </Card>
+          </GridItem>
+          <GridItem {...WidgetSizes.small}>
+            <Card>
+              <CardHeader>
+                <CardTitle>Error Rate</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{formatPercentage(systemMetrics.errorRate)}%</div>
+              </CardContent>
+            </Card>
+          </GridItem>
+        </DashboardGrid>
+      ) : (
+        <Card>
+          <CardContent>
+            <EmptyMetricsState />
+          </CardContent>
+        </Card>
+      )}
 
       {/* Service Health */}
       <Card>
@@ -250,27 +252,31 @@ export function Dashboard() {
           <CardTitle>Service Health</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {mockServiceHealth.map((service) => (
-              <div key={service.name} className="flex items-center justify-between p-3 border rounded-lg">
-                <div className="flex items-center space-x-3">
-                  <div className={cn(
-                    "w-3 h-3 rounded-full",
-                    getStatusColor(service.status)
-                  )} />
-                  <div>
-                    <div className="font-medium">{service.name}</div>
-                    <div className="text-sm text-gray-500">
-                      {service.responseTime}ms • {service.uptime}% uptime
+          {serviceHealth.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {serviceHealth.map((service) => (
+                <div key={service.name} className="flex items-center justify-between p-3 border rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <div className={cn(
+                      "w-3 h-3 rounded-full",
+                      getStatusColor(service.status)
+                    )} />
+                    <div>
+                      <div className="font-medium">{service.name}</div>
+                      <div className="text-sm text-gray-500">
+                        {service.responseTime}ms • {service.uptime}% uptime
+                      </div>
                     </div>
                   </div>
+                  <div className="text-sm font-medium capitalize">
+                    {service.status}
+                  </div>
                 </div>
-                <div className="text-sm font-medium capitalize">
-                  {service.status}
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <EmptyServicesState />
+          )}
         </CardContent>
       </Card>
 
@@ -283,34 +289,38 @@ export function Dashboard() {
           <CardTitle>Recent Alerts</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
-            {mockRecentAlerts.map((alert) => (
-              <div key={alert.id} className="flex items-center justify-between p-3 border rounded-lg">
-                <div className="flex items-center space-x-3">
-                  <AlertTriangle className={cn(
-                    "h-4 w-4",
-                    alert.severity === 'high' ? 'text-red-500' :
-                    alert.severity === 'medium' ? 'text-yellow-500' :
-                    'text-blue-500'
-                  )} />
-                  <div>
-                    <div className="font-medium">{alert.title}</div>
-                    <div className="text-sm text-gray-500">
-                      {alert.service} • {alert.timestamp.toLocaleTimeString()}
+          {recentAlerts.length > 0 ? (
+            <div className="space-y-3">
+              {recentAlerts.map((alert) => (
+                <div key={alert.id} className="flex items-center justify-between p-3 border rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <AlertTriangle className={cn(
+                      "h-4 w-4",
+                      alert.severity === 'high' ? 'text-red-500' :
+                      alert.severity === 'medium' ? 'text-yellow-500' :
+                      'text-blue-500'
+                    )} />
+                    <div>
+                      <div className="font-medium">{alert.title}</div>
+                      <div className="text-sm text-gray-500">
+                        {alert.service} • {alert.timestamp.toLocaleTimeString()}
+                      </div>
                     </div>
                   </div>
+                  <div className={cn(
+                    "px-2 py-1 rounded-full text-xs font-medium",
+                    alert.severity === 'high' ? 'bg-red-100 text-red-800' :
+                    alert.severity === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                    'bg-blue-100 text-blue-800'
+                  )}>
+                    {alert.severity}
+                  </div>
                 </div>
-                <div className={cn(
-                  "px-2 py-1 rounded-full text-xs font-medium",
-                  alert.severity === 'high' ? 'bg-red-100 text-red-800' :
-                  alert.severity === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                  'bg-blue-100 text-blue-800'
-                )}>
-                  {alert.severity}
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <EmptyAlertsState />
+          )}
         </CardContent>
       </Card>
 

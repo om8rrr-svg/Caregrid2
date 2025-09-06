@@ -17,7 +17,7 @@ JWT_SECRET=your-super-secret-jwt-key-at-least-32-characters-long
 ```
 NEXT_PUBLIC_APP_ENV=production
 NEXT_PUBLIC_CAREGRID_API_URL=https://caregrid-backend-production.onrender.com
-NEXT_PUBLIC_OPS_API_URL=https://caregrid-ops-api.onrender.com
+NEXT_PUBLIC_OPS_API_URL=https://caregrid-ops.vercel.app
 ```
 
 ### 2. Optional Environment Variables

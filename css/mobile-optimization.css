@@ -1,0 +1,687 @@
+/* Mobile Optimization Enhancements */
+/* Enhanced touch targets, gestures, and mobile responsiveness */
+
+/* Touch Target Improvements */
+@media (max-width: 768px) {
+    /* Ensure all interactive elements meet minimum touch target size (44px) */
+    button,
+    .btn,
+    .time-slot,
+    .clinic-card,
+    .search-suggestion,
+    .nav-link,
+    .dropdown-item,
+    .form-control,
+    .checkbox-wrapper,
+    .radio-wrapper,
+    input[type="checkbox"],
+    input[type="radio"],
+    .pagination-btn,
+    .filter-btn,
+    .tab-btn {
+        min-height: 48px;
+        min-width: 48px;
+        padding: 12px 16px;
+        margin: 4px 0;
+    }
+
+    /* Enhanced button spacing for better touch experience */
+    .btn + .btn,
+    .time-slot + .time-slot,
+    .filter-btn + .filter-btn {
+        margin-left: 8px;
+    }
+
+    /* Larger tap areas for small icons */
+    .icon-btn,
+    .close-btn,
+    .menu-toggle,
+    .notification-btn {
+        min-height: 48px;
+        min-width: 48px;
+        padding: 12px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Enhanced form controls */
+    .form-control,
+    .form-select,
+    .form-textarea {
+        min-height: 48px;
+        padding: 12px 16px;
+        font-size: 16px; /* Prevents zoom on iOS */
+        border-radius: 8px;
+        border: 2px solid #e2e8f0;
+        transition: all 0.2s ease;
+    }
+
+    .form-control:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        outline: none;
+    }
+
+    /* Enhanced checkbox and radio buttons */
+    .checkbox-wrapper,
+    .radio-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+        min-height: 48px;
+        padding: 8px 0;
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .checkbox-wrapper input,
+    .radio-wrapper input {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+        height: 0;
+        width: 0;
+    }
+
+    .checkmark,
+    .radiomark {
+        height: 24px;
+        width: 24px;
+        background-color: #fff;
+        border: 2px solid #d1d5db;
+        border-radius: 4px;
+        margin-right: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+    }
+
+    .radiomark {
+        border-radius: 50%;
+    }
+
+    .checkbox-wrapper:hover .checkmark,
+    .radio-wrapper:hover .radiomark {
+        border-color: #3b82f6;
+        background-color: #f8fafc;
+    }
+
+    .checkbox-wrapper input:checked ~ .checkmark,
+    .radio-wrapper input:checked ~ .radiomark {
+        background-color: #3b82f6;
+        border-color: #3b82f6;
+    }
+
+    .checkmark:after {
+        content: "";
+        position: absolute;
+        display: none;
+        left: 8px;
+        top: 4px;
+        width: 6px;
+        height: 10px;
+        border: solid white;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+    }
+
+    .radiomark:after {
+        content: "";
+        position: absolute;
+        display: none;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: white;
+    }
+
+    .checkbox-wrapper input:checked ~ .checkmark:after,
+    .radio-wrapper input:checked ~ .radiomark:after {
+        display: block;
+    }
+}
+
+/* Enhanced Search Experience for Mobile */
+@media (max-width: 768px) {
+    .search-container {
+        padding: 0 16px;
+        margin: 0;
+    }
+
+    .search-box {
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        margin-bottom: 16px;
+    }
+
+    .search-input {
+        padding: 16px 20px 16px 50px;
+        font-size: 16px;
+    }
+
+    .search-btn {
+        padding: 16px 20px;
+        border-radius: 0 12px 12px 0;
+        min-width: 60px;
+    }
+
+    .search-icon {
+        left: 18px;
+        font-size: 18px;
+    }
+
+    /* Enhanced search suggestions */
+    .search-suggestions {
+        border-radius: 0 0 12px 12px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        max-height: 60vh;
+    }
+
+    .search-suggestion {
+        padding: 16px;
+        min-height: 56px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .suggestion-icon {
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
+    }
+
+    .suggestion-text {
+        font-size: 16px;
+        line-height: 1.4;
+    }
+
+    /* Quick filters for mobile */
+    .mobile-filters {
+        display: flex;
+        gap: 8px;
+        padding: 16px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    .mobile-filters::-webkit-scrollbar {
+        display: none;
+    }
+
+    .filter-chip {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 20px;
+        padding: 8px 16px;
+        font-size: 14px;
+        font-weight: 500;
+        color: #64748b;
+        white-space: nowrap;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        min-height: 40px;
+        display: flex;
+        align-items: center;
+    }
+
+    .filter-chip.active {
+        background: #3b82f6;
+        border-color: #3b82f6;
+        color: white;
+    }
+
+    .filter-chip:hover {
+        background: #f1f5f9;
+        border-color: #cbd5e1;
+    }
+
+    .filter-chip.active:hover {
+        background: #2563eb;
+    }
+}
+
+/* Enhanced Booking Flow Mobile Experience */
+@media (max-width: 768px) {
+    .booking-container {
+        padding: 0;
+    }
+
+    .booking-step {
+        padding: 20px 16px;
+        margin: 0;
+        border-radius: 0;
+    }
+
+    .step-header {
+        margin-bottom: 24px;
+        text-align: center;
+    }
+
+    .step-title {
+        font-size: 24px;
+        margin-bottom: 8px;
+    }
+
+    .step-description {
+        font-size: 16px;
+        color: #64748b;
+    }
+
+    /* Enhanced clinic cards */
+    .clinic-card {
+        padding: 20px;
+        margin-bottom: 16px;
+        border-radius: 12px;
+        border: 2px solid #e2e8f0;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+
+    .clinic-card:hover,
+    .clinic-card.selected {
+        border-color: #3b82f6;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+    }
+
+    .clinic-card.selected {
+        background: #f8fafc;
+    }
+
+    /* Enhanced time slots */
+    .time-slots-container {
+        padding: 0 16px;
+    }
+
+    .time-slots-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 12px;
+        margin: 20px 0;
+    }
+
+    .time-slot {
+        padding: 16px 12px;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        background: white;
+        text-align: center;
+        font-weight: 500;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        min-height: 56px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .time-slot:hover {
+        border-color: #3b82f6;
+        background: #f8fafc;
+    }
+
+    .time-slot.selected {
+        background: #3b82f6;
+        border-color: #3b82f6;
+        color: white;
+    }
+
+    .time-slot.unavailable {
+        background: #f8fafc;
+        color: #9ca3af;
+        border-color: #e5e7eb;
+        cursor: not-allowed;
+    }
+
+    /* Enhanced step navigation */
+    .step-navigation {
+        position: sticky;
+        bottom: 0;
+        background: white;
+        padding: 16px;
+        border-top: 1px solid #e2e8f0;
+        display: flex;
+        gap: 12px;
+        box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .step-nav-btn {
+        flex: 1;
+        padding: 16px 24px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 16px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        min-height: 56px;
+    }
+
+    .step-nav-btn.prev {
+        background: #f8fafc;
+        color: #64748b;
+        border: 2px solid #e2e8f0;
+    }
+
+    .step-nav-btn.next {
+        background: #3b82f6;
+        color: white;
+    }
+
+    .step-nav-btn:hover {
+        transform: translateY(-1px);
+    }
+
+    .step-nav-btn:active {
+        transform: translateY(0);
+    }
+
+    .step-nav-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+}
+
+/* Enhanced Mobile Navigation */
+@media (max-width: 768px) {
+    .mobile-nav-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 998;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .mobile-nav-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .mobile-nav-menu {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 280px;
+        height: 100vh;
+        background: white;
+        z-index: 999;
+        transition: right 0.3s ease;
+        overflow-y: auto;
+        box-shadow: -4px 0 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .mobile-nav-menu.active {
+        right: 0;
+    }
+
+    .mobile-nav-header {
+        padding: 20px;
+        border-bottom: 1px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .mobile-nav-close {
+        background: none;
+        border: none;
+        font-size: 24px;
+        color: #64748b;
+        cursor: pointer;
+        padding: 8px;
+        border-radius: 4px;
+        min-height: 40px;
+        min-width: 40px;
+    }
+
+    .mobile-nav-items {
+        padding: 20px 0;
+    }
+
+    .mobile-nav-item {
+        display: block;
+        padding: 16px 20px;
+        color: #334155;
+        text-decoration: none;
+        font-weight: 500;
+        border-bottom: 1px solid #f1f5f9;
+        transition: all 0.2s ease;
+        min-height: 56px;
+        display: flex;
+        align-items: center;
+    }
+
+    .mobile-nav-item:hover {
+        background: #f8fafc;
+        color: #3b82f6;
+    }
+
+    .mobile-nav-item.active {
+        background: #f0f7ff;
+        color: #3b82f6;
+        border-left: 4px solid #3b82f6;
+    }
+}
+
+/* Gesture Support */
+@media (max-width: 768px) {
+    /* Swipe indicators */
+    .swipeable {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .swipe-indicator {
+        position: absolute;
+        bottom: 16px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 8px;
+        z-index: 10;
+    }
+
+    .swipe-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.5);
+        transition: all 0.2s ease;
+    }
+
+    .swipe-dot.active {
+        background: white;
+        transform: scale(1.2);
+    }
+
+    /* Pull to refresh indicator */
+    .pull-to-refresh {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .pull-indicator {
+        position: absolute;
+        top: -60px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #3b82f6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        transition: all 0.3s ease;
+        z-index: 10;
+    }
+
+    .pull-indicator.visible {
+        top: 20px;
+    }
+
+    .pull-indicator.loading {
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        from { transform: translateX(-50%) rotate(0deg); }
+        to { transform: translateX(-50%) rotate(360deg); }
+    }
+}
+
+/* Enhanced Mobile Typography */
+@media (max-width: 768px) {
+    /* Improved readability on mobile */
+    body {
+        font-size: 16px;
+        line-height: 1.6;
+    }
+
+    h1 {
+        font-size: 28px;
+        line-height: 1.2;
+        margin-bottom: 16px;
+    }
+
+    h2 {
+        font-size: 24px;
+        line-height: 1.3;
+        margin-bottom: 12px;
+    }
+
+    h3 {
+        font-size: 20px;
+        line-height: 1.4;
+        margin-bottom: 8px;
+    }
+
+    p {
+        margin-bottom: 16px;
+        color: #475569;
+    }
+
+    /* Better link styling for touch */
+    a {
+        color: #3b82f6;
+        text-decoration: none;
+        padding: 4px 0;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+    }
+
+    a:hover,
+    a:focus {
+        background: rgba(59, 130, 246, 0.1);
+        outline: none;
+    }
+}
+
+/* Mobile-specific animations */
+@media (max-width: 768px) {
+    /* Reduce motion for better performance */
+    @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+        }
+    }
+
+    /* Smooth scrolling */
+    html {
+        scroll-behavior: smooth;
+    }
+
+    /* Enhanced focus states for keyboard navigation */
+    *:focus {
+        outline: 2px solid #3b82f6;
+        outline-offset: 2px;
+    }
+
+    /* Better tap highlight */
+    * {
+        -webkit-tap-highlight-color: rgba(59, 130, 246, 0.2);
+        -webkit-touch-callout: none;
+    }
+
+    /* Prevent text selection on UI elements */
+    .btn,
+    .time-slot,
+    .clinic-card,
+    .nav-link {
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+}
+
+/* Mobile-specific utilities */
+@media (max-width: 768px) {
+    .mobile-only {
+        display: block !important;
+    }
+
+    .desktop-only {
+        display: none !important;
+    }
+
+    .mobile-center {
+        text-align: center;
+    }
+
+    .mobile-full-width {
+        width: 100% !important;
+    }
+
+    .mobile-padding {
+        padding: 16px;
+    }
+
+    .mobile-margin {
+        margin: 16px;
+    }
+
+    .mobile-no-margin {
+        margin: 0 !important;
+    }
+
+    .mobile-no-padding {
+        padding: 0 !important;
+    }
+}
+
+/* Safe area support for devices with notches */
+@supports (padding: max(0px)) {
+    .safe-area-top {
+        padding-top: max(20px, env(safe-area-inset-top));
+    }
+
+    .safe-area-bottom {
+        padding-bottom: max(20px, env(safe-area-inset-bottom));
+    }
+
+    .safe-area-left {
+        padding-left: max(16px, env(safe-area-inset-left));
+    }
+
+    .safe-area-right {
+        padding-right: max(16px, env(safe-area-inset-right));
+    }
+}

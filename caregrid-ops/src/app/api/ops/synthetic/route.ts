@@ -87,54 +87,22 @@ async function runSyntheticTest(request: NextRequest): Promise<SyntheticResult> 
   return result;
 }
 
-// Mock synthetic test data (in production, this would be fetched from monitoring systems)
-const getSyntheticTests = (): SyntheticTest[] => {
-  return [
-    {
-      id: '1',
-      name: 'User Login Flow',
-      url: 'https://caregrid-backend.onrender.com/api/auth/login',
-      method: 'POST',
-      status: 'passing',
-      lastRun: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
-      responseTime: 245,
-      uptime: 99.8,
-      description: 'Tests the complete user authentication flow',
-    },
-    {
-      id: '2',
-      name: 'Appointment Booking',
-      url: 'https://caregrid-backend.onrender.com/api/appointments',
-      method: 'POST',
-      status: 'passing',
-      lastRun: new Date(Date.now() - 3 * 60 * 1000), // 3 minutes ago
-      responseTime: 180,
-      uptime: 99.5,
-      description: 'Tests appointment creation and booking process',
-    },
-    {
-      id: '3',
-      name: 'Patient Records Access',
-      url: 'https://caregrid-backend.onrender.com/api/patients',
-      method: 'GET',
-      status: 'failing',
-      lastRun: new Date(Date.now() - 2 * 60 * 1000), // 2 minutes ago
-      responseTime: 5000,
-      uptime: 95.2,
-      description: 'Tests patient record retrieval and access',
-    },
-    {
-      id: '4',
-      name: 'Health Check',
-      url: 'https://caregrid-backend.onrender.com/api/health',
-      method: 'GET',
-      status: 'passing',
-      lastRun: new Date(Date.now() - 1 * 60 * 1000), // 1 minute ago
-      responseTime: 89,
-      uptime: 99.9,
-      description: 'Basic health check endpoint monitoring',
-    },
-  ];
+const getSyntheticTests = async (): Promise<SyntheticTest[]> => {
+  // TODO: Replace with actual data from monitoring systems in production
+  // For now, return empty array to show "no data" state
+  
+  // In a real implementation, this would:
+  // 1. Connect to monitoring service (e.g., Pingdom, New Relic, DataDog)
+  // 2. Fetch real synthetic test results
+  // 3. Transform the data to match our interface
+  
+  // Example real implementation:
+  // const response = await fetch('https://api.monitoring-service.com/synthetic-tests', {
+  //   headers: { 'Authorization': `Bearer ${process.env.MONITORING_API_KEY}` }
+  // });
+  // return response.json();
+  
+  return [];
 };
 
 
@@ -157,7 +125,7 @@ export const GET = createProtectedRoute(
       }, { status: result.ok ? 200 : 500 });
     }
 
-    let syntheticTests = getSyntheticTests();
+    let syntheticTests = await getSyntheticTests();
 
     // Filter by specific test if requested
     if (testId) {
@@ -203,6 +171,7 @@ export const GET = createProtectedRoute(
         tests: syntheticTests,
         summary,
       },
+      message: syntheticTests.length === 0 ? 'No synthetic tests configured yet. Connect a monitoring service to see real test data.' : undefined
     });
   }
 );

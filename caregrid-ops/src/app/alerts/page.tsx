@@ -26,19 +26,28 @@ function AlertsPage() {
     try {
       setLoading(true);
       setError(null);
-      const response = await getAlerts(
-        filters.status !== 'all' || filters.severity !== 'all' 
-          ? { 
-              status: filters.status !== 'all' ? filters.status : undefined,
-              severity: filters.severity !== 'all' ? filters.severity : undefined 
-            }
-          : undefined
-      );
       
-      if (response.success) {
-        setAlerts(response.data || []);
+      // Build query parameters
+      const params = new URLSearchParams();
+      if (filters.severity !== 'all') {
+        params.append('severity', filters.severity);
+      }
+      if (filters.status !== 'all') {
+        // Map status filter to resolved parameter
+        if (filters.status === 'resolved') {
+          params.append('resolved', 'true');
+        } else if (filters.status === 'open' || filters.status === 'acknowledged') {
+          params.append('resolved', 'false');
+        }
+      }
+      
+      const response = await fetch(`/api/alerts?${params.toString()}`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        setAlerts(data.alerts || []);
       } else {
-        setError(response.error || 'Failed to load alerts');
+        setError('Failed to load alerts');
       }
     } catch (err) {
       setError('Failed to load alerts');
@@ -51,11 +60,21 @@ function AlertsPage() {
   // Handle acknowledge alert
   const handleAcknowledgeAlert = async (alertId: string) => {
     try {
-      const response = await acknowledgeAlert(alertId);
-      if (response.success) {
+      const response = await fetch('/api/alerts', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          alertId,
+          resolved: true,
+        }),
+      });
+      
+      if (response.ok) {
         await loadAlerts(); // Reload alerts
       } else {
-        setError(response.error || 'Failed to acknowledge alert');
+        setError('Failed to acknowledge alert');
       }
     } catch (err) {
       setError('Failed to acknowledge alert');

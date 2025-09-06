@@ -102,20 +102,25 @@ function renderClinicCard(c, isDemo = false) {
 }
 
 function renderSkeletonCards(count = 3) {
-  return Array(count).fill(0).map(() => `
-    <div class="clinic-card skeleton-card" aria-hidden="true">
-      <div class="skeleton-image" style="width: 100%; height: 200px; background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: skeleton-shimmer 1.5s infinite;"></div>
-      <div class="clinic-card__head">
-        <div class="skeleton-text" style="height: 20px; width: 70%; background: #f0f0f0; margin-bottom: 8px;"></div>
-        <div class="skeleton-text" style="height: 16px; width: 40%; background: #f0f0f0;"></div>
+  if (window.skeletonLoader) {
+    return window.skeletonLoader.generateHTML('cards', { count });
+  } else {
+    // Fallback for legacy support
+    return Array(count).fill(0).map(() => `
+      <div class="clinic-card skeleton-card" aria-hidden="true">
+        <div class="skeleton-image" style="width: 100%; height: 200px; background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: skeleton-shimmer 1.5s infinite;"></div>
+        <div class="clinic-card__head">
+          <div class="skeleton-text" style="height: 20px; width: 70%; background: #f0f0f0; margin-bottom: 8px;"></div>
+          <div class="skeleton-text" style="height: 16px; width: 40%; background: #f0f0f0;"></div>
+        </div>
+        <div class="clinic-card__body">
+          <div class="skeleton-text" style="height: 14px; width: 80%; background: #f0f0f0; margin-bottom: 6px;"></div>
+          <div class="skeleton-text" style="height: 14px; width: 60%; background: #f0f0f0; margin-bottom: 6px;"></div>
+          <div class="skeleton-text" style="height: 14px; width: 50%; background: #f0f0f0;"></div>
+        </div>
       </div>
-      <div class="clinic-card__body">
-        <div class="skeleton-text" style="height: 14px; width: 80%; background: #f0f0f0; margin-bottom: 6px;"></div>
-        <div class="skeleton-text" style="height: 14px; width: 60%; background: #f0f0f0; margin-bottom: 6px;"></div>
-        <div class="skeleton-text" style="height: 14px; width: 50%; background: #f0f0f0;"></div>
-      </div>
-    </div>
-  `).join('');
+    `).join('');
+  }
 }
 
 async function loadFeaturedClinics() {
@@ -128,7 +133,11 @@ async function loadFeaturedClinics() {
   }
   
   // Show skeleton loading state
-  list.innerHTML = renderSkeletonCards(3);
+  if (window.skeletonLoader) {
+    window.skeletonLoader.show(list, 'cards', { count: 3 });
+  } else {
+    list.innerHTML = renderSkeletonCards(3);
+  }
 
   // Define demo clinic data
   const demoClinicData = [
@@ -193,6 +202,11 @@ async function loadFeaturedClinics() {
         resultsInfo.innerHTML = '<span class="badge demo-badge" style="background: #ff9500; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; margin-right: 10px;">Demo Data</span>Showing demo clinics';
         resultsInfo.style.display = 'block';
       }
+    }
+    
+    // Hide skeleton and render actual clinics
+    if (window.skeletonLoader && window.skeletonLoader.isLoading(list)) {
+      window.skeletonLoader.hide(list);
     }
     
     renderClinics(data, isDemo);

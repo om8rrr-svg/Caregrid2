@@ -45,7 +45,10 @@ async function guard() {
 
 function showSkeletons() {
   const stats = el('statsRow');
-  if (stats) {
+  if (stats && window.skeletonLoader) {
+    window.skeletonLoader.show(stats, 'stats', { count: 4 });
+  } else if (stats) {
+    // Fallback for legacy support
     stats.innerHTML = `
       <div class="skeleton stat"></div>
       <div class="skeleton stat"></div>
@@ -58,12 +61,20 @@ function showSkeletons() {
 function renderStats(stats) {
   const statsRow = el('statsRow');
   if (!statsRow) return;
-  statsRow.innerHTML = `
+  
+  const statsHTML = `
     <div class="stat-box"><div class="stat-num">${stats.totalBookings ?? 0}</div><div class="stat-label">Total Bookings</div></div>
     <div class="stat-box"><div class="stat-num">${stats.pendingBookings ?? 0}</div><div class="stat-label">Pending</div></div>
     <div class="stat-box"><div class="stat-num">${stats.totalPatients ?? 0}</div><div class="stat-label">Patients</div></div>
     <div class="stat-box"><div class="stat-num">£${(stats.revenue ?? 0).toLocaleString()}</div><div class="stat-label">Revenue</div></div>
   `;
+  
+  // Hide skeleton and show content with fade-in animation
+  if (window.skeletonLoader && window.skeletonLoader.isLoading(statsRow)) {
+    window.skeletonLoader.hide(statsRow, statsHTML);
+  } else {
+    statsRow.innerHTML = statsHTML;
+  }
 }
 function toast(message, type = 'info') {
   const toast = document.createElement('div');

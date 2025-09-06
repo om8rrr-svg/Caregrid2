@@ -23,6 +23,7 @@ import {
   User,
   Bell,
   Search,
+  Rocket,
 } from 'lucide-react';
 
 // Navigation Items
@@ -40,10 +41,22 @@ const navigationItems = [
     description: 'System health and uptime monitoring',
   },
   {
+    name: 'Deployment Monitoring',
+    href: '/deployments',
+    icon: Rocket,
+    description: 'Vercel and Render deployment tracking',
+  },
+  {
     name: 'Alerts',
     href: '/alerts',
     icon: AlertTriangle,
     description: 'Active alerts and notifications',
+  },
+  {
+    name: 'Errors',
+    href: '/errors',
+    icon: AlertTriangle,
+    description: 'Real-time error monitoring and tracking',
   },
   {
     name: 'Incidents',

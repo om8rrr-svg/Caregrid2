@@ -63,10 +63,21 @@ async function loadClinicData() {
     console.log('loadClinicData called with clinicId:', clinicId);
     
     if (clinicId) {
+        // Show skeleton loading state for clinic info
+        const clinicInfoSection = document.querySelector('.clinic-info');
+        if (clinicInfoSection && window.skeletonLoader) {
+            window.skeletonLoader.show(clinicInfoSection, 'text', { lines: 4 });
+        }
+        
         try {
             // Try to get clinic from API first
             const response = await window.apiService.getClinicById(clinicId);
             const clinic = response.data;
+            
+            // Hide skeleton and populate clinic info
+            if (window.skeletonLoader && clinicInfoSection) {
+                window.skeletonLoader.hide(clinicInfoSection);
+            }
             
             document.getElementById('clinicName').textContent = clinic.name;
             document.getElementById('clinicAddress').textContent = clinic.address;
@@ -81,6 +92,11 @@ async function loadClinicData() {
             
         } catch (error) {
             console.error('Failed to load clinic data from API:', error);
+            
+            // Hide skeleton on error
+            if (window.skeletonLoader && clinicInfoSection) {
+                window.skeletonLoader.hide(clinicInfoSection);
+            }
             
             // Fallback to local data if available
             console.log('Attempting fallback to local data. clinicsData available:', !!window.clinicsData);
@@ -231,13 +247,29 @@ function updateAvailableTimeSlots() {
 
 // Setup form validation
 function setupFormValidation() {
+    // Initialize enhanced form validation if available
+    if (window.FormValidator) {
+        const forms = document.querySelectorAll('form[data-validate]');
+        forms.forEach(form => {
+            new window.FormValidator(form, {
+                realTimeValidation: true,
+                showSuccessStates: true,
+                debounceDelay: 300,
+                progressiveDisclosure: true
+            });
+        });
+    }
+    
+    // Service selection handler
     const serviceSelect = document.getElementById('serviceType');
-    serviceSelect.addEventListener('change', function() {
-        const selectedOption = this.options[this.selectedIndex];
-        if (selectedOption.dataset.cost) {
-            document.getElementById('summaryCost').textContent = `£${selectedOption.dataset.cost}`;
-        }
-    });
+    if (serviceSelect) {
+        serviceSelect.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            if (selectedOption.dataset.cost) {
+                document.getElementById('summaryCost').textContent = `£${selectedOption.dataset.cost}`;
+            }
+        });
+    }
 }
 
 // Navigation functions
