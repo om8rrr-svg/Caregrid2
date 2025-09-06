@@ -2658,9 +2658,7 @@ function filterByCategory(category) {
 }
 
 function filterByLocation(location) {
-    console.log('filterByLocation called with:', location);
     currentFilters.location = location;
-    console.log('currentFilters.location set to:', currentFilters.location);
     
     // Update UI
     document.querySelectorAll('.location-btn').forEach(btn => {
@@ -2669,9 +2667,6 @@ function filterByLocation(location) {
     const targetBtn = document.querySelector(`[data-location="${location}"]`);
     if (targetBtn) {
         targetBtn.classList.add('active');
-        console.log('Added active class to button with data-location:', location);
-    } else {
-        console.error('Could not find button with data-location:', location);
     }
     
     // Update dropdown
@@ -2726,15 +2721,9 @@ function applyFilters() {
         }
         
         // Enhanced location matching
-        const clinicLocation = (clinic.city || clinic.location || '').toLowerCase();
-        const filterLocation = currentFilters.location.toLowerCase();
         const matchesLocation = currentFilters.location === 'all' || 
             !currentFilters.location || 
-            clinicLocation === filterLocation;
-        
-        if (currentFilters.location !== 'all' && currentFilters.location) {
-            console.log(`Clinic: ${clinic.name}, Location: "${clinicLocation}", Filter: "${filterLocation}", Matches: ${matchesLocation}`);
-        }
+            (clinic.city || clinic.location || '').toLowerCase() === currentFilters.location.toLowerCase();
         
         // Enhanced search matching with better natural language support
         let matchesSearch = currentFilters.search === '' || !currentFilters.search;
