@@ -114,14 +114,14 @@
                 <!-- Top Row: Sidebar and Upcoming Appointments -->
                 <div class="top-widgets-row">
                     <!-- Sidebar -->
-                    <aside class="dashboard-sidebar">
+                    <aside class="dashboard-sidebar" role="navigation" aria-label="Dashboard navigation" data-onboarding="nav-help">
                         <nav class="sidebar-nav">
-                            <a href="#overview" class="sidebar-link" data-section="overview">
-                                <i class="fas fa-tachometer-alt"></i>
+                            <a href="#overview" class="sidebar-link" data-section="overview" role="tab" aria-selected="true" aria-controls="overview-panel">
+                                <i class="fas fa-tachometer-alt" aria-hidden="true"></i>
                                 Dashboard
                             </a>
-                            <a href="#appointments" class="sidebar-link" data-section="appointments">
-                                <i class="fas fa-calendar-check"></i>
+                            <a href="#appointments" class="sidebar-link" data-section="appointments" role="tab" aria-selected="false" aria-controls="appointments-panel">
+                                <i class="fas fa-calendar-check" aria-hidden="true"></i>
                                 Appointments
                                 <span class="notification-badge" id="appointmentsBadge">0</span>
                             </a>
@@ -143,7 +143,7 @@
                     </aside>
 
                     <!-- Upcoming Appointments Widget -->
-                    <div class="upcoming-appointments-widget top-widget">
+                    <div class="upcoming-appointments-widget top-widget" data-onboarding="appointments-help">
                         <div class="widget-header">
                             <h3>Upcoming Appointments</h3>
                             <a href="#appointments" class="view-all-link" onclick="showSection('appointments')">View All</a>
@@ -274,7 +274,7 @@
                     </div>
 
                     <!-- Appointments Section -->
-                    <div id="appointments" class="dashboard-section">
+                    <div id="appointments" class="dashboard-section" data-onboarding="records-help">
                         <div class="section-header">
                             <h2>My Appointments</h2>
                             <div class="section-actions">
@@ -485,6 +485,10 @@
 
     <!-- Scripts -->
     <script src="js/config.js?v=2025082512"></script>
+    <script src="js/error-handler.js"></script>
+    <script src="js/accessibility-helper.js"></script>
+    <script src="js/onboarding-guide.js"></script>
+    <script src="js/progress-indicators.js"></script>
     <script src="https://apis.google.com/js/platform.js" async defer></script>
     <script type="module" src="js/api-base.js?v=2025082510"></script>
     <script type="module" src="js/api-service.js?v=2025082509"></script>

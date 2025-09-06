@@ -2206,7 +2206,16 @@ function shouldRetry(error) {
 }
 
 // Handle API errors with appropriate user messaging
-function handleAPIError(error) {
+function handleAPIError(error, context = 'general', retryFunction = null) {
+    // Use enhanced error handling if available
+    if (window.errorHandler) {
+        return window.errorHandler.handleError(error, context, {
+            retryFunction: retryFunction,
+            allowRetry: retryFunction !== null
+        });
+    }
+    
+    // Fallback to existing API status display
     if (error.message === 'BACKEND_UNAVAILABLE') {
         showAPIStatus('Demo mode', 'offline');
     } else if (error.message === 'timeout') {
@@ -2216,6 +2225,8 @@ function handleAPIError(error) {
     } else {
         showAPIStatus('Demo mode', 'offline');
     }
+    
+    return { success: false, error: error };
 }
 
 // Load fallback data when API is unavailable

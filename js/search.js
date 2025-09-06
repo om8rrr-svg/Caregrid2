@@ -184,28 +184,42 @@ class AdvancedSearch {
     showSuggestions(query) {
         if (!this.searchSuggestions) return;
         
-        const suggestions = this.generateSuggestions(query);
+        // Show loading state for better UX
+        this.showSuggestionsLoading();
         
-        if (suggestions.length === 0) {
-            this.hideSuggestions();
-            return;
-        }
-        
-        this.searchSuggestions.innerHTML = suggestions.map(suggestion => 
-            this.createSuggestionHTML(suggestion)
-        ).join('');
-        
-        this.searchSuggestions.style.display = 'block';
-        
-        // Add click events to suggestions
-        this.searchSuggestions.querySelectorAll('.search-suggestion').forEach(el => {
-            el.addEventListener('click', () => this.selectSuggestion(el));
-        });
+        // Debounce suggestion generation for better performance
+        clearTimeout(this.suggestionTimeout);
+        this.suggestionTimeout = setTimeout(() => {
+            const suggestions = this.generateSuggestions(query);
+            
+            if (suggestions.length === 0) {
+                this.showNoSuggestions(query);
+                return;
+            }
+            
+            // Group suggestions by type for better organization
+            const groupedSuggestions = this.groupSuggestionsByType(suggestions);
+            
+            this.searchSuggestions.innerHTML = this.createGroupedSuggestionsHTML(groupedSuggestions);
+            this.searchSuggestions.style.display = 'block';
+            
+            // Add enhanced interactions
+            this.bindSuggestionEvents();
+            
+            // Add animation
+            this.animateSuggestions();
+        }, 150);
     }
     
     hideSuggestions() {
         if (this.searchSuggestions) {
-            this.searchSuggestions.style.display = 'none';
+            this.searchSuggestions.style.opacity = '0';
+            this.searchSuggestions.style.transform = 'translateY(-10px)';
+            setTimeout(() => {
+                this.searchSuggestions.style.display = 'none';
+                this.searchSuggestions.style.opacity = '1';
+                this.searchSuggestions.style.transform = 'translateY(0)';
+            }, 200);
         }
         this.selectedSuggestionIndex = -1;
     }
@@ -214,56 +228,93 @@ class AdvancedSearch {
         const suggestions = [];
         const queryLower = query.toLowerCase();
         
-        // Search clinics
+        // Enhanced clinic search with fuzzy matching
         searchData.clinics.forEach(clinic => {
-            if ((clinic.name || '').toLowerCase().includes(queryLower) || 
-                (clinic.type || '').toLowerCase().includes(queryLower)) {
+            const nameMatch = (clinic.name || '').toLowerCase().includes(queryLower);
+            const typeMatch = (clinic.type || '').toLowerCase().includes(queryLower);
+            const locationMatch = (clinic.location || '').toLowerCase().includes(queryLower);
+            
+            if (nameMatch || typeMatch || locationMatch) {
+                const relevanceScore = this.calculateRelevanceScore(clinic, queryLower);
                 suggestions.push({
                     type: 'clinic',
                     title: clinic.name,
                     subtitle: `${clinic.type} • ${clinic.location}`,
                     icon: '<i class="fas fa-hospital"></i>',
-                    data: clinic
+                    data: clinic,
+                    relevance: relevanceScore,
+                    matchType: nameMatch ? 'name' : (typeMatch ? 'type' : 'location')
                 });
             }
         });
         
-        // Search treatments
+        // Enhanced treatment search with categories
         searchData.treatments.forEach(treatment => {
             if (treatment.toLowerCase().includes(queryLower)) {
+                const category = this.getTreatmentCategory(treatment);
                 suggestions.push({
                     type: 'treatment',
                     title: treatment,
-                    subtitle: 'Treatment/Service',
+                    subtitle: `${category} • Treatment/Service`,
                     icon: '<i class="fas fa-pills"></i>',
-                    data: { name: treatment }
+                    data: { name: treatment, category },
+                    relevance: this.calculateTextRelevance(treatment, queryLower)
                 });
             }
         });
         
-        // Search symptoms
+        // Enhanced symptom search with related conditions
         searchData.symptoms.forEach(symptom => {
             if (symptom.toLowerCase().includes(queryLower)) {
+                const relatedTreatments = this.getRelatedTreatments(symptom);
                 suggestions.push({
                     type: 'symptom',
                     title: symptom,
-                    subtitle: 'Symptom',
-                    icon: '🔍',
-                    data: { name: symptom }
+                    subtitle: `Symptom • May need: ${relatedTreatments.join(', ')}`,
+                    icon: '<i class="fas fa-search"></i>',
+                    data: { name: symptom, relatedTreatments },
+                    relevance: this.calculateTextRelevance(symptom, queryLower)
                 });
             }
         });
         
-        return suggestions.slice(0, 8); // Limit to 8 suggestions
+        // Add recent searches if query is short
+        if (query.length <= 3) {
+            const recentSearches = this.getRecentSearches();
+            recentSearches.forEach(search => {
+                if (search.toLowerCase().includes(queryLower)) {
+                    suggestions.push({
+                        type: 'recent',
+                        title: search,
+                        subtitle: 'Recent search',
+                        icon: '<i class="fas fa-history"></i>',
+                        data: { query: search },
+                        relevance: 0.5
+                    });
+                }
+            });
+        }
+        
+        // Sort by relevance and return top suggestions
+        return suggestions
+            .sort((a, b) => (b.relevance || 0) - (a.relevance || 0))
+            .slice(0, 8);
     }
     
     createSuggestionHTML(suggestion) {
+        const highlightedTitle = this.highlightMatch(suggestion.title, this.searchInput.value);
+        const matchBadge = suggestion.matchType ? `<span class="match-badge match-${suggestion.matchType}">${suggestion.matchType}</span>` : '';
+        const relevanceClass = suggestion.relevance > 0.8 ? 'high-relevance' : (suggestion.relevance > 0.5 ? 'medium-relevance' : 'low-relevance');
+        
         return `
-            <div class="search-suggestion" data-type="${suggestion.type}" data-value="${suggestion.title}">
-                <div class="suggestion-icon">${suggestion.icon}</div>
+            <div class="search-suggestion ${relevanceClass}" data-type="${suggestion.type}" data-value="${suggestion.title}" role="option" tabindex="-1" aria-label="${suggestion.title}, ${suggestion.type}">
+                <div class="suggestion-icon" aria-hidden="true">${suggestion.icon}</div>
                 <div class="suggestion-text">
-                    <div class="suggestion-title">${suggestion.title}</div>
+                    <div class="suggestion-title">${highlightedTitle} ${matchBadge}</div>
                     <div class="suggestion-subtitle">${suggestion.subtitle}</div>
+                </div>
+                <div class="suggestion-action" aria-hidden="true">
+                    <i class="fas fa-arrow-right"></i>
                 </div>
             </div>
         `;
@@ -337,11 +388,23 @@ class AdvancedSearch {
         const resultsText = document.querySelector('.results-count');
         
         if (resultsText) {
+            let count, text;
             if (total !== null) {
-                resultsText.textContent = `${total} clinic${total !== 1 ? 's' : ''} found`;
+                count = total;
+                text = `${total} clinic${total !== 1 ? 's' : ''} found`;
             } else {
                 const visibleCards = document.querySelectorAll('.clinic-card[style*="block"], .clinic-card:not([style*="none"])');
-                resultsText.textContent = `${visibleCards.length} clinic${visibleCards.length !== 1 ? 's' : ''} found`;
+                count = visibleCards.length;
+                text = `${count} clinic${count !== 1 ? 's' : ''} found`;
+            }
+            
+            resultsText.textContent = text;
+            resultsText.setAttribute('aria-live', 'polite');
+            resultsText.setAttribute('role', 'status');
+            
+            // Announce to screen readers
+            if (window.accessibilityHelper) {
+                window.accessibilityHelper.announceToScreenReader(text);
             }
         }
     }
@@ -497,14 +560,23 @@ class AdvancedSearch {
             console.error('Search API error after retries:', error);
         }
         
-        if (error.name === 'AbortError') {
-            this.showError('Search timeout. Using local search as fallback.');
-        } else if (error.message.includes('RATE_LIMITED')) {
-            this.showError('Service busy. Using local search as fallback.');
-        } else if (error.message.includes('BACKEND_UNAVAILABLE')) {
-            this.showError('Service temporarily unavailable. Using local search.');
+        // Use enhanced error handling if available
+        if (window.errorHandler) {
+            window.errorHandler.handleError(error, 'search', {
+                retryFunction: () => this.applyFiltersWithAPI(0),
+                fallbackFunction: () => this.filterClinicsByAdvancedFilters()
+            });
         } else {
-            this.showError('Search service unavailable. Using local search as fallback.');
+            // Fallback to basic error handling
+            if (error.name === 'AbortError') {
+                this.showError('Search timeout. Using local search as fallback.');
+            } else if (error.message.includes('RATE_LIMITED')) {
+                this.showError('Service busy. Using local search as fallback.');
+            } else if (error.message.includes('BACKEND_UNAVAILABLE')) {
+                this.showError('Service temporarily unavailable. Using local search.');
+            } else {
+                this.showError('Search service unavailable. Using local search as fallback.');
+            }
         }
         
         // Always fallback to local filtering
@@ -698,35 +770,51 @@ class AdvancedSearch {
     
     renderClinicCard(clinic) {
         return `
-            <div class="clinic-card" data-clinic-id="${clinic.id}">
+            <article class="clinic-card" data-clinic-id="${clinic.id}" role="listitem" aria-labelledby="clinic-name-${clinic.id}">
                 <div class="clinic-image">
                     <img src="${clinic.image || 'images/clinic-placeholder.jpg'}" 
-                         alt="${clinic.name}" 
+                         alt="${clinic.name} clinic exterior" 
+                         loading="lazy"
                          onerror="this.src='images/clinic-placeholder.jpg'">
                 </div>
                 <div class="clinic-info">
-                    <h3 class="clinic-name">${clinic.name}</h3>
-                    <p class="clinic-type">${clinic.type}</p>
-                    <div class="clinic-location">${clinic.address || clinic.location}</div>
-                    <div class="clinic-rating">
-                        <span class="rating">${clinic.rating || 'N/A'}</span>
+                    <h3 class="clinic-name" id="clinic-name-${clinic.id}">${clinic.name}</h3>
+                    <p class="clinic-type" role="text">${clinic.type}</p>
+                    <div class="clinic-location" aria-label="Address: ${clinic.address || clinic.location}">
+                        <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+                        ${clinic.address || clinic.location}
+                    </div>
+                    <div class="clinic-rating" role="group" aria-label="Rating information">
+                        <span class="rating" aria-label="${clinic.rating || 'N/A'} out of 5 stars">${clinic.rating || 'N/A'}</span>
                         <span class="reviews">(${clinic.reviewCount || 0} reviews)</span>
                     </div>
                 </div>
-                <div class="clinic-actions">
-                    <a href="clinic-profile.html?id=${clinic.id}" class="btn btn-outline">
+                <div class="clinic-actions" role="group" aria-label="Clinic actions">
+                    <a href="clinic-profile.html?id=${clinic.id}" class="btn btn-outline" aria-describedby="clinic-name-${clinic.id}">
+                        <i class="fas fa-eye" aria-hidden="true"></i>
                         View Details
                     </a>
-                    <a href="booking.html?clinicId=${clinic.id}" class="btn btn-primary">
+                    <a href="booking.html?clinicId=${clinic.id}" class="btn btn-primary" aria-describedby="clinic-name-${clinic.id}">
+                        <i class="fas fa-calendar-plus" aria-hidden="true"></i>
                         Book Now
                     </a>
                 </div>
-            </div>
+            </article>
         `;
     }
     
     showError(message) {
+        // Use enhanced error display if available
+        if (window.errorHandler && window.errorHandler.showUserFriendlyError) {
+            window.errorHandler.showUserFriendlyError(message, 'search');
+            return;
+        }
+        
+        // Fallback to basic toast notification
         const toast = document.createElement('div');
+        toast.className = 'search-error-toast';
+        toast.setAttribute('role', 'alert');
+        toast.setAttribute('aria-live', 'polite');
         toast.style.cssText = `
             position: fixed;
             top: 20px;
@@ -738,12 +826,15 @@ class AdvancedSearch {
             z-index: 10000;
             max-width: 300px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            font-size: 14px;
+            line-height: 1.4;
         `;
         toast.textContent = message;
         document.body.appendChild(toast);
         
         setTimeout(() => {
             toast.style.opacity = '0';
+            toast.style.transform = 'translateX(100%)';
             setTimeout(() => toast.remove(), 300);
         }, 5000);
     }
@@ -881,18 +972,197 @@ class AdvancedSearch {
     }
     
     addToRecentSearches(query) {
-        let recentSearches = JSON.parse(localStorage.getItem('recentSearches') || '[]');
+        try {
+            let recentSearches = JSON.parse(localStorage.getItem('recentSearches') || '[]');
+            
+            // Remove if already exists
+            recentSearches = recentSearches.filter(search => search !== query);
+            
+            // Add to beginning
+            recentSearches.unshift(query);
+            
+            // Keep only last 10 searches
+            recentSearches = recentSearches.slice(0, 10);
+            
+            localStorage.setItem('recentSearches', JSON.stringify(recentSearches));
+        } catch (error) {
+            console.warn('Could not save recent search:', error);
+        }
+    }
+    
+    // Helper methods for enhanced search functionality
+    calculateRelevanceScore(clinic, query) {
+        let score = 0;
+        const name = (clinic.name || '').toLowerCase();
+        const type = (clinic.type || '').toLowerCase();
+        const location = (clinic.location || '').toLowerCase();
         
-        // Remove if already exists
-        recentSearches = recentSearches.filter(search => search !== query);
+        // Exact matches get higher scores
+        if (name === query) score += 1.0;
+        else if (name.startsWith(query)) score += 0.8;
+        else if (name.includes(query)) score += 0.6;
         
-        // Add to beginning
-        recentSearches.unshift(query);
+        if (type === query) score += 0.8;
+        else if (type.startsWith(query)) score += 0.6;
+        else if (type.includes(query)) score += 0.4;
         
-        // Keep only last 10 searches
-        recentSearches = recentSearches.slice(0, 10);
+        if (location.includes(query)) score += 0.3;
         
-        localStorage.setItem('recentSearches', JSON.stringify(recentSearches));
+        return Math.min(score, 1.0);
+    }
+    
+    calculateTextRelevance(text, query) {
+        const textLower = text.toLowerCase();
+        if (textLower === query) return 1.0;
+        if (textLower.startsWith(query)) return 0.8;
+        if (textLower.includes(query)) return 0.6;
+        return 0.3;
+    }
+    
+    getTreatmentCategory(treatment) {
+        const categories = {
+            'General Checkup': 'General Medicine',
+            'Dental Cleaning': 'Dental Care',
+            'Eye Exam': 'Eye Care',
+            'Blood Test': 'Diagnostics',
+            'X-Ray': 'Imaging',
+            'Vaccination': 'Preventive Care',
+            'Physical Therapy': 'Rehabilitation',
+            'Counseling': 'Mental Health',
+            'Skin Treatment': 'Dermatology',
+            'Heart Screening': 'Cardiology',
+            'Allergy Testing': 'Allergy & Immunology',
+            'Pregnancy Care': 'Women\'s Health',
+            'Child Wellness': 'Pediatrics',
+            'Mental Health Assessment': 'Mental Health'
+        };
+        return categories[treatment] || 'General Care';
+    }
+    
+    getRelatedTreatments(symptom) {
+        const relations = {
+            'Headache': ['General Checkup', 'Eye Exam'],
+            'Fever': ['General Checkup', 'Blood Test'],
+            'Cough': ['General Checkup', 'X-Ray'],
+            'Back Pain': ['Physical Therapy', 'General Checkup'],
+            'Chest Pain': ['Heart Screening', 'General Checkup'],
+            'Stomach Pain': ['General Checkup', 'Blood Test'],
+            'Fatigue': ['Blood Test', 'General Checkup'],
+            'Dizziness': ['General Checkup', 'Heart Screening'],
+            'Skin Rash': ['Skin Treatment', 'Allergy Testing'],
+            'Joint Pain': ['Physical Therapy', 'General Checkup'],
+            'Shortness of Breath': ['Heart Screening', 'General Checkup'],
+            'Anxiety': ['Counseling', 'Mental Health Assessment'],
+            'Depression': ['Counseling', 'Mental Health Assessment']
+        };
+        return relations[symptom] || ['General Checkup'];
+    }
+    
+    getRecentSearches() {
+        try {
+            return JSON.parse(localStorage.getItem('recentSearches') || '[]');
+        } catch (error) {
+            return [];
+        }
+    }
+    
+    highlightMatch(text, query) {
+        if (!query || query.length < 2) return text;
+        const regex = new RegExp(`(${query})`, 'gi');
+        return text.replace(regex, '<mark>$1</mark>');
+    }
+    
+    groupSuggestionsByType(suggestions) {
+        const groups = {
+            recent: [],
+            clinic: [],
+            treatment: [],
+            symptom: []
+        };
+        
+        suggestions.forEach(suggestion => {
+            if (groups[suggestion.type]) {
+                groups[suggestion.type].push(suggestion);
+            }
+        });
+        
+        return groups;
+    }
+    
+    createGroupedSuggestionsHTML(groups) {
+        let html = '';
+        
+        // Order of display
+        const order = ['recent', 'clinic', 'treatment', 'symptom'];
+        const labels = {
+            recent: 'Recent Searches',
+            clinic: 'Clinics',
+            treatment: 'Treatments',
+            symptom: 'Symptoms'
+        };
+        
+        order.forEach(type => {
+            if (groups[type] && groups[type].length > 0) {
+                html += `<div class="suggestion-group">`;
+                html += `<div class="suggestion-group-label">${labels[type]}</div>`;
+                groups[type].forEach(suggestion => {
+                    html += this.createSuggestionHTML(suggestion);
+                });
+                html += `</div>`;
+            }
+        });
+        
+        return html;
+    }
+    
+    showSuggestionsLoading() {
+        if (!this.searchSuggestions) return;
+        
+        this.searchSuggestions.innerHTML = `
+            <div class="suggestions-loading">
+                <div class="loading-spinner"></div>
+                <span>Searching...</span>
+            </div>
+        `;
+        this.searchSuggestions.style.display = 'block';
+    }
+    
+    showNoSuggestions(query) {
+        if (!this.searchSuggestions) return;
+        
+        this.searchSuggestions.innerHTML = `
+            <div class="no-suggestions">
+                <i class="fas fa-search"></i>
+                <span>No suggestions found for "${query}"</span>
+                <small>Try a different search term</small>
+            </div>
+        `;
+        this.searchSuggestions.style.display = 'block';
+    }
+    
+    bindSuggestionEvents() {
+        this.searchSuggestions.querySelectorAll('.search-suggestion').forEach(el => {
+            el.addEventListener('click', () => this.selectSuggestion(el));
+            el.addEventListener('mouseenter', () => {
+                el.style.transform = 'translateX(4px)';
+            });
+            el.addEventListener('mouseleave', () => {
+                el.style.transform = 'translateX(0)';
+            });
+        });
+    }
+    
+    animateSuggestions() {
+        const suggestions = this.searchSuggestions.querySelectorAll('.search-suggestion');
+        suggestions.forEach((suggestion, index) => {
+            suggestion.style.opacity = '0';
+            suggestion.style.transform = 'translateY(10px)';
+            setTimeout(() => {
+                suggestion.style.transition = 'all 0.3s ease';
+                suggestion.style.opacity = '1';
+                suggestion.style.transform = 'translateY(0)';
+            }, index * 50);
+        });
     }
 }
 

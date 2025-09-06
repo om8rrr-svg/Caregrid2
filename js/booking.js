@@ -8,6 +8,12 @@
 
 // Initialize booking system
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize accessibility helper
+    if (typeof AccessibilityHelper !== 'undefined') {
+        window.accessibilityHelper = new AccessibilityHelper();
+        window.accessibilityHelper.init();
+    }
+    
     // Wait for auth system to initialize before proceeding
     setTimeout(function() {
         initializeBookingSystem();

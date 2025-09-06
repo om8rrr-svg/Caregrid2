@@ -236,6 +236,14 @@ function getCurrentUser() {
 }
 
 async function init() {
+  console.log('Dashboard initializing...');
+  
+  // Initialize accessibility helper
+  if (typeof AccessibilityHelper !== 'undefined') {
+    window.accessibilityHelper = new AccessibilityHelper();
+    window.accessibilityHelper.init();
+  }
+  
   showSkeletons();
   
   try {
@@ -264,6 +272,8 @@ async function init() {
     // Guard failed, error already handled in guard function
     console.log('Dashboard initialization failed due to auth guard');
   }
+  
+  console.log('Dashboard initialized successfully');
 }
 
 document.addEventListener('DOMContentLoaded', init);

@@ -26,6 +26,8 @@
     <link rel="stylesheet" href="css/style.css?v=2025082512">
     <link rel="stylesheet" href="css/skeleton-loading.css">
     <link rel="stylesheet" href="css/mobile-optimization.css">
+    <link rel="stylesheet" href="css/enhanced-search.css">
+    <link rel="stylesheet" href="css/error-handling.css">
     <link rel="stylesheet" href="css/accessibility.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/fontawesome/css/all.min.css">
@@ -99,7 +101,7 @@
                 <li><a href="index.html" class="nav-link active">Home</a></li>
                 <li><a href="how-to-use.html" class="nav-link">How to Use</a></li>
                 <li><a href="contact.html" class="nav-link">Contact</a></li>
-                <li id="authNavItem"><a href="auth.html" class="nav-link">Sign In</a></li>
+                <li id="authNavItem" data-onboarding="auth-help"><a href="auth.html" class="nav-link">Sign In</a></li>
                 <li id="userNavItem" style="display: none;">
                     <div class="user-menu">
                         <!-- User menu content populated by header.js -->
@@ -127,12 +129,13 @@
             <h2 class="hero-subtitle animate-fade-up" style="animation-delay: 0.2s;">Discover & Book Exceptional <span id="rotating-text">Medical Care</span></h2>
             <p class="hero-description animate-fade-up" style="animation-delay: 0.3s;">Connect with elite healthcare professionals and world-class clinics across the UK</p>
             
-            <div class="search-container animate-fade-up" id="search" style="animation-delay: 0.4s;">
+            <div class="search-container animate-fade-up" id="search" style="animation-delay: 0.4s;" role="search" aria-label="Healthcare provider search">
                 <!-- Main Search Box -->
                 <div class="search-box">
                     <i class="fas fa-search search-icon"></i>
-                    <input type="text" id="searchInput" placeholder="Search by service, symptom, or location..." class="search-input" autocomplete="off">
-                    <div class="search-suggestions" id="searchSuggestions"></div>
+                    <input type="text" id="searchInput" placeholder="Search by service, symptom, or location..." class="search-input" autocomplete="off" aria-label="Search for healthcare providers" aria-describedby="search-help" data-onboarding="search-help">
+                    <div class="search-suggestions" id="searchSuggestions" role="listbox" aria-label="Search suggestions"></div>
+                    <div id="search-help" class="sr-only">Type to search for healthcare providers by service, symptom, or location. Use arrow keys to navigate suggestions.</div>
                     <button class="search-btn" type="button" onclick="performSearch()">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <circle cx="11" cy="11" r="8"></circle>
@@ -142,17 +145,18 @@
                 </div>
                 
                 <!-- Advanced Filters Toggle -->
-                <button class="filters-toggle" id="filtersToggle" onclick="toggleAdvancedFilters()" aria-expanded="false" aria-controls="advancedFilters">
+                <button class="filters-toggle" id="filtersToggle" onclick="toggleAdvancedFilters()" aria-expanded="false" aria-controls="advancedFilters" data-onboarding="filter-help">
                     <i class="fas fa-sliders-h"></i>
                     Advanced Filters
                 </button>
                 
                 <!-- Advanced Filters Panel -->
-                <div class="advanced-filters" id="advancedFilters" hidden>
-                    <div class="filters-grid">
+                <div class="advanced-filters" id="advancedFilters" hidden role="region" aria-labelledby="filtersToggle" aria-label="Advanced search filters">
+                    <div class="filters-grid" role="group" aria-label="Filter options">
                         <div class="filter-group">
                             <label for="availabilityFilter">Availability</label>
-                            <select id="availabilityFilter" onchange="applyFilters()">
+                            <select id="availabilityFilter" onchange="applyFilters()" aria-describedby="availability-help">
+                                <div id="availability-help" class="sr-only">Filter providers by their availability</div>
                                 <option value="">Any time</option>
                                 <option value="today">Available today</option>
                                 <option value="tomorrow">Available tomorrow</option>
@@ -163,7 +167,8 @@
                         
                         <div class="filter-group">
                             <label for="treatmentFilter">Treatment Type</label>
-                            <select id="treatmentFilter" onchange="applyFilters()">
+                            <select id="treatmentFilter" onchange="applyFilters()" aria-describedby="treatment-help">
+                                <div id="treatment-help" class="sr-only">Filter by type of medical treatment or service</div>
                                 <option value="">All treatments</option>
                                 <option value="consultation">General Consultation</option>
                                 <option value="checkup">Health Check-up</option>
@@ -221,11 +226,11 @@
                     </div>
                     
                     <div class="filter-actions">
-                        <button class="clear-filters-btn" onclick="clearAllFilters()">
+                        <button class="filter-btn secondary" onclick="clearAllFilters()">
                             <i class="fas fa-times"></i>
                             Clear All
                         </button>
-                        <button class="apply-filters-btn" onclick="applyFilters()">
+                        <button class="filter-btn primary" onclick="applyFilters()">
                             <i class="fas fa-check"></i>
                             Apply Filters
                         </button>
@@ -434,7 +439,7 @@
         <div class="featured-clinics-content">
             <div class="container">
                 <div class="results-info" id="resultsInfo" style="margin-bottom: 20px; color: #666; font-size: 14px;"></div>
-                <div class="clinic-grid" id="clinicGrid" data-aos="fade-up" data-aos-delay="300">
+                <div class="clinic-grid" id="clinicGrid" data-aos="fade-up" data-aos-delay="300" data-onboarding="results-help">
                     <!-- Clinic cards will be populated by JavaScript -->
                 </div>
                 <!-- Alternative clinic list container for home.js -->
@@ -584,6 +589,10 @@
 
     <!-- Configuration must load first -->
     <script src="js/config.js?v=2025082510"></script>
+    <script src="js/error-handler.js"></script>
+    <script src="js/accessibility-helper.js"></script>
+    <script src="js/onboarding-guide.js"></script>
+    <script src="js/progress-indicators.js"></script>
     
     <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
     <script>

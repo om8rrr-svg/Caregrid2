@@ -239,6 +239,12 @@ function renderClinics(data, isDemo = false) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Initialize accessibility helper
+  if (typeof AccessibilityHelper !== 'undefined') {
+    window.accessibilityHelper = new AccessibilityHelper();
+    window.accessibilityHelper.init();
+  }
+  
   // Clear any placeholder text on init
   document.querySelectorAll('.clinic-count').forEach(el => el.textContent = '—');
   

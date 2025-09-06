@@ -359,7 +359,7 @@
     <!-- Booking Form -->
     <section class="booking-section">
         <div class="booking-container">
-            <div class="booking-form" data-validate>
+            <div class="booking-form" data-validate role="form" aria-labelledby="booking-title" novalidate>
                 <!-- Clinic Summary -->
                 <div class="clinic-summary" id="clinicSummary">
                     <img src="images/clinic1.svg" alt="Clinic" id="clinicImage">
@@ -383,7 +383,8 @@
                     <h3>Select Service</h3>
                     <div class="form-group">
                         <label for="serviceType">Service Type</label>
-                        <select id="serviceType" data-validate="required" required>
+                        <select id="serviceType" data-validate="required" required aria-describedby="serviceType-help" aria-invalid="false" data-onboarding="service-help">
+                        <div id="serviceType-help" class="sr-only">Choose the type of medical service you need</div>
                             <option value="">Choose a service...</option>
                             <option value="consultation">General Consultation</option>
                             <option value="checkup">Health Check-up</option>
@@ -402,11 +403,12 @@
                     <h3>Select Date & Time</h3>
                     <div class="form-group">
                         <label for="appointmentDate">Preferred Date</label>
-                        <input type="date" id="appointmentDate" data-validate="required,date" required>
+                        <input type="date" id="appointmentDate" data-validate="required,date" required aria-describedby="appointmentDate-help" aria-invalid="false" data-onboarding="date-help">
+                        <div id="appointmentDate-help" class="sr-only">Select your preferred appointment date</div>
                     </div>
                     <div class="form-group">
                         <label>Available Time Slots</label>
-                        <div class="time-slots" id="timeSlots">
+                        <div class="time-slots" id="timeSlots" data-onboarding="time-help">
                             <div class="time-slot" data-time="09:00">9:00 AM</div>
                             <div class="time-slot" data-time="09:30">9:30 AM</div>
                             <div class="time-slot" data-time="10:00">10:00 AM</div>
@@ -593,6 +595,10 @@
     </footer>
 
     <script src="js/config.js?v=2025082509"></script>
+    <script src="js/error-handler.js"></script>
+    <script src="js/accessibility-helper.js"></script>
+    <script src="js/onboarding-guide.js"></script>
+    <script src="js/progress-indicators.js"></script>
     <script type="module" src="js/api-base.js?v=2025082510"></script>
     <script type="module" src="js/api-service.js?v=2025082509"></script>
     

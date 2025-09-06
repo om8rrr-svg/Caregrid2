@@ -189,28 +189,46 @@ class APIService {
             if (error.name === 'AbortError') {
                 // For auth requests, let fallback handle timeout gracefully
                 if (isAuthRequest || isClinicRequest) {
-                    throw new Error('BACKEND_UNAVAILABLE');
+                    const cancelError = new Error('BACKEND_UNAVAILABLE');
+                    cancelError.code = 'REQUEST_CANCELLED';
+                    throw cancelError;
                 }
-                throw new Error('Request timed out. Please check your connection and try again.');
+                const timeoutError = new Error('Request timed out. Please check your connection and try again.');
+                timeoutError.code = 'REQUEST_CANCELLED';
+                timeoutError.type = 'timeout';
+                throw timeoutError;
             }
             
             if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
                 // Network connectivity issues - handle gracefully for critical endpoints
                 if (isClinicRequest || isAuthRequest) {
-                    throw new Error('BACKEND_UNAVAILABLE');
+                    const backendError = new Error('BACKEND_UNAVAILABLE');
+                    backendError.code = 'NETWORK_ERROR';
+                    throw backendError;
                 }
-                throw new Error('Network connection failed. Please check your internet connection.');
+                const networkError = new Error('Network connection failed. Please check your internet connection.');
+                networkError.code = 'NETWORK_ERROR';
+                networkError.type = 'network';
+                throw networkError;
             }
             
             // Handle server errors with user-friendly messages
             if (error.message.includes('500') || error.message.includes('Internal Server Error')) {
-                throw new Error('Server temporarily unavailable. Please try again in a moment.');
+                const serverError = new Error('Server temporarily unavailable. Please try again in a moment.');
+                serverError.code = 'SERVER_ERROR';
+                serverError.type = 'server_error';
+                serverError.status = 500;
+                throw serverError;
             }
             
             // For authentication errors, provide clearer messaging
             if (error.message.includes('Authentication failed') || error.message.includes('401')) {
                 this.clearAuthData(); // Clear invalid auth data
-                throw new Error('Session expired. Please log in again.');
+                const authError = new Error('Session expired. Please log in again.');
+                authError.code = 'UNAUTHORIZED';
+                authError.type = 'client_error';
+                authError.status = 401;
+                throw authError;
             }
             
             // Pass through specific authentication error messages from backend
@@ -223,7 +241,17 @@ class APIService {
             
             // Handle rate limiting with better messaging
             if (error.message.includes('Too many requests') || error.message.includes('429')) {
-                throw new Error('Too many requests. Please wait a moment before trying again.');
+                const rateLimitError = new Error('Too many requests. Please wait a moment before trying again.');
+                rateLimitError.code = 'RATE_LIMITED';
+                rateLimitError.type = 'client_error';
+                rateLimitError.status = 429;
+                throw rateLimitError;
+            }
+            
+            // Default error with enhanced properties
+            if (!error.code) {
+                error.code = 'API_ERROR';
+                error.type = 'general';
             }
             
             throw error;
