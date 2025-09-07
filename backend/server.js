@@ -8,6 +8,8 @@ const { globalErrorBoundary, healthCheckBoundary } = require('./middleware/error
 const { serviceHealthMiddleware } = require('./middleware/serviceIsolation');
 require('dotenv').config();
 
+// Force redeploy to pick up render.yaml JWT_SECRET changes
+
 // Environment validation for critical variables
 function validateEnvironment() {
   const warnings = [];
