@@ -243,7 +243,7 @@ function applyFilters() {
 
 // Optimized rendering with virtual scrolling concept
 function renderClinics() {
-    const container = document.getElementById('clinicsContainer');
+    const container = document.getElementById('clinicGrid');
     if (!container) return;
     
     const startIndex = (currentPage - 1) * clinicsPerPage;
@@ -375,6 +375,7 @@ function getCachedClinics() {
 
 function loadFallbackData() {
     console.log('Using fallback clinic data');
+    clinicsData = fallbackClinics;
     showAPIStatus('Using offline data', 'warning');
     applyFilters();
 }

@@ -70,4 +70,29 @@ router.get('/clinics-count', asyncHandler(async (req, res) => {
   }
 }));
 
+// Test all clinics without is_active filter
+router.get('/clinics-all', asyncHandler(async (req, res) => {
+  try {
+    const result = await query(`
+      SELECT 
+        c.id, c.name, c.type, c.is_active, c.rating, c.is_premium
+       FROM clinics c
+       ORDER BY c.name ASC
+    `);
+    
+    res.json({
+      success: true,
+      message: 'All clinics query successful',
+      data: result.rows,
+      rowCount: result.rows.length
+    });
+    
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+}));
+
 module.exports = router;
