@@ -36,7 +36,7 @@ class OnboardingGuide {
                 left: 0;
                 width: 100%;
                 height: 100%;
-                background: rgba(0, 0, 0, 0.7);
+                background: rgba(0, 0, 0, 0.8);
                 z-index: 10000;
                 pointer-events: none;
             }
@@ -44,9 +44,13 @@ class OnboardingGuide {
             .onboarding-spotlight {
                 position: absolute;
                 border-radius: 8px;
-                box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7);
+                background: rgba(255, 255, 255, 0.1);
+                box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.8), 
+                           inset 0 0 0 2px rgba(59, 130, 246, 0.8),
+                           0 0 20px rgba(59, 130, 246, 0.4);
                 pointer-events: auto;
                 transition: all 0.3s ease;
+                backdrop-filter: blur(0px);
             }
             
             .onboarding-tooltip {
@@ -415,10 +419,13 @@ class OnboardingGuide {
         const rect = element.getBoundingClientRect();
         const spotlight = document.createElement('div');
         spotlight.className = 'onboarding-spotlight';
-        spotlight.style.left = `${rect.left - 8}px`;
-        spotlight.style.top = `${rect.top - 8}px`;
-        spotlight.style.width = `${rect.width + 16}px`;
-        spotlight.style.height = `${rect.height + 16}px`;
+        
+        // Add more padding to ensure full element visibility
+        const padding = 16;
+        spotlight.style.left = `${rect.left - padding}px`;
+        spotlight.style.top = `${rect.top - padding}px`;
+        spotlight.style.width = `${rect.width + (padding * 2)}px`;
+        spotlight.style.height = `${rect.height + (padding * 2)}px`;
         
         this.overlay.appendChild(spotlight);
         
