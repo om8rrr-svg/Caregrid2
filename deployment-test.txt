@@ -1,3 +1,0 @@
-Deployment test - testing Vercel auto-deployment
-Timestamp: 2025-01-09
-Commit: Remove GitHub Actions workflow
