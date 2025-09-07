@@ -24,7 +24,7 @@
       "destination": "/api/robots"
     },
     {
-      "source": "/((?!api/|health).*)",
+      "source": "/((?!api/|health|pages/).*)",
       "destination": "/index.html"
     }
   ],
@@ -59,6 +59,19 @@
       ]
     },
     {
+      "source": "/images/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        },
+        {
+          "key": "Accept",
+          "value": "image/webp,image/avif,image/*,*/*;q=0.8"
+        }
+      ]
+    },
+    {
       "source": "/static/(.*)",
       "headers": [
         {
@@ -89,19 +102,10 @@
       ]
     }
   ],
-  "env": {
-    "NEXT_PUBLIC_SUPABASE_URL": "@supabase-url",
-    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "@supabase-anon-key",
-    "NEXT_PUBLIC_GOOGLE_MAPS_API_KEY": "@google-maps-api-key",
-    "NEXT_PUBLIC_VERCEL_ANALYTICS_ID": "@vercel-analytics-id",
-    "NEXT_PUBLIC_APP_ENV": "production",
-    "NEXT_PUBLIC_ENABLE_CLOUD_API": "true"
-  },
   "functions": {
     "api/**/*.js": {
       "maxDuration": 30,
-      "memory": 1024,
-      "runtime": "nodejs18.x"
+      "memory": 1024
     }
   },
   "regions": ["lhr1", "iad1"],
