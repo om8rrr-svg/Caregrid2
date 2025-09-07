@@ -44,13 +44,12 @@ class OnboardingGuide {
             .onboarding-spotlight {
                 position: absolute;
                 border-radius: 8px;
-                background: rgba(255, 255, 255, 0.95);
-                box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6), 
-                           inset 0 0 0 3px rgba(59, 130, 246, 1),
-                           0 0 30px rgba(59, 130, 246, 0.6);
+                background: transparent;
+                box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7), 
+                           inset 0 0 0 2px rgba(59, 130, 246, 1),
+                           0 0 20px rgba(59, 130, 246, 0.8);
                 pointer-events: auto;
                 transition: all 0.3s ease;
-                backdrop-filter: blur(0px);
             }
             
             .onboarding-tooltip {
