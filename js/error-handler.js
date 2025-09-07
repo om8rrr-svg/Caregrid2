@@ -343,9 +343,9 @@ class ErrorHandler {
                     <p>${config.message}</p>
                 </div>
                 <div class="error-actions">
-                    ${config.actions.map(action => `
+                    ${config.actions.map((action, index) => `
                         <button class="error-btn ${action.primary ? 'primary' : 'secondary'}" 
-                                onclick="${action.action}">
+                                data-action-index="${index}">
                             ${action.label}
                         </button>
                     `).join('')}
@@ -359,6 +359,15 @@ class ErrorHandler {
         `;
 
         notification.innerHTML = content;
+        
+        // Add event listeners for action buttons
+        config.actions.forEach((action, index) => {
+            const button = notification.querySelector(`[data-action-index="${index}"]`);
+            if (button && typeof action.action === 'function') {
+                button.addEventListener('click', action.action);
+            }
+        });
+        
         return notification;
     }
 
