@@ -191,10 +191,21 @@ router.get('/', optionalAuth, asyncHandler(async (req, res) => {
       }
     }
     
+    // Add debug information to response
+    const debugInfo = {
+      queryParams,
+      whereClause,
+      paramCount,
+      rawResultCount: result.rows.length,
+      processedClinicCount: clinics.length,
+      totalFromCount: parseInt(countResult.rows[0].count)
+    };
+    
     paginatedResponse(res, clinics, {
       page,
       limit,
-      total: parseInt(countResult.rows[0].count)
+      total: parseInt(countResult.rows[0].count),
+      debug: debugInfo
     });
     
   } catch (dbError) {
