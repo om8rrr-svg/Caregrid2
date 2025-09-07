@@ -108,41 +108,101 @@ router.get('/db-test', asyncHandler(async (req, res) => {
 // Debug endpoint to check clinic active status
 router.get('/clinic-active-status', asyncHandler(async (req, res) => {
   try {
-    // Check all clinics and their is_active status
-    const allClinics = await query(`
-      SELECT id, name, is_active, created_at
-      FROM clinics 
-      ORDER BY created_at DESC
-    `);
-    
-    // Count by status
-    const statusCount = await query(`
+    // Check clinic is_active statuses
+    const statusQuery = `
       SELECT 
-        COUNT(*) as total,
-        COUNT(CASE WHEN is_active = true THEN 1 END) as active_true,
-        COUNT(CASE WHEN is_active = false THEN 1 END) as active_false,
-        COUNT(CASE WHEN is_active IS NULL THEN 1 END) as active_null
-      FROM clinics
-    `);
+        is_active,
+        COUNT(*) as count
+      FROM clinics 
+      GROUP BY is_active
+      ORDER BY is_active;
+    `;
+    
+    const statusResult = await query(statusQuery);
     
     // Test the current query condition
-    const currentQuery = await query(`
-      SELECT COUNT(*) as matching_count
-      FROM clinics c
-      WHERE (c.is_active = true OR c.is_active IS NULL)
-    `);
+    const testQuery = `
+      SELECT 
+        id, name, is_active
+      FROM clinics 
+      WHERE (is_active = true OR is_active IS NULL)
+      ORDER BY name;
+    `;
+    
+    const testResult = await query(testQuery);
     
     res.json({
       success: true,
-      allClinics: allClinics.rows,
-      statusCounts: statusCount.rows[0],
-      currentQueryMatches: currentQuery.rows[0].matching_count
+      statusBreakdown: statusResult.rows,
+      matchingClinics: testResult.rows,
+      totalMatching: testResult.rows.length
     });
     
   } catch (error) {
+    console.error('Debug endpoint error:', error);
     res.status(500).json({
       success: false,
       error: error.message
+    });
+  }
+}));
+
+// Debug endpoint to test the exact clinics query
+router.get('/clinic-query-debug', asyncHandler(async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const offset = (page - 1) * limit;
+    
+    // Simulate the exact same query logic as the main clinics endpoint
+    const whereConditions = [];
+    const queryParams = [];
+    let paramCount = 1;
+    
+    // Always filter for active clinics (or null for backwards compatibility)
+    whereConditions.push('(c.is_active = true OR c.is_active IS NULL)');
+    
+    const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';
+    
+    // Test the exact query
+    const testQuery = `SELECT 
+      c.id, c.name, c.type, c.description, c.address, c.city, c.postcode,
+      c.phone, c.email, c.website, c.rating, c.review_count, c.is_premium,
+      c.logo_url, c.created_at, c.updated_at, c.frontend_id, c.is_active
+     FROM clinics c
+     ${whereClause}
+     ORDER BY c.is_premium DESC, c.rating DESC, c.name ASC
+     LIMIT $${paramCount} OFFSET $${paramCount + 1}`;
+    
+    const result = await query(testQuery, [...queryParams, limit, offset]);
+    
+    // Get total count
+    const countResult = await query(
+      `SELECT COUNT(*) FROM clinics c ${whereClause}`,
+      queryParams
+    );
+    
+    res.json({
+      success: true,
+      debug: {
+        whereClause,
+        queryParams,
+        paramCount,
+        limit,
+        offset,
+        fullQuery: testQuery
+      },
+      results: result.rows,
+      totalCount: parseInt(countResult.rows[0].count),
+      resultCount: result.rows.length
+    });
+    
+  } catch (error) {
+    console.error('Debug query endpoint error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      stack: error.stack
     });
   }
 }));
