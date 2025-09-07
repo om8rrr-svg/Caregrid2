@@ -1,0 +1,71 @@
+<svg width="300" height="200" viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="buildingGrad4" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFF3E0;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FFE0B2;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="roofGrad4" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF9800;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#F57C00;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="300" height="200" fill="#E8F4FD"/>
+  
+  <!-- Ground -->
+  <rect x="0" y="150" width="300" height="50" fill="#E8F5E8"/>
+  
+  <!-- Modern Building Base -->
+  <rect x="60" y="70" width="180" height="80" fill="url(#buildingGrad4)" stroke="#FF9800" stroke-width="2"/>
+  
+  <!-- Flat Modern Roof -->
+  <rect x="55" y="65" width="190" height="10" fill="url(#roofGrad4)" stroke="#E65100" stroke-width="1"/>
+  
+  <!-- Glass Entrance -->
+  <rect x="130" y="110" width="40" height="40" fill="#E3F2FD" stroke="#FF9800" stroke-width="2"/>
+  
+  <!-- Revolving Door -->
+  <circle cx="150" cy="130" r="15" fill="none" stroke="#FF9800" stroke-width="2"/>
+  <line x1="150" y1="115" x2="150" y2="145" stroke="#FF9800" stroke-width="2"/>
+  <line x1="135" y1="130" x2="165" y2="130" stroke="#FF9800" stroke-width="2"/>
+  
+  <!-- Large Windows -->
+  <rect x="75" y="85" width="35" height="25" fill="#E3F2FD" stroke="#FF9800" stroke-width="1"/>
+  <rect x="190" y="85" width="35" height="25" fill="#E3F2FD" stroke="#FF9800" stroke-width="1"/>
+  
+  <!-- Window Grid -->
+  <line x1="87.5" y1="85" x2="87.5" y2="110" stroke="#FF9800" stroke-width="1"/>
+  <line x1="97.5" y1="85" x2="97.5" y2="110" stroke="#FF9800" stroke-width="1"/>
+  <line x1="75" y1="97.5" x2="110" y2="97.5" stroke="#FF9800" stroke-width="1"/>
+  
+  <line x1="202.5" y1="85" x2="202.5" y2="110" stroke="#FF9800" stroke-width="1"/>
+  <line x1="212.5" y1="85" x2="212.5" y2="110" stroke="#FF9800" stroke-width="1"/>
+  <line x1="190" y1="97.5" x2="225" y2="97.5" stroke="#FF9800" stroke-width="1"/>
+  
+  <!-- Dental Sign -->
+  <rect x="110" y="75" width="80" height="15" fill="#FFFFFF" stroke="#FF9800" stroke-width="1" rx="7"/>
+  <text x="150" y="85" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#FF9800" font-weight="bold">DENTAL CLINIC</text>
+  
+  <!-- Tooth Icon -->
+  <ellipse cx="95" cy="82" rx="8" ry="10" fill="#FFFFFF" stroke="#FF9800" stroke-width="2"/>
+  <ellipse cx="95" cy="78" rx="4" ry="5" fill="#FF9800"/>
+  
+  <!-- Parking Area -->
+  <rect x="20" y="160" width="60" height="30" fill="#BDBDBD" stroke="#757575" stroke-width="1"/>
+  <line x1="20" y1="175" x2="80" y2="175" stroke="#FFFFFF" stroke-width="2" stroke-dasharray="5,5"/>
+  
+  <!-- Car -->
+  <rect x="30" y="165" width="25" height="12" fill="#2196F3" rx="2"/>
+  <circle cx="35" cy="180" r="3" fill="#424242"/>
+  <circle cx="50" cy="180" r="3" fill="#424242"/>
+  
+  <!-- Landscaping -->
+  <ellipse cx="250" cy="165" rx="25" ry="10" fill="#4CAF50"/>
+  <circle cx="240" cy="160" r="8" fill="#66BB6A"/>
+  <circle cx="260" cy="158" r="6" fill="#66BB6A"/>
+  
+  <!-- Sky Elements -->
+  <circle cx="50" cy="30" r="12" fill="#FFC107" opacity="0.8"/>
+  <ellipse cx="200" cy="25" rx="18" ry="8" fill="#FFFFFF" opacity="0.9"/>
+</svg>

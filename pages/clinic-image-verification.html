@@ -95,7 +95,7 @@
                 img.alt = clinic.name;
                 img.loading = 'lazy';
                 img.dataset.src = clinic.image;
-                img.dataset.fallback = 'images/clinic1.svg';
+                img.dataset.fallback = CloudAssets.getClinicPlaceholder(1);
                 
                 // Use intersection observer for lazy loading if available
                 if (window.imageLazyLoader) {
@@ -115,7 +115,7 @@
                     const status = clinicCard.querySelector('.status');
                     status.textContent = '❌ Failed to load image';
                     status.className = 'status error';
-                    img.src = 'images/clinic1.svg'; // Fallback
+                    img.src = CloudAssets.getClinicPlaceholder(1); // Fallback
                 };
                 
                 clinicCard.innerHTML = `

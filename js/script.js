@@ -1,6 +1,8 @@
 // Import required functions
 import { buildUrl } from './api-base.js';
 import { APIService } from './api-service.js';
+import { CloudAssets } from './cloud-config.js';
+import clinicService from './clinic-service.js';
 
 // Initialize API service
 const apiService = new APIService();
@@ -22,7 +24,7 @@ let clinicsData = [
         "address": "61 King Street, Manchester M2 4PD",
         "rating": 4.8,
         "reviews": 342,
-        "image": "images/pall_mall_medical.jpg",
+        "image": CloudAssets.getImageUrl("pall_mall_medical.jpg"),
         "premium": true,
         "phone": "0161 832 2111",
         "website": "https://pallmallmedical.co.uk",
@@ -42,7 +44,7 @@ let clinicsData = [
         "address": "90 Barlow Moor Rd, Manchester M20 2PN",
         "rating": 4.9,
         "reviews": 567,
-        "image": "images/didsbury_dental_practice.jpg",
+        "image": CloudAssets.getImageUrl("didsbury_dental_practice.jpg"),
         "premium": true,
         "phone": "0161 455 0005",
         "website": "https://didsburydental.co.uk",
@@ -62,7 +64,7 @@ let clinicsData = [
         "address": "Liverpool City Centre, L1 8JQ",
         "rating": 4.7,
         "reviews": 423,
-        "image": "images/City Rehab Liverpool.avif",
+        "image": CloudAssets.getImageUrl("City Rehab Liverpool.avif"),
         "premium": true,
         "phone": "0151 707 2345",
         "website": "https://cityrehab.co.uk",
@@ -82,7 +84,7 @@ let clinicsData = [
         "address": "5 St Pauls Square, Liverpool L3 9SJ",
         "rating": 4.8,
         "reviews": 298,
-        "image": "images/Pall Mall Medical Liverpool.jpg",
+        "image": CloudAssets.getImageUrl("Pall Mall Medical Liverpool.jpg"),
         "premium": true,
         "phone": "0151 832 2111",
         "website": "https://pallmallmedical.co.uk",
@@ -102,7 +104,7 @@ let clinicsData = [
         "address": "207 Deansgate, Manchester M3 3NW",
         "rating": 4.6,
         "reviews": 445,
-        "image": "images/207 Dental Care Manchester.jpeg",
+        "image": CloudAssets.getImageUrl("207 Dental Care Manchester.jpeg"),
         "premium": true,
         "phone": "0161 834 0606",
         "website": "https://207dentalcare.co.uk",
@@ -122,7 +124,7 @@ let clinicsData = [
         "address": "170 Barlow Moor Rd, Manchester M20 2AF",
         "rating": 4.8,
         "reviews": 234,
-        "image": "images/Spire Manchester Hospital Physiotherapy.jpg",
+        "image": CloudAssets.getImageUrl("Spire Manchester Hospital Physiotherapy.jpg"),
         "premium": true,
         "phone": "0161 447 6677",
         "website": "https://spirehealthcare.com",
@@ -142,7 +144,7 @@ let clinicsData = [
         "address": "Regent Street, Liverpool L1 9AR",
         "rating": 4.7,
         "reviews": 189,
-        "image": "images/Regent Street Medical Practice.jpg",
+        "image": CloudAssets.getImageUrl("Regent Street Medical Practice.jpg"),
         "premium": true,
         "phone": "0333 455 9070",
         "website": "https://regentstreetmedical.co.uk",
@@ -162,7 +164,7 @@ let clinicsData = [
         "address": "117-119 Droylsden Road, Manchester M40 1NT",
         "rating": 4.5,
         "reviews": 312,
-        "image": "images/Droylsden Road Dental Practice.webp",
+        "image": CloudAssets.getImageUrl("Droylsden Road Dental Practice.webp"),
         "premium": true,
         "phone": "0161 682 6903",
         "website": "https://droylsdendental.co.uk",
@@ -202,7 +204,7 @@ let clinicsData = [
         "address": "Chester Rd, Stretford, Manchester M32 0RS",
         "rating": 4.7,
         "reviews": 278,
-        "image": "images/The Dental Team Manchester.png",
+        "image": CloudAssets.getImageUrl("The Dental Team Manchester.png"),
         "premium": true,
         "phone": "0161 864 3250",
         "website": "https://thedentalteam.co.uk",
@@ -242,7 +244,7 @@ let clinicsData = [
         "address": "35 Ormskirk Rd, Preston PR1 2QP",
         "rating": 4.6,
         "reviews": 203,
-        "image": "images/clinic4.svg",
+        "image": CloudAssets.getClinicPlaceholder(4),
         "premium": true,
         "phone": "01772 252154",
         "website": "https://synergydental.co.uk",
@@ -302,7 +304,7 @@ let clinicsData = [
         "address": "370 Central Dr, Blackpool FY1 6LA",
         "rating": 4.4,
         "reviews": 167,
-        "image": "images/clinic7.svg",
+        "image": CloudAssets.getClinicPlaceholder(7),
         "premium": true,
         "phone": "01253 348616",
         "website": "https://synergydental.co.uk",
@@ -342,7 +344,7 @@ let clinicsData = [
         "address": "The Quays, Salford M50 3AZ",
         "rating": 4.6,
         "reviews": 189,
-        "image": "images/clinic1.svg",
+        "image": CloudAssets.getClinicPlaceholder(1),
         "premium": true,
         "phone": "0161 877 4567",
         "website": "https://salfordquaysdental.co.uk",
@@ -382,7 +384,7 @@ let clinicsData = [
         "address": "Yorkshire St, Rochdale OL16 1JU",
         "rating": 4.3,
         "reviews": 112,
-        "image": "images/clinic3.svg",
+        "image": CloudAssets.getClinicPlaceholder(3),
         "premium": true,
         "phone": "01706 345678",
         "website": "https://rochdaleprivategp.co.uk",
@@ -402,7 +404,7 @@ let clinicsData = [
         "address": "Palmyra Sq S, Warrington WA1 1BW",
         "rating": 4.8,
         "reviews": 201,
-        "image": "images/clinic4.svg",
+        "image": CloudAssets.getClinicPlaceholder(4),
         "premium": true,
         "phone": "01925 234567",
         "website": "https://warringtondental.co.uk",
@@ -422,7 +424,7 @@ let clinicsData = [
         "address": "Market St, Wigan WN1 1PX",
         "rating": 4.4,
         "reviews": 178,
-        "image": "images/clinic5.svg",
+        "image": CloudAssets.getClinicPlaceholder(5),
         "premium": true,
         "phone": "01942 567890",
         "website": "https://wiganprivatehealth.co.uk",
@@ -462,7 +464,7 @@ let clinicsData = [
         "address": "Penny St, Lancaster LA1 1XN",
         "rating": 4.7,
         "reviews": 167,
-        "image": "images/clinic7.svg",
+        "image": CloudAssets.getClinicPlaceholder(7),
         "premium": true,
         "phone": "01524 567890",
         "website": "https://lancasterdental.co.uk",
@@ -482,7 +484,7 @@ let clinicsData = [
         "address": "Lord St, Southport PR8 1NY",
         "rating": 4.6,
         "reviews": 134,
-        "image": "images/clinic8.svg",
+        "image": CloudAssets.getClinicPlaceholder(8),
         "premium": true,
         "phone": "01704 234567",
         "website": "https://southportprivategp.co.uk",
@@ -502,7 +504,7 @@ let clinicsData = [
         "address": "St James St, Burnley BB11 1NQ",
         "rating": 4.3,
         "reviews": 98,
-        "image": "images/clinic1.svg",
+        "image": CloudAssets.getClinicPlaceholder(1),
         "premium": true,
         "phone": "01282 345678",
         "website": "https://burnleyphysio.co.uk",
@@ -522,7 +524,7 @@ let clinicsData = [
         "address": "Rodney Street, Liverpool L1 9ED",
         "rating": 4.6,
         "reviews": 118,
-        "image": "images/clinic2.svg",
+        "image": CloudAssets.getClinicPlaceholder(2),
         "premium": true,
         "phone": "0333 200 3338",
         "website": "https://www.drarunghosh.co.uk",
@@ -541,7 +543,7 @@ let clinicsData = [
         "address": "57 Greenbank Rd, Liverpool L18 1HQ",
         "rating": 4.4,
         "reviews": 86,
-        "image": "images/clinic3.svg",
+        "image": CloudAssets.getClinicPlaceholder(3),
         "premium": true,
         "phone": "0151 733 7123",
         "website": "https://www.spirehealthcare.com/spire-liverpool-hospital/",
@@ -561,7 +563,7 @@ let clinicsData = [
         "address": "Exchange Station, Liverpool L2 2QP",
         "rating": 4.7,
         "reviews": 52,
-        "image": "images/regent_medical_practice.jpg",
+        "image": CloudAssets.getImageUrl("regent_medical_practice.jpg"),
         "premium": true,
         "phone": "0333 455 9070",
         "website": "https://www.regentstreetclinic.co.uk/private-gp-liverpool/",
@@ -580,7 +582,7 @@ let clinicsData = [
         "address": "358 Aigburth Rd, Liverpool L17 6AE",
         "rating": 4.9,
         "reviews": 143,
-        "image": "images/clinic5.svg",
+        "image": CloudAssets.getClinicPlaceholder(5),
         "premium": true,
         "phone": "0151 475 9929",
         "website": "https://www.dentalhouseliverpool.co.uk",
@@ -600,7 +602,7 @@ let clinicsData = [
         "address": "11 Dale St, Liverpool L2 2SH",
         "rating": 4.8,
         "reviews": 212,
-        "image": "images/clinic6.svg",
+        "image": CloudAssets.getClinicPlaceholder(6),
         "premium": true,
         "phone": "0151 236 6578",
         "website": "https://www.ollieanddarsh.co.uk",
@@ -619,7 +621,7 @@ let clinicsData = [
         "address": "6 Childwall Valley Rd, Gateacre, Liverpool L25 1RL",
         "rating": 4.6,
         "reviews": 89,
-        "image": "images/clinic7.svg",
+        "image": CloudAssets.getClinicPlaceholder(7),
         "premium": false,
         "phone": "0151 722 3888",
         "website": "https://www.pbadentalhealth.com",
@@ -638,7 +640,7 @@ let clinicsData = [
         "address": "1a Kenyon's Steps, Liverpool ONE, L1 3DF",
         "rating": 4.9,
         "reviews": 370,
-        "image": "images/clinic8.svg",
+        "image": CloudAssets.getClinicPlaceholder(8),
         "premium": true,
         "phone": "0151 294 3229",
         "website": "https://www.smileworksliverpool.co.uk",
@@ -657,7 +659,7 @@ let clinicsData = [
         "address": "258 Woolton Rd, Liverpool L16 8NE",
         "rating": 4.5,
         "reviews": 65,
-        "image": "images/clinic1.svg",
+        "image": CloudAssets.getClinicPlaceholder(1),
         "premium": false,
         "phone": "0151 722 2642",
         "website": "https://duthie.dental",
@@ -676,7 +678,7 @@ let clinicsData = [
         "address": "30 Queen Street, Manchester M2 5HX",
         "rating": 4.5,
         "reviews": 120,
-        "image": "images/samedaydoctor_manchester.jpg",
+        "image": CloudAssets.getImageUrl("samedaydoctor_manchester.jpg"),
         "premium": false,
         "phone": "0161 827 7868",
         "website": "https://samedaydoctor.co.uk/clinic/manchester",
@@ -695,7 +697,7 @@ let clinicsData = [
         "address": "Manchester City Centre",
         "rating": 4.4,
         "reviews": 55,
-        "image": "images/private_gp_extra_manchester.jpg",
+        "image": CloudAssets.getImageUrl("private_gp_extra_manchester.jpg"),
         "premium": true,
         "phone": "—",
         "website": "https://privategpextra.com",
@@ -714,7 +716,7 @@ let clinicsData = [
         "address": "Prestwich, Greater Manchester",
         "rating": 4.6,
         "reviews": 45,
-        "image": "images/clinic3.svg",
+        "image": CloudAssets.getClinicPlaceholder(3),
         "premium": false,
         "phone": "—",
         "website": "https://thevillagedoctor.co.uk",
@@ -733,7 +735,7 @@ let clinicsData = [
         "address": "The Alexandra Hospital, Cheadle, Cheshire",
         "rating": 4.2,
         "reviews": 80,
-        "image": "images/clinic4.svg",
+        "image": CloudAssets.getClinicPlaceholder(4),
         "premium": true,
         "phone": "0161 488 5000",
         "website": "https://www.circlehealthgroup.co.uk/hospitals/the-alexandra-hospital/private-gp-manchester",
@@ -752,7 +754,7 @@ let clinicsData = [
         "address": "Manchester City Centre",
         "rating": 4.8,
         "reviews": 250,
-        "image": "images/clinic5.svg",
+        "image": CloudAssets.getClinicPlaceholder(5),
         "premium": true,
         "phone": "0161 881 2345",
         "website": "https://www.360dentalcare.co.uk",
@@ -771,7 +773,7 @@ let clinicsData = [
         "address": "Hale, Altrincham, Greater Manchester",
         "rating": 4.7,
         "reviews": 105,
-        "image": "images/clinic6.svg",
+        "image": CloudAssets.getClinicPlaceholder(6),
         "premium": false,
         "phone": "0161 929 1234",
         "website": "https://www.haledentalclinic.com",
@@ -807,7 +809,7 @@ let clinicsData = [
         "address": "Greater Manchester area",
         "rating": 4.8,
         "reviews": 300,
-        "image": "images/clinic8.svg",
+        "image": CloudAssets.getClinicPlaceholder(8),
         "premium": true,
         "phone": "0161 883 0077",
         "website": "https://www.manchesterphysio.co.uk",
@@ -826,7 +828,7 @@ let clinicsData = [
         "address": "45 Northenden Road, Sale, M33 2DL",
         "rating": 4.7,
         "reviews": 850,
-        "image": "images/clinic9.svg",
+        "image": CloudAssets.getClinicPlaceholder(9),
         "premium": false,
         "phone": "0161 441 4458",
         "website": "https://purephysiotherapy.co.uk/clinics/manchester-physiotherapy-clinic-in-sale",
@@ -845,7 +847,7 @@ let clinicsData = [
         "address": "75 Lever Street, Manchester City Centre",
         "rating": 4.6,
         "reviews": 150,
-        "image": "images/clinic10.svg",
+        "image": CloudAssets.getClinicPlaceholder(10),
         "premium": true,
         "phone": "0161 828 0000",
         "website": "https://www.physiopattern.com",
@@ -863,7 +865,7 @@ let clinicsData = [
         "address": "The Light, The Headrow, Leeds LS1 8TL",
         "rating": 4.5,
         "reviews": 95,
-        "image": "images/clinic1.svg",
+        "image": CloudAssets.getClinicPlaceholder(1),
         "premium": true,
         "phone": "0113 869 2050",
         "website": "https://onemedicalgroup.co.uk",
@@ -882,7 +884,7 @@ let clinicsData = [
         "address": "Jackson Avenue, Roundhay, Leeds LS8 1NT",
         "rating": 4.7,
         "reviews": 110,
-        "image": "images/clinic2.svg",
+        "image": CloudAssets.getClinicPlaceholder(2),
         "premium": true,
         "phone": "0113 269 3939",
         "website": "https://www.spirehealthcare.com/spire-leeds-hospital",
@@ -901,7 +903,7 @@ let clinicsData = [
         "address": "76a Street Lane, Roundhay, Leeds LS8 2AA",
         "rating": 4.4,
         "reviews": 120,
-        "image": "images/clinic3.svg",
+        "image": CloudAssets.getClinicPlaceholder(3),
         "premium": false,
         "phone": "0113 833 0422",
         "website": "https://www.regentstreetclinic.co.uk",
@@ -920,7 +922,7 @@ let clinicsData = [
         "address": "2 Legrams Terrace, Bradford Road, Leeds LS6 1BU",
         "rating": 4.3,
         "reviews": 90,
-        "image": "images/clinic4.svg",
+        "image": CloudAssets.getClinicPlaceholder(4),
         "premium": false,
         "phone": "0113 322 7249",
         "website": "https://doctortoday.co.uk",
@@ -958,7 +960,7 @@ let clinicsData = [
         "address": "69 Armley Ridge Road, Leeds LS12 3NP",
         "rating": 4.7,
         "reviews": 145,
-        "image": "images/clinic6.svg",
+        "image": CloudAssets.getClinicPlaceholder(6),
         "premium": false,
         "phone": "0113 279 6669",
         "website": "https://ivorydental.co.uk",
@@ -977,7 +979,7 @@ let clinicsData = [
         "address": "20 Park Square E, Leeds LS1 2NE",
         "rating": 4.8,
         "reviews": 130,
-        "image": "images/clinic7.svg",
+        "image": CloudAssets.getClinicPlaceholder(7),
         "premium": true,
         "phone": "0113 868 4324",
         "website": "https://thedentalarchitect.com",
@@ -996,7 +998,7 @@ let clinicsData = [
         "address": "15a Park Square East, Leeds LS1 2LF",
         "rating": 4.6,
         "reviews": 140,
-        "image": "images/clinic8.svg",
+        "image": CloudAssets.getClinicPlaceholder(8),
         "premium": false,
         "phone": "0113 234 5553",
         "website": "https://whitehallphysio.com",
@@ -1015,7 +1017,7 @@ let clinicsData = [
         "address": "Wellington Place, Leeds LS1 4DL",
         "rating": 4.9,
         "reviews": 200,
-        "image": "images/clinic9.svg",
+        "image": CloudAssets.getClinicPlaceholder(9),
         "premium": true,
         "phone": "0113 456 8790",
         "website": "https://puresportsmed.com",
@@ -1033,7 +1035,7 @@ let clinicsData = [
         "address": "28 North Lane, Leeds LS6 3HE",
         "rating": 4.4,
         "reviews": 80,
-        "image": "images/clinic10.svg",
+        "image": CloudAssets.getClinicPlaceholder(10),
         "premium": false,
         "phone": "0113 426 5432",
         "website": "https://yorkshirephysioclinic.co.uk",
@@ -1051,7 +1053,7 @@ let clinicsData = [
         "address": "8 Park Square East, Leeds LS1 2LH",
         "rating": 4.5,
         "reviews": 60,
-        "image": "images/clinic1.svg",
+        "image": CloudAssets.getClinicPlaceholder(1),
         "premium": false,
         "phone": "0113 888 1122",
         "website": "https://leedsprivatehealth.co.uk",
@@ -1069,7 +1071,7 @@ let clinicsData = [
         "address": "2 Clarendon Road, Leeds LS2 9NN",
         "rating": 4.6,
         "reviews": 115,
-        "image": "images/clinic6.svg",
+        "image": CloudAssets.getClinicPlaceholder(6),
         "premium": true,
         "phone": "0113 246 4877",
         "website": "https://clarendondentalspa.co.uk",
@@ -1087,7 +1089,7 @@ let clinicsData = [
         "address": "The Basement, 15 Park Row, Leeds LS1 5HD",
         "rating": 4.3,
         "reviews": 85,
-        "image": "images/clinic8.svg",
+        "image": CloudAssets.getClinicPlaceholder(8),
         "premium": false,
         "phone": "0113 320 7000",
         "website": "https://backtofitnessphysio.co.uk",
@@ -1105,7 +1107,7 @@ let clinicsData = [
         "address": "24 Buckingham Terrace, Glasgow G12 8ED",
         "rating": 4.8,
         "reviews": 95,
-        "image": "images/clinic1.svg",
+        "image": CloudAssets.getClinicPlaceholder(1),
         "premium": true,
         "phone": "0141 737 3270",
         "website": "https://www.gpmatters.com",
@@ -1124,7 +1126,7 @@ let clinicsData = [
         "address": "10 Newton Terrace, Glasgow G3 7PJ",
         "rating": 4.5,
         "reviews": 78,
-        "image": "images/clinic2.svg",
+        "image": CloudAssets.getClinicPlaceholder(2),
         "premium": true,
         "phone": "0141 222 5778",
         "website": "https://www.yourgp.com",
@@ -1143,7 +1145,7 @@ let clinicsData = [
         "address": "30 Bellgrove Street, Glasgow G31 1HU",
         "rating": 4.6,
         "reviews": 64,
-        "image": "images/clinic3.svg",
+        "image": CloudAssets.getClinicPlaceholder(3),
         "premium": false,
         "phone": "0141 551 5333",
         "website": "https://www.drnairpractice.co.uk",
@@ -1179,7 +1181,7 @@ let clinicsData = [
         "address": "30 St. Vincent Place, Glasgow G1 2HL",
         "rating": 4.7,
         "reviews": 180,
-        "image": "images/clinic6.svg",
+        "image": CloudAssets.getClinicPlaceholder(6),
         "premium": false,
         "phone": "0141 222 6580",
         "website": "https://www.dentalloungeglasgow.co.uk",
@@ -1197,7 +1199,7 @@ let clinicsData = [
         "address": "152 Bath Street, Glasgow G2 4TB",
         "rating": 4.6,
         "reviews": 140,
-        "image": "images/clinic7.svg",
+        "image": CloudAssets.getClinicPlaceholder(7),
         "premium": true,
         "phone": "0141 332 8235",
         "website": "https://www.blythswooddental.com",
@@ -1215,7 +1217,7 @@ let clinicsData = [
         "address": "22 Newton Place, Glasgow G3 7PY",
         "rating": 4.8,
         "reviews": 150,
-        "image": "images/clinic8.svg",
+        "image": CloudAssets.getClinicPlaceholder(8),
         "premium": true,
         "phone": "0141 433 7000",
         "website": "https://glasgowphysiocentre.co.uk",
@@ -1233,7 +1235,7 @@ let clinicsData = [
         "address": "80 Berkeley Street, Glasgow G3 7DS",
         "rating": 4.5,
         "reviews": 100,
-        "image": "images/clinic9.svg",
+        "image": CloudAssets.getClinicPlaceholder(9),
         "premium": false,
         "phone": "0141 248 4099",
         "website": "https://back2fitnessphysio.com",
@@ -1251,7 +1253,7 @@ let clinicsData = [
         "address": "1 Dowanhill Street, Glasgow G11 5QR",
         "rating": 4.6,
         "reviews": 88,
-        "image": "images/clinic10.svg",
+        "image": CloudAssets.getClinicPlaceholder(10),
         "premium": true,
         "phone": "0141 339 0040",
         "website": "https://www.phoenixphysio.co.uk",
@@ -1269,7 +1271,7 @@ let clinicsData = [
         "address": "200 St Vincent Street, Glasgow G2 5RQ",
         "rating": 4.5,
         "reviews": 72,
-        "image": "images/clinic1.svg",
+        "image": CloudAssets.getClinicPlaceholder(1),
         "premium": false,
         "phone": "0141 567 8899",
         "website": "https://themedicalsuite.co.uk",
@@ -1287,7 +1289,7 @@ let clinicsData = [
         "address": "170 Buchanan Street, Glasgow G1 2LW",
         "rating": 4.2,
         "reviews": 200,
-        "image": "images/clinic6.svg",
+        "image": CloudAssets.getClinicPlaceholder(6),
         "premium": false,
         "phone": "0141 333 5555",
         "website": "https://www.mydentist.co.uk",
@@ -1305,7 +1307,7 @@ let clinicsData = [
         "address": "33 Dornoch Street, Glasgow G40 2QT",
         "rating": 4.9,
         "reviews": 160,
-        "image": "images/clinic8.svg",
+        "image": CloudAssets.getClinicPlaceholder(8),
         "premium": true,
         "phone": "0141 370 0400",
         "website": "https://www.physioeffect.co.uk",
@@ -1323,7 +1325,7 @@ let clinicsData = [
         "address": "5 Newton Terrace, Glasgow G3 7PJ",
         "rating": 4.7,
         "reviews": 300,
-        "image": "images/clinic7.svg",
+        "image": CloudAssets.getClinicPlaceholder(7),
         "premium": true,
         "phone": "0141 564 1900",
         "website": "https://www.berkeleyclinic.com",
@@ -1341,7 +1343,7 @@ let clinicsData = [
         "address": "23a Highfield Road, Edgbaston, Birmingham B15 3DP",
         "rating": 4.9,
         "reviews": 120,
-        "image": "images/clinic1.svg",
+        "image": CloudAssets.getClinicPlaceholder(1),
         "premium": true,
         "phone": "0121 769 0999",
         "website": "https://midlandhealth.co.uk",
@@ -1360,7 +1362,7 @@ let clinicsData = [
         "address": "28 George Road, Edgbaston, Birmingham B15 1PJ",
         "rating": 4.7,
         "reviews": 90,
-        "image": "images/clinic2.svg",
+        "image": CloudAssets.getClinicPlaceholder(2),
         "premium": false,
         "phone": "0121 454 7779",
         "website": "https://regentstreetclinic.co.uk",
@@ -1378,7 +1380,7 @@ let clinicsData = [
         "address": "Lyndon House, 62 Hagley Road, Edgbaston B16 8PE",
         "rating": 4.5,
         "reviews": 65,
-        "image": "images/clinic3.svg",
+        "image": CloudAssets.getClinicPlaceholder(3),
         "premium": false,
         "phone": "0121 517 0202",
         "website": "https://privategpclinic.co.uk",
@@ -1396,7 +1398,7 @@ let clinicsData = [
         "address": "30a Great Charles Street, Birmingham B3 3JY",
         "rating": 4.8,
         "reviews": 110,
-        "image": "images/clinic5.svg",
+        "image": CloudAssets.getClinicPlaceholder(5),
         "premium": true,
         "phone": "0121 633 1919",
         "website": "https://www.changingfacesdentures.co.uk",
@@ -1433,7 +1435,7 @@ let clinicsData = [
         "address": "17 St Paul's Square, Birmingham B3 1BU",
         "rating": 4.6,
         "reviews": 95,
-        "image": "images/clinic7.svg",
+        "image": CloudAssets.getClinicPlaceholder(7),
         "premium": false,
         "phone": "0121 233 0867",
         "website": "https://www.stpaulsdental.co.uk",
@@ -1451,7 +1453,7 @@ let clinicsData = [
         "address": "Waterloo Road, Edgbaston, Birmingham B15 3JU",
         "rating": 4.9,
         "reviews": 130,
-        "image": "images/clinic8.svg",
+        "image": CloudAssets.getClinicPlaceholder(8),
         "premium": true,
         "phone": "0121 685 2300",
         "website": "https://www.physioart.co.uk",
@@ -1469,7 +1471,7 @@ let clinicsData = [
         "address": "38 Harborne Road, Birmingham B15 3HE",
         "rating": 4.7,
         "reviews": 85,
-        "image": "images/clinic9.svg",
+        "image": CloudAssets.getClinicPlaceholder(9),
         "premium": false,
         "phone": "0121 455 0555",
         "website": "https://birminghamphysio.co.uk",
@@ -1487,7 +1489,7 @@ let clinicsData = [
         "address": "Regus Building, 11 Brindleyplace, Birmingham B1 2LP",
         "rating": 4.8,
         "reviews": 110,
-        "image": "images/clinic10.svg",
+        "image": CloudAssets.getClinicPlaceholder(10),
         "premium": true,
         "phone": "0121 285 6069",
         "website": "https://www.centralcityphysio.co.uk",
@@ -1505,7 +1507,7 @@ let clinicsData = [
         "address": "Little Aston Hall Dr, Sutton Coldfield B74 3UP",
         "rating": 4.3,
         "reviews": 210,
-        "image": "images/clinic1.svg",
+        "image": CloudAssets.getClinicPlaceholder(1),
         "premium": true,
         "phone": "0121 580 7151",
         "website": "https://www.spirehealthcare.com",
@@ -1523,7 +1525,7 @@ let clinicsData = [
         "address": "61 Charlotte St, Birmingham B3 1PX",
         "rating": 4.6,
         "reviews": 130,
-        "image": "images/clinic6.svg",
+        "image": CloudAssets.getClinicPlaceholder(6),
         "premium": true,
         "phone": "0121 573 0088",
         "website": "https://www.theclinicroom.co",
@@ -1541,7 +1543,7 @@ let clinicsData = [
         "address": "Unit 7, Chad Square, Birmingham B15 3TQ",
         "rating": 4.5,
         "reviews": 105,
-        "image": "images/clinic8.svg",
+        "image": CloudAssets.getClinicPlaceholder(8),
         "premium": false,
         "phone": "0121 456 7890",
         "website": "https://www.back2fitnessphysio.co.uk",
@@ -1559,7 +1561,7 @@ let clinicsData = [
         "address": "17 Harley Street, London W1G 9QH",
         "rating": 4.9,
         "reviews": 200,
-        "image": "images/clinic1.svg",
+        "image": CloudAssets.getClinicPlaceholder(1),
         "premium": true,
         "phone": "020 7486 1199",
         "website": "https://harleystreethealthcentre.com",
@@ -1577,7 +1579,7 @@ let clinicsData = [
         "address": "168 Oxford Street, London W1D 1NH",
         "rating": 4.8,
         "reviews": 320,
-        "image": "images/clinic2.svg",
+        "image": CloudAssets.getClinicPlaceholder(2),
         "premium": true,
         "phone": "020 4551 9522",
         "website": "https://londondoctorsclinic.co.uk",
@@ -1596,7 +1598,7 @@ let clinicsData = [
         "address": "1 St Thomas St, London SE1 9RY",
         "rating": 4.7,
         "reviews": 135,
-        "image": "images/clinic3.svg",
+        "image": CloudAssets.getClinicPlaceholder(3),
         "premium": false,
         "phone": "020 7940 5000",
         "website": "https://gplondon.uk",
@@ -1632,7 +1634,7 @@ let clinicsData = [
         "address": "36 Paddington Street, London W1U 4HE",
         "rating": 4.8,
         "reviews": 110,
-        "image": "images/clinic6.svg",
+        "image": CloudAssets.getClinicPlaceholder(6),
         "premium": true,
         "phone": "020 7935 9366",
         "website": "https://marylebonesmileclinic.co.uk",
@@ -1650,7 +1652,7 @@ let clinicsData = [
         "address": "43 Wimpole Street, London W1G 8DQ",
         "rating": 4.7,
         "reviews": 150,
-        "image": "images/clinic7.svg",
+        "image": CloudAssets.getClinicPlaceholder(7),
         "premium": false,
         "phone": "020 7935 3832",
         "website": "https://www.wimpolestreetdentalclinic.co.uk",
@@ -1668,7 +1670,7 @@ let clinicsData = [
         "address": "321 Fulham Rd, London SW10 9QL",
         "rating": 4.9,
         "reviews": 230,
-        "image": "images/clinic8.svg",
+        "image": CloudAssets.getClinicPlaceholder(8),
         "premium": true,
         "phone": "020 7482 3875",
         "website": "https://complete-physio.co.uk",
@@ -1686,7 +1688,7 @@ let clinicsData = [
         "address": "16-17 North Audley St, London W1K 6WL",
         "rating": 4.8,
         "reviews": 190,
-        "image": "images/clinic9.svg",
+        "image": CloudAssets.getClinicPlaceholder(9),
         "premium": true,
         "phone": "020 7487 3222",
         "website": "https://www.ten.co.uk",
@@ -1704,7 +1706,7 @@ let clinicsData = [
         "address": "1 Snow Hill, Farringdon, London EC1A 2DH",
         "rating": 4.6,
         "reviews": 120,
-        "image": "images/clinic10.svg",
+        "image": CloudAssets.getClinicPlaceholder(10),
         "premium": false,
         "phone": "020 7112 5006",
         "website": "https://www.londonphysiotherapy.co.uk",
@@ -1722,7 +1724,7 @@ let clinicsData = [
         "address": "One Poultry, Bank, London EC2R 8EJ",
         "rating": 4.7,
         "reviews": 140,
-        "image": "images/clinic1.svg",
+        "image": CloudAssets.getClinicPlaceholder(1),
         "premium": true,
         "phone": "020 8050 0505",
         "website": "https://www.one5health.co.uk",
@@ -1740,7 +1742,7 @@ let clinicsData = [
         "address": "Home visits across Greater London",
         "rating": 4.6,
         "reviews": 175,
-        "image": "images/clinic2.svg",
+        "image": CloudAssets.getClinicPlaceholder(2),
         "premium": false,
         "phone": "020 3370 0999",
         "website": "https://gpdq.co.uk",
@@ -1758,7 +1760,7 @@ let clinicsData = [
         "address": "28 High St, Wimbledon Village, London SW19 5BY",
         "rating": 4.9,
         "reviews": 200,
-        "image": "images/clinic5.svg",
+        "image": CloudAssets.getClinicPlaceholder(5),
         "premium": true,
         "phone": "020 8946 8999",
         "website": "https://www.smilesbyhillside.co.uk",
@@ -1776,7 +1778,7 @@ let clinicsData = [
         "address": "The Cut, Waterloo, London SE1 8LN",
         "rating": 4.7,
         "reviews": 90,
-        "image": "images/clinic9.svg",
+        "image": CloudAssets.getClinicPlaceholder(9),
         "premium": false,
         "phone": "020 7099 7730",
         "website": "https://www.bodyset.co.uk",
@@ -1848,7 +1850,7 @@ let clinicsData = [
         "address": "12 Deansgate, M3 4JL",
         "rating": 4.5,
         "reviews": 224,
-        "image": "images/clinic1.svg",
+        "image": CloudAssets.getClinicPlaceholder(1),
         "premium": true,
         "phone": "0161 000 1234",
         "website": "https://citygp.example.com",
@@ -1886,7 +1888,7 @@ let clinicsData = [
         "address": "5 Market Street, BL1 1AA",
         "rating": 4.5,
         "reviews": 162,
-        "image": "images/clinic1.svg",
+        "image": CloudAssets.getClinicPlaceholder(1),
         "premium": true,
         "phone": "01204 000 987",
         "website": "https://boltonphysio.example.com",
@@ -1905,7 +1907,7 @@ let clinicsData = [
         "address": "8 Bold Street, L1 4DS",
         "rating": 4.5,
         "reviews": 158,
-        "image": "images/clinic1.svg",
+        "image": CloudAssets.getClinicPlaceholder(1),
         "premium": true,
         "phone": "0151 000 246",
         "website": "https://aestheticglow.example.com",
@@ -1924,7 +1926,7 @@ let clinicsData = [
         "address": "123 Oxford Road, Manchester City Centre, M1 7ED",
         "rating": 4.5,
         "reviews": 152,
-        "image": "images/clinic1.svg",
+        "image": CloudAssets.getClinicPlaceholder(1),
         "premium": true,
         "phone": "07123456789",
         "website": "https://manchestermedical.example.com",
@@ -1942,7 +1944,7 @@ let clinicsData = [
         "address": "45 High Street, Bolton Town Centre, BL1 2AB",
         "rating": 4.5,
         "reviews": 153,
-        "image": "images/clinic1.svg",
+        "image": CloudAssets.getClinicPlaceholder(1),
         "premium": true,
         "phone": "07987654321",
         "website": "https://boltondental.example.com",
@@ -1960,7 +1962,7 @@ let clinicsData = [
         "address": "Market Street, Manchester M1 1WA",
         "rating": 4.6,
         "reviews": 189,
-        "image": "images/clinic1.svg",
+        "image": CloudAssets.getClinicPlaceholder(1),
         "premium": true,
         "phone": "0161 834 9876",
         "website": "https://visionexpress.com",
@@ -1980,7 +1982,7 @@ let clinicsData = [
         "address": "Church Street, Liverpool L1 3AY",
         "rating": 4.4,
         "reviews": 267,
-        "image": "images/clinic2.svg",
+        "image": CloudAssets.getClinicPlaceholder(2),
         "premium": false,
         "phone": "0151 709 5432",
         "website": "https://specsavers.co.uk",
@@ -2113,79 +2115,38 @@ function handleURLParameters() {
     }
 }
 
-// Load clinics from API
-// Enhanced clinic loading with retry mechanism and caching
+// Load clinics using cloud service
 async function loadClinicsFromAPI(retryCount = 0) {
-    const maxRetries = 3;
-    const baseDelay = 1000; // 1 second
-    
     // Show loading status
     showAPIStatus('Loading clinics...', 'info');
     
     try {
-        // Only log in development mode
-        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-            console.log(`Attempting to connect to API at: ${window.apiService.baseURL} (attempt ${retryCount + 1}/${maxRetries + 1})`);
-        }
+        // Use the new clinic service
+        const clinics = await clinicService.getClinics();
         
-        // Check for cached data first (valid for 5 minutes)
-        const cachedData = getCachedClinics();
-        if (cachedData && retryCount === 0) {
-            clinicsData = cachedData;
-            showAPIStatus('Cached data loaded', 'success');
-            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-                console.log('✅ Using cached clinic data');
-            }
-            return;
-        }
-        
-        // Request all clinics with graceful degradation
-        const response = await window.apiService.getClinics({ limit: 200 });
-        
-        // Handle different response formats
-        const clinics = response.data || response;
         if (clinics && Array.isArray(clinics) && clinics.length > 0) {
             clinicsData = clinics;
             
-            // Cache the successful response
-            setCachedClinics(clinics);
-            
             // Only log success in development mode
             if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-                console.log('✅ Loaded', clinics.length, 'clinics from API');
+                console.log('✅ Loaded', clinics.length, 'clinics from cloud service');
             }
             
-            // Show a subtle success indicator for users
+            // Show success indicator
             showAPIStatus('Live data loaded', 'success');
         } else {
-            // API returned empty data, use fallback
+            // Service returned empty data, use fallback
             loadFallbackData();
             showAPIStatus('Using sample data', 'info');
         }
     } catch (error) {
-        // Implement retry logic with exponential backoff
-        if (retryCount < maxRetries && shouldRetry(error)) {
-            const delay = baseDelay * Math.pow(2, retryCount); // Exponential backoff
-            
-            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-                console.warn(`⚠️ API request failed (attempt ${retryCount + 1}), retrying in ${delay}ms:`, error.message);
-            }
-            
-            showAPIStatus(`Connection issue - retrying... (${retryCount + 1}/${maxRetries})`, 'warning');
-            
-            setTimeout(() => {
-                loadClinicsFromAPI(retryCount + 1);
-            }, delay);
-            return;
-        }
-        
-        // All retries exhausted or non-retryable error
+        // Handle errors gracefully
         handleAPIError(error);
         loadFallbackData();
         
         // Only log errors in development mode
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-            console.warn('❌ Failed to load clinics from API after retries, using fallback data:', error.message);
+            console.warn('❌ Failed to load clinics from cloud service, using fallback data:', error.message);
         }
     }
 }
@@ -2931,7 +2892,7 @@ function createClinicCard(clinic) {
                  alt="${clinic.name} - ${formatType(clinic.type)} clinic" 
                  class="clinic-image" 
                  loading="lazy"
-                 onerror="this.src='images/clinic1.svg'">
+                 onerror="this.src=CloudAssets.getClinicPlaceholder(1)">
             <div class="image-overlay">
                 <div class="type-badge">
                     <i class="${typeIcon}"></i>
@@ -4043,7 +4004,7 @@ function createEnhancedClinicCard(clinic) {
                  alt="${clinic.name} - ${formatType(clinic.type)} clinic" 
                  class="clinic-image" 
                  loading="lazy"
-                 onerror="this.src='images/clinic1.svg'">
+                 onerror="this.src=CloudAssets.getClinicPlaceholder(1)">
             <div class="image-overlay">
                 <div class="type-badge">
                     <i class="${typeIcon}"></i>

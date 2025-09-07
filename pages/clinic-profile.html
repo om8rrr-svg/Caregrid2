@@ -466,7 +466,7 @@
     <nav class="navbar">
         <div class="nav-container">
             <div class="nav-logo">
-                <img src="images/logo.svg" alt="CareGrid - Healthcare Directory Platform Logo" class="logo">
+                <img src=CloudAssets.getLogo() alt="CareGrid - Healthcare Directory Platform Logo" class="logo">
                 <span class="logo-text">CareGrid</span>
             </div>
             <ul class="nav-menu" id="navMenu">
@@ -492,7 +492,7 @@
     <!-- Clinic Hero Image -->
     <section class="clinic-hero-image">
         <div class="hero-image-container">
-            <img src="images/pall_mall_medical.jpg" alt="Clinic Interior" id="clinicHeroImage" class="hero-image">
+            <img src=CloudAssets.getImageUrl("pall_mall_medical.jpg") alt="Clinic Interior" id="clinicHeroImage" class="hero-image">
             <div class="hero-overlay">
                 <div class="hero-gradient"></div>
             </div>
@@ -504,7 +504,7 @@
         <div class="container">
             <div class="profile-content">
                 <div class="clinic-image-large">
-                    <img src="images/clinic1.svg" alt="Clinic" id="clinicImage">
+                    <img src=CloudAssets.getClinicPlaceholder(1) alt="Clinic" id="clinicImage">
                     <div class="image-overlay">
                         <div class="type-badge">
                             <i class="fas fa-stethoscope"></i>
@@ -857,7 +857,7 @@
             // Update hero image (use clinic image or fallback to default)
             const heroImage = document.getElementById('clinicHeroImage');
             if (heroImage) {
-                heroImage.src = clinic.image || clinic.logoUrl || 'images/pall_mall_medical.jpg';
+                heroImage.src = clinic.image || clinic.logoUrl || CloudAssets.getImageUrl("pall_mall_medical.jpg");
                 heroImage.alt = `${clinic.name} - Interior View`;
             }
             
@@ -1806,7 +1806,7 @@
     <!-- Lazy Loading Script -->
     <script src="js/lazy-loader.js"></script>
     <!-- Load clinic data from a dedicated file for profile page -->
-    <script src="js/clinic-data.js"></script>
+    <script type="module" src="js/clinic-data.js"></script>
     
     <script type="module" src="js/header.js"></script>
     <script>

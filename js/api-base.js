@@ -1,10 +1,20 @@
 // /js/api-base.js
-// Centralized API base configuration - LOCAL DEVELOPMENT MODE
-export const API_BASE =
+// Centralized API base configuration - CLOUD-FIRST MODE
+
+// Import cloud configuration
+import { CLOUD_CONFIG, CloudAssets } from './cloud-config.js';
+
+// Determine API base URL based on environment
+export const API_BASE = 
   (typeof window !== 'undefined' && window.__API_BASE__) ||
   (typeof process !== 'undefined' && (process.env?.NEXT_PUBLIC_API_BASE || process.env?.API_BASE)) ||
-  // Use local backend for development
-  'http://localhost:3000/api';
+  // Cloud-first: Use Vercel serverless functions in production, local for development
+  (typeof window !== 'undefined' && window.location.hostname !== 'localhost' 
+    ? window.location.origin + '/api'
+    : 'http://localhost:3000/api');
+
+// Export cloud assets helper for easy access
+export { CloudAssets };
 
 export function buildUrl(path, params = {}) {
   const base = API_BASE.endsWith('/') ? API_BASE : API_BASE + '/';

@@ -1,0 +1,72 @@
+<svg width="300" height="200" viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="buildingGrad5" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#F3E5F5;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#E1BEE7;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="roofGrad5" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#9C27B0;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#7B1FA2;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="300" height="200" fill="#F8F9FA"/>
+  
+  <!-- Ground -->
+  <rect x="0" y="140" width="300" height="60" fill="#E8F5E8"/>
+  
+  <!-- Modern Physio Building -->
+  <rect x="40" y="60" width="220" height="80" fill="url(#buildingGrad5)" stroke="#9C27B0" stroke-width="2" rx="5"/>
+  
+  <!-- Curved Roof Element -->
+  <path d="M 40 60 Q 150 30 260 60 L 260 65 Q 150 35 40 65 Z" fill="url(#roofGrad5)" stroke="#7B1FA2" stroke-width="1"/>
+  
+  <!-- Large Glass Front -->
+  <rect x="60" y="80" width="180" height="50" fill="#E8EAF6" stroke="#9C27B0" stroke-width="2"/>
+  
+  <!-- Glass Panels -->
+  <line x1="120" y1="80" x2="120" y2="130" stroke="#9C27B0" stroke-width="1"/>
+  <line x1="180" y1="80" x2="180" y2="130" stroke="#9C27B0" stroke-width="1"/>
+  <line x1="60" y1="105" x2="240" y2="105" stroke="#9C27B0" stroke-width="1"/>
+  
+  <!-- Entrance Door -->
+  <rect x="140" y="110" width="20" height="20" fill="#FFFFFF" stroke="#9C27B0" stroke-width="2"/>
+  <circle cx="155" cy="120" r="1" fill="#9C27B0"/>
+  
+  <!-- Physio Sign -->
+  <rect x="80" y="65" width="140" height="12" fill="#FFFFFF" stroke="#9C27B0" stroke-width="1" rx="6"/>
+  <text x="150" y="73" text-anchor="middle" font-family="Arial, sans-serif" font-size="8" fill="#9C27B0" font-weight="bold">PHYSIOTHERAPY CENTRE</text>
+  
+  <!-- Exercise Icon -->
+  <circle cx="65" cy="71" r="6" fill="#FFFFFF" stroke="#9C27B0" stroke-width="2"/>
+  <path d="M 62 71 L 65 68 L 68 71 L 65 74 Z" fill="#9C27B0"/>
+  
+  <!-- Accessibility Ramp -->
+  <polygon points="40,140 80,130 80,140" fill="#BDBDBD" stroke="#757575" stroke-width="1"/>
+  
+  <!-- Wheelchair Symbol -->
+  <circle cx="70" cy="135" r="3" fill="none" stroke="#2196F3" stroke-width="1"/>
+  <circle cx="70" cy="132" r="1" fill="#2196F3"/>
+  <path d="M 68 132 L 72 132 L 72 138" stroke="#2196F3" stroke-width="1" fill="none"/>
+  
+  <!-- Garden Area -->
+  <ellipse cx="280" cy="160" rx="15" ry="20" fill="#4CAF50"/>
+  <circle cx="275" cy="150" r="5" fill="#66BB6A"/>
+  <circle cx="285" cy="155" r="4" fill="#66BB6A"/>
+  
+  <!-- Pathway -->
+  <rect x="80" y="135" width="60" height="8" fill="#90A4AE"/>
+  <line x1="85" y1="139" x2="135" y2="139" stroke="#FFFFFF" stroke-width="1" stroke-dasharray="3,3"/>
+  
+  <!-- Exercise Equipment Silhouettes in Windows -->
+  <ellipse cx="100" cy="95" rx="8" ry="4" fill="#9C27B0" opacity="0.3"/>
+  <rect x="96" y="92" width="8" height="2" fill="#9C27B0" opacity="0.3"/>
+  
+  <circle cx="200" cy="95" r="6" fill="#9C27B0" opacity="0.3"/>
+  <rect x="194" y="98" width="12" height="2" fill="#9C27B0" opacity="0.3"/>
+  
+  <!-- Sky -->
+  <ellipse cx="100" cy="20" rx="20" ry="8" fill="#FFFFFF" opacity="0.8"/>
+  <ellipse cx="250" cy="25" rx="15" ry="6" fill="#FFFFFF" opacity="0.8"/>
+</svg>

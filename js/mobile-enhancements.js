@@ -1,3 +1,5 @@
+import { CloudAssets } from './cloud-config.js';
+
 /**
  * Mobile Enhancements JavaScript
  * Handles mobile-specific interactions, gestures, and optimizations
@@ -114,7 +116,7 @@ class MobileEnhancements {
         navHeader.className = 'mobile-nav-header';
         navHeader.innerHTML = `
             <div class="mobile-nav-logo">
-                <img src="images/logo.svg" alt="CareGrid" height="32">
+                <img src=CloudAssets.getLogo() alt="CareGrid" height="32">
             </div>
             <button class="mobile-nav-close" aria-label="Close mobile menu">
                 <i class="fas fa-times"></i>

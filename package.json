@@ -23,9 +23,11 @@
     "backup:restore": "node scripts/restore-data.js"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.39.0",
+    "@supabase/supabase-js": "^2.57.2",
     "@vercel/speed-insights": "^1.2.0",
-    "dotenv": "^16.3.1",
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.6.1",
+    "jsonwebtoken": "^9.0.2",
     "node-cache": "^5.1.2",
     "node-fetch": "^2.7.0"
   },

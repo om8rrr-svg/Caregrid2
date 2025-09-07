@@ -1,0 +1,116 @@
+{
+  "timestamp": "2025-09-07T09:11:55.129Z",
+  "baseUrl": "http://localhost:8000",
+  "summary": {
+    "passed": 10,
+    "failed": 11,
+    "successRate": 47.6
+  },
+  "tests": [
+    {
+      "name": "Static Asset: /index.html",
+      "status": "FAIL",
+      "details": "Status: 404"
+    },
+    {
+      "name": "Static Asset: /js/script.js",
+      "status": "FAIL",
+      "details": "Status: 404"
+    },
+    {
+      "name": "Static Asset: /js/clinic-service.js",
+      "status": "FAIL",
+      "details": "Status: 404"
+    },
+    {
+      "name": "Static Asset: /js/cloud-config.js",
+      "status": "FAIL",
+      "details": "Status: 404"
+    },
+    {
+      "name": "Static Asset: /css/styles.css",
+      "status": "FAIL",
+      "details": "Status: 404"
+    },
+    {
+      "name": "API: Get all clinics",
+      "status": "FAIL",
+      "details": "GET /api/clinics - Status: 404"
+    },
+    {
+      "name": "API: Get clinic by ID",
+      "status": "FAIL",
+      "details": "GET /api/clinics/1 - Status: 404"
+    },
+    {
+      "name": "API: Search clinics",
+      "status": "FAIL",
+      "details": "GET /api/clinics/search?q=medical - Status: 404"
+    },
+    {
+      "name": "API: Auth CORS preflight",
+      "status": "FAIL",
+      "details": "OPTIONS /api/auth - Status: 501"
+    },
+    {
+      "name": "API: Appointments CORS preflight",
+      "status": "FAIL",
+      "details": "OPTIONS /api/appointments - Status: 501"
+    },
+    {
+      "name": "API: Contact CORS preflight",
+      "status": "FAIL",
+      "details": "OPTIONS /api/contact - Status: 501"
+    },
+    {
+      "name": "Cloud Configuration",
+      "status": "PASS",
+      "details": "CloudAssets: true, ImageOptimization: true"
+    },
+    {
+      "name": "Image Optimization",
+      "status": "PASS",
+      "details": "CloudAssets integration configured"
+    },
+    {
+      "name": "Clinic Service Integration",
+      "status": "PASS",
+      "details": "API: true, Caching: true, Fallback: true"
+    },
+    {
+      "name": "Search Integration",
+      "status": "PASS",
+      "details": "Updated to use clinic service"
+    },
+    {
+      "name": "Booking Integration",
+      "status": "PASS",
+      "details": "Updated to use clinic service"
+    },
+    {
+      "name": "Page Load Performance",
+      "status": "PASS",
+      "details": "Load time: 1ms"
+    },
+    {
+      "name": "API Response Performance",
+      "status": "PASS",
+      "details": "Response time: 0ms"
+    },
+    {
+      "name": "Asset Caching",
+      "status": "PASS",
+      "details": "Cache headers configured in vercel.json"
+    },
+    {
+      "name": "Security Headers",
+      "status": "PASS",
+      "details": "Security headers configured in vercel.json"
+    },
+    {
+      "name": "CORS Configuration",
+      "status": "PASS",
+      "details": "CORS headers configured in all API endpoints"
+    }
+  ]
+}

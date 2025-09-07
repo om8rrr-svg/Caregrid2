@@ -1,6 +1,10 @@
 -- CareGrid Supabase Database Schema
 -- Clean version for Supabase SQL Editor
 
+-- Enable required extensions
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+CREATE EXTENSION IF NOT EXISTS btree_gin;
+
 -- Create clinics table
 CREATE TABLE IF NOT EXISTS clinics (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -23,15 +27,19 @@ CREATE TABLE IF NOT EXISTS clinics (
 -- Create performance indexes
 CREATE INDEX IF NOT EXISTS idx_clinics_type ON clinics(type);
 CREATE INDEX IF NOT EXISTS idx_clinics_location_city ON clinics USING GIN ((location->>'city'));
-CREATE INDEX IF NOT EXISTS idx_clinics_services ON clinics USING GIN (services);
+CREATE INDEX IF NOT EXISTS idx_clinics_services ON clinics USING GIN (services array_ops);
 CREATE INDEX IF NOT EXISTS idx_clinics_rating ON clinics(rating DESC);
 CREATE INDEX IF NOT EXISTS idx_clinics_verified ON clinics(verified) WHERE verified = true;
 CREATE INDEX IF NOT EXISTS idx_clinics_created_at ON clinics(created_at DESC);
 
--- Full-text search index
+-- Full-text search index using tsvector
 CREATE INDEX IF NOT EXISTS idx_clinics_search ON clinics USING GIN (
     to_tsvector('english', name || ' ' || type || ' ' || COALESCE(location->>'city', ''))
 );
+
+-- Trigram index for LIKE/ILIKE searches on name
+CREATE INDEX IF NOT EXISTS idx_clinics_name_trgm ON clinics USING GIN (name gin_trgm_ops);
+CREATE INDEX IF NOT EXISTS idx_clinics_type_trgm ON clinics USING GIN (type gin_trgm_ops);
 
 -- Function for nearby clinics search
 CREATE OR REPLACE FUNCTION get_nearby_clinics(

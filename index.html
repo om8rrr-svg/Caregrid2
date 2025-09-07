@@ -540,7 +540,7 @@
             <div class="footer-content">
                 <div class="footer-section">
                     <div class="footer-logo">
-                        <img src="images/logo.svg" alt="CareGrid - Find Private Healthcare Near You" class="logo" loading="lazy">
+                        <img src=CloudAssets.getLogo() alt="CareGrid - Find Private Healthcare Near You" class="logo" loading="lazy">
                         <span class="logo-text">CareGrid</span>
                     </div>
                     <p>Connecting patients with trusted private healthcare providers across the UK.</p>
@@ -590,7 +590,7 @@
 
     <!-- Configuration must load first -->
     <script src="js/config.js?v=2025082510"></script>
-    <script src="js/error-handler.js"></script>
+    <script type="module" src="js/error-handler.js"></script>
     <script src="js/accessibility-helper.js"></script>
     <script src="js/onboarding-guide.js"></script>
     <script src="js/progress-indicators.js"></script>
@@ -660,8 +660,9 @@
     <!-- Vercel Speed Insights script removed for local development -->
     
     <!-- App scripts -->
+    <script src="js/advanced-image-optimizer.js"></script>
     <script src="js/config.js"></script>
-    <script src="js/mobile-enhancements.js"></script>
+    <script type="module" src="js/mobile-enhancements.js"></script>
     <script type="module" src="js/header.js?v=2025082512"></script>
     
     <!-- Performance Monitor -->

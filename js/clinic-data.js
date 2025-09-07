@@ -1,3 +1,5 @@
+import { CloudAssets } from './cloud-config.js';
+
 // Clinic data for CareGrid Healthcare Directory
 // This file contains clinic data that can be loaded independently
 // It provides fallback data when the API is not available
@@ -12,7 +14,7 @@ if (typeof window !== 'undefined' && !window.clinicsData) {
             "address": "61 King Street, Manchester M2 4PD",
             "rating": 4.8,
             "reviews": 342,
-            "image": "images/pall_mall_medical.jpg",
+            "image": CloudAssets.getImageUrl("pall_mall_medical.jpg"),
             "premium": true,
             "phone": "0161 832 2111",
             "website": "https://pallmallmedical.co.uk",
@@ -32,7 +34,7 @@ if (typeof window !== 'undefined' && !window.clinicsData) {
             "address": "90 Barlow Moor Rd, Manchester M20 2PN",
             "rating": 4.9,
             "reviews": 567,
-            "image": "images/didsbury_dental_practice.jpg",
+            "image": CloudAssets.getImageUrl("didsbury_dental_practice.jpg"),
             "premium": true,
             "phone": "0161 455 0005",
             "website": "https://didsburydental.co.uk",
@@ -131,7 +133,7 @@ if (typeof window !== 'undefined' && !window.clinicsData) {
             "address": "321 Fulham Rd, London SW10 9QL",
             "rating": 4.9,
             "reviews": 230,
-            "image": "images/complete_physio_chelsea.jpg",
+            "image": CloudAssets.getImageUrl("complete_physio_chelsea.jpg"),
             "premium": true,
             "phone": "020 7482 3875",
             "website": "https://completephysio.co.uk",

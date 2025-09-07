@@ -45,7 +45,7 @@
         <div class="nav-container">
             <div class="nav-logo">
                 <a href="index.html">
-                    <img src="images/logo.svg" alt="CareGrid Logo">
+                    <img src=CloudAssets.getLogo() alt="CareGrid Logo">
                     <span class="logo-text">CareGrid</span>
                 </a>
             </div>
@@ -55,7 +55,7 @@
                 <a href="index.html#categories" class="nav-link">Find Clinics</a>
                 <div class="user-menu">
                     <div class="user-avatar" onclick="toggleUserMenu()">
-                        <img src="images/default-avatar.svg" alt="User Avatar" id="userAvatar">
+                        <img src=CloudAssets.getImageUrl("default-avatar.svg") alt="User Avatar" id="userAvatar">
                         <span id="userName">Loading...</span>
                         <i class="fas fa-chevron-down"></i>
                     </div>
@@ -452,7 +452,7 @@
         <div class="footer-content">
             <div class="footer-section">
                 <div class="footer-logo">
-                    <img src="images/logo.svg" alt="CareGrid Logo">
+                    <img src=CloudAssets.getLogo() alt="CareGrid Logo">
                     <span>CareGrid</span>
                 </div>
                 <p>Connecting you with quality healthcare providers in your area.</p>

@@ -1,3 +1,5 @@
+import { CloudAssets } from './cloud-config.js';
+
 // Advanced Search & Filters JavaScript
 
 // Sample data for search suggestions (fallback)
@@ -65,14 +67,16 @@ class AdvancedSearch {
     
     async loadClinicsData() {
         try {
-            const clinics = await this.apiService.getClinics();
+            // Import clinic service dynamically to avoid circular dependencies
+            const { default: clinicService } = await import('./clinic-service.js');
+            const clinics = await clinicService.getClinics();
             searchData.clinics = clinics.map(clinic => ({
                 name: clinic.name,
                 type: clinic.type,
                 location: clinic.address || clinic.location || 'Location not specified'
             }));
         } catch (error) {
-            console.warn('Failed to load clinics data from API, using fallback data:', error);
+            console.warn('Failed to load clinics data from cloud service, using fallback data:', error);
             // Keep empty array as fallback
             searchData.clinics = [];
         }
@@ -772,10 +776,10 @@ class AdvancedSearch {
         return `
             <article class="clinic-card" data-clinic-id="${clinic.id}" role="listitem" aria-labelledby="clinic-name-${clinic.id}">
                 <div class="clinic-image">
-                    <img src="${clinic.image || 'images/clinic-placeholder.jpg'}" 
+                    <img src="${clinic.image || CloudAssets.getImageUrl("clinic-placeholder.jpg")}" 
                          alt="${clinic.name} clinic exterior" 
                          loading="lazy"
-                         onerror="this.src='images/clinic-placeholder.jpg'">
+                         onerror="this.src=CloudAssets.getImageUrl("clinic-placeholder.jpg")">
                 </div>
                 <div class="clinic-info">
                     <h3 class="clinic-name" id="clinic-name-${clinic.id}">${clinic.name}</h3>

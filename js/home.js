@@ -1,5 +1,7 @@
 // /js/home.js
 import { fetchJson } from './api-base.js';
+import { CloudAssets } from './cloud-config.js';
+
 
 function el(id) { return document.getElementById(id); }
 
@@ -152,7 +154,7 @@ async function loadFeaturedClinics() {
       description: 'Comprehensive private healthcare services in Manchester city centre',
       phone: '0161 234 5678',
       address: '123 Deansgate, Manchester',
-      image: 'images/clinic1.svg'
+      image: CloudAssets.getClinicPlaceholder(1)
     },
     { 
       name: 'Bolton Smile Dental', 
@@ -165,7 +167,7 @@ async function loadFeaturedClinics() {
       description: 'Modern dental practice offering cosmetic and general dentistry',
       phone: '01204 567 890',
       address: '45 Chorley New Road, Bolton',
-      image: 'images/clinic2.svg'
+      image: CloudAssets.getClinicPlaceholder(2)
     },
     { 
       name: 'Leeds Physio Hub', 
@@ -178,7 +180,7 @@ async function loadFeaturedClinics() {
       description: 'Sports injury rehabilitation and physiotherapy specialists',
       phone: '0113 456 7890',
       address: '78 The Headrow, Leeds',
-      image: 'images/clinic3.svg'
+      image: CloudAssets.getClinicPlaceholder(3)
     }
   ];
 

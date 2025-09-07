@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const https = require('https');
 const http = require('http');
-require('dotenv').config();
+require('dotenv').config({ path: '.env.local' });
 
 // Colors for console output
 const colors = {

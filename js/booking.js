@@ -76,28 +76,32 @@ async function loadClinicData() {
         }
         
         try {
-            // Try to get clinic from API first
-            const response = await window.apiService.getClinicById(clinicId);
-            const clinic = response.data;
+            // Import and use clinic service
+            const { default: clinicService } = await import('./clinic-service.js');
+            const clinic = await clinicService.getClinicById(parseInt(clinicId));
             
-            // Hide skeleton and populate clinic info
-            if (window.skeletonLoader && clinicInfoSection) {
-                window.skeletonLoader.hide(clinicInfoSection);
+            if (clinic) {
+                // Hide skeleton and populate clinic info
+                if (window.skeletonLoader && clinicInfoSection) {
+                    window.skeletonLoader.hide(clinicInfoSection);
+                }
+                
+                document.getElementById('clinicName').textContent = clinic.name;
+                document.getElementById('clinicAddress').textContent = clinic.address;
+                document.getElementById('clinicPhone').textContent = clinic.phone;
+                document.getElementById('clinicImage').src = clinic.image || '/images/clinic-placeholder.jpg';
+                document.getElementById('summaryClinic').textContent = clinic.name;
+                
+                // Update service options based on clinic type
+                updateServiceOptions(clinic.type);
+                
+                bookingData.clinic = clinic;
+            } else {
+                throw new Error('Clinic not found');
             }
             
-            document.getElementById('clinicName').textContent = clinic.name;
-            document.getElementById('clinicAddress').textContent = clinic.address;
-            document.getElementById('clinicPhone').textContent = clinic.phone;
-            document.getElementById('clinicImage').src = clinic.image || '/images/clinic-placeholder.jpg';
-            document.getElementById('summaryClinic').textContent = clinic.name;
-            
-            // Update service options based on clinic type
-            updateServiceOptions(clinic.type);
-            
-            bookingData.clinic = clinic;
-            
         } catch (error) {
-            console.error('Failed to load clinic data from API:', error);
+            console.error('Failed to load clinic data from cloud service:', error);
             
             // Hide skeleton on error
             if (window.skeletonLoader && clinicInfoSection) {

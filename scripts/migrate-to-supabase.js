@@ -1,7 +1,7 @@
 const { createClient } = require('@supabase/supabase-js');
 const fs = require('fs');
 const path = require('path');
-require('dotenv').config({ path: '.env.local' });
+require('dotenv').config({ path: '../.env.local' });
 
 // Initialize Supabase client with service key for admin operations
 const supabase = createClient(
@@ -165,6 +165,28 @@ async function createSchema() {
 
 // Load clinic data from various sources
 function loadClinicData() {
+    // First try to extract from script.js (contains the most complete dataset)
+    try {
+        const scriptPath = '../js/script.js';
+        if (fs.existsSync(scriptPath)) {
+            log('Attempting to extract data from script.js');
+            const scriptContent = fs.readFileSync(scriptPath, 'utf8');
+            
+            // Look for clinicsData array in the script
+            const clinicDataMatch = scriptContent.match(/let\s+clinicsData\s*=\s*(\[[\s\S]*?\]);/);
+            if (clinicDataMatch) {
+                log('Found clinicsData array in script.js');
+                const clinicDataStr = clinicDataMatch[1];
+                const clinics = eval(clinicDataStr); // Note: eval is dangerous, use with caution
+                log(`Extracted ${clinics.length} clinics from script.js`);
+                return clinics;
+            }
+        }
+    } catch (error) {
+        log(`Failed to extract from script.js: ${error.message}`, 'error');
+    }
+    
+    // Fallback to JSON files
     const possiblePaths = [
         './output/clinics_all.json',
         './data/clinics.json',
@@ -183,26 +205,7 @@ function loadClinicData() {
             log(`Failed to load ${filePath}: ${error.message}`, 'error');
         }
     }
-    
-    // Fallback: try to extract from script.js
-    try {
-        const scriptPath = './js/script.js';
-        if (fs.existsSync(scriptPath)) {
-            log('Attempting to extract data from script.js');
-            const scriptContent = fs.readFileSync(scriptPath, 'utf8');
-            
-            // Look for clinic data in the script
-            const clinicDataMatch = scriptContent.match(/const\s+clinics\s*=\s*(\[[\s\S]*?\]);/);
-            if (clinicDataMatch) {
-                // This is a simplified extraction - might need adjustment
-                const clinicDataStr = clinicDataMatch[1];
-                const clinics = eval(clinicDataStr); // Note: eval is dangerous, use with caution
-                return clinics;
-            }
-        }
-    } catch (error) {
-        log(`Failed to extract from script.js: ${error.message}`, 'error');
-    }
+
     
     throw new Error('No clinic data found. Please ensure clinic data is available in one of the expected locations.');
 }

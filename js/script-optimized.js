@@ -1,6 +1,8 @@
 // Optimized CareGrid Script - Performance Enhanced Version
 import { buildUrl } from './api-base.js';
 import { APIService } from './api-service.js';
+import { CloudAssets } from './cloud-config.js';
+
 
 // Initialize API service
 const apiService = new APIService();
@@ -22,7 +24,7 @@ let clinicsData = [
         "address": "61 King Street, Manchester M2 4PD",
         "rating": 4.8,
         "reviews": 342,
-        "image": "images/clinic1.svg",
+        "image": CloudAssets.getClinicPlaceholder(1),
         "premium": true,
         "phone": "0161 832 2111",
         "website": "https://pallmallmedical.co.uk",
@@ -37,7 +39,7 @@ let clinicsData = [
         "address": "90 Barlow Moor Rd, Manchester M20 2PN",
         "rating": 4.9,
         "reviews": 567,
-        "image": "images/clinic2.svg",
+        "image": CloudAssets.getClinicPlaceholder(2),
         "premium": true,
         "phone": "0161 455 0005",
         "website": "https://didsburydental.co.uk",
@@ -52,7 +54,7 @@ let clinicsData = [
         "address": "Liverpool City Centre, L1 8JQ",
         "rating": 4.7,
         "reviews": 423,
-        "image": "images/clinic3.svg",
+        "image": CloudAssets.getClinicPlaceholder(3),
         "premium": true,
         "phone": "0151 707 2345",
         "website": "https://cityrehab.co.uk",
