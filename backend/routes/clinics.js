@@ -108,10 +108,10 @@ router.get('/', optionalAuth, asyncHandler(async (req, res) => {
       whereConditions.push('c.is_premium = true');
     }
     
-    // Temporarily remove active filter to debug data issue
-    // whereConditions.push('(c.is_active = true OR c.is_active IS NULL)');
+    // Always filter for active clinics (or null for backwards compatibility)
+    whereConditions.push('(c.is_active = true OR c.is_active IS NULL)');
     
-    const whereClause = `WHERE ${whereConditions.join(' AND ')}`;
+    const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';
     
     // Get clinics
     const result = await query(
