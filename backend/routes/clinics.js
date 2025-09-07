@@ -113,6 +113,12 @@ router.get('/', optionalAuth, asyncHandler(async (req, res) => {
     
     const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';
     
+    // Debug logging
+    console.log('Debug - Query params:', queryParams);
+    console.log('Debug - Where clause:', whereClause);
+    console.log('Debug - Param count:', paramCount);
+    console.log('Debug - Limit/Offset:', limit, offset);
+    
     // Get clinics
     const result = await query(
       `SELECT 
@@ -125,6 +131,9 @@ router.get('/', optionalAuth, asyncHandler(async (req, res) => {
        LIMIT $${paramCount} OFFSET $${paramCount + 1}`,
       [...queryParams, limit, offset]
     );
+    
+    console.log('Debug - Query result rows:', result.rows.length);
+    console.log('Debug - First row:', result.rows[0]);
     
     // Get total count
     const countResult = await query(
