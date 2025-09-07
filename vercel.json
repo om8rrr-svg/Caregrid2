@@ -24,7 +24,7 @@
       "destination": "/api/robots"
     },
     {
-      "source": "/((?!api/|health|pages/).*)",
+      "source": "/((?!api/|health|pages/|css/|js/|images/|assets/).*)",
       "destination": "/index.html"
     }
   ],
