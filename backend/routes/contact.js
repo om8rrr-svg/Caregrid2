@@ -1,5 +1,12 @@
-const router = require('express').Router();
+const express = require('express');
+const { body, validationResult } = require('express-validator');
+const { AppError } = require('../middleware/errorHandler');
+const { createServiceIsolation } = require('../middleware/serviceIsolation');
+const router = express.Router();
 const emailService = require('../services/emailService');
+
+// Apply service isolation for notifications
+router.use(createServiceIsolation('notifications'));
 
 router.post('/', async (req, res) => {
   const { firstName, lastName, email, phone, subject, message } = req.body || {};

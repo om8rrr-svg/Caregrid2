@@ -1,12 +1,21 @@
 -- CareGrid Database Schema
 -- Initial migration to create core tables
 
--- Enable UUID extension
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+-- Enable UUID extension (with fallback for compatibility)
+-- Try uuid-ossp first, fallback to pgcrypto if not available
+DO $$
+BEGIN
+    -- Try to create uuid-ossp extension
+    CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+EXCEPTION WHEN OTHERS THEN
+    -- Fallback to pgcrypto if uuid-ossp is not available
+    CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+END
+$$;
 
 -- Users table
 CREATE TABLE IF NOT EXISTS users (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT COALESCE(uuid_generate_v4(), gen_random_uuid()),
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
@@ -23,7 +32,7 @@ CREATE TABLE IF NOT EXISTS users (
 
 -- Clinics table
 CREATE TABLE IF NOT EXISTS clinics (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT COALESCE(uuid_generate_v4(), gen_random_uuid()),
     name VARCHAR(255) NOT NULL,
     type VARCHAR(100),
     description TEXT,
@@ -51,7 +60,7 @@ CREATE TABLE IF NOT EXISTS clinics (
 
 -- Appointments table
 CREATE TABLE IF NOT EXISTS appointments (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT COALESCE(uuid_generate_v4(), gen_random_uuid()),
     user_id UUID REFERENCES users(id) ON DELETE CASCADE,
     clinic_id UUID REFERENCES clinics(id) ON DELETE CASCADE,
     appointment_date DATE NOT NULL,
@@ -65,7 +74,7 @@ CREATE TABLE IF NOT EXISTS appointments (
 
 -- Contact messages table
 CREATE TABLE IF NOT EXISTS contact_messages (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT COALESCE(uuid_generate_v4(), gen_random_uuid()),
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL,
     subject VARCHAR(255),

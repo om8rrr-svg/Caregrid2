@@ -95,12 +95,12 @@ const defaultEscalationPolicies = [
       {
         delay: 0, // immediate
         channels: ['email'],
-        recipients: ['ops@caregrid.com']
+        recipients: ['caregriduk@gmail.com']
       },
       {
         delay: 900, // 15 minutes
         channels: ['email', 'sms'],
-        recipients: ['ops@caregrid.com', 'manager@caregrid.com']
+        recipients: ['caregriduk@gmail.com']
       }
     ]
   },
@@ -111,12 +111,12 @@ const defaultEscalationPolicies = [
       {
         delay: 0, // immediate
         channels: ['email', 'sms'],
-        recipients: ['ops@caregrid.com', 'manager@caregrid.com']
+        recipients: ['caregriduk@gmail.com']
       },
       {
         delay: 300, // 5 minutes
         channels: ['email', 'sms'],
-        recipients: ['ops@caregrid.com', 'manager@caregrid.com', 'cto@caregrid.com']
+        recipients: ['caregriduk@gmail.com']
       }
     ]
   }

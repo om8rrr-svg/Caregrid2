@@ -4,6 +4,8 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const compression = require('compression');
 const rateLimit = require('express-rate-limit');
+const { globalErrorBoundary, healthCheckBoundary } = require('./middleware/errorBoundary');
+const { serviceHealthMiddleware } = require('./middleware/serviceIsolation');
 require('dotenv').config();
 
 // Environment validation for critical variables
@@ -240,6 +242,10 @@ app.use(morgan('combined'));
 // Add request metrics tracking
 app.use(trackRequestMetrics);
 
+// Apply error boundaries and service isolation
+app.use(healthCheckBoundary);
+app.use(serviceHealthMiddleware);
+
 // Maintenance mode middleware (before routes)
 app.use(maintenanceMiddleware);
 
@@ -286,6 +292,7 @@ app.use('*', (req, res) => {
 });
 
 // Global error handler
+app.use(globalErrorBoundary);
 app.use(errorHandler);
 // Start server
 app.listen(PORT, () => {

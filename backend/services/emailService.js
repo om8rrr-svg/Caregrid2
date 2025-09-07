@@ -543,7 +543,7 @@ class EmailService {
 
       const htmlContent = this.generateAlertEmailTemplate(alert);
 
-      const to = recipients || process.env.DEFAULT_ALERT_EMAIL || 'ops@caregrid.com';
+      const to = recipients || process.env.DEFAULT_ALERT_EMAIL || 'caregriduk@gmail.com';
 
       const mailOptions = {
         from: process.env.EMAIL_FROM || 'noreply@caregrid.com',
@@ -842,7 +842,7 @@ class EmailService {
       configured: !!(process.env.EMAIL_USER && process.env.EMAIL_PASSWORD),
       service: process.env.EMAIL_SERVICE || 'gmail',
       from: process.env.EMAIL_FROM || 'noreply@caregrid.com',
-      defaultAlertEmail: process.env.DEFAULT_ALERT_EMAIL || 'ops@caregrid.com',
+      defaultAlertEmail: process.env.DEFAULT_ALERT_EMAIL || 'caregriduk@gmail.com',
       timestamp: new Date().toISOString()
     };
   }

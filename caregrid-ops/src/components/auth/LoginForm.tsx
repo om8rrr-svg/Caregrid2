@@ -205,7 +205,7 @@ export function DemoCredentials() {
         </div>
         <div className="text-xs">
           <p className="font-medium">Manager:</p>
-          <p className="text-gray-600">manager@caregrid.com / manager123</p>
+          <p className="text-gray-600">caregriduk@gmail.com / manager123</p>
         </div>
         <div className="text-xs">
           <p className="font-medium">Viewer:</p>

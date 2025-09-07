@@ -7,10 +7,26 @@
     "start": "npx http-server . -p 3000",
     "build": "echo 'Static site - no build required'",
     "smoke": "node scripts/smoke.js",
-    "test": "echo 'No tests specified'"
+    "test": "echo 'No tests specified'",
+    "migrate": "node scripts/migrate-to-supabase.js",
+    "migrate:test": "node scripts/migrate-to-supabase.js --test",
+    "cloud:setup": "node scripts/setup-cloud.js",
+    "cloud:deploy": "vercel --prod",
+    "cloud:preview": "vercel",
+    "cloud:test": "node scripts/test-cloud-migration.js",
+    "test:cloud": "node scripts/test-cloud-migration.js",
+    "db:migrate": "npm run migrate",
+    "db:seed": "node scripts/seed-database.js",
+    "health:check": "curl -f http://localhost:3000/api/health || curl -f https://your-app.vercel.app/api/health",
+    "performance:test": "node js/performance-monitor.js --test",
+    "backup:create": "node scripts/backup-data.js",
+    "backup:restore": "node scripts/restore-data.js"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.39.0",
     "@vercel/speed-insights": "^1.2.0",
+    "dotenv": "^16.3.1",
+    "node-cache": "^5.1.2",
     "node-fetch": "^2.7.0"
   },
   "devDependencies": {

@@ -79,7 +79,7 @@ After redeployment, test with these demo credentials:
 - Password: `admin123`
 
 **Manager User:**
-- Email: `manager@caregrid.com`
+- Email: `caregriduk@gmail.com`
 - Password: `manager123`
 
 **Viewer User:**

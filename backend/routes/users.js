@@ -4,6 +4,10 @@ const User = require('../models/User');
 const { authenticateToken } = require('../middleware/auth');
 const { asyncHandler, successResponse, paginatedResponse } = require('../middleware/errorHandler');
 const { body, query, validationResult } = require('express-validator');
+const { createServiceIsolation } = require('../middleware/serviceIsolation');
+
+// Apply service isolation for users
+router.use(createServiceIsolation('users'));
 
 // Get current user profile
 router.get('/profile', 

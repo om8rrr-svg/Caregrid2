@@ -20,7 +20,7 @@ const mockUsers: User[] = [
   },
   {
     id: '2',
-    email: 'manager@caregrid.com',
+    email: 'caregriduk@gmail.com',
     name: 'Operations Manager',
     role: 'manager',
     createdAt: new Date('2024-01-05'),

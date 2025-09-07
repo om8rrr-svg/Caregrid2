@@ -4,9 +4,13 @@ const { v4: uuidv4 } = require('uuid');
 const { query, transaction } = require('../config/database');
 const { authenticateToken, optionalAuth, requireRole } = require('../middleware/auth');
 const { AppError, asyncHandler, successResponse, paginatedResponse } = require('../middleware/errorHandler');
+const { createServiceIsolation } = require('../middleware/serviceIsolation');
 const googlePlacesService = require('../services/googlePlacesService');
 
 const router = express.Router();
+
+// Apply service isolation for clinics
+router.use(createServiceIsolation('clinics'));
 
 // Validation rules
 const clinicValidation = [
