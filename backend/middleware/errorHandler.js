@@ -116,7 +116,7 @@ const successResponse = (res, data, message = 'Success', statusCode = 200) => {
 
 // Pagination helper
 const paginatedResponse = (res, data, pagination, message = 'Success') => {
-  res.status(200).json({
+  const response = {
     success: true,
     message,
     data,
@@ -127,7 +127,14 @@ const paginatedResponse = (res, data, pagination, message = 'Success') => {
       pages: Math.ceil(pagination.total / pagination.limit)
     },
     timestamp: new Date().toISOString()
-  });
+  };
+  
+  // Include debug information if provided
+  if (pagination.debug) {
+    response.debug = pagination.debug;
+  }
+  
+  res.status(200).json(response);
 };
 
 module.exports = {
