@@ -37,8 +37,8 @@ jobs:
       run: |
         echo "Validating required frontend files..."
         test -f index.html || { echo "❌ index.html not found"; exit 1; }
-        test -f auth.html || { echo "❌ auth.html not found"; exit 1; }
-        test -f booking.html || { echo "❌ booking.html not found"; exit 1; }
+        test -f pages/auth.html || { echo "❌ pages/auth.html not found"; exit 1; }
+        test -f pages/booking.html || { echo "❌ pages/booking.html not found"; exit 1; }
         test -f vercel.json || { echo "❌ vercel.json not found"; exit 1; }
         test -d css || { echo "❌ css directory not found"; exit 1; }
         test -d js || { echo "❌ js directory not found"; exit 1; }
