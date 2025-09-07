@@ -16,7 +16,7 @@ services:
           name: caregrid-db
           property: connectionString
       - key: JWT_SECRET
-        generateValue: true
+        value: BDT9S7J/+tIrAUd+rTXP7K1c0+lC42Xnu3fsH4s5a9g=
       - key: GOOGLE_CLIENT_ID
         sync: false
       - key: GOOGLE_CLIENT_SECRET
