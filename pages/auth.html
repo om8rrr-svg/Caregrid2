@@ -1,24 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
 
-    <link rel="preload" href="css/style.css?v=2025082509" as="style">
+    <link rel="preload" href="../css/style.css?v=2025082509" as="style">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign In | CareGrid</title>
     <meta name="description" content="Sign in to your CareGrid account to manage appointments, save favorites, and access personalized healthcare services.">
     
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
     
     <!-- Stylesheets -->
-    <link rel="stylesheet" href="css/style.css?v=2025082509">
-    <link rel="stylesheet" href="css/skeleton-loading.css">
-    <link rel="stylesheet" href="css/form-validation.css">
-    <link rel="stylesheet" href="css/mobile-optimization.css">
-    <link rel="stylesheet" href="css/error-handling.css">
-    <link rel="stylesheet" href="css/accessibility.css">
+    <link rel="stylesheet" href="../css/style.css?v=2025082509">
+    <link rel="stylesheet" href="../css/skeleton-loading.css">
+    <link rel="stylesheet" href="../css/form-validation.css">
+    <link rel="stylesheet" href="../css/mobile-optimization.css">
+    <link rel="stylesheet" href="../css/error-handling.css">
+    <link rel="stylesheet" href="../css/accessibility.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/fontawesome/css/all.min.css">
+    <link rel="stylesheet" href="../assets/fontawesome/css/all.min.css">
     
     <!-- Google API -->
     <script src="https://apis.google.com/js/api.js"></script>
@@ -37,14 +37,14 @@
     </script>
     
     <!-- CareGrid JavaScript -->
-    <script src="js/config.js?v=2025082512"></script>
-    <script src="js/error-handler.js"></script>
-    <script type="module" src="js/api-base.js?v=2025082510"></script>
-    <script type="module" src="js/api-service.js?v=2025082509"></script>
-    <script type="module" src="js/consent.js"></script>
-    <script type="module" src="js/recaptcha.js"></script>
-    <script type="module" src="js/googleAuth.js"></script>
-    <script type="module" src="js/auth.js?v=2025082510"></script>
+    <script src="../js/config.js?v=2025082512"></script>
+    <script src="../js/error-handler.js"></script>
+    <script type="module" src="../js/api-base.js?v=2025082510"></script>
+    <script type="module" src="../js/api-service.js?v=2025082509"></script>
+    <script type="module" src="../js/consent.js"></script>
+    <script type="module" src="../js/recaptcha.js"></script>
+    <script type="module" src="../js/googleAuth.js"></script>
+    <script type="module" src="../js/auth.js?v=2025082510"></script>
     
     <!-- Analytics handled by consent management system -->
 </head>
@@ -53,7 +53,7 @@
     <nav class="navbar navbar-transparent">
         <div class="nav-container">
             <div class="nav-logo">
-                <img src="images/logo.svg" alt="CareGrid - Healthcare Directory Platform Logo" class="logo">
+                <img src=CloudAssets.getLogo() alt="CareGrid - Healthcare Directory Platform Logo" class="logo">
                 <span class="logo-text">CareGrid</span>
             </div>
             <ul class="nav-menu">
@@ -88,7 +88,7 @@
                 <div class="auth-content">
                     <div class="auth-header-modern">
                         <div class="auth-logo">
-                            <img src="images/logo.svg" alt="CareGrid Logo" class="auth-logo-image">
+                            <img src=CloudAssets.getLogo() alt="CareGrid Logo" class="auth-logo-image">
                             <span class="auth-logo-text">CareGrid</span>
                         </div>
                         <h1 class="auth-title">Login</h1>
@@ -379,7 +379,7 @@
         <div class="footer-content">
             <div class="footer-section">
                 <div class="footer-logo">
-                    <img src="images/logo.svg" alt="CareGrid Logo">
+                    <img src=CloudAssets.getLogo() alt="CareGrid Logo">
                     <span>CareGrid</span>
                 </div>
                 <p>Connecting you with quality healthcare providers in your area.</p>
