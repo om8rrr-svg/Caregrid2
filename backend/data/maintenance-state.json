@@ -1,10 +1,10 @@
 {
-  "enabled": true,
-  "startTime": "2025-09-06T18:17:18.555Z",
+  "enabled": false,
+  "startTime": null,
   "endTime": null,
-  "reason": "Uncaught exception",
-  "message": "System is shutting down for maintenance.",
+  "reason": null,
+  "message": "System is currently under maintenance. Please try again later.",
   "allowedIPs": [],
-  "gracePeriod": 5000,
+  "gracePeriod": 30000,
   "notificationsSent": false
 }
