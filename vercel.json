@@ -1,4 +1,5 @@
 {
+  "_comment": "Force deployment refresh - 2025-01-09",
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "cleanUrls": true,
   "trailingSlash": false,
