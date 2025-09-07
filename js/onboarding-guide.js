@@ -44,10 +44,10 @@ class OnboardingGuide {
             .onboarding-spotlight {
                 position: absolute;
                 border-radius: 8px;
-                background: rgba(255, 255, 255, 0.1);
-                box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.8), 
-                           inset 0 0 0 2px rgba(59, 130, 246, 0.8),
-                           0 0 20px rgba(59, 130, 246, 0.4);
+                background: rgba(255, 255, 255, 0.95);
+                box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6), 
+                           inset 0 0 0 3px rgba(59, 130, 246, 1),
+                           0 0 30px rgba(59, 130, 246, 0.6);
                 pointer-events: auto;
                 transition: all 0.3s ease;
                 backdrop-filter: blur(0px);
@@ -482,19 +482,19 @@ class OnboardingGuide {
         
         switch (position) {
             case 'top':
-                left = targetRect.left + (targetRect.width - tooltipRect.width) / 2;
+                left = targetRect.left + (targetRect.width - tooltipRect.width) / 2 + 80;
                 top = targetRect.top - tooltipRect.height - 16;
                 break;
             case 'bottom':
-                left = targetRect.left + (targetRect.width - tooltipRect.width) / 2;
-                top = targetRect.bottom + 16;
+                left = targetRect.left + (targetRect.width - tooltipRect.width) / 2 + 80;
+                top = targetRect.bottom + 24;
                 break;
             case 'left':
-                left = targetRect.left - tooltipRect.width - 16;
+                left = targetRect.left - tooltipRect.width - 24;
                 top = targetRect.top + (targetRect.height - tooltipRect.height) / 2;
                 break;
             case 'right':
-                left = targetRect.right + 16;
+                left = targetRect.right + 24;
                 top = targetRect.top + (targetRect.height - tooltipRect.height) / 2;
                 break;
         }
