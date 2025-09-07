@@ -1,0 +1,12 @@
+{
+  "success": true,
+  "message": "Success",
+  "data": [],
+  "pagination": {
+    "page": 1,
+    "limit": 20,
+    "total": 3,
+    "pages": 1
+  },
+  "timestamp": "2025-09-07T20:08:08.199Z"
+}
