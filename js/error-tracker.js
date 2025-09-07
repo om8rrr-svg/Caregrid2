@@ -7,7 +7,7 @@
 class CareGridErrorTracker {
   constructor(config = {}) {
     this.config = {
-      apiEndpoint: config.apiEndpoint || 'https://caregrid-ops.vercel.app/api/errors',
+      apiEndpoint: config.apiEndpoint || null, // Disabled - ops endpoint is down
       apiKey: config.apiKey || 'demo-token',
       maxErrors: config.maxErrors || 50,
       batchSize: config.batchSize || 10,
@@ -342,6 +342,12 @@ class CareGridErrorTracker {
     };
     
     try {
+      // Skip sending if endpoint is disabled
+      if (!this.config.apiEndpoint) {
+        console.log('Error tracking disabled - endpoint not configured');
+        return;
+      }
+      
       if (synchronous && navigator.sendBeacon) {
         // Use sendBeacon for synchronous sending (page unload)
         navigator.sendBeacon(

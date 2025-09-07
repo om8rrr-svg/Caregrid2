@@ -10,12 +10,13 @@
     
     // Set the API base URL based on environment
     if (!window.__API_BASE__) {
-        if (isLocalDevelopment) {
-            window.__API_BASE__ = 'http://localhost:3000';
-            console.log('🏠 LOCAL DEV MODE - API base set to:', window.__API_BASE__);
-        } else {
-            window.__API_BASE__ = 'https://caregrid-backend.onrender.com';
-            console.log('🌐 LIVE API MODE - API base set to:', window.__API_BASE__);
+        // Always use local backend for now since remote is down
+        window.__API_BASE__ = 'http://localhost:3000';
+        console.log('🏠 LOCAL BACKEND - API base set to:', window.__API_BASE__);
+        
+        // Note: Remote backend at caregrid-backend.onrender.com is currently down
+        if (!isLocalDevelopment) {
+            console.warn('⚠️  Using local backend in production mode - remote backend is unavailable');
         }
     }
     
