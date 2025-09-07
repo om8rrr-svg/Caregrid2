@@ -497,4 +497,38 @@ router.post('/metrics/reset', (req, res) => {
   });
 });
 
-module.exports = { router, trackRequestMetrics };
+// Function to get health data for internal use
+async function getHealthData() {
+  try {
+    const [database, dependencies, apiServices] = await Promise.all([
+      checkDatabaseHealth(),
+      checkDependenciesHealth(),
+      checkApiServicesHealth()
+    ]);
+    
+    const systemMetrics = getSystemMetrics();
+    const overallStatus = calculateOverallHealth(database, dependencies, apiServices);
+    
+    return {
+      status: overallStatus,
+      timestamp: new Date().toISOString(),
+      version: '1.0.0',
+      environment: process.env.NODE_ENV || 'development',
+      checks: {
+        database,
+        dependencies,
+        apiServices
+      },
+      system: systemMetrics,
+      performance: performanceMetrics
+    };
+  } catch (error) {
+    return {
+      status: HEALTH_STATUS.UNHEALTHY,
+      error: error.message,
+      timestamp: new Date().toISOString()
+    };
+  }
+}
+
+module.exports = { router, trackRequestMetrics, getHealthData };

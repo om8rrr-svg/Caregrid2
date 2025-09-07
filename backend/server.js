@@ -108,6 +108,9 @@ const { authenticateToken } = require('./middleware/auth');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Trust proxy for X-Forwarded-For headers (required for Render deployment)
+app.set('trust proxy', true);
+
 // Compression middleware - enable gzip compression
 app.use(compression({
   level: 6, // Compression level (1-9, 6 is optimal)

@@ -216,10 +216,15 @@ class ServiceIsolationManager {
     const unhealthy = [];
     
     for (const dep of dependencies) {
-      const metrics = errorBoundaryService.getMetrics(dep);
+      const breaker = errorBoundaryService.getCircuitBreaker(dep);
       
-      if (metrics && (metrics.state === 'OPEN' || metrics.failureRate > 0.5)) {
+      if (breaker && breaker.state === 'OPEN') {
         unhealthy.push(dep);
+      } else if (breaker && breaker.metrics.totalRequests > 0) {
+        const failureRate = breaker.metrics.totalFailures / breaker.metrics.totalRequests;
+        if (failureRate > 0.5) {
+          unhealthy.push(dep);
+        }
       }
     }
     
