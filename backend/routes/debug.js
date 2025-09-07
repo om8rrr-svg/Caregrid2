@@ -95,4 +95,56 @@ router.get('/clinics-all', asyncHandler(async (req, res) => {
   }
 }));
 
+// Debug endpoint to check database connection
+router.get('/db-test', asyncHandler(async (req, res) => {
+  const result = await query('SELECT NOW() as current_time, version() as db_version');
+  res.json({
+    success: true,
+    timestamp: result.rows[0].current_time,
+    database: result.rows[0].db_version
+  });
+}));
+
+// Debug endpoint to check clinic active status
+router.get('/clinic-active-status', asyncHandler(async (req, res) => {
+  try {
+    // Check all clinics and their is_active status
+    const allClinics = await query(`
+      SELECT id, name, is_active, created_at
+      FROM clinics 
+      ORDER BY created_at DESC
+    `);
+    
+    // Count by status
+    const statusCount = await query(`
+      SELECT 
+        COUNT(*) as total,
+        COUNT(CASE WHEN is_active = true THEN 1 END) as active_true,
+        COUNT(CASE WHEN is_active = false THEN 1 END) as active_false,
+        COUNT(CASE WHEN is_active IS NULL THEN 1 END) as active_null
+      FROM clinics
+    `);
+    
+    // Test the current query condition
+    const currentQuery = await query(`
+      SELECT COUNT(*) as matching_count
+      FROM clinics c
+      WHERE (c.is_active = true OR c.is_active IS NULL)
+    `);
+    
+    res.json({
+      success: true,
+      allClinics: allClinics.rows,
+      statusCounts: statusCount.rows[0],
+      currentQueryMatches: currentQuery.rows[0].matching_count
+    });
+    
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+}));
+
 module.exports = router;
