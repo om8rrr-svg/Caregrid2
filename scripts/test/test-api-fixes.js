@@ -66,8 +66,8 @@ global.sessionStorage = dom.window.sessionStorage;
 const fs = require('fs');
 const path = require('path');
 
-const apiServiceCode = fs.readFileSync(path.join(__dirname, 'js/api-service.js'), 'utf8');
-const scriptCode = fs.readFileSync(path.join(__dirname, 'js/script.js'), 'utf8');
+const apiServiceCode = fs.readFileSync(path.join(__dirname, '../../js/api-service.js'), 'utf8');
+const scriptCode = fs.readFileSync(path.join(__dirname, '../../js/script.js'), 'utf8');
 
 // Execute the code in our mock environment
 eval(apiServiceCode);

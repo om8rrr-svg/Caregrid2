@@ -58,10 +58,11 @@ class CloudConfigManager {
         
         // Browser environment detection
         if (typeof window !== 'undefined') {
-            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            const hostname = window.location.hostname;
+            if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.includes('.local')) {
                 return 'development';
             }
-            if (window.location.hostname.includes('vercel.app') || window.location.hostname.includes('netlify.app')) {
+            if (hostname.includes('vercel.app') || hostname.includes('netlify.app')) {
                 return 'preview';
             }
             return 'production';
@@ -78,12 +79,12 @@ class CloudConfigManager {
             development: {
                 // Development configuration
                 api: {
-                    baseUrl: 'http://localhost:3000/api',
+                    baseUrl: process?.env?.API_BASE || 'https://caregrid-backend.onrender.com/api',
                     timeout: 10000,
                     retries: 3
                 },
                 database: {
-                    url: process?.env?.DATABASE_URL || 'postgresql://localhost:5432/caregrid_dev',
+                    url: process?.env?.DATABASE_URL || 'postgresql://postgres:password@localhost:5432/caregrid_dev',
                     ssl: false,
                     poolSize: 5
                 },
