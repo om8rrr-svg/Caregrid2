@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CareGrid Fixes Demonstration</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 1000px; 
+            margin: 20px auto; 
+            padding: 20px; 
+            line-height: 1.6;
+        }
+        .fix-section { 
+            margin: 30px 0; 
+            padding: 20px; 
+            border: 2px solid #e0e0e0; 
+            border-radius: 10px; 
+            background: #f9f9f9;
+        }
+        .fix-section.fixed {
+            border-color: #4CAF50;
+            background: #f1f8e9;
+        }
+        .clinic-image { 
+            max-width: 150px; 
+            max-height: 150px; 
+            border: 2px solid #ccc; 
+            margin: 10px 5px;
+            border-radius: 8px;
+        }
+        .status { 
+            padding: 10px; 
+            border-radius: 5px; 
+            margin: 10px 0; 
+            font-weight: bold;
+        }
+        .status.fixed { 
+            background: #4CAF50; 
+            color: white; 
+        }
+        .status.issue { 
+            background: #f44336; 
+            color: white; 
+        }
+        .demo-clinic {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 15px 0;
+            padding: 15px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .clinic-info {
+            flex-grow: 1;
+        }
+        .test-links {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        .test-links a {
+            display: inline-block;
+            margin: 5px 10px 5px 0;
+            padding: 8px 15px;
+            background: #2196F3;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .test-links a:hover {
+            background: #1976D2;
+        }
+    </style>
+</head>
+<body>
+    <h1>🏥 CareGrid - Clinic Profile Fixes Demonstration</h1>
+    
+    <div class="fix-section fixed">
+        <h2>✅ Fix #1: 404 Error on Clinic Profile Pages</h2>
+        <div class="status fixed">FIXED</div>
+        
+        <h3>Problem:</h3>
+        <p>URLs like <code>/clinic-profile?id=304</code> were returning 404 errors because:</p>
+        <ul>
+            <li>Missing redirect file at root level</li>
+            <li>API method <code>getClinicById</code> was calling <code>/api/clinics/304</code> instead of <code>/api/clinics?id=304</code></li>
+            <li>Backend <code>getClinics</code> function didn't handle <code>id</code> query parameter</li>
+        </ul>
+        
+        <h3>Solution Applied:</h3>
+        <ul>
+            <li>✅ Created <code>clinic-profile.html</code> redirect file at root level</li>
+            <li>✅ Updated <code>api/clinics.js</code> to handle <code>id</code> parameter</li>
+            <li>✅ Fixed <code>js/api-service.js</code> getClinicById method to use query parameters</li>
+            <li>✅ Modified API response format for single clinic requests</li>
+        </ul>
+        
+        <div class="test-links">
+            <strong>Test the Fix:</strong><br>
+            <a href="/clinic-profile.html?id=1" target="_blank">Test: /clinic-profile.html?id=1</a>
+            <a href="/pages/clinic-profile.html?id=2" target="_blank">Test: /pages/clinic-profile.html?id=2</a>
+        </div>
+    </div>
+    
+    <div class="fix-section fixed">
+        <h2>✅ Fix #2: Missing Clinic Images (White Boxes)</h2>
+        <div class="status fixed">FIXED</div>
+        
+        <h3>Problem:</h3>
+        <p>Clinic images were showing as white boxes because:</p>
+        <ul>
+            <li>Images were scattered across different directories (<code>/assets/images/</code>, root, <code>/images/</code>)</li>
+            <li>Code was directly using <code>clinic.logoUrl</code> instead of proper URL construction</li>
+            <li>Missing images weren't accessible via web server</li>
+            <li>HTML had syntax errors in image src attributes</li>
+        </ul>
+        
+        <h3>Solution Applied:</h3>
+        <ul>
+            <li>✅ Copied all clinic images to web-accessible <code>/images/</code> directory (30 images total)</li>
+            <li>✅ Updated all clinic image loading to use <code>CloudAssets.getClinicImage()</code></li>
+            <li>✅ Fixed HTML syntax errors (missing quotes in src attributes)</li>
+            <li>✅ Added proper image initialization and fallbacks</li>
+            <li>✅ Imported cloud-config.js for proper image URL generation</li>
+        </ul>
+        
+        <h3>Sample Clinic Images Now Available:</h3>
+        <div id="imageGallery">Loading images...</div>
+    </div>
+    
+    <div class="fix-section">
+        <h2>🧪 Complete Solution Test</h2>
+        <p>The following demonstrates a complete working clinic profile with proper image loading:</p>
+        
+        <div class="demo-clinic">
+            <img id="demoClinicImage" class="clinic-image" alt="Demo Clinic">
+            <div class="clinic-info">
+                <h3 id="demoClinicName">Loading...</h3>
+                <p id="demoClinicType">Loading...</p>
+                <p id="demoClinicAddress">Loading...</p>
+                <p id="demoClinicPhone">Loading...</p>
+                <p><strong>Image URL:</strong> <span id="demoImageUrl">Loading...</span></p>
+            </div>
+        </div>
+        
+        <div class="test-links">
+            <strong>Integration Tests:</strong><br>
+            <a href="/pages/clinic-profile.html" target="_blank">Clinic Profile Page</a>
+            <a href="/clinic-test.html" target="_blank">Image Loading Test</a>
+        </div>
+    </div>
+
+    <script type="module">
+        // Import CloudAssets for testing
+        import { CloudAssets } from './js/cloud-config.js';
+        
+        // Sample clinic data
+        const demoClinic = {
+            name: "Demo Medical Centre",
+            type: "General Practice",
+            address: "123 Health Street, Manchester M1 1AA",
+            phone: "0161 123 4567",
+            logoUrl: "pall_mall_medical.jpg"
+        };
+        
+        // Sample clinic images to display
+        const sampleImages = [
+            "pall_mall_medical.jpg",
+            "edgbaston smile clinic.jpg",
+            "harley_st_health_centre_.jpg",
+            "Bolton Private Medical Centre.jpg",
+            "Smile Dental.jpg"
+        ];
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load demo clinic
+            document.getElementById('demoClinicName').textContent = demoClinic.name;
+            document.getElementById('demoClinicType').textContent = demoClinic.type;
+            document.getElementById('demoClinicAddress').textContent = demoClinic.address;
+            document.getElementById('demoClinicPhone').textContent = demoClinic.phone;
+            
+            // Test image loading
+            try {
+                const imageUrl = CloudAssets.getClinicImage(demoClinic.logoUrl);
+                document.getElementById('demoClinicImage').src = imageUrl;
+                document.getElementById('demoImageUrl').textContent = imageUrl;
+            } catch (error) {
+                document.getElementById('demoImageUrl').textContent = `Error: ${error.message}`;
+            }
+            
+            // Create image gallery
+            const gallery = document.getElementById('imageGallery');
+            let galleryHtml = '';
+            
+            sampleImages.forEach(imageName => {
+                try {
+                    const imageUrl = CloudAssets.getClinicImage(imageName);
+                    galleryHtml += `
+                        <div style="display: inline-block; margin: 10px; text-align: center;">
+                            <img src="${imageUrl}" class="clinic-image" alt="${imageName}">
+                            <br><small>${imageName}</small>
+                        </div>
+                    `;
+                } catch (error) {
+                    galleryHtml += `<div>Error loading ${imageName}: ${error.message}</div>`;
+                }
+            });
+            
+            gallery.innerHTML = galleryHtml;
+        });
+    </script>
+    
+    <footer style="margin-top: 50px; padding-top: 20px; border-top: 1px solid #ccc; color: #666;">
+        <h3>Summary of Changes</h3>
+        <p><strong>Files Modified:</strong></p>
+        <ul>
+            <li><code>api/clinics.js</code> - Added ID parameter handling</li>
+            <li><code>js/api-service.js</code> - Fixed getClinicById method</li>
+            <li><code>pages/clinic-profile.html</code> - Updated image loading and imports</li>
+            <li><code>clinic-profile.html</code> - Added redirect file (new)</li>
+            <li><code>images/</code> - Added 16 missing clinic images</li>
+        </ul>
+        
+        <p><strong>Both issues from the problem statement have been resolved:</strong></p>
+        <ol>
+            <li>✅ Clinic profile URLs like <code>/clinic-profile?id=304</code> now work correctly</li>
+            <li>✅ Clinic images are now properly displayed instead of white boxes</li>
+        </ol>
+    </footer>
+</body>
+</html>
