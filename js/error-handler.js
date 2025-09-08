@@ -593,28 +593,30 @@ class ErrorHandler {
     }
 }
 
-// Create global error handler instance
-const errorHandler = new ErrorHandler();
-
-// Export for use in other modules
-window.ErrorHandler = ErrorHandler;
-window.errorHandler = errorHandler;
+// Create global error handler instance (singleton pattern)
+if (!window.errorHandler) {
+    const errorHandler = new ErrorHandler();
+    window.ErrorHandler = ErrorHandler;
+    window.errorHandler = errorHandler;
+} else {
+    console.log('ErrorHandler already initialized, skipping duplicate initialization');
+}
 
 // Convenience functions for common error scenarios
 window.handleSearchError = (error, retryFunction) => {
-    return errorHandler.handleError(error, 'search', { retryFunction });
+    return window.errorHandler.handleError(error, 'search', { retryFunction });
 };
 
 window.handleBookingError = (error, retryFunction) => {
-    return errorHandler.handleError(error, 'booking', { retryFunction });
+    return window.errorHandler.handleError(error, 'booking', { retryFunction });
 };
 
 window.handleAuthError = (error) => {
-    return errorHandler.handleError(error, 'authentication', { allowRetry: false });
+    return window.errorHandler.handleError(error, 'authentication', { allowRetry: false });
 };
 
 window.handleValidationError = (error) => {
-    return errorHandler.handleError(error, 'validation', { allowRetry: false });
+    return window.errorHandler.handleError(error, 'validation', { allowRetry: false });
 };
 
-export default errorHandler;
+export default window.errorHandler;

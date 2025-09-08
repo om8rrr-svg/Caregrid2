@@ -6,9 +6,22 @@ import { CloudAssets } from './cloud-config.js';
  */
 class ClinicService {
     constructor() {
-        this.baseUrl = '/api';
+        // Wait for config to be available
+        this.waitForConfig();
         this.cache = new Map();
         this.cacheTimeout = 5 * 60 * 1000; // 5 minutes
+    }
+
+    waitForConfig() {
+        // Check if config is already loaded
+        if (window.__API_BASE__) {
+            this.baseUrl = window.__API_BASE__ + '/api';
+            console.log('✅ Config loaded, API base:', this.baseUrl);
+        } else {
+            // Fallback to localhost if config not loaded yet
+            this.baseUrl = 'http://localhost:3000/api';
+            console.log('⚠️ Config not loaded, using fallback:', this.baseUrl);
+        }
     }
 
     /**
@@ -29,7 +42,10 @@ class ClinicService {
 
         try {
             const queryParams = new URLSearchParams(filters);
-            const response = await fetch(`${this.baseUrl}/clinics?${queryParams}`);
+            const url = `${this.baseUrl}/clinics?${queryParams}`;
+            console.log('🔍 Fetching clinics from:', url);
+            console.log('📡 API Base URL:', window.__API_BASE__);
+            const response = await fetch(url);
             
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);

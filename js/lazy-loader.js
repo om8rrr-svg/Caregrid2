@@ -7,7 +7,7 @@ class LazyScriptLoader {
     constructor() {
         this.loadedScripts = new Set();
         this.loadingPromises = new Map();
-        this.cacheVersion = '2025082509'; // Cache busting version
+        this.cacheVersion = '2025090802'; // Cache busting version
     }
 
     /**
@@ -171,7 +171,7 @@ const lazyLoadingConfigs = {
     
     // Load dashboard functionality after user interaction
     dashboard: {
-        scripts: ['js/dashboard.js'],
+        scripts: ['/js/dashboard.js'],
         trigger: 'interaction',
         delay: 1000
     },
@@ -191,7 +191,7 @@ const lazyLoadingConfigs = {
     
     // Load image lazy loader for pages with images
     imageLazyLoader: {
-        scripts: ['js/image-lazy-loader.js'],
+        scripts: ['/js/image-lazy-loader.js'],
         trigger: 'immediate',
         priority: true
     },
