@@ -368,7 +368,8 @@ class CareGridErrorTracker {
         const response = await fetch(this.config.apiEndpoint, {
           method: 'POST',
           headers: headers,
-          body: JSON.stringify(payload)
+          body: JSON.stringify(payload),
+          credentials: 'omit' // Avoid CORS issues with cross-origin requests
         });
         
         if (!response.ok) {

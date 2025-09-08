@@ -18,8 +18,10 @@ class ClinicService {
             this.baseUrl = window.__API_BASE__ + '/api';
             console.log('✅ Config loaded, API base:', this.baseUrl);
         } else {
-            // Always use production backend URL
-    this.baseUrl = 'https://caregrid-backend-latest.onrender.com/api';
+            // Use local backend when running locally, otherwise production
+            this.baseUrl = window.location.hostname === 'localhost' ? 
+                'http://localhost:3000/api' : 
+                'https://caregrid-backend-latest.onrender.com/api';
             console.log('⚠️ Config not loaded, using fallback:', this.baseUrl);
         }
     }

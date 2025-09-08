@@ -190,6 +190,8 @@ const allowlist = config.getCorsOrigins();
 
 const vercelPreviewRegex = /^https:\/\/caregrid2-[a-z0-9-]+\.vercel\.app$/i;
 
+// Use centralized CORS configuration
+const corsConfig = config.getCorsConfig();
 const corsOptions = {
   origin: (origin, cb) => {
     if (!origin) return cb(null, true); // allow curl/postman
@@ -198,9 +200,9 @@ const corsOptions = {
     }
     return cb(new Error('CORS blocked: ' + origin));
   },
-  methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
-  allowedHeaders: ['Content-Type','Authorization','X-Requested-With'],
-  credentials: false, // set true only if we use cookies
+  methods: corsConfig.methods,
+  allowedHeaders: corsConfig.allowedHeaders,
+  credentials: corsConfig.credentials,
   maxAge: 86400
 };
 
@@ -301,6 +303,7 @@ app.use('/api/ai-reception', aiReceptionRoutes);
 app.use('/api/vapi-config', vapiConfigRoutes);
 app.use('/api/errors', errorRoutes);
 app.use('/health', healthRoutes);
+app.use('/api/health', healthRoutes); // Alias for frontend compatibility
 app.use('/api/synthetic', syntheticRoutes);
 app.use('/api/alerts', alertingRoutes);
 app.use('/api/health-monitoring', healthMonitoringRoutes);
