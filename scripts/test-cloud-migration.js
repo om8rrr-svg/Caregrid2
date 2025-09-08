@@ -313,11 +313,34 @@ async function testAPIEndpoints() {
         { path: '/api/supabase/clinics', name: 'Supabase Proxy' }
     ];
     
-    const baseUrls = [
-        'http://localhost:3000',
-        'http://localhost:8080',
-        process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null
-    ].filter(Boolean);
+    // Get base URLs to test, prioritizing configured endpoints
+    const getTestBaseUrls = () => {
+        const urls = [];
+        
+        // Add primary API endpoint
+        if (process.env.API_BASE) {
+            urls.push(process.env.API_BASE);
+        } else {
+            urls.push('https://caregrid-backend.onrender.com');
+        }
+        
+        // Add Vercel URL if available
+        if (process.env.VERCEL_URL) {
+            urls.push(`https://${process.env.VERCEL_URL}`);
+        }
+        
+        // Add local development URLs only if in development mode
+        if (process.env.NODE_ENV === 'development') {
+            const devPorts = ['3000', '8080'];
+            devPorts.forEach(port => {
+                urls.push(`http://127.0.0.1:${port}`);
+            });
+        }
+        
+        return urls.filter(Boolean);
+    };
+    
+    const baseUrls = getTestBaseUrls();
     
     if (baseUrls.length === 0) {
         recordTest('API_ENDPOINTS', true, 'No local server running - skipping API tests', true);
