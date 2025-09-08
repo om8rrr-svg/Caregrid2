@@ -187,22 +187,34 @@ async function loadFeaturedClinics() {
   try {
     const rsp = await fetchJson('/api/clinics', { params: { limit: 100 } });
     const clinics = rsp?.data || rsp || [];
-    const items = Array.isArray(clinics) ? clinics.slice(0, 3) : []; // Take up to 3 featured
+    const items = Array.isArray(clinics) ? clinics.slice(0, 6) : []; // Take up to 6 featured
     
     let data, isDemo = false;
     
     if (items.length > 0) {
       data = items;
     } else {
-      // Use demo data if API returns no results
-      data = demoClinicData;
-      isDemo = true;
-      
-      // Show demo data badge
-      const resultsInfo = el('resultsInfo');
-      if (resultsInfo) {
-        resultsInfo.innerHTML = '<span class="badge demo-badge" style="background: #ff9500; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; margin-right: 10px;">Demo Data</span>Showing demo clinics';
-        resultsInfo.style.display = 'block';
+      // Use real clinic data from window.clinicsData if available
+      if (typeof window !== 'undefined' && window.clinicsData && Array.isArray(window.clinicsData) && window.clinicsData.length > 0) {
+        data = window.clinicsData.slice(0, 6); // Take first 6 real clinics
+        isDemo = false;
+        
+        // Hide any demo badge if present
+        const resultsInfo = el('resultsInfo');
+        if (resultsInfo) {
+          resultsInfo.style.display = 'none';
+        }
+      } else {
+        // Use demo data as last resort
+        data = demoClinicData;
+        isDemo = true;
+        
+        // Show demo data badge
+        const resultsInfo = el('resultsInfo');
+        if (resultsInfo) {
+          resultsInfo.innerHTML = '<span class="badge demo-badge" style="background: #ff9500; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; margin-right: 10px;">Demo Data</span>Showing demo clinics';
+          resultsInfo.style.display = 'block';
+        }
       }
     }
     
@@ -213,18 +225,32 @@ async function loadFeaturedClinics() {
     
     renderClinics(data, isDemo);
   } catch (e) {
-    // Always use demo data on API failure
-    const data = demoClinicData;
-    const isDemo = true;
+    // Try to use real clinic data from window.clinicsData if available
+    if (typeof window !== 'undefined' && window.clinicsData && Array.isArray(window.clinicsData) && window.clinicsData.length > 0) {
+      const data = window.clinicsData.slice(0, 6); // Take first 6 real clinics
+      const isDemo = false;
+      
+      // Hide any demo badge if present
+      const resultsInfo = el('resultsInfo');
+      if (resultsInfo) {
+        resultsInfo.style.display = 'none';
+      }
+      
+      renderClinics(data, isDemo);
+    } else {
+      // Always use demo data on API failure as last resort
+      const data = demoClinicData;
+      const isDemo = true;
     
-    // Show demo data badge with API unavailable message
-    const resultsInfo = el('resultsInfo');
-    if (resultsInfo) {
-      resultsInfo.innerHTML = '<span class="badge demo-badge" style="background: #ff9500; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; margin-right: 10px;">Demo Data</span>Showing demo clinics (API unavailable)';
-      resultsInfo.style.display = 'block';
+      // Show demo data badge with API unavailable message
+      const resultsInfo = el('resultsInfo');
+      if (resultsInfo) {
+        resultsInfo.innerHTML = '<span class="badge demo-badge" style="background: #ff9500; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; margin-right: 10px;">Demo Data</span>Showing demo clinics (API unavailable)';
+        resultsInfo.style.display = 'block';
+      }
+      
+      renderClinics(data, isDemo);
     }
-    
-    renderClinics(data, isDemo);
   }
 }
 
@@ -253,6 +279,12 @@ document.addEventListener('DOMContentLoaded', () => {
   loadCities();
   loadFeaturedClinics();
   initMobileFilters();
+});
+
+// Listen for clinic data loaded event to retry featured clinics loading
+document.addEventListener('clinicsDataLoaded', () => {
+  // Retry loading featured clinics now that data is available
+  loadFeaturedClinics();
 });
 
 // Mobile Filter Bar Implementation
