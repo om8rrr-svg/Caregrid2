@@ -1,0 +1,532 @@
+/**
+ * AI Reception Styles
+ * Styling for AI-powered clinic reception calls
+ */
+
+/* AI Reception Button Styles */
+.action-btn.ai-reception {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.action-btn.ai-reception:hover {
+    background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.action-btn.ai-reception i {
+    margin-right: 8px;
+    font-size: 1.1em;
+}
+
+/* Bottom Bar AI Button */
+.bottom-action-btn.ai-reception {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.bottom-action-btn.ai-reception:hover {
+    background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+    transform: translateY(-2px);
+}
+
+.bottom-action-btn.ai-reception i {
+    font-size: 18px;
+    margin-bottom: 4px;
+}
+
+/* Active state for ongoing calls */
+.action-btn.ai-reception.active,
+.bottom-action-btn.ai-reception.active {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    animation: pulse 2s infinite;
+}
+
+.action-btn.ai-reception.active:hover,
+.bottom-action-btn.ai-reception.active:hover {
+    background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+}
+
+/* Pulse animation for active calls */
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(220, 53, 69, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
+    }
+}
+
+/* Loading state */
+.action-btn.ai-reception:disabled,
+.bottom-action-btn.ai-reception:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* Error notification styles */
+#vapi-error {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #dc3545;
+    color: white;
+    padding: 12px 16px;
+    border-radius: 4px;
+    z-index: 1000;
+    max-width: 300px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+/* Modal Overlay */
+.ai-call-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    padding: 20px;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Modal Container */
+.ai-call-modal {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    max-width: 500px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Modal Header */
+.ai-call-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 24px 0 24px;
+    border-bottom: 1px solid #e5e7eb;
+    margin-bottom: 24px;
+}
+
+.ai-call-modal-header h3 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1f2937;
+    display: flex;
+    align-items: center;
+}
+
+.ai-call-modal-header h3::before {
+    content: '🤖';
+    margin-right: 8px;
+    font-size: 1.2em;
+}
+
+.ai-call-modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #6b7280;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.ai-call-modal-close:hover {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+/* Modal Body */
+.ai-call-modal-body {
+    padding: 0 24px 24px 24px;
+}
+
+/* Clinic Info */
+.clinic-info {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+    border: 1px solid #e2e8f0;
+}
+
+.clinic-info h4 {
+    margin: 0 0 8px 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.clinic-info .clinic-type {
+    color: #667eea;
+    font-weight: 500;
+    margin: 0 0 8px 0;
+    font-size: 0.95rem;
+}
+
+.clinic-info .clinic-address {
+    color: #64748b;
+    margin: 0;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+}
+
+.clinic-info .clinic-address i {
+    margin-right: 6px;
+    color: #94a3b8;
+}
+
+/* AI Call Description */
+.ai-call-description {
+    margin-bottom: 24px;
+}
+
+.ai-call-description p {
+    margin: 0 0 12px 0;
+    color: #374151;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+}
+
+.ai-call-description p i {
+    margin-right: 8px;
+    color: #667eea;
+    font-size: 1.1em;
+}
+
+.ai-call-description ul {
+    margin: 0;
+    padding-left: 20px;
+    color: #6b7280;
+}
+
+.ai-call-description li {
+    margin-bottom: 6px;
+    font-size: 0.95rem;
+}
+
+/* Form Styles */
+.ai-call-form {
+    display: block;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 500;
+    color: #374151;
+    font-size: 0.95rem;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-group small {
+    display: block;
+    margin-top: 4px;
+    color: #6b7280;
+    font-size: 0.85rem;
+}
+
+/* Form Actions */
+.form-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 24px;
+}
+
+.form-actions .btn {
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.form-actions .btn-secondary {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.form-actions .btn-secondary:hover {
+    background: #e5e7eb;
+}
+
+.form-actions .btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.form-actions .btn-primary:hover {
+    background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+/* Call Status */
+.ai-call-status {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.ai-call-status.loading .status-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+.ai-call-status.success {
+    color: #059669;
+}
+
+.ai-call-status.error {
+    color: #dc2626;
+}
+
+.status-message {
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin: 0;
+}
+
+/* Loading Spinner */
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #e5e7eb;
+    border-top: 3px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Error Message */
+.ai-call-error {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #dc2626;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-top: 12px;
+    font-size: 0.9rem;
+    display: none;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .ai-call-modal-overlay {
+        padding: 10px;
+    }
+    
+    .ai-call-modal {
+        border-radius: 12px;
+    }
+    
+    .ai-call-modal-header,
+    .ai-call-modal-body {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .form-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    /* Adjust bottom bar for mobile */
+    .clinic-profile-bottom-bar {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        padding: 12px;
+    }
+    
+    .bottom-action-btn {
+        font-size: 11px;
+    }
+    
+    .bottom-action-btn i {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .ai-call-modal-header h3 {
+        font-size: 1.25rem;
+    }
+    
+    .clinic-info {
+        padding: 16px;
+    }
+    
+    .clinic-info h4 {
+        font-size: 1.1rem;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .ai-call-modal {
+        background: #1f2937;
+        color: #f9fafb;
+    }
+    
+    .ai-call-modal-header {
+        border-bottom-color: #374151;
+    }
+    
+    .ai-call-modal-header h3 {
+        color: #f9fafb;
+    }
+    
+    .ai-call-modal-close {
+        color: #9ca3af;
+    }
+    
+    .ai-call-modal-close:hover {
+        background: #374151;
+        color: #f3f4f6;
+    }
+    
+    .clinic-info {
+        background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
+        border-color: #4b5563;
+    }
+    
+    .clinic-info h4 {
+        color: #f9fafb;
+    }
+    
+    .clinic-info .clinic-address {
+        color: #d1d5db;
+    }
+    
+    .ai-call-description p {
+        color: #e5e7eb;
+    }
+    
+    .ai-call-description ul {
+        color: #d1d5db;
+    }
+    
+    .form-group label {
+        color: #e5e7eb;
+    }
+    
+    .form-group input {
+        background: #374151;
+        border-color: #4b5563;
+        color: #f9fafb;
+    }
+    
+    .form-group input:focus {
+        border-color: #667eea;
+        background: #374151;
+    }
+    
+    .form-group small {
+        color: #9ca3af;
+    }
+    
+    .btn-secondary {
+        background: #374151 !important;
+        color: #e5e7eb !important;
+    }
+    
+    .btn-secondary:hover {
+        background: #4b5563 !important;
+    }
+    
+    .ai-call-error {
+        background: #451a1a;
+        border-color: #991b1b;
+        color: #fca5a5;
+    }
+}

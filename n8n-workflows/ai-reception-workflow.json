@@ -1,0 +1,154 @@
+{
+  "name": "AI Reception Call Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ai-reception-webhook",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "webhookId": "ai-reception-call"
+    },
+    {
+      "parameters": {
+        "functionCode": "const clinicId = $json.clinicId;\nconst callerName = $json.callerName || 'Guest';\nconst callerPhone = $json.callerPhone || '';\n\nif (!clinicId) {\n  throw new Error('Clinic ID is required');\n}\n\nreturn {\n  clinicId,\n  callerName,\n  callerPhone,\n  timestamp: new Date().toISOString(),\n  callId: 'call_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9)\n};"
+      },
+      "id": "process-call-data",
+      "name": "Process Call Data",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:3000/api/clinics",
+        "options": {
+          "qs": {
+            "id": "={{$node['process-call-data'].json['clinicId']}}"
+          }
+        }
+      },
+      "id": "fetch-clinic-data",
+      "name": "Fetch Clinic Data",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "const clinic = $json;\nconst callData = $node['process-call-data'].json;\n\nconst prompt = 'You are an AI receptionist for ' + (clinic.name || 'this healthcare clinic') + '. Help with appointments, provide clinic information, and assist callers professionally.';\n\nreturn {\n  callId: callData.callId,\n  clinicId: callData.clinicId,\n  clinic: clinic,\n  aiPrompt: prompt,\n  vapiConfig: {\n    model: 'gpt-3.5-turbo',\n    voice: 'professional-female',\n    firstMessage: 'Hello! Thank you for calling ' + (clinic.name || 'our clinic') + '. How can I help you today?'\n  }\n};"
+      },
+      "id": "generate-ai-config",
+      "name": "Generate AI Config",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://api.vapi.ai/call",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{$env.VAPI_API_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{$node['generate-ai-config'].json['vapiConfig']}}"
+      },
+      "id": "initiate-vapi-call",
+      "name": "Initiate Vapi Call",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1120, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"success\": true, \"message\": \"AI reception call initiated\"}"
+      },
+      "id": "webhook-response",
+      "name": "Webhook Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1340, 300]
+    }
+  ],
+  "connections": {
+    "webhook-trigger": {
+      "main": [
+        [
+          {
+            "node": "process-call-data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "process-call-data": {
+      "main": [
+        [
+          {
+            "node": "fetch-clinic-data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "fetch-clinic-data": {
+      "main": [
+        [
+          {
+            "node": "generate-ai-config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "generate-ai-config": {
+      "main": [
+        [
+          {
+            "node": "initiate-vapi-call",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "initiate-vapi-call": {
+      "main": [
+        [
+          {
+            "node": "webhook-response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "timezone": "Europe/London"
+  },
+  "id": "ai-reception-workflow",
+  "tags": ["ai-reception"]
+}

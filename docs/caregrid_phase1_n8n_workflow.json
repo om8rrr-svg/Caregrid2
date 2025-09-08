@@ -1,0 +1,663 @@
+{
+  "name": "CareGrid AI Receptionist - Phase 1",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "caregrid/voice/tools",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-tools",
+      "name": "Webhook - Voice Tools",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "webhookId": "caregrid-voice-tools"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "caregrid/voice/events",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-events",
+      "name": "Webhook - Voice Events",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 600],
+      "webhookId": "caregrid-voice-events"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.name}}",
+              "operation": "equal",
+              "value2": "verify_patient"
+            }
+          ]
+        }
+      },
+      "id": "switch-verify-patient",
+      "name": "Switch - Verify Patient",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.name}}",
+              "operation": "equal",
+              "value2": "get_available_slots"
+            }
+          ]
+        }
+      },
+      "id": "switch-available-slots",
+      "name": "Switch - Available Slots",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [460, 400]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.name}}",
+              "operation": "equal",
+              "value2": "book_appointment"
+            }
+          ]
+        }
+      },
+      "id": "switch-book-appointment",
+      "name": "Switch - Book Appointment",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [460, 500]
+    },
+    {
+      "parameters": {
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "url": "={{$env.CAREGRID_API_BASE}}/api/patients/verify",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json"
+          }
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "={{$json.arguments.name}}"
+            },
+            {
+              "name": "dob",
+              "value": "={{$json.arguments.dob}}"
+            },
+            {
+              "name": "postcode",
+              "value": "={{$json.arguments.postcode}}"
+            }
+          ]
+        }
+      },
+      "id": "http-verify-patient",
+      "name": "HTTP - Verify Patient",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [680, 300],
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "voice-bot-auth",
+          "name": "Voice Bot Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "url": "={{$env.CAREGRID_API_BASE}}/api/appointments/slots",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json"
+          }
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "clinic_id",
+              "value": "={{$json.arguments.clinic_id}}"
+            },
+            {
+              "name": "date_range",
+              "value": "={{$json.arguments.date_range}}"
+            },
+            {
+              "name": "appointment_type",
+              "value": "={{$json.arguments.appointment_type}}"
+            }
+          ]
+        }
+      },
+      "id": "http-available-slots",
+      "name": "HTTP - Available Slots",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [680, 400],
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "voice-bot-auth",
+          "name": "Voice Bot Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "url": "={{$env.CAREGRID_API_BASE}}/api/appointments",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json"
+          }
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "patient_id",
+              "value": "={{$json.arguments.patient_id}}"
+            },
+            {
+              "name": "clinic_id",
+              "value": "={{$json.arguments.clinic_id}}"
+            },
+            {
+              "name": "datetime",
+              "value": "={{$json.arguments.datetime}}"
+            },
+            {
+              "name": "type",
+              "value": "={{$json.arguments.type}}"
+            },
+            {
+              "name": "notes",
+              "value": "={{$json.arguments.notes}}"
+            }
+          ]
+        }
+      },
+      "id": "http-book-appointment",
+      "name": "HTTP - Book Appointment",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [680, 500],
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "voice-bot-auth",
+          "name": "Voice Bot Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{$env.SMS_BASE_URL}}/send",
+        "options": {
+          "headers": {
+            "Authorization": "Bearer {{$env.SMS_API_KEY}}",
+            "Content-Type": "application/json"
+          }
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "to",
+              "value": "={{$json.phone_number}}"
+            },
+            {
+              "name": "message",
+              "value": "CareGrid: Your appointment is confirmed for {{$json.datetime}}. Reference: {{$json.appointment_id}}. Reply STOP to opt out."
+            }
+          ]
+        }
+      },
+      "id": "http-send-sms",
+      "name": "HTTP - Send SMS",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [900, 500]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": {
+          "ok": true,
+          "result": {
+            "verified": "={{$json.success}}",
+            "patient_id": "={{$json.patient_id}}",
+            "message": "={{$json.message || 'Patient verification completed'}}"
+          }
+        }
+      },
+      "id": "respond-verify-patient",
+      "name": "Respond - Verify Patient",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": {
+          "ok": true,
+          "result": {
+            "slots": "={{$json.available_slots}}",
+            "clinic_info": "={{$json.clinic_info}}",
+            "message": "Available appointment slots retrieved"
+          }
+        }
+      },
+      "id": "respond-available-slots",
+      "name": "Respond - Available Slots",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [900, 400]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": {
+          "ok": true,
+          "result": {
+            "appointment_id": "={{$json.appointment_id}}",
+            "confirmation": "={{$json.confirmation_number}}",
+            "datetime": "={{$json.datetime}}",
+            "message": "Appointment booked successfully"
+          }
+        }
+      },
+      "id": "respond-book-appointment",
+      "name": "Respond - Book Appointment",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1120, 500]
+    },
+    {
+      "parameters": {
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "url": "={{$env.CAREGRID_API_BASE}}/api/call-events",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json"
+          }
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "call_id",
+              "value": "={{$json.call?.id}}"
+            },
+            {
+              "name": "phone_number",
+              "value": "={{$json.call?.customer?.number}}"
+            },
+            {
+              "name": "status",
+              "value": "={{$json.type}}"
+            },
+            {
+              "name": "duration",
+              "value": "={{$json.call?.duration}}"
+            },
+            {
+              "name": "transcript",
+              "value": "={{$json.transcript}}"
+            },
+            {
+              "name": "timestamp",
+              "value": "={{$json.timestamp}}"
+            }
+          ]
+        }
+      },
+      "id": "http-log-call-event",
+      "name": "HTTP - Log Call Event",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [460, 600],
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "voice-bot-auth",
+          "name": "Voice Bot Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": {
+          "ok": true,
+          "message": "Call event logged successfully"
+        }
+      },
+      "id": "respond-call-event",
+      "name": "Respond - Call Event",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [680, 600]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.name}}",
+              "operation": "equal",
+              "value2": "create_ticket"
+            }
+          ]
+        }
+      },
+      "id": "switch-create-ticket",
+      "name": "Switch - Create Ticket",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [460, 700]
+    },
+    {
+      "parameters": {
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "url": "={{$env.CAREGRID_API_BASE}}/api/tickets",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json"
+          }
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "patient_id",
+              "value": "={{$json.arguments.patient_id}}"
+            },
+            {
+              "name": "category",
+              "value": "={{$json.arguments.category}}"
+            },
+            {
+              "name": "description",
+              "value": "={{$json.arguments.description}}"
+            },
+            {
+              "name": "priority",
+              "value": "={{$json.arguments.priority}}"
+            },
+            {
+              "name": "source",
+              "value": "ai_receptionist"
+            }
+          ]
+        }
+      },
+      "id": "http-create-ticket",
+      "name": "HTTP - Create Ticket",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [680, 700],
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "voice-bot-auth",
+          "name": "Voice Bot Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": {
+          "ok": true,
+          "result": {
+            "ticket_id": "={{$json.ticket_id}}",
+            "reference": "={{$json.reference_number}}",
+            "message": "Support ticket created successfully"
+          }
+        }
+      },
+      "id": "respond-create-ticket",
+      "name": "Respond - Create Ticket",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [900, 700]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": {
+          "ok": false,
+          "error": "Unknown function: {{$json.name}}"
+        }
+      },
+      "id": "respond-unknown-function",
+      "name": "Respond - Unknown Function",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [680, 800]
+    }
+  ],
+  "connections": {
+    "webhook-tools": {
+      "main": [
+        [
+          {
+            "node": "switch-verify-patient",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "switch-available-slots",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "switch-book-appointment",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "switch-create-ticket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "webhook-events": {
+      "main": [
+        [
+          {
+            "node": "http-log-call-event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "switch-verify-patient": {
+      "main": [
+        [
+          {
+            "node": "http-verify-patient",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "respond-unknown-function",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "switch-available-slots": {
+      "main": [
+        [
+          {
+            "node": "http-available-slots",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "respond-unknown-function",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "switch-book-appointment": {
+      "main": [
+        [
+          {
+            "node": "http-book-appointment",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "respond-unknown-function",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "switch-create-ticket": {
+      "main": [
+        [
+          {
+            "node": "http-create-ticket",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "respond-unknown-function",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "http-verify-patient": {
+      "main": [
+        [
+          {
+            "node": "respond-verify-patient",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "http-available-slots": {
+      "main": [
+        [
+          {
+            "node": "respond-available-slots",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "http-book-appointment": {
+      "main": [
+        [
+          {
+            "node": "http-send-sms",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "http-send-sms": {
+      "main": [
+        [
+          {
+            "node": "respond-book-appointment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "http-log-call-event": {
+      "main": [
+        [
+          {
+            "node": "respond-call-event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "http-create-ticket": {
+      "main": [
+        [
+          {
+            "node": "respond-create-ticket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "timezone": "Europe/London"
+  },
+  "versionId": "1.0.0",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "id": "caregrid-ai-receptionist-phase1",
+  "tags": [
+    {
+      "createdAt": "2024-01-15T10:00:00.000Z",
+      "updatedAt": "2024-01-15T10:00:00.000Z",
+      "id": "1",
+      "name": "caregrid"
+    },
+    {
+      "createdAt": "2024-01-15T10:00:00.000Z",
+      "updatedAt": "2024-01-15T10:00:00.000Z",
+      "id": "2",
+      "name": "ai-receptionist"
+    }
+  ]
+}

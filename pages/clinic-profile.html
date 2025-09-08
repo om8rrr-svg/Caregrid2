@@ -28,6 +28,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/fontawesome/css/all.min.css">
     <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/ai-reception.css">
     <style>
         .hour-row {
             display: flex;
@@ -575,6 +576,10 @@
                     <div class="section-card">
                         <h3>Quick Actions</h3>
                         <div class="action-buttons">
+                            <button class="action-btn ai-reception" onclick="AIReceptionService.initializeCall()">
+                                <i class="fas fa-robot"></i>
+                                AI Reception
+                            </button>
                             <button class="action-btn primary">
                                 <i class="fas fa-calendar"></i>
                                 Book Appointment
@@ -632,6 +637,10 @@
 
     <!-- Mobile Sticky Bottom Action Bar -->
     <div class="clinic-profile-bottom-bar">
+        <button class="bottom-action-btn ai-reception" onclick="AIReceptionService.initializeCall()">
+            <i class="fas fa-robot"></i>
+            <span>AI Call</span>
+        </button>
         <a href="tel:" class="bottom-action-btn call" id="bottomCallBtn">
             <i class="fas fa-phone"></i>
             Call
@@ -1809,6 +1818,8 @@
     <script type="module" src="../js/clinic-data.js"></script>
     
     <script type="module" src="../js/header.js"></script>
+    <script src="../js/ai-reception.js"></script>
+<script src="../js/vapi-integration.js"></script>
     <script>
         // Sticky CTA functionality - populate phone/email links
         document.addEventListener("DOMContentLoaded", async () => {

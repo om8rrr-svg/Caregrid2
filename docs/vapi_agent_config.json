@@ -1,0 +1,250 @@
+{
+  "name": "CareGrid AI Receptionist",
+  "model": {
+    "provider": "openai",
+    "model": "gpt-4",
+    "temperature": 0.7,
+    "maxTokens": 500
+  },
+   "privateKey": "8c2df869-952d-41bd-a232-ba76bb701290",
+   "publicKey": "f0c7e9c6-b8b3-49be-8bcc-4970dff83295",
+   "voice": {
+     "provider": "11labs",
+     "voiceId": "sarah",
+     "stability": 0.5,
+     "similarityBoost": 0.8,
+     "style": 0.2,
+     "useSpeakerBoost": true,
+     "optimizeStreamingLatency": 3,
+     "emotionRecognitionEnabled": true,
+    "numFastTurns": 1
+  },
+  "voice": {
+    "provider": "elevenlabs",
+    "voiceId": "pNInz6obpgDQGcFmaJgB",
+    "stability": 0.5,
+    "similarityBoost": 0.8,
+    "style": 0.2,
+    "useSpeakerBoost": true
+  },
+  "firstMessage": "Hello! You're speaking to CareGrid's AI Receptionist. How can I help you today?",
+  "systemMessage": "You are CareGrid's AI Receptionist, a professional and empathetic voice assistant helping patients with appointments, inquiries, and basic support.\n\n## IDENTITY & GREETING\n- Always introduce yourself: \"Hello! You're speaking to CareGrid's AI Receptionist.\"\n- Maintain a warm, professional, and helpful tone throughout the conversation\n- Speak clearly with a British accent and use UK terminology\n\n## CORE RESPONSIBILITIES\n1. **Appointment Management**: Book, reschedule, and cancel appointments\n2. **Patient Verification**: Verify patient identity using name, date of birth, and postcode\n3. **General Inquiries**: Answer questions about clinic hours, services, and locations\n4. **Emergency Handling**: Immediately direct emergencies to appropriate services\n5. **Ticket Creation**: Create support tickets for complex issues requiring human intervention\n\n## EMERGENCY PROTOCOLS\n- If patient mentions emergency, chest pain, difficulty breathing, severe injury, or life-threatening situation:\n  - IMMEDIATELY say: \"This sounds like an emergency. Please hang up now and dial 999 for immediate medical assistance.\"\n  - Do not attempt to provide medical advice\n  - Do not continue with other services until emergency is addressed\n\n## PATIENT VERIFICATION PROCESS\nBefore accessing any patient information or booking appointments:\n1. Ask for full name\n2. Request date of birth (format: DD/MM/YYYY)\n3. Ask for postcode\n4. Use verify_patient function to confirm identity\n5. If verification fails, politely ask to double-check details or suggest calling during office hours\n\n## APPOINTMENT BOOKING WORKFLOW\n1. Verify patient identity first\n2. Ask about preferred appointment type (consultation, follow-up, etc.)\n3. Inquire about preferred dates and times\n4. Check availability using get_available_slots function\n5. Present 2-3 available options\n6. Confirm patient's choice\n7. Book appointment using book_appointment function\n8. Provide confirmation details and reference number\n9. Offer to send SMS confirmation\n\n## GENERAL INQUIRIES\nYou can provide information about:\n- Clinic opening hours: Monday-Friday 8:00 AM - 6:00 PM, Saturday 9:00 AM - 1:00 PM\n- Services offered: General consultations, specialist referrals, health screenings\n- Location and contact information\n- Appointment preparation instructions\n- Basic NHS and private appointment differences\n\n## LIMITATIONS & ESCALATION\nYou CANNOT:\n- Provide medical advice or diagnose conditions\n- Access or discuss medical records or test results\n- Handle payment or billing inquiries\n- Make clinical decisions\n- Override clinical protocols\n\nFor these issues, create a support ticket using create_ticket function and inform patient that a staff member will contact them within 24 hours.\n\n## DATA PROTECTION & PRIVACY\n- Never repeat sensitive information like full postcodes or dates of birth\n- Keep conversations focused on necessary information only\n- If asked about data usage, explain that calls may be recorded for quality and training purposes\n- Respect patient confidentiality at all times\n\n## CONVERSATION MANAGEMENT\n- Keep responses concise but complete\n- Ask one question at a time\n- Confirm understanding before proceeding\n- If patient seems confused, offer to repeat information\n- Always end calls professionally: \"Is there anything else I can help you with today?\"\n\nRemember: Your goal is to provide efficient, accurate, and compassionate service while maintaining the highest standards of patient care and data protection.",
+  "functions": [
+    {
+      "name": "verify_patient",
+      "description": "Verify patient identity using name, date of birth, and postcode before accessing any patient information or booking appointments.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Patient's full name as provided"
+          },
+          "dob": {
+            "type": "string",
+            "description": "Patient's date of birth in DD/MM/YYYY format"
+          },
+          "postcode": {
+            "type": "string",
+            "description": "Patient's postcode for verification"
+          }
+        },
+        "required": ["name", "dob", "postcode"]
+      },
+      "url": "https://YOUR_N8N_DOMAIN/webhook/caregrid/voice/tools"
+    },
+    {
+      "name": "get_available_slots",
+      "description": "Retrieve available appointment slots for a specific clinic and date range.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "clinic_id": {
+            "type": "string",
+            "description": "Clinic identifier (use 'main' for primary clinic)"
+          },
+          "date_range": {
+            "type": "string",
+            "description": "Preferred date range (e.g., 'next_week', 'this_month', or specific dates)"
+          },
+          "appointment_type": {
+            "type": "string",
+            "description": "Type of appointment (consultation, follow-up, screening, etc.)"
+          }
+        },
+        "required": ["clinic_id"]
+      },
+      "url": "https://YOUR_N8N_DOMAIN/webhook/caregrid/voice/tools"
+    },
+    {
+      "name": "book_appointment",
+      "description": "Book a new appointment for a verified patient.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "patient_id": {
+            "type": "string",
+            "description": "Patient ID from verification step"
+          },
+          "clinic_id": {
+            "type": "string",
+            "description": "Clinic identifier"
+          },
+          "datetime": {
+            "type": "string",
+            "description": "Appointment date and time in ISO format"
+          },
+          "type": {
+            "type": "string",
+            "description": "Appointment type (consultation, follow-up, etc.)"
+          },
+          "notes": {
+            "type": "string",
+            "description": "Any additional notes or requirements"
+          }
+        },
+        "required": ["patient_id", "clinic_id", "datetime", "type"]
+      },
+      "url": "https://YOUR_N8N_DOMAIN/webhook/caregrid/voice/tools"
+    },
+    {
+      "name": "get_patient_appointments",
+      "description": "Retrieve existing appointments for a verified patient.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "patient_id": {
+            "type": "string",
+            "description": "Patient ID from verification step"
+          }
+        },
+        "required": ["patient_id"]
+      },
+      "url": "https://YOUR_N8N_DOMAIN/webhook/caregrid/voice/tools"
+    },
+    {
+      "name": "reschedule_appointment",
+      "description": "Reschedule an existing appointment to a new date/time.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "appointment_id": {
+            "type": "string",
+            "description": "ID of the appointment to reschedule"
+          },
+          "new_datetime": {
+            "type": "string",
+            "description": "New appointment date and time in ISO format"
+          },
+          "reason": {
+            "type": "string",
+            "description": "Reason for rescheduling (optional)"
+          }
+        },
+        "required": ["appointment_id", "new_datetime"]
+      },
+      "url": "https://YOUR_N8N_DOMAIN/webhook/caregrid/voice/tools"
+    },
+    {
+      "name": "cancel_appointment",
+      "description": "Cancel an existing appointment.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "appointment_id": {
+            "type": "string",
+            "description": "ID of the appointment to cancel"
+          },
+          "reason": {
+            "type": "string",
+            "description": "Reason for cancellation"
+          }
+        },
+        "required": ["appointment_id", "reason"]
+      },
+      "url": "https://YOUR_N8N_DOMAIN/webhook/caregrid/voice/tools"
+    },
+    {
+      "name": "create_ticket",
+      "description": "Create a support ticket for complex issues that require human intervention.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "patient_id": {
+            "type": "string",
+            "description": "Patient ID if available (optional)"
+          },
+          "category": {
+            "type": "string",
+            "description": "Ticket category (billing, medical, technical, general)"
+          },
+          "description": {
+            "type": "string",
+            "description": "Detailed description of the issue or request"
+          },
+          "priority": {
+            "type": "string",
+            "description": "Priority level (low, medium, high, urgent)"
+          }
+        },
+        "required": ["category", "description"]
+      },
+      "url": "https://YOUR_N8N_DOMAIN/webhook/caregrid/voice/tools"
+    },
+    {
+      "name": "send_sms",
+      "description": "Send SMS confirmation or notification to patient.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "phone_number": {
+            "type": "string",
+            "description": "Patient's phone number"
+          },
+          "message": {
+            "type": "string",
+            "description": "SMS message content"
+          }
+        },
+        "required": ["phone_number", "message"]
+      },
+      "url": "https://YOUR_N8N_DOMAIN/webhook/caregrid/voice/tools"
+    }
+  ],
+  "endCallFunctionEnabled": true,
+  "recordingEnabled": false,
+  "hipaaEnabled": true,
+  "silenceTimeoutSeconds": 30,
+  "maxDurationSeconds": 600,
+  "backgroundSound": "office",
+  "backchannelingEnabled": true,
+  "backgroundDenoisingEnabled": true,
+  "modelOutputInMessagesEnabled": true,
+  "transportConfigurations": [
+    {
+      "provider": "twilio",
+      "timeout": 60,
+      "record": false
+    }
+  ],
+  "clientMessages": [
+    "conversation-update",
+    "function-call",
+    "hang",
+    "speech-update",
+    "transcript",
+    "tool-calls"
+  ],
+  "serverMessages": [
+    "conversation-update",
+    "end-of-call-report",
+    "function-call",
+    "hang",
+    "speech-update",
+    "status-update",
+    "transcript",
+    "tool-calls"
+  ],
+  "serverUrl": "https://YOUR_N8N_DOMAIN/webhook/caregrid/voice/events",
+  "serverUrlSecret": "caregrid_webhook_secret_2024"
+}
