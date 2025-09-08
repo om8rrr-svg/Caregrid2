@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redirecting to Clinic Profile...</title>
+    <script>
+        // Redirect to the correct clinic profile page in the pages folder
+        const urlParams = new URLSearchParams(window.location.search);
+        const clinicId = urlParams.get('id');
+        
+        if (clinicId) {
+            window.location.href = `./pages/clinic-profile.html?id=${clinicId}`;
+        } else {
+            window.location.href = './pages/clinic-profile.html';
+        }
+    </script>
+</head>
+<body>
+    <p>Redirecting to clinic profile...</p>
+</body>
+</html>
