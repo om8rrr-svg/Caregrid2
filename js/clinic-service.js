@@ -178,9 +178,15 @@ class ClinicService {
 
     /**
      * Fallback data when API is unavailable
-     * Returns a minimal set of clinic data
+     * Returns the full clinic dataset from script.js
      */
     getFallbackData() {
+        // Use the full clinicsData array from script.js if available
+        if (typeof window !== 'undefined' && window.clinicsData && Array.isArray(window.clinicsData) && window.clinicsData.length > 2) {
+            return window.clinicsData;
+        }
+        
+        // If script.js data not available, return minimal fallback
         return [
             {
                 id: 1,
