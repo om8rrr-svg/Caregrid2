@@ -3038,6 +3038,7 @@ function renderPagination() {
 }
 
 async function updateLocationCounts() {
+    console.log('updateLocationCounts: Starting function');
     const locations = [
         { key: 'manchester', city: 'Manchester' },
         { key: 'bolton', city: 'Bolton' },
@@ -3050,6 +3051,7 @@ async function updateLocationCounts() {
     
     // Check if backend is healthy before making requests
     const isBackendHealthy = await window.apiService.isBackendHealthy();
+    console.log('updateLocationCounts: Backend healthy?', isBackendHealthy);
     
     // Update total count for 'All Locations'
     try {
@@ -3063,8 +3065,10 @@ async function updateLocationCounts() {
         }
         
         const totalCountElement = document.querySelector('[data-location="all"] .clinic-count');
+        console.log('updateLocationCounts: Total count:', totalCount, 'Element found:', !!totalCountElement);
         if (totalCountElement) {
             totalCountElement.textContent = `${totalCount} clinics`;
+            console.log('updateLocationCounts: Updated total count element to:', totalCountElement.textContent);
         }
         
         // Also update mobile dropdown
@@ -3105,8 +3109,10 @@ async function updateLocationCounts() {
             }
             
             const countElement = document.querySelector(`[data-location="${location.key}"] .clinic-count`);
+            console.log(`updateLocationCounts: ${location.city} count:`, count, 'Element found:', !!countElement);
             if (countElement) {
                 countElement.textContent = `${count} ${count === 1 ? 'clinic' : 'clinics'}`;
+                console.log(`updateLocationCounts: Updated ${location.city} element to:`, countElement.textContent);
             }
             
             // Also update mobile dropdown
@@ -4112,4 +4118,4 @@ window.closeMobileFilterModal = closeMobileFilterModal;
 window.createEnhancedClinicCard = createEnhancedClinicCard;
 window.createSkeletonCard = createSkeletonCard;
 window.showSkeletonLoading = showSkeletonLoading;
-window.hideSkeletonAndShowContent = hideSkeletonAndShowContent;
+window.hideSkeletonAndShowContent = hideSkeletonAndShowContent;console.log("Script.js loaded and executing");

@@ -1,7 +1,7 @@
 const { createClient } = require('@supabase/supabase-js');
 const fs = require('fs');
 const path = require('path');
-require('dotenv').config({ path: '../.env.local' });
+require('dotenv').config({ path: './.env.local' });
 
 // Initialize Supabase client with service key for admin operations
 const supabase = createClient(
@@ -167,7 +167,7 @@ async function createSchema() {
 function loadClinicData() {
     // First try to extract from script.js (contains the most complete dataset)
     try {
-        const scriptPath = '../js/script.js';
+        const scriptPath = './js/script.js';
         if (fs.existsSync(scriptPath)) {
             log('Attempting to extract data from script.js');
             const scriptContent = fs.readFileSync(scriptPath, 'utf8');
@@ -188,6 +188,7 @@ function loadClinicData() {
     
     // Fallback to JSON files
     const possiblePaths = [
+        './output/clinics_extracted.json',
         './output/clinics_all.json',
         './data/clinics.json',
         './js/clinics-data.json',

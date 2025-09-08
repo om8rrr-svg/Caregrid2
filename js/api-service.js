@@ -691,7 +691,7 @@ class APIService {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 5000); // Quick timeout for health checks
             
-            const response = await fetch(this.buildUrl('/health'), {
+            const response = await fetch(this.buildUrl('/api/health'), {
                 method: 'GET',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'omit',
@@ -719,7 +719,7 @@ class APIService {
     // Health check
     async healthCheck() {
         try {
-            const response = await this.makeRequest('/health');
+            const response = await this.makeRequest('/api/health');
             this.backendHealthy = true;
             this.lastHealthCheck = Date.now();
             return response;

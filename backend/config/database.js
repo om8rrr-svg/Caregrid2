@@ -1,16 +1,23 @@
 const { Pool } = require('pg');
 const path = require('path');
 const MockDatabase = require(path.join(__dirname, '..', 'mock-database'));
+const { createSupabaseClient, querySupabase } = require('./supabase');
 require('dotenv').config();
 
 // Initialize mock database for testing
 let mockDb = null;
 let useMock = false;
 
+// Check if we should use Supabase or PostgreSQL
+const useSupabase = process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_KEY;
+
 // Database configuration - supports both DATABASE_URL and individual env vars
 let dbConfig;
 
-if (process.env.DATABASE_URL) {
+// Prioritize Supabase if available, otherwise use PostgreSQL
+if (useSupabase) {
+  console.log('🔗 Supabase configuration detected - will use Supabase client');
+} else if (process.env.DATABASE_URL) {
   // Use DATABASE_URL (common for Render, Heroku, etc.)
   dbConfig = {
     connectionString: process.env.DATABASE_URL,
@@ -56,16 +63,21 @@ if (process.env.DATABASE_URL) {
     application_name: 'caregrid-backend'
   };
   console.log('🔗 Using individual DB_* environment variables with optimized pool settings');
-} else {
+} else if (!useSupabase) {
   // No database configured - use mock for testing
   console.log('🧪 No database configured - using mock data for testing');
   useMock = true;
   mockDb = new MockDatabase();
 }
 
-// Create connection pool only if not using mock
+// Create connection pool or Supabase client
 let pool = null;
-if (!useMock) {
+let supabaseClient = null;
+
+if (useSupabase && !useMock) {
+  supabaseClient = createSupabaseClient();
+  console.log('✅ Using Supabase client for database operations');
+} else if (!useMock) {
   pool = new Pool(dbConfig);
   
   // Test database connection
@@ -100,6 +112,9 @@ const query = async (text, params) => {
       res = await mockDb.query(text, params);
       const duration = Date.now() - start;
       console.log('🧪 Mock query executed', { text: text.substring(0, 50) + '...', duration, rows: res.rowCount });
+    } else if (useSupabase) {
+      // Use Supabase client
+      res = await querySupabase(text, params);
     } else {
       // Use real database with performance monitoring
       res = await pool.query(text, params);
