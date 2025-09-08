@@ -559,7 +559,7 @@ class APIService {
     }
 
     async getClinicById(clinicId) {
-        const response = await this.makeRequest(`/clinics/${clinicId}`);
+        const response = await this.makeRequest(`/clinics?id=${clinicId}`);
         return response;
     }
 
