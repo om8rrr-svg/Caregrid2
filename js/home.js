@@ -187,14 +187,14 @@ async function loadFeaturedClinics() {
   try {
     const rsp = await fetchJson('/api/clinics', { params: { limit: 100 } });
     const clinics = rsp?.data || rsp || [];
-    const items = Array.isArray(clinics) ? clinics.slice(0, 3) : []; // Limit to 3 featured
+    const items = Array.isArray(clinics) ? clinics.slice(0, 3) : []; // Take up to 3 featured
     
     let data, isDemo = false;
     
-    if (items.length >= 3) {
+    if (items.length > 0) {
       data = items;
     } else {
-      // Use demo data if API returns insufficient results
+      // Use demo data if API returns no results
       data = demoClinicData;
       isDemo = true;
       

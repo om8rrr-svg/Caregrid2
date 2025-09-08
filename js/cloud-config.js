@@ -23,7 +23,7 @@ function getCloudConfig() {
         } else {
             // Production
             cdnBaseUrl = 'https://caregrid.co.uk';
-            apiBaseUrl = 'https://api.caregrid.co.uk';
+            apiBaseUrl = 'https://www.caregrid.co.uk';
         }
     }
     
