@@ -484,7 +484,8 @@ class AdvancedSearch {
             }
             
             // Only log in development mode
-            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            const apiBase = window.__CONFIG__ ? window.__CONFIG__.getApiBase() : window.__API_BASE__;
+            if (apiBase && apiBase.includes('localhost')) {
                 console.log(`Applying filters with API params (attempt ${retryCount + 1}/${maxRetries + 1}):`, params);
             }
             
@@ -520,7 +521,8 @@ class AdvancedSearch {
             if (retryCount < maxRetries && this.shouldRetrySearch(error)) {
                 const delay = baseDelay * Math.pow(2, retryCount);
                 
-                if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                const apiBase = window.__CONFIG__ ? window.__CONFIG__.getApiBase() : window.__API_BASE__;
+                if (apiBase && apiBase.includes('localhost')) {
                     console.warn(`⚠️ Search API request failed (attempt ${retryCount + 1}), retrying in ${delay}ms:`, error.message);
                 }
                 
@@ -560,7 +562,8 @@ class AdvancedSearch {
     
     // Handle search errors with appropriate fallbacks
     handleSearchError(error) {
-        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        const apiBase = window.__CONFIG__ ? window.__CONFIG__.getApiBase() : window.__API_BASE__;
+        if (apiBase && apiBase.includes('localhost')) {
             console.error('Search API error after retries:', error);
         }
         
@@ -637,7 +640,8 @@ class AdvancedSearch {
             this.cleanSearchCache();
         } catch (e) {
             // localStorage might be full, ignore caching errors
-            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            const apiBase = window.__CONFIG__ ? window.__CONFIG__.getApiBase() : window.__API_BASE__;
+            if (apiBase && apiBase.includes('localhost')) {
                 console.warn('Failed to cache search results:', e.message);
             }
         }

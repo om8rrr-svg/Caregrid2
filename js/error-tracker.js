@@ -356,12 +356,18 @@ class CareGridErrorTracker {
         );
       } else {
         // Use fetch for asynchronous sending
+        const headers = {
+          'Content-Type': 'application/json'
+        };
+        
+        // Only add Authorization header if apiKey is not the demo token
+        if (this.config.apiKey && this.config.apiKey !== 'demo-token') {
+          headers['Authorization'] = `Bearer ${this.config.apiKey}`;
+        }
+        
         const response = await fetch(this.config.apiEndpoint, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${this.config.apiKey}`
-          },
+          headers: headers,
           body: JSON.stringify(payload)
         });
         
@@ -441,10 +447,27 @@ class CareGridErrorTracker {
 
 // Auto-initialize if in browser environment
 if (typeof window !== 'undefined') {
-  // Initialize with default config
+  // Initialize with environment-based config
+  const getErrorApiEndpoint = () => {
+    if (window.CAREGRID_ERROR_API) return window.CAREGRID_ERROR_API;
+    
+    // Get environment from meta tag or default to production
+    const environment = document.querySelector('meta[name="environment"]')?.content || 'production';
+    
+    switch (environment) {
+      case 'development':
+        return 'http://localhost:3000/api/errors';
+      case 'staging':
+        return 'https://api-staging.caregrid.co.uk/api/errors';
+      case 'production':
+      default:
+        return 'https://api.caregrid.co.uk/api/errors';
+    }
+  };
+  
   window.CareGridErrorTracker = new CareGridErrorTracker({
     // You can override these in your application
-    apiEndpoint: window.CAREGRID_ERROR_API || 'https://caregrid-backend-latest.onrender.com/api/errors',
+    apiEndpoint: getErrorApiEndpoint(),
     apiKey: window.CAREGRID_API_KEY || 'demo-token',
     userId: window.CAREGRID_USER_ID || null
   });

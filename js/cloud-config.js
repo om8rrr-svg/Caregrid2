@@ -1,67 +1,103 @@
-/**
- * Cloud Configuration for CareGrid
- * Centralized configuration for cloud services including CDN, API endpoints, and assets
- */
+// Cloud Configuration for CareGrid
+// Handles CDN and API base URLs for different environments using centralized config
 
-// Cloud CDN Configuration
-const CLOUD_CONFIG = {
-    // CDN Base URL - Update this when migrating to cloud CDN
-    CDN_BASE_URL: 'https://caregrid2-ddk7.vercel.app',
+// Get configuration based on environment
+function getCloudConfig() {
+    let cdnBaseUrl, apiBaseUrl;
     
-    // API Configuration
-    API_BASE_URL: 'https://caregrid-backend-latest.onrender.com',
-    
-    // Image optimization settings
-    IMAGE_OPTIMIZATION: {
-        quality: 85,
-        format: 'webp',
-        fallback: 'jpg',
-        sizes: {
-            thumbnail: 150,
-            small: 300,
-            medium: 600,
-            large: 1200
-        }
-    },
-    
-    // Asset paths mapping
-    ASSETS: {
-        // Core branding
-        logo: 'logo.svg',
-        favicon: 'favicon.ico',
-        defaultAvatar: 'default-avatar.svg',
+    if (typeof window !== 'undefined' && window.__CONFIG__) {
+        // Use centralized configuration
+        cdnBaseUrl = window.__CONFIG__.getCdnBase();
+        apiBaseUrl = window.__CONFIG__.getApiBase();
+    } else {
+        // Fallback configuration
+        const envMeta = typeof document !== 'undefined' ? document.querySelector('meta[name="environment"]') : null;
+        const environment = envMeta ? envMeta.content : 'production';
         
-        // Clinic placeholder images
-        clinicPlaceholders: [
-            'clinic1.svg',
-            'clinic2.svg',
-            'clinic3.svg',
-            'clinic4.svg',
-            'clinic5.svg',
-            'clinic6.svg',
-            'clinic7.svg',
-            'clinic8.svg',
-            'clinic9.svg',
-            'clinic10.svg'
-        ],
-        
-        // Real clinic images
-        clinicImages: {
-            'pall_mall_medical': 'pall_mall_medical.jpg',
-            'didsbury_dental': 'didsbury_dental_practice.jpg',
-            'city_rehab_liverpool': 'City Rehab Liverpool.avif',
-            'pall_mall_liverpool': 'Pall Mall Medical Liverpool.jpg',
-            'dental_care_manchester': '207 Dental Care Manchester.jpeg',
-            'spire_manchester': 'Spire Manchester Hospital Physiotherapy.jpg',
-            'regent_street': 'Regent Street Medical Practice.jpg',
-            'droylsden_dental': 'Droylsden Road Dental Practice.webp',
-            'dental_team_manchester': 'The Dental Team Manchester.png',
-            'regent_medical': 'regent_medical_practice.jpg',
-            'sameday_doctor': 'samedaydoctor_manchester.jpg',
-            'private_gp_extra': 'private_gp_extra_manchester.jpg'
+        if (environment === 'development') {
+            cdnBaseUrl = 'http://localhost:8000';
+            apiBaseUrl = 'http://localhost:3000';
+        } else if (environment === 'staging') {
+            cdnBaseUrl = 'https://staging.caregrid.co.uk';
+            apiBaseUrl = 'https://api-staging.caregrid.co.uk';
+        } else {
+            // Production
+            cdnBaseUrl = 'https://caregrid.co.uk';
+            apiBaseUrl = 'https://api.caregrid.co.uk';
         }
     }
-};
+    
+    // Validate no localhost in production
+    if (typeof window !== 'undefined') {
+        const envMeta = document.querySelector('meta[name="environment"]');
+        const environment = envMeta ? envMeta.content : 'production';
+        
+        if (environment === 'production' && 
+            (cdnBaseUrl.includes('localhost') || apiBaseUrl.includes('localhost'))) {
+            throw new Error('Production build contains localhost references in cloud config. Check environment configuration.');
+        }
+    }
+    
+    return {
+        CDN_BASE_URL: cdnBaseUrl,
+        API_BASE_URL: apiBaseUrl,
+        ASSETS_BASE: cdnBaseUrl + '/assets',
+        IMAGES_BASE: cdnBaseUrl + '/images',
+        
+        // Image optimization settings
+        IMAGE_OPTIMIZATION: {
+            quality: 85,
+            format: 'webp',
+            fallback: 'jpg',
+            sizes: {
+                thumbnail: 150,
+                small: 300,
+                medium: 600,
+                large: 1200
+            }
+        },
+        
+        // Asset paths mapping
+        ASSETS: {
+            // Core branding
+            logo: 'logo.svg',
+            favicon: 'favicon.ico',
+            defaultAvatar: 'default-avatar.svg',
+            
+            // Clinic placeholder images
+            clinicPlaceholders: [
+                'clinic1.svg',
+                'clinic2.svg',
+                'clinic3.svg',
+                'clinic4.svg',
+                'clinic5.svg',
+                'clinic6.svg',
+                'clinic7.svg',
+                'clinic8.svg',
+                'clinic9.svg',
+                'clinic10.svg'
+            ],
+            
+            // Real clinic images
+            clinicImages: {
+                'pall_mall_medical': 'pall_mall_medical.jpg',
+                'didsbury_dental': 'didsbury_dental_practice.jpg',
+                'city_rehab_liverpool': 'City Rehab Liverpool.avif',
+                'pall_mall_liverpool': 'Pall Mall Medical Liverpool.jpg',
+                'dental_care_manchester': '207 Dental Care Manchester.jpeg',
+                'spire_manchester': 'Spire Manchester Hospital Physiotherapy.jpg',
+                'regent_street': 'Regent Street Medical Practice.jpg',
+                'droylsden_dental': 'Droylsden Road Dental Practice.webp',
+                'dental_team_manchester': 'The Dental Team Manchester.png',
+                'regent_medical': 'regent_medical_practice.jpg',
+                'sameday_doctor': 'samedaydoctor_manchester.jpg',
+                'private_gp_extra': 'private_gp_extra_manchester.jpg'
+            }
+        }
+    };
+}
+
+export const CLOUD_CONFIG = getCloudConfig();
 
 // Helper functions for cloud asset URLs
 const CloudAssets = {
@@ -132,7 +168,7 @@ const CloudAssets = {
 };
 
 // Export for use in other modules
-export { CLOUD_CONFIG, CloudAssets };
+export { CloudAssets };
 
 // Also make available globally for non-module scripts
 if (typeof window !== 'undefined') {

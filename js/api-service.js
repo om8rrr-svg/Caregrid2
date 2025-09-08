@@ -10,6 +10,12 @@ class APIService {
         this.backendHealthy = null; // Track backend health
         this.lastHealthCheck = 0;
         this.healthCheckInterval = 60000; // Check every minute
+        
+        // Use centralized configuration for environment detection
+        const apiBase = window.__CONFIG__ ? window.__CONFIG__.getApiBase() : window.__API_BASE__;
+        if (apiBase && apiBase.includes('localhost')) {
+            console.log('🔍 Development mode: Enhanced API logging enabled');
+        }
     }
 
     // Build complete API URL with parameters - single source of truth
@@ -94,7 +100,8 @@ class APIService {
         const url = buildUrl(`/api${endpoint}`, {});
         
         // Only log in development mode to avoid console spam in production
-        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        const apiBase = window.__CONFIG__ ? window.__CONFIG__.getApiBase() : window.__API_BASE__;
+        if (apiBase && apiBase.includes('localhost')) {
             console.log('Making request to:', url);
         }
         
@@ -171,7 +178,8 @@ class APIService {
             clearTimeout(timeoutId); // Clear timeout on error
             
             // Only log errors in development mode to avoid console spam
-            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            const apiBase = window.__CONFIG__ ? window.__CONFIG__.getApiBase() : window.__API_BASE__;
+            if (apiBase && apiBase.includes('localhost')) {
                 console.error('API Request failed:', error);
                 console.error('Error details:', error.message);
             }
@@ -502,7 +510,8 @@ class APIService {
                 await new Promise(resolve => setTimeout(resolve, delay));
                 
                 // Only log retry attempts in development
-                if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                const apiBase = window.__CONFIG__ ? window.__CONFIG__.getApiBase() : window.__API_BASE__;
+                if (apiBase && apiBase.includes('localhost')) {
                     console.log(`Retrying request to ${url} (attempt ${attempt + 1}/${maxRetries})`);
                 }
             }
@@ -539,7 +548,8 @@ class APIService {
                 await new Promise(resolve => setTimeout(resolve, delay));
                 
                 // Only log retry attempts in development
-                if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                const apiBase = window.__CONFIG__ ? window.__CONFIG__.getApiBase() : window.__API_BASE__;
+                if (apiBase && apiBase.includes('localhost')) {
                     console.log(`Retrying request to ${endpoint} (attempt ${attempt + 1}/${maxRetries})`);
                 }
             }

@@ -1,0 +1,104 @@
+<!-- Environment Configuration Injection Template -->
+<!-- This template should be included in all HTML pages to inject environment-specific configuration -->
+
+<script>
+// Environment Configuration Injection
+// This script detects the environment and loads the appropriate configuration
+(function() {
+    'use strict';
+    
+    // Detect environment from meta tag or URL
+    function detectEnvironment() {
+        // Check for explicit environment meta tag
+        const envMeta = document.querySelector('meta[name="environment"]');
+        if (envMeta && envMeta.content) {
+            return envMeta.content;
+        }
+        
+        // Auto-detect based on hostname
+        const hostname = window.location.hostname;
+        
+        if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.includes('localhost')) {
+            return 'development';
+        } else if (hostname.includes('staging') || hostname.includes('test')) {
+            return 'staging';
+        } else {
+            return 'production';
+        }
+    }
+    
+    // Load environment configuration
+    function loadEnvironmentConfig() {
+        const environment = detectEnvironment();
+        
+        // Set environment meta tag if not already set
+        if (!document.querySelector('meta[name="environment"]')) {
+            const meta = document.createElement('meta');
+            meta.name = 'environment';
+            meta.content = environment;
+            document.head.appendChild(meta);
+        }
+        
+        // Load the centralized configuration
+        if (typeof window.FrontendConfig !== 'undefined') {
+            try {
+                window.__CONFIG__ = new window.FrontendConfig();
+                console.log(`🌍 Environment: ${environment}`);
+                console.log(`🔗 API Base: ${window.__CONFIG__.getApiBase()}`);
+            } catch (error) {
+                console.error('Failed to initialize frontend configuration:', error);
+                // Fallback to legacy configuration
+                initializeLegacyConfig(environment);
+            }
+        } else {
+            // Fallback if FrontendConfig is not available
+            initializeLegacyConfig(environment);
+        }
+    }
+    
+    // Legacy configuration fallback
+    function initializeLegacyConfig(environment) {
+        let apiBase, publicWebBase, cdnBase;
+        
+        switch (environment) {
+            case 'development':
+                apiBase = 'http://localhost:3000';
+                publicWebBase = 'http://localhost:8000';
+                cdnBase = 'http://localhost:8000';
+                break;
+            case 'staging':
+                apiBase = 'https://api-staging.caregrid.co.uk';
+                publicWebBase = 'https://staging.caregrid.co.uk';
+                cdnBase = 'https://staging.caregrid.co.uk';
+                break;
+            case 'production':
+            default:
+                apiBase = 'https://api.caregrid.co.uk';
+                publicWebBase = 'https://caregrid.co.uk';
+                cdnBase = 'https://caregrid.co.uk';
+                break;
+        }
+        
+        // Set global variables for backward compatibility
+        window.__API_BASE__ = apiBase;
+        window.__PUBLIC_WEB_BASE__ = publicWebBase;
+        window.__CDN_BASE__ = cdnBase;
+        
+        console.log(`🌍 Environment: ${environment} (legacy mode)`);
+        console.log(`🔗 API Base: ${apiBase}`);
+    }
+    
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', loadEnvironmentConfig);
+    } else {
+        loadEnvironmentConfig();
+    }
+})();
+</script>
+
+<!-- Environment Meta Tag Template -->
+<!-- Add this meta tag to specify environment explicitly (optional) -->
+<!-- <meta name="environment" content="production"> -->
+<!-- <meta name="environment" content="staging"> -->
+<!-- <meta name="environment" content="development"> -->

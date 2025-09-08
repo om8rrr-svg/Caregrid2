@@ -2128,7 +2128,8 @@ async function loadClinicsFromAPI(retryCount = 0) {
             clinicsData = clinics;
             
             // Only log success in development mode
-            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            const apiBase = window.__CONFIG__ ? window.__CONFIG__.getApiBase() : window.__API_BASE__;
+            if (apiBase && apiBase.includes('localhost')) {
                 console.log('✅ Loaded', clinics.length, 'clinics from cloud service');
             }
             
@@ -2145,7 +2146,8 @@ async function loadClinicsFromAPI(retryCount = 0) {
         loadFallbackData();
         
         // Only log errors in development mode
-        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        const apiBase = window.__CONFIG__ ? window.__CONFIG__.getApiBase() : window.__API_BASE__;
+        if (apiBase && apiBase.includes('localhost')) {
             console.warn('❌ Failed to load clinics from cloud service, using fallback data:', error.message);
         }
     }
@@ -2202,7 +2204,8 @@ function loadFallbackData() {
             const parsedData = JSON.parse(localData);
             if (Array.isArray(parsedData) && parsedData.length > 0) {
                 clinicsData = parsedData;
-                if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                const apiBase = window.__CONFIG__ ? window.__CONFIG__.getApiBase() : window.__API_BASE__;
+                if (apiBase && apiBase.includes('localhost')) {
                     console.log('📦 Loaded backup data from localStorage');
                 }
                 return;
@@ -2213,7 +2216,8 @@ function loadFallbackData() {
     }
     
     // Default sample data is already loaded at the top of the file
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    const apiBase = window.__CONFIG__ ? window.__CONFIG__.getApiBase() : window.__API_BASE__;
+    if (apiBase && apiBase.includes('localhost')) {
         console.log('📋 Using default sample data');
     }
 }
@@ -2232,7 +2236,8 @@ function setCachedClinics(clinics) {
         localStorage.setItem('clinics_backup', JSON.stringify(clinics));
     } catch (e) {
         // localStorage might be full or disabled
-        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        const apiBase = window.__CONFIG__ ? window.__CONFIG__.getApiBase() : window.__API_BASE__;
+        if (apiBase && apiBase.includes('localhost')) {
             console.warn('Failed to cache clinic data:', e.message);
         }
     }
@@ -2347,7 +2352,8 @@ window.addEventListener('api-error', (event) => {
     showAPIStatus(message, 'error');
     
     // Log detailed error info in development
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    const apiBase = window.__CONFIG__ ? window.__CONFIG__.getApiBase() : window.__API_BASE__;
+    if (apiBase && apiBase.includes('localhost')) {
         console.warn('API Error Details:', errorDetail);
     }
 });

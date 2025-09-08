@@ -6,6 +6,7 @@ const compression = require('compression');
 const rateLimit = require('express-rate-limit');
 const { globalErrorBoundary, healthCheckBoundary } = require('./middleware/errorBoundary');
 const { serviceHealthMiddleware } = require('./middleware/serviceIsolation');
+const config = require('./config/environment');
 require('dotenv').config();
 
 // Force redeploy to pick up render.yaml JWT_SECRET changes
@@ -109,10 +110,13 @@ const { errorHandler } = require('./middleware/errorHandler');
 const { authenticateToken } = require('./middleware/auth');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = config.port;
 
-// Trust proxy for X-Forwarded-For headers (required for Render deployment)
-app.set('trust proxy', true);
+// Configure trust proxy for production deployment
+if (config.trustProxy) {
+  app.set('trust proxy', true);
+  console.log('✅ Trust proxy enabled for production');
+}
 
 // Compression middleware - enable gzip compression
 app.use(compression({
@@ -147,7 +151,7 @@ app.use(helmet({
       fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com"],
       scriptSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://cdn.jsdelivr.net", "https://va.vercel-scripts.com"],
       imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'", "https://caregrid-backend.onrender.com", "https://vitals.vercel-insights.com"],
+      connectSrc: ["'self'", "http://localhost:3000", "https://caregrid-backend.onrender.com", "https://vitals.vercel-insights.com"],
       frameSrc: ["'none'"],
       objectSrc: ["'none'"],
       upgradeInsecureRequests: []
@@ -181,11 +185,8 @@ app.use((req, res, next) => {
   next();
 });
 
-// CORS configuration
-const allowlist = (process.env.CORS_ORIGINS || 'http://localhost:3000,http://localhost:5173,http://localhost:8000,http://localhost:8080,http://127.0.0.1:8000,http://127.0.0.1:8080,https://www.caregrid.co.uk,https://caregrid.co.uk,https://caregrid-ops.vercel.app,https://caregrid2-ddk7.vercel.app,https://caregrid2.vercel.app')
-  .split(',')
-  .map(s => s.trim())
-  .filter(Boolean);
+// CORS configuration using centralized config
+const allowlist = config.getCorsOrigins();
 
 const vercelPreviewRegex = /^https:\/\/caregrid2-[a-z0-9-]+\.vercel\.app$/i;
 
@@ -227,7 +228,11 @@ const limiter = rateLimit({
     retryAfter: '15 minutes'
   },
   standardHeaders: true,
-  legacyHeaders: false
+  legacyHeaders: false,
+  // Disable trust proxy validation to avoid security warnings
+  validate: {
+    trustProxy: false
+  }
 });
 app.use(limiter);
 
@@ -240,7 +245,11 @@ const authLimiter = rateLimit({
     retryAfter: '15 minutes'
   },
   standardHeaders: true,
-  legacyHeaders: false
+  legacyHeaders: false,
+  // Disable trust proxy validation to avoid security warnings
+  validate: {
+    trustProxy: false
+  }
 });
 
 // Body parsing middleware

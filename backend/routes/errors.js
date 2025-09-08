@@ -1,6 +1,14 @@
 const express = require('express');
 const router = express.Router();
 
+// Handle preflight OPTIONS request for CORS
+router.options('/', (req, res) => {
+  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+  res.header('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.status(200).end();
+});
+
 // Simple error logging endpoint for frontend error tracker
 router.post('/', (req, res) => {
   try {

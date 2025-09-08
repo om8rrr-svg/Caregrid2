@@ -499,6 +499,86 @@
         </div>
     </div>
     
+    <!-- Environment Configuration Injection -->
+    <script>
+    (function() {
+        'use strict';
+        
+        function detectEnvironment() {
+            const envMeta = document.querySelector('meta[name="environment"]');
+            if (envMeta && envMeta.content) {
+                return envMeta.content;
+            }
+            
+            const hostname = window.location.hostname;
+            
+            if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.includes('localhost')) {
+                return 'development';
+            } else if (hostname.includes('staging') || hostname.includes('test')) {
+                return 'staging';
+            } else {
+                return 'production';
+            }
+        }
+        
+        function loadEnvironmentConfig() {
+            const environment = detectEnvironment();
+            
+            if (!document.querySelector('meta[name="environment"]')) {
+                const meta = document.createElement('meta');
+                meta.name = 'environment';
+                meta.content = environment;
+                document.head.appendChild(meta);
+            }
+            
+            if (typeof window.FrontendConfig !== 'undefined') {
+                try {
+                    window.__CONFIG__ = new window.FrontendConfig();
+                    console.log(`🌍 Environment: ${environment}`);
+                    console.log(`🔗 API Base: ${window.__CONFIG__.getApiBase()}`);
+                } catch (error) {
+                    console.error('Failed to initialize frontend configuration:', error);
+                    initializeLegacyConfig(environment);
+                }
+            } else {
+                initializeLegacyConfig(environment);
+            }
+        }
+        
+        function initializeLegacyConfig(environment) {
+            let apiBase, publicWebBase, cdnBase;
+            
+            switch (environment) {
+                case 'development':
+                    apiBase = 'http://localhost:3000';
+                    publicWebBase = 'http://localhost:8000';
+                    cdnBase = 'http://localhost:8000';
+                    break;
+                case 'staging':
+                    apiBase = 'https://api-staging.caregrid.co.uk';
+                    publicWebBase = 'https://staging.caregrid.co.uk';
+                    cdnBase = 'https://staging.caregrid.co.uk';
+                    break;
+                case 'production':
+                default:
+                    apiBase = 'https://api.caregrid.co.uk';
+                    publicWebBase = 'https://caregrid.co.uk';
+                    cdnBase = 'https://caregrid.co.uk';
+                    break;
+            }
+            
+            window.__API_BASE__ = apiBase;
+            window.__PUBLIC_WEB_BASE__ = publicWebBase;
+            window.__CDN_BASE__ = cdnBase;
+            
+            console.log(`🌍 Environment: ${environment} (legacy mode)`);
+            console.log(`🔗 API Base: ${apiBase}`);
+        }
+        
+        loadEnvironmentConfig();
+    })();
+    </script>
+    
     <!-- API Base and Page Scripts -->
     <script type="module" src="../js/api-base.js"></script>
     <script type="module" src="../js/header.js"></script>

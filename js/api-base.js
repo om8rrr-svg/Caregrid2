@@ -4,8 +4,31 @@
 // Import cloud configuration
 import { CLOUD_CONFIG, CloudAssets } from './cloud-config.js';
 
-// Always use production API base URL
-export const API_BASE = 'https://caregrid-backend-latest.onrender.com/api';
+// Get API base from centralized config
+let API_BASE;
+
+if (typeof window !== 'undefined' && window.__CONFIG__) {
+    // Browser environment with config loaded
+    API_BASE = window.__CONFIG__.getApiBase() + '/api';
+} else if (typeof window !== 'undefined' && window.__API_BASE__) {
+    // Fallback to legacy global variable
+    API_BASE = window.__API_BASE__ + '/api';
+} else {
+    // Server-side or fallback - use production URL
+    API_BASE = 'https://api.caregrid.co.uk/api';
+}
+
+// Validate no localhost in production
+if (typeof window !== 'undefined') {
+    const envMeta = document.querySelector('meta[name="environment"]');
+    const environment = envMeta ? envMeta.content : 'production';
+    
+    if (environment === 'production' && API_BASE.includes('localhost')) {
+        throw new Error('Production build contains localhost API reference. Check environment configuration.');
+    }
+}
+
+export { API_BASE };
 
 // Export cloud assets helper for easy access
 export { CloudAssets };
