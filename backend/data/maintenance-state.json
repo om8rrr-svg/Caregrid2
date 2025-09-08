@@ -1,7 +1,7 @@
 {
-  "enabled": true,
+  "enabled": false,
   "startTime": "2025-09-08T00:38:13.146Z",
-  "endTime": null,
+  "endTime": "2025-09-08T00:45:00.000Z",
   "reason": "Uncaught exception",
   "message": "System is shutting down for maintenance.",
   "allowedIPs": [],
