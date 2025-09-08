@@ -373,6 +373,40 @@ function getCachedClinics() {
     return null;
 }
 
+// Define fallback clinics data for offline use
+const fallbackClinics = [
+    {
+        "id": 1,
+        "name": "Pall Mall Medical Manchester",
+        "type": "Private GP",
+        "location": "Manchester",
+        "address": "61 King Street, Manchester M2 4PD",
+        "rating": 4.8,
+        "reviews": 342,
+        "image": CloudAssets.getClinicPlaceholder(1),
+        "premium": true,
+        "phone": "0161 832 2111",
+        "website": "https://pallmallmedical.co.uk",
+        "description": "Private healthcare provider in Manchester's business district.",
+        "services": ["Private GP Consultations", "Health Screening", "Executive Health", "Travel Medicine"]
+    },
+    {
+        "id": 2,
+        "name": "Didsbury Dental Practice",
+        "type": "Private Dentist",
+        "location": "Manchester",
+        "address": "90 Barlow Moor Rd, Manchester M20 2PN",
+        "rating": 4.9,
+        "reviews": 567,
+        "image": CloudAssets.getClinicPlaceholder(2),
+        "premium": true,
+        "phone": "0161 455 0005",
+        "website": "https://didsburydental.co.uk",
+        "description": "Modern dental clinic in Didsbury providing exceptional dental care.",
+        "services": ["General Dentistry", "Cosmetic Dentistry", "Invisalign", "Emergency Dental Care"]
+    }
+];
+
 function loadFallbackData() {
     console.log('Using fallback clinic data');
     clinicsData = fallbackClinics;

@@ -9,13 +9,13 @@ let API_BASE;
 
 if (typeof window !== 'undefined' && window.__CONFIG__) {
     // Browser environment with config loaded
-    API_BASE = window.__CONFIG__.getApiBase() + '/api';
+    API_BASE = window.__CONFIG__.getApiBase();
 } else if (typeof window !== 'undefined' && window.__API_BASE__) {
     // Fallback to legacy global variable
-    API_BASE = window.__API_BASE__ + '/api';
+    API_BASE = window.__API_BASE__;
 } else {
     // Server-side or fallback - use production URL
-    API_BASE = 'https://api.caregrid.co.uk/api';
+    API_BASE = 'https://api.caregrid.co.uk';
 }
 
 // Validate no localhost in production

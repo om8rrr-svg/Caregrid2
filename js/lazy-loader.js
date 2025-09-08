@@ -48,6 +48,12 @@ class LazyScriptLoader {
             script.async = options.async !== false;
             script.defer = options.defer || false;
             
+            // Set type='module' for ES6 modules
+            const moduleFiles = ['dashboard.js', 'auth.js', 'api-service.js', 'api-base.js', 'script.js', 'script-optimized.js', 'home.js', 'header.js', 'search.js', 'clinic-service.js', 'list-clinic.js'];
+            if (options.type === 'module' || moduleFiles.some(file => src.includes(file))) {
+                script.type = 'module';
+            }
+            
             if (options.crossorigin) {
                 script.crossOrigin = options.crossorigin;
             }
@@ -157,7 +163,7 @@ window.lazyLoader = new LazyScriptLoader();
 const lazyLoadingConfigs = {
     // Load search functionality only when search input is focused
     search: {
-        scripts: ['js/search.js'],
+        scripts: [{ src: 'js/search.js', options: { type: 'module' } }],
         trigger: 'input[type="search"], .search-input, #searchInput',
         method: 'focus'
     },
@@ -171,7 +177,7 @@ const lazyLoadingConfigs = {
     
     // Load dashboard functionality after user interaction
     dashboard: {
-        scripts: ['/js/dashboard.js'],
+        scripts: [{ src: '/js/dashboard.js', options: { type: 'module' } }],
         trigger: 'interaction',
         delay: 1000
     },

@@ -97,7 +97,7 @@ class APIService {
     // HTTP request helper with enhanced error handling
     async makeRequest(endpoint, options = {}) {
         // Use buildUrl to ensure proper URL construction
-        const url = buildUrl(`/api${endpoint}`, {});
+        const url = buildUrl(endpoint, {});
         
         // Only log in development mode to avoid console spam in production
         const apiBase = window.__CONFIG__ ? window.__CONFIG__.getApiBase() : window.__API_BASE__;
