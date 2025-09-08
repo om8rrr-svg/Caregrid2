@@ -9,13 +9,13 @@ let API_BASE;
 
 if (typeof window !== 'undefined' && window.__CONFIG__) {
     // Browser environment with config loaded
-    API_BASE = window.__CONFIG__.getApiBase() + '/api';
+    API_BASE = window.__CONFIG__.getApiBase();
 } else if (typeof window !== 'undefined' && window.__API_BASE__) {
     // Fallback to legacy global variable
-    API_BASE = window.__API_BASE__ + '/api';
+    API_BASE = window.__API_BASE__;
 } else {
     // Server-side or fallback - use production URL
-    API_BASE = 'https://api.caregrid.co.uk/api';
+    API_BASE = 'https://www.caregrid.co.uk';
 }
 
 // Validate no localhost in production
@@ -35,7 +35,9 @@ export { CloudAssets };
 
 export function buildUrl(path, params = {}) {
   const base = API_BASE.endsWith('/') ? API_BASE : API_BASE + '/';
-  const url = new URL(path.replace(/^\//, ''), base);
+  // Always prepend 'api' to the path for API calls
+  const apiPath = path.startsWith('/api/') ? path.substring(1) : `api/${path.replace(/^\//, '')}`;
+  const url = new URL(apiPath, base);
   for (const [k, v] of Object.entries(params)) {
     if (v !== undefined && v !== null && v !== '') url.searchParams.set(k, v);
   }

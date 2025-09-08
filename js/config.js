@@ -24,7 +24,7 @@ class FrontendConfig {
             this.cdnBase = 'https://staging.caregrid.co.uk';
         } else {
             // Production configuration
-            this.apiBase = 'https://api.caregrid.co.uk';
+            this.apiBase = 'https://www.caregrid.co.uk';
             this.publicWebBase = 'https://caregrid.co.uk';
             this.cdnBase = 'https://caregrid.co.uk';
         }

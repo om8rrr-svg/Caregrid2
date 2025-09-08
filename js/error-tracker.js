@@ -461,7 +461,7 @@ if (typeof window !== 'undefined') {
         return 'https://api-staging.caregrid.co.uk/api/errors';
       case 'production':
       default:
-        return 'https://api.caregrid.co.uk/api/errors';
+        return 'https://www.caregrid.co.uk/api/errors';
     }
   };
   
