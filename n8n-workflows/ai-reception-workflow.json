@@ -27,7 +27,7 @@
     },
     {
       "parameters": {
-        "url": "http://localhost:3000/api/clinics",
+        "url": "https://caregrid-backend-latest.onrender.com/api/clinics",
         "options": {
           "qs": {
             "id": "={{$node['process-call-data'].json['clinicId']}}"

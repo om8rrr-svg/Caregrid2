@@ -1828,7 +1828,7 @@
             const id = urlParams.get('id');
             if (!id) return;
             
-            const res = await fetch(`${window.__API_BASE__ || 'http://localhost:3000'}/api/clinics?id=${id}`).catch(()=>null);
+            const res = await fetch(`${window.__API_BASE__ || 'https://caregrid-backend-latest.onrender.com'}/api/clinics?id=${id}`).catch(()=>null);
             const clinic = res ? await res.json() : {};
             const tel = document.querySelector("#cta-call");
             const eml = document.querySelector("#cta-email");

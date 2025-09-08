@@ -795,7 +795,7 @@ class EmailService {
         <li>Resolve the alert once the issue is fixed</li>
       </ul>
       <p>
-        <a href="${process.env.DASHBOARD_URL || 'http://localhost:3001'}" class="dashboard-link">
+        <a href="${process.env.DASHBOARD_URL || 'https://caregrid2-ddk7.vercel.app'}" class="dashboard-link">
           🚀 Open Operations Dashboard
         </a>
       </p>

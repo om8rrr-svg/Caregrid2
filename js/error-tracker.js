@@ -444,7 +444,7 @@ if (typeof window !== 'undefined') {
   // Initialize with default config
   window.CareGridErrorTracker = new CareGridErrorTracker({
     // You can override these in your application
-    apiEndpoint: window.CAREGRID_ERROR_API || 'https://caregrid-ops.vercel.app/api/errors',
+    apiEndpoint: window.CAREGRID_ERROR_API || 'https://caregrid-backend-latest.onrender.com/api/errors',
     apiKey: window.CAREGRID_API_KEY || 'demo-token',
     userId: window.CAREGRID_USER_ID || null
   });

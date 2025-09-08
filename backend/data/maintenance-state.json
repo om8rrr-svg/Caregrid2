@@ -1,10 +1,10 @@
 {
   "enabled": true,
-  "startTime": "2025-09-08T00:21:50.171Z",
+  "startTime": "2025-09-08T00:38:13.146Z",
   "endTime": null,
-  "reason": "SIGTERM signal received",
+  "reason": "Uncaught exception",
   "message": "System is shutting down for maintenance.",
   "allowedIPs": [],
-  "gracePeriod": 30000,
+  "gracePeriod": 5000,
   "notificationsSent": false
 }

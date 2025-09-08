@@ -34,7 +34,7 @@ let transactionResults = {
 
 // Configuration for synthetic transactions
 const config = {
-  baseUrl: process.env.BASE_URL || 'http://localhost:3000',
+  baseUrl: process.env.BASE_URL || 'https://caregrid-backend-latest.onrender.com',
   timeout: 30000, // 30 seconds
   retries: 3,
   interval: 300000, // 5 minutes

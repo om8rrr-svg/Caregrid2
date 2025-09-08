@@ -4,14 +4,8 @@
 // Import cloud configuration
 import { CLOUD_CONFIG, CloudAssets } from './cloud-config.js';
 
-// Determine API base URL based on environment
-export const API_BASE = 
-  (typeof window !== 'undefined' && window.__API_BASE__) ||
-  (typeof process !== 'undefined' && (process.env?.NEXT_PUBLIC_API_BASE || process.env?.API_BASE)) ||
-  // Cloud-first: Use Vercel serverless functions in production, local for development
-  (typeof window !== 'undefined' && window.location.hostname !== 'localhost' 
-    ? window.location.origin + '/api'
-    : 'http://localhost:3000/api');
+// Always use production API base URL
+export const API_BASE = 'https://caregrid-backend-latest.onrender.com/api';
 
 // Export cloud assets helper for easy access
 export { CloudAssets };

@@ -6,14 +6,10 @@
 // Cloud CDN Configuration
 const CLOUD_CONFIG = {
     // CDN Base URL - Update this when migrating to cloud CDN
-    CDN_BASE_URL: (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && !window.location.hostname.includes('127.0.0.1'))
-        ? 'https://cdn.caregrid.co.uk' 
-        : '/images',
+    CDN_BASE_URL: 'https://caregrid2-ddk7.vercel.app',
     
     // API Configuration
-    API_BASE_URL: (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && !window.location.hostname.includes('127.0.0.1'))
-        ? 'https://api.caregrid.co.uk'
-        : '/api',
+    API_BASE_URL: 'https://caregrid-backend-latest.onrender.com',
     
     // Image optimization settings
     IMAGE_OPTIMIZATION: {
