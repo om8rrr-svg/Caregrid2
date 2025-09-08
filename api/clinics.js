@@ -65,6 +65,7 @@ export default async function handler(req, res) {
 // Get clinics with search and filtering
 async function getClinics(req, res) {
   const {
+    id,
     page = 1,
     limit = 20,
     search,
@@ -107,6 +108,11 @@ async function getClinics(req, res) {
       query = query.eq('is_premium', true);
     }
 
+    // Filter by specific clinic ID (for single clinic requests)
+    if (id) {
+      query = query.eq('id', parseInt(id));
+    }
+
     // Location-based search
     if (lat && lng) {
       const { data: nearbyData, error: nearbyError } = await supabase
@@ -125,11 +131,17 @@ async function getClinics(req, res) {
     }
 
     // Apply pagination and ordering
-    const { data: clinics, error, count } = await query
+    query = query
       .order('is_premium', { ascending: false })
       .order('rating', { ascending: false })
-      .order('name', { ascending: true })
-      .range(offset, offset + limitNum - 1);
+      .order('name', { ascending: true });
+    
+    // Only apply pagination if not requesting a specific clinic by ID
+    if (!id) {
+      query = query.range(offset, offset + limitNum - 1);
+    }
+    
+    const { data: clinics, error, count } = await query;
 
     if (error) {
       console.error('Supabase error:', error);
@@ -162,6 +174,21 @@ async function getClinics(req, res) {
       createdAt: clinic.created_at,
       updatedAt: clinic.updated_at
     }));
+
+    // Handle single clinic request
+    if (id) {
+      const clinic = transformedClinics[0] || null;
+      if (!clinic) {
+        return res.status(404).json({ 
+          success: false, 
+          error: 'Clinic not found' 
+        });
+      }
+      return res.status(200).json({
+        success: true,
+        data: clinic
+      });
+    }
 
     const totalPages = Math.ceil(count / limitNum);
 
