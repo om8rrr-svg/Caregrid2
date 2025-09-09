@@ -108,7 +108,6 @@
       "memory": 1024
     }
   },
-  "regions": ["lhr1", "iad1"],
   "github": {
     "enabled": true,
     "autoAlias": true
@@ -120,7 +119,7 @@
     },
     {
       "path": "/api/cron/health-check",
-      "schedule": "*/5 * * * *"
+      "schedule": "0 3 * * *"
     }
   ]
 }
