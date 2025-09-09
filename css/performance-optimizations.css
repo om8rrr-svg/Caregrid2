@@ -28,9 +28,9 @@ img {
     image-rendering: optimize-contrast;
 }
 
-/* Lazy loading optimization */
+/* Lazy loading optimization - Fixed to not hide images by default */
 img[loading="lazy"] {
-    opacity: 0;
+    opacity: 1;
     transition: opacity 0.3s;
 }
 

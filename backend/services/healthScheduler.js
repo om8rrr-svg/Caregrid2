@@ -40,6 +40,12 @@ let scheduledTasks = {};
  * Initialize the health monitoring scheduler
  */
 function initializeHealthScheduler() {
+  // Disable health scheduler on Vercel to avoid cron job limits
+  if (process.env.VERCEL === '1') {
+    console.log('🏥 Health monitoring scheduler disabled on Vercel (using Vercel cron jobs instead)');
+    return;
+  }
+  
   console.log('🏥 Initializing health monitoring scheduler...');
 
   // Schedule basic health checks
@@ -69,6 +75,12 @@ function initializeHealthScheduler() {
  * Start the health monitoring scheduler
  */
 function startHealthScheduler() {
+  // Disable health scheduler on Vercel to avoid cron job limits
+  if (process.env.VERCEL === '1') {
+    console.log('🚀 Health monitoring scheduler disabled on Vercel (using Vercel cron jobs instead)');
+    return;
+  }
+  
   console.log('🚀 Starting health monitoring scheduler...');
 
   Object.keys(scheduledTasks).forEach(taskName => {

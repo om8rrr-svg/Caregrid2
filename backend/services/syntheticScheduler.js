@@ -8,7 +8,7 @@ const {
 
 // Scheduler configuration
 const schedulerConfig = {
-  enabled: process.env.SYNTHETIC_MONITORING_ENABLED !== 'false',
+  enabled: process.env.SYNTHETIC_MONITORING_ENABLED === 'true' && process.env.VERCEL !== '1',
   schedules: {
     // Run health checks every 5 minutes
     healthCheck: {

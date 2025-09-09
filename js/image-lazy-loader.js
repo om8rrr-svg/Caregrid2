@@ -60,6 +60,13 @@ class ImageLazyLoader {
             img.removeAttribute('data-src');
         }
         
+        // For images with native lazy loading (loading="lazy"), just add loaded class
+        if (img.loading === 'lazy' && img.src && !img.dataset.src) {
+            img.classList.remove(this.options.loadingClass);
+            img.classList.add(this.options.loadedClass);
+            return;
+        }
+        
         img.onload = () => {
             img.classList.remove(this.options.loadingClass);
             img.classList.add(this.options.loadedClass);
