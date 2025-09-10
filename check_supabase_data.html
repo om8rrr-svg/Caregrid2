@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supabase Data Checker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .clinic {
+            border: 1px solid #ddd;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .clinic h3 {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+        .field {
+            margin: 5px 0;
+        }
+        .null {
+            color: #999;
+            font-style: italic;
+        }
+        .value {
+            color: #007bff;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        #loading {
+            text-align: center;
+            color: #666;
+        }
+        #error {
+            color: #dc3545;
+            background: #f8d7da;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Supabase Clinics Data Checker</h1>
+    <p>This page checks if the null columns in the Supabase clinics table have been updated.</p>
+    
+    <div>
+        <button onclick="checkData()">Check Current Data</button>
+        <button onclick="checkWithLocation()">Check Data with Location Field</button>
+    </div>
+    
+    <div id="loading" style="display: none;">Loading...</div>
+    <div id="error" style="display: none;"></div>
+    <div id="results"></div>
+
+    <script>
+        const SUPABASE_URL = 'https://vzjqrbicwhyawtsjnplt.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ6anFyYmljd2h5YXd0c2pucGx0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcxODU1NzksImV4cCI6MjA3Mjc2MTU3OX0.JlK3oGXK3rzaez8p-6BmGDZRNAUEKTpJgZ3flicw7ds';
+        
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('error').style.display = 'none';
+            document.getElementById('results').innerHTML = '';
+        }
+        
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+        
+        function showError(message) {
+            document.getElementById('error').textContent = message;
+            document.getElementById('error').style.display = 'block';
+        }
+        
+        function displayClinics(clinics, title) {
+            const resultsDiv = document.getElementById('results');
+            
+            let html = `<h2>${title}</h2>`;
+            
+            if (clinics.length === 0) {
+                html += '<p>No clinics found.</p>';
+            } else {
+                clinics.forEach(clinic => {
+                    html += `
+                        <div class="clinic">
+                            <h3>${clinic.name}</h3>
+                            <div class="field"><strong>ID:</strong> ${clinic.id}</div>
+                            <div class="field"><strong>Address:</strong> <span class="${clinic.address ? 'value' : 'null'}">${clinic.address || 'NULL'}</span></div>
+                            <div class="field"><strong>City:</strong> <span class="${clinic.city ? 'value' : 'null'}">${clinic.city || 'NULL'}</span></div>
+                            <div class="field"><strong>Postcode:</strong> <span class="${clinic.postcode ? 'value' : 'null'}">${clinic.postcode || 'NULL'}</span></div>
+                            <div class="field"><strong>Phone:</strong> <span class="${clinic.phone ? 'value' : 'null'}">${clinic.phone || 'NULL'}</span></div>
+                            <div class="field"><strong>Website:</strong> <span class="${clinic.website ? 'value' : 'null'}">${clinic.website || 'NULL'}</span></div>
+                            ${clinic.location ? `<div class="field"><strong>Location JSON:</strong> <pre>${JSON.stringify(clinic.location, null, 2)}</pre></div>` : ''}
+                        </div>
+                    `;
+                });
+            }
+            
+            resultsDiv.innerHTML = html;
+        }
+        
+        async function checkData() {
+            showLoading();
+            
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/clinics?select=id,name,address,phone,website,city,postcode&limit=10`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const clinics = await response.json();
+                displayClinics(clinics, 'Current Clinic Data (First 10 records)');
+                
+            } catch (error) {
+                showError(`Error fetching data: ${error.message}`);
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        async function checkWithLocation() {
+            showLoading();
+            
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/clinics?select=id,name,address,phone,website,city,postcode,location&limit=5`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const clinics = await response.json();
+                displayClinics(clinics, 'Clinic Data with Location Field (First 5 records)');
+                
+            } catch (error) {
+                showError(`Error fetching data: ${error.message}`);
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        // Auto-load data on page load
+        window.addEventListener('load', checkData);
+    </script>
+</body>
+</html>

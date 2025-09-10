@@ -1,11 +1,9 @@
 // Import required functions
-import { buildUrl } from './api-base.js';
-import { APIService } from './api-service.js';
 import { CloudAssets } from './cloud-config.js';
 import clinicService from './clinic-service.js';
 
-// Initialize API service
-const apiService = new APIService();
+// No longer need API service - using Supabase directly
+// const apiService = new APIService(); // DEPRECATED
 
 // Unregister any old service workers to prevent cache issues
 if ('serviceWorker' in navigator) {
@@ -17,2004 +15,92 @@ if ('serviceWorker' in navigator) {
 // Sample clinic data (fallback)
 let clinicsData = [
     {
-        "id": 1,
-        "name": "Pall Mall Medical Manchester",
-        "type": "Private GP",
-        "location": "Manchester",
-        "address": "61 King Street, Manchester M2 4PD",
-        "rating": 4.8,
-        "reviews": 342,
-        "image": CloudAssets.getImageUrl("pall_mall_medical.jpg"),
-        "premium": true,
-        "phone": "0161 832 2111",
-        "website": "https://pallmallmedical.co.uk",
-        "description": "Pall Mall Medical Manchester is a prestigious private healthcare provider located in the heart of Manchester's business district. Our experienced team of consultants and GPs offer comprehensive medical services in a luxurious, comfortable environment with state-of-the-art facilities.",
-        "services": [
-            "Private GP Consultations",
-            "Health Screening",
-            "Executive Health",
-            "Travel Medicine"
-        ]
-    },
-    {
-        "id": 2,
-        "name": "Didsbury Dental Practice",
-        "type": "Private Dentist",
-        "location": "Manchester",
-        "address": "90 Barlow Moor Rd, Manchester M20 2PN",
-        "rating": 4.9,
-        "reviews": 567,
-        "image": CloudAssets.getImageUrl("didsbury_dental_practice.jpg"),
-        "premium": true,
-        "phone": "0161 455 0005",
-        "website": "https://didsburydental.co.uk",
-        "description": "Didsbury Dental Practice is a modern, award-winning dental clinic providing exceptional dental care in the heart of Didsbury. Our skilled team combines advanced technology with gentle, personalized care to ensure optimal oral health and beautiful smiles for all our patients.",
-        "services": [
-            "General Dentistry",
-            "Cosmetic Dentistry",
-            "Invisalign",
-            "Emergency Dental Care"
-        ]
-    },
-    {
-        "id": 3,
-        "name": "City Rehab Liverpool",
-        "type": "Private Physiotherapy",
-        "location": "Liverpool",
-        "address": "Liverpool City Centre, L1 8JQ",
-        "rating": 4.7,
-        "reviews": 423,
-        "image": CloudAssets.getImageUrl("City Rehab Liverpool.avif"),
-        "premium": true,
-        "phone": "0151 707 2345",
-        "website": "https://cityrehab.co.uk",
-        "description": "City Rehab Liverpool is a leading physiotherapy clinic specializing in sports injury rehabilitation and performance enhancement. Our expert physiotherapists use evidence-based treatments and cutting-edge techniques to help patients recover faster and achieve their fitness goals.",
-        "services": [
-            "Sports Injury Treatment",
-            "Physiotherapy",
-            "Sports Massage",
-            "Biomechanical Analysis"
-        ]
-    },
-    {
-        "id": 4,
-        "name": "Pall Mall Medical Liverpool",
-        "type": "Private GP",
-        "location": "Liverpool",
-        "address": "5 St Pauls Square, Liverpool L3 9SJ",
-        "rating": 4.8,
-        "reviews": 298,
-        "image": CloudAssets.getImageUrl("Pall Mall Medical Liverpool.jpg"),
-        "premium": true,
-        "phone": "0151 832 2111",
-        "website": "https://pallmallmedical.co.uk",
-        "description": "Pall Mall Medical Liverpool offers premium private healthcare services in Liverpool's historic business quarter. Our dedicated team of medical professionals provides comprehensive health assessments, occupational health services, and executive medical care in elegant, professional surroundings.",
-        "services": [
-            "Private GP Consultations",
-            "Health Screening",
-            "Executive Health",
-            "Occupational Health"
-        ]
-    },
-    {
-        "id": 5,
-        "name": "207 Dental Care Manchester",
-        "type": "Private Dentist",
-        "location": "Manchester",
-        "address": "207 Deansgate, Manchester M3 3NW",
-        "rating": 4.6,
-        "reviews": 445,
-        "image": CloudAssets.getImageUrl("207 Dental Care Manchester.jpeg"),
-        "premium": true,
-        "phone": "0161 834 0606",
-        "website": "https://207dentalcare.co.uk",
-        "description": "207 Dental Care Manchester is a contemporary dental practice located on prestigious Deansgate. We specialize in transformative cosmetic dentistry and advanced dental treatments, combining artistic vision with clinical excellence to create stunning, healthy smiles.",
-        "services": [
-            "General Dentistry",
-            "Cosmetic Dentistry",
-            "Dental Implants",
-            "Smile Makeovers"
-        ]
-    },
-    {
-        "id": 6,
-        "name": "Spire Manchester Hospital Physiotherapy",
-        "type": "Private Physiotherapy",
-        "location": "Manchester",
-        "address": "170 Barlow Moor Rd, Manchester M20 2AF",
-        "rating": 4.8,
-        "reviews": 234,
-        "image": CloudAssets.getImageUrl("Spire Manchester Hospital Physiotherapy.jpg"),
-        "premium": true,
-        "phone": "0161 447 6677",
-        "website": "https://spirehealthcare.com",
-        "description": "Spire Manchester Hospital Physiotherapy Department provides world-class rehabilitation services within one of the UK's leading private hospitals. Our specialist physiotherapists offer comprehensive treatment programs using the latest techniques and equipment for optimal recovery outcomes.",
-        "services": [
-            "Physiotherapy",
-            "Sports Rehabilitation",
-            "Post-Surgery Rehab",
-            "Clinical Pilates"
-        ]
-    },
-    {
-        "id": 7,
-        "name": "Regent Street Medical Practice",
-        "type": "Private GP",
-        "location": "Liverpool",
-        "address": "Regent Street, Liverpool L1 9AR",
-        "rating": 4.7,
-        "reviews": 189,
-        "image": CloudAssets.getImageUrl("Regent Street Medical Practice.jpg"),
-        "premium": true,
-        "phone": "0333 455 9070",
-        "website": "https://regentstreetmedical.co.uk",
-        "description": "Regent Street Medical Practice is a modern private healthcare facility in Liverpool city center. We offer comprehensive medical services including travel health consultations, sexual health screening, and aesthetic treatments, all delivered by experienced medical professionals in a comfortable, confidential environment.",
-        "services": [
-            "Private GP Consultations",
-            "Travel Medicine",
-            "Sexual Health",
-            "Medical Aesthetics"
-        ]
-    },
-    {
-        "id": 8,
-        "name": "Droylsden Road Dental Practice",
-        "type": "Private Dentist",
-        "location": "Manchester",
-        "address": "117-119 Droylsden Road, Manchester M40 1NT",
-        "rating": 4.5,
-        "reviews": 312,
-        "image": CloudAssets.getImageUrl("Droylsden Road Dental Practice.webp"),
-        "premium": true,
-        "phone": "0161 682 6903",
-        "website": "https://droylsdendental.co.uk",
-        "description": "Droylsden Road Dental Practice is a family-friendly dental clinic serving the Manchester community with high-quality dental care. We combine traditional dental values with modern techniques, offering everything from routine check-ups to advanced cosmetic treatments including Invisalign and dental implants.",
-        "services": [
-            "General Dentistry",
-            "Cosmetic Dentistry",
-            "Invisalign",
-            "Dental Implants"
-        ]
-    },
-    {
-        "id": 9,
-        "name": "Compass Physiotherapy Waterloo",
-        "type": "Private Physiotherapy",
-        "location": "Liverpool",
-        "address": "91 South Road, Waterloo, Liverpool L22 0LR",
-        "rating": 4.6,
-        "reviews": 156,
-        "image": CloudAssets.getImageUrl("Compass Physiotherapy Waterloo.jpg"),
-        "premium": true,
-        "phone": "0151 928 5445",
-        "website": "https://compassphysio.co.uk",
-        "description": "Compass Physiotherapy Waterloo is a specialist rehabilitation clinic offering comprehensive physiotherapy services to the Liverpool area. Our experienced team provides personalized treatment plans for sports injuries, neurological conditions, and general musculoskeletal problems, incorporating traditional and complementary therapies.",
-        "services": [
-            "Physiotherapy",
-            "Sports Injuries",
-            "Acupuncture",
-            "Neuro-Physiotherapy"
-        ]
-    },
-    {
-        "id": 10,
-        "name": "The Dental Team Manchester",
-        "type": "Private Dentist",
-        "location": "Stretford",
-        "address": "Chester Rd, Stretford, Manchester M32 0RS",
-        "rating": 4.7,
-        "reviews": 278,
-        "image": CloudAssets.getImageUrl("The Dental Team Manchester.png"),
-        "premium": true,
-        "phone": "0161 864 3250",
-        "website": "https://thedentalteam.co.uk",
-        "description": "The Dental Team Manchester is a comprehensive dental practice in Stretford offering both NHS and private dental services. Our skilled team provides a full range of treatments from preventive care to advanced cosmetic procedures, including dental implants, Invisalign, and facial aesthetics in a welcoming, modern environment.",
-        "services": [
-            "NHS & Private Dentistry",
-            "Dental Implants",
-            "Invisalign",
-            "Facial Aesthetics"
-        ]
-    },
-    {
-        "id": 11,
-        "name": "Ghosh Medical Liverpool",
-        "type": "Private GP",
-        "location": "Liverpool",
-        "address": "Rodney Street, Liverpool L1 9ED",
-        "rating": 4.8,
-        "reviews": 167,
-        "image": CloudAssets.getImageUrl("Ghosh Medical Liverpool.jpeg"),
-        "premium": true,
-        "phone": "0333 200 3338",
-        "website": "https://ghoshmedical.co.uk",
-        "description": "Ghosh Medical Liverpool is a pioneering private healthcare practice located on prestigious Rodney Street. We specialize in innovative treatments including ADHD assessments, medical cannabis consultations, and wellness therapies, providing personalized care with a focus on mental health and holistic wellbeing.",
-        "services": [
-            "Private GP",
-            "ADHD Assessment",
-            "Medical Cannabis",
-            "Vitamin Injections"
-        ]
-    },
-    {
-        "id": 12,
-        "name": "Synergy Dental Preston",
-        "type": "Private Dentist",
-        "location": "Preston",
-        "address": "35 Ormskirk Rd, Preston PR1 2QP",
-        "rating": 4.6,
-        "reviews": 203,
-        "image": CloudAssets.getClinicPlaceholder(4),
-        "premium": true,
-        "phone": "01772 252154",
-        "website": "https://synergydental.co.uk",
-        "description": "Synergy Dental Preston is a state-of-the-art dental practice committed to providing exceptional oral healthcare to the Preston community. Our comprehensive services range from preventive care to complex restorative treatments, utilizing the latest technology and techniques to ensure optimal patient outcomes.",
-        "services": [
-            "General Dentistry",
-            "Cosmetic Dentistry",
-            "Orthodontics",
-            "Dental Implants"
-        ]
-    },
-    {
-        "id": 13,
-        "name": "Private GP Liverpool Royal Liver Building",
-        "type": "Private GP",
-        "location": "Liverpool",
-        "address": "The Royal Liver Building, Pier Head, Liverpool L3 1HU",
-        "rating": 4.9,
-        "reviews": 145,
-        "image": CloudAssets.getImageUrl("Private GP Liverpool Royal Liver Building.avif"),
-        "premium": true,
-        "phone": "0151 236 7890",
-        "website": "https://privategpliverpool.co.uk",
-        "description": "Private GP Liverpool Royal Liver Building offers premium medical services in one of Liverpool's most iconic landmarks. We provide same-day appointments, comprehensive health consultations, and medical certificates in an exclusive setting with stunning waterfront views, ensuring convenient and confidential healthcare.",
-        "services": [
-            "Same Day GP",
-            "Private Consultations",
-            "Medical Certificates",
-            "Second Opinions"
-        ]
-    },
-    {
-        "id": 14,
-        "name": "Spire Liverpool Hospital Physiotherapy",
-        "type": "Private Physiotherapy",
-        "location": "Liverpool",
-        "address": "57 Rodney St, Liverpool L1 9EX",
-        "rating": 4.7,
-        "reviews": 198,
-        "image": CloudAssets.getImageUrl("Spire Liverpool Hospital Physiotherapy.jpg"),
-        "premium": true,
-        "phone": "0151 733 7123",
-        "website": "https://spirehealthcare.com",
-        "description": "Spire Liverpool Hospital Physiotherapy on Rodney Street offers premium rehabilitation services in Liverpool's medical quarter. Our expert physiotherapists provide specialized treatments including hydrotherapy and sports medicine, utilizing advanced facilities and evidence-based approaches to help patients achieve optimal recovery and performance.",
-        "services": [
-            "Physiotherapy",
-            "Sports Medicine",
-            "Hydrotherapy",
-            "Clinical Pilates"
-        ]
-    },
-    {
-        "id": 15,
-        "name": "Synergy Dental Blackpool",
-        "type": "Private Dentist",
-        "location": "Blackpool",
-        "address": "370 Central Dr, Blackpool FY1 6LA",
-        "rating": 4.4,
-        "reviews": 167,
-        "image": CloudAssets.getClinicPlaceholder(7),
-        "premium": true,
-        "phone": "01253 348616",
-        "website": "https://synergydental.co.uk",
-        "description": "Synergy Dental Blackpool brings exceptional dental care to the seaside town, offering comprehensive oral health services in a modern, comfortable setting. Our experienced team specializes in cosmetic dentistry and smile transformations, helping patients achieve confident, healthy smiles through advanced treatments and personalized care.",
-        "services": [
-            "General Dentistry",
-            "Cosmetic Dentistry",
-            "Teeth Whitening",
-            "Dental Implants"
-        ]
-    },
-    {
-        "id": 16,
-        "name": "Bolton Private Medical Centre",
-        "type": "Private GP",
-        "location": "Bolton",
-        "address": "Chorley New Rd, Bolton BL1 4QR",
-        "rating": 4.5,
-        "reviews": 134,
-        "image": CloudAssets.getImageUrl("Bolton Private Medical Centre.jpg"),
-        "premium": true,
-        "phone": "01204 567890",
-        "website": "https://boltonprivatemedical.co.uk",
-        "description": "Bolton Private Medical Centre provides comprehensive private healthcare services to the Bolton community and surrounding areas. We offer a full range of medical services including health screenings, occupational health assessments, and travel medicine, delivered by experienced healthcare professionals in a modern, patient-focused environment.",
-        "services": [
-            "Private GP",
-            "Health Screening",
-            "Occupational Health",
-            "Travel Vaccinations"
-        ]
-    },
-    {
-        "id": 17,
-        "name": "Salford Quays Dental Practice",
-        "type": "Private Dentist",
-        "location": "Salford",
-        "address": "The Quays, Salford M50 3AZ",
-        "rating": 4.6,
-        "reviews": 189,
-        "image": CloudAssets.getClinicPlaceholder(1),
-        "premium": true,
-        "phone": "0161 877 4567",
-        "website": "https://salfordquaysdental.co.uk",
-        "description": "Salford Quays Dental Practice is a contemporary dental clinic located in the vibrant Salford Quays development. We provide comprehensive dental care with a focus on preventive dentistry and cosmetic treatments, offering patients convenient access to high-quality oral healthcare in a modern waterfront setting.",
-        "services": [
-            "General Dentistry",
-            "Cosmetic Dentistry",
-            "Invisalign",
-            "Dental Hygiene"
-        ]
-    },
-    {
-        "id": 18,
-        "name": "Stockport Physiotherapy Centre",
-        "type": "Private Physiotherapy",
-        "location": "Stockport",
-        "address": "Wellington Rd S, Stockport SK1 3UD",
-        "rating": 4.7,
-        "reviews": 156,
-        "image": CloudAssets.getImageUrl("Stockport Physiotherapy Centre.jpg"),
-        "premium": true,
-        "phone": "0161 480 7890",
-        "website": "https://stockportphysio.co.uk",
-        "description": "Stockport Physiotherapy Centre is a dedicated rehabilitation facility serving the Greater Manchester area. Our experienced physiotherapists provide comprehensive treatment programs for sports injuries, chronic pain, and post-surgical recovery, combining manual therapy techniques with modern rehabilitation equipment for optimal patient outcomes.",
-        "services": [
-            "Physiotherapy",
-            "Sports Injury",
-            "Massage Therapy",
-            "Rehabilitation"
-        ]
-    },
-    {
-        "id": 19,
-        "name": "Rochdale Private GP Clinic",
-        "type": "Private GP",
-        "location": "Rochdale",
-        "address": "Yorkshire St, Rochdale OL16 1JU",
-        "rating": 4.3,
-        "reviews": 112,
-        "image": CloudAssets.getClinicPlaceholder(3),
-        "premium": true,
-        "phone": "01706 345678",
-        "website": "https://rochdaleprivategp.co.uk",
-        "description": "Rochdale Private GP Clinic offers accessible private healthcare services to the Rochdale community. We provide same-day appointments, comprehensive health assessments, and medical reports in a friendly, professional environment, ensuring patients receive prompt, personalized medical care when they need it most.",
-        "services": [
-            "Private GP",
-            "Same Day Appointments",
-            "Medical Reports",
-            "Health Assessments"
-        ]
-    },
-    {
-        "id": 20,
-        "name": "Warrington Dental Excellence",
-        "type": "Private Dentist",
-        "location": "Warrington",
-        "address": "Palmyra Sq S, Warrington WA1 1BW",
-        "rating": 4.8,
-        "reviews": 201,
-        "image": CloudAssets.getClinicPlaceholder(4),
-        "premium": true,
-        "phone": "01925 234567",
-        "website": "https://warringtondental.co.uk",
-        "description": "Warrington Dental Excellence is a premier dental practice in the heart of Warrington, committed to delivering exceptional oral healthcare. Our skilled team combines advanced dental technology with personalized care to provide comprehensive treatments from routine check-ups to complex restorative procedures, ensuring every patient achieves optimal oral health.",
-        "services": [
-            "General Dentistry",
-            "Cosmetic Dentistry",
-            "Dental Implants",
-            "Orthodontics"
-        ]
-    },
-    {
-        "id": 21,
-        "name": "Wigan Private Health Centre",
-        "type": "Private GP",
-        "location": "Wigan",
-        "address": "Market St, Wigan WN1 1PX",
-        "rating": 4.4,
-        "reviews": 178,
-        "image": CloudAssets.getClinicPlaceholder(5),
-        "premium": true,
-        "phone": "01942 567890",
-        "website": "https://wiganprivatehealth.co.uk",
-        "description": "Wigan Private Health Centre provides comprehensive private healthcare services in the heart of Wigan. We specialize in executive health programs, occupational health assessments, and comprehensive medical examinations, offering busy professionals and organizations convenient access to high-quality healthcare services.",
-        "services": [
-            "Private GP",
-            "Executive Health",
-            "Occupational Health",
-            "Medical Examinations"
-        ]
-    },
-    {
-        "id": 22,
-        "name": "Oldham Physiotherapy Clinic",
-        "type": "Private Physiotherapy",
-        "location": "Oldham",
-        "address": "High St, Oldham OL1 1DG",
-        "rating": 4.5,
-        "reviews": 143,
-        "image": CloudAssets.getImageUrl("Oldham Physiotherapy Clinic.jpeg"),
-        "premium": true,
-        "phone": "0161 627 3456",
-        "website": "https://oldhamphysio.co.uk",
-        "description": "Oldham Physiotherapy Clinic is a multidisciplinary rehabilitation center serving the Oldham community. Our team of physiotherapists and occupational therapists provide comprehensive treatment programs for sports injuries, chronic pain conditions, and workplace-related injuries, focusing on evidence-based care and patient education.",
-        "services": [
-            "Physiotherapy",
-            "Sports Medicine",
-            "Occupational Therapy",
-            "Pain Management"
-        ]
-    },
-    {
-        "id": 23,
-        "name": "Lancaster Dental Studio",
-        "type": "Private Dentist",
-        "location": "Lancaster",
-        "address": "Penny St, Lancaster LA1 1XN",
-        "rating": 4.7,
-        "reviews": 167,
-        "image": CloudAssets.getClinicPlaceholder(7),
-        "premium": true,
-        "phone": "01524 567890",
-        "website": "https://lancasterdental.co.uk",
-        "description": "Lancaster Dental Studio is a boutique dental practice in historic Lancaster, offering personalized dental care in an elegant, comfortable setting. We specialize in cosmetic dentistry and smile design, combining artistic expertise with advanced dental techniques to create beautiful, natural-looking results for our patients.",
-        "services": [
-            "General Dentistry",
-            "Cosmetic Dentistry",
-            "Dental Implants",
-            "Teeth Whitening"
-        ]
-    },
-    {
-        "id": 24,
-        "name": "Southport Private GP",
-        "type": "Private GP",
-        "location": "Southport",
-        "address": "Lord St, Southport PR8 1NY",
-        "rating": 4.6,
-        "reviews": 134,
-        "image": CloudAssets.getClinicPlaceholder(8),
-        "premium": true,
-        "phone": "01704 234567",
-        "website": "https://southportprivategp.co.uk",
-        "description": "Southport Private GP is a modern medical practice located on the prestigious Lord Street in Southport. We provide comprehensive private healthcare services including health screenings, travel medicine consultations, and minor surgical procedures, offering residents and visitors convenient access to quality medical care in this beautiful seaside town.",
-        "services": [
-            "Private GP",
-            "Health Screening",
-            "Travel Medicine",
-            "Minor Surgery"
-        ]
-    },
-    {
-        "id": 25,
-        "name": "Burnley Physiotherapy Centre",
-        "type": "Private Physiotherapy",
-        "location": "Burnley",
-        "address": "St James St, Burnley BB11 1NQ",
-        "rating": 4.3,
-        "reviews": 98,
-        "image": CloudAssets.getClinicPlaceholder(1),
-        "premium": true,
-        "phone": "01282 345678",
-        "website": "https://burnleyphysio.co.uk",
-        "description": "Burnley Physiotherapy Centre is a dedicated rehabilitation facility serving the Burnley and East Lancashire area. Our qualified physiotherapists provide personalized treatment programs using manual therapy techniques and exercise-based interventions to help patients recover from injuries and improve their physical function and quality of life.",
-        "services": [
-            "Physiotherapy",
-            "Sports Rehabilitation",
-            "Manual Therapy",
-            "Exercise Therapy"
-        ]
-    },
-    {
-        "id": 26,
-        "name": "Ghosh Medical Group",
-        "type": "Private GP",
-        "location": "Liverpool",
-        "address": "Rodney Street, Liverpool L1 9ED",
-        "rating": 4.6,
-        "reviews": 118,
-        "image": CloudAssets.getClinicPlaceholder(2),
-        "premium": true,
-        "phone": "0333 200 3338",
-        "website": "https://www.drarunghosh.co.uk",
-        "description": "Ghosh Medical Group is an established private healthcare practice on Liverpool's renowned Rodney Street medical quarter. Led by experienced physicians, we provide comprehensive private GP services, health screenings, and occupational health assessments, combining traditional medical values with modern healthcare approaches for optimal patient care.",
-        "services": [
-            "Private GP Appointments",
-            "Health Screening",
-            "Occupational Health"
-        ]
-    },
-    {
-        "id": 27,
-        "name": "Spire Liverpool Hospital - Private GP",
-        "type": "Private GP",
-        "location": "Liverpool",
-        "address": "57 Greenbank Rd, Liverpool L18 1HQ",
-        "rating": 4.4,
-        "reviews": 86,
-        "image": CloudAssets.getClinicPlaceholder(3),
-        "premium": true,
-        "phone": "0151 733 7123",
-        "website": "https://www.spirehealthcare.com/spire-liverpool-hospital/",
-        "description": "Spire Liverpool Hospital Private GP services offer premium healthcare within one of the UK's leading private hospitals. Our experienced GPs provide comprehensive consultations, advanced diagnostics, and seamless specialist referrals, ensuring patients receive coordinated, high-quality medical care in a state-of-the-art hospital environment.",
-        "services": [
-            "Private GP",
-            "Consultations",
-            "Diagnostics",
-            "Specialist Referrals"
-        ]
-    },
-    {
-        "id": 28,
-        "name": "Regent Street Clinic Liverpool",
-        "type": "Private GP",
-        "location": "Liverpool",
-        "address": "Exchange Station, Liverpool L2 2QP",
-        "rating": 4.7,
-        "reviews": 52,
-        "image": CloudAssets.getImageUrl("regent_medical_practice.jpg"),
-        "premium": true,
-        "phone": "0333 455 9070",
-        "website": "https://www.regentstreetclinic.co.uk/private-gp-liverpool/",
-        "description": "Regent Street Clinic Liverpool is a modern private healthcare facility conveniently located at Exchange Station in Liverpool city center. We specialize in confidential healthcare services including GP consultations, sexual health testing, and travel vaccinations, providing discreet, professional medical care for busy urban professionals.",
-        "services": [
-            "GP Consultations",
-            "Sexual Health Testing",
-            "Vaccinations"
-        ]
-    },
-    {
-        "id": 29,
-        "name": "The Dental House",
-        "type": "Private Dentist",
-        "location": "Liverpool",
-        "address": "358 Aigburth Rd, Liverpool L17 6AE",
-        "rating": 4.9,
-        "reviews": 143,
-        "image": CloudAssets.getClinicPlaceholder(5),
-        "premium": true,
-        "phone": "0151 475 9929",
-        "website": "https://www.dentalhouseliverpool.co.uk",
-        "description": "The Dental House is a premier dental practice in Liverpool specializing in cosmetic dentistry and patient comfort. We excel in Invisalign treatments, teeth whitening, and dental implants, with a particular focus on caring for nervous patients in a relaxed, welcoming environment that puts dental anxiety at ease.",
-        "services": [
-            "Invisalign",
-            "Whitening",
-            "Implants",
-            "Nervous Patients"
-        ]
-    },
-    {
-        "id": 30,
-        "name": "Ollie & Darsh",
-        "type": "Private Dentist",
-        "location": "Liverpool",
-        "address": "11 Dale St, Liverpool L2 2SH",
-        "rating": 4.8,
-        "reviews": 212,
-        "image": CloudAssets.getClinicPlaceholder(6),
-        "premium": true,
-        "phone": "0151 236 6578",
-        "website": "https://www.ollieanddarsh.co.uk",
-        "description": "Ollie & Darsh is an award-winning cosmetic dental practice in Liverpool's business district, renowned for creating stunning smile transformations. Our expert team combines artistic vision with advanced dental techniques to deliver exceptional cosmetic dentistry, smile makeovers, and dental implant treatments in a luxurious, contemporary setting.",
-        "services": [
-            "Cosmetic Dentistry",
-            "Smile Makeovers",
-            "Dental Implants"
-        ]
-    },
-    {
-        "id": 31,
-        "name": "PBA Dental & Implant Clinic",
-        "type": "Private Dentist",
-        "location": "Liverpool",
-        "address": "6 Childwall Valley Rd, Gateacre, Liverpool L25 1RL",
-        "rating": 4.6,
-        "reviews": 89,
-        "image": CloudAssets.getClinicPlaceholder(7),
-        "premium": false,
-        "phone": "0151 722 3888",
-        "website": "https://www.pbadentalhealth.com",
-        "description": "PBA Dental & Implant Clinic is a specialist dental practice in Gateacre, Liverpool, focusing on dental implant treatments and comprehensive oral healthcare. Our experienced team provides high-quality dental implant solutions, general dentistry, and private check-ups in a comfortable, patient-centered environment with affordable pricing options.",
-        "services": [
-            "Dental Implants",
-            "General Dentistry",
-            "Private Check-ups"
-        ]
-    },
-    {
-        "id": 32,
-        "name": "Smileworks Liverpool",
-        "type": "Private Dentist",
-        "location": "Liverpool",
-        "address": "1a Kenyon's Steps, Liverpool ONE, L1 3DF",
-        "rating": 4.9,
-        "reviews": 370,
-        "image": CloudAssets.getClinicPlaceholder(8),
-        "premium": true,
-        "phone": "0151 294 3229",
-        "website": "https://www.smileworksliverpool.co.uk",
-        "description": "Smileworks Liverpool is a flagship aesthetic dental practice located in the heart of Liverpool ONE shopping district. We are pioneers in aesthetic dentistry and facial aesthetics, offering cutting-edge treatments including advanced orthodontics and non-surgical facial rejuvenation in a stunning, award-winning clinic environment.",
-        "services": [
-            "Aesthetic Dentistry",
-            "Facial Aesthetics",
-            "Orthodontics"
-        ]
-    },
-    {
-        "id": 33,
-        "name": "Duthie Dental Practice",
-        "type": "Private Dentist",
-        "location": "Liverpool",
-        "address": "258 Woolton Rd, Liverpool L16 8NE",
-        "rating": 4.5,
-        "reviews": 65,
-        "image": CloudAssets.getClinicPlaceholder(1),
-        "premium": false,
-        "phone": "0151 722 2642",
-        "website": "https://duthie.dental",
-        "description": "Duthie Dental Practice is a friendly, family-oriented dental clinic in Woolton, Liverpool, providing accessible dental care to the local community. We offer comprehensive dental services including routine check-ups, teeth whitening, and emergency dental care, focusing on preventive dentistry and patient comfort at affordable prices.",
-        "services": [
-            "Check-ups",
-            "Whitening",
-            "Emergency Dental"
-        ]
-    },
-    {
-        "id": 101,
-        "name": "SameDayDoctor Manchester",
-        "type": "GP",
-        "location": "Manchester",
-        "address": "30 Queen Street, Manchester M2 5HX",
-        "rating": 4.5,
-        "reviews": 120,
-        "image": CloudAssets.getImageUrl("samedaydoctor_manchester.jpg"),
-        "premium": false,
-        "phone": "0161 827 7868",
-        "website": "https://samedaydoctor.co.uk/clinic/manchester",
-        "services": [
-            "Walk-in GP",
-            "Private consultations",
-            "Medical certificates",
-            "Occupational medicals"
-        ]
-    },
-    {
-        "id": 102,
-        "name": "Private GP Extra – Manchester",
-        "type": "GP",
-        "location": "Manchester",
-        "address": "Manchester City Centre",
-        "rating": 4.4,
-        "reviews": 55,
-        "image": CloudAssets.getImageUrl("private_gp_extra_manchester.jpg"),
-        "premium": true,
-        "phone": "—",
-        "website": "https://privategpextra.com",
-        "services": [
-            "Private GP diagnostics",
-            "Flexible appointments",
-            "Prescriptions",
-            "Referrals"
-        ]
-    },
-    {
-        "id": 103,
-        "name": "The Village Doctor",
-        "type": "GP",
-        "location": "Manchester",
-        "address": "Prestwich, Greater Manchester",
-        "rating": 4.6,
-        "reviews": 45,
-        "image": CloudAssets.getClinicPlaceholder(3),
-        "premium": false,
-        "phone": "—",
-        "website": "https://thevillagedoctor.co.uk",
-        "services": [
-            "Private GP consultations",
-            "Home visits",
-            "Vaccinations",
-            "Health screenings"
-        ]
-    },
-    {
-        "id": 104,
-        "name": "Alexandra Hospital GP Service",
-        "type": "GP",
-        "location": "Manchester",
-        "address": "The Alexandra Hospital, Cheadle, Cheshire",
-        "rating": 4.2,
-        "reviews": 80,
-        "image": CloudAssets.getClinicPlaceholder(4),
-        "premium": true,
-        "phone": "0161 488 5000",
-        "website": "https://www.circlehealthgroup.co.uk/hospitals/the-alexandra-hospital/private-gp-manchester",
-        "services": [
-            "Private GP",
-            "Diagnostics",
-            "Blood testing",
-            "Specialist referrals"
-        ]
-    },
-    {
-        "id": 105,
-        "name": "360 Dental Care",
-        "type": "Dentist",
-        "location": "Manchester",
-        "address": "Manchester City Centre",
-        "rating": 4.8,
-        "reviews": 250,
-        "image": CloudAssets.getClinicPlaceholder(5),
-        "premium": true,
-        "phone": "0161 881 2345",
-        "website": "https://www.360dentalcare.co.uk",
-        "services": [
-            "Cosmetic Dentistry",
-            "Teeth Whitening",
-            "Veneers",
-            "General Dentistry"
-        ]
-    },
-    {
-        "id": 106,
-        "name": "Hale Dental Clinic",
-        "type": "Dentist",
-        "location": "Manchester",
-        "address": "Hale, Altrincham, Greater Manchester",
-        "rating": 4.7,
-        "reviews": 105,
-        "image": CloudAssets.getClinicPlaceholder(6),
-        "premium": false,
-        "phone": "0161 929 1234",
-        "website": "https://www.haledentalclinic.com",
-        "services": [
-            "Invisalign",
-            "Dental Implants",
-            "Cosmetic and general dentistry"
-        ]
-    },
-    {
-        "id": 107,
-        "name": "City Centre Dental & Implant Clinic",
-        "type": "Dentist",
-        "location": "Manchester",
-        "address": "Manchester City Centre",
-        "rating": 4.9,
-        "reviews": 200,
-        "image": CloudAssets.getImageUrl("city centre dental & implant clinic - dentist.webp"),
-        "premium": true,
-        "phone": "0161 832 5678",
-        "website": "https://www.citycentredentist.co.uk",
-        "services": [
-            "Dental Implants",
-            "Restorative Dentistry",
-            "Aesthetic treatments"
-        ]
-    },
-    {
-        "id": 108,
-        "name": "Manchester Physio",
-        "type": "Physio",
-        "location": "Manchester",
-        "address": "Greater Manchester area",
-        "rating": 4.8,
-        "reviews": 300,
-        "image": CloudAssets.getClinicPlaceholder(8),
-        "premium": true,
-        "phone": "0161 883 0077",
-        "website": "https://www.manchesterphysio.co.uk",
-        "services": [
-            "Musculoskeletal physio",
-            "Hydrotherapy",
-            "Clinical Pilates",
-            "Sports massage"
-        ]
-    },
-    {
-        "id": 109,
-        "name": "Pure Physiotherapy – Sale",
-        "type": "Physio",
-        "location": "Manchester",
-        "address": "45 Northenden Road, Sale, M33 2DL",
-        "rating": 4.7,
-        "reviews": 850,
-        "image": CloudAssets.getClinicPlaceholder(9),
-        "premium": false,
-        "phone": "0161 441 4458",
-        "website": "https://purephysiotherapy.co.uk/clinics/manchester-physiotherapy-clinic-in-sale",
-        "services": [
-            "Sports physio",
-            "Rehabilitation",
-            "Pain management",
-            "Online booking"
-        ]
-    },
-    {
-        "id": 110,
-        "name": "Physio Pattern Manchester",
-        "type": "Physio",
-        "location": "Manchester",
-        "address": "75 Lever Street, Manchester City Centre",
-        "rating": 4.6,
-        "reviews": 150,
-        "image": CloudAssets.getClinicPlaceholder(10),
-        "premium": true,
-        "phone": "0161 828 0000",
-        "website": "https://www.physiopattern.com",
-        "services": [
-            "Rehab centre",
-            "Advanced rehab equipment",
-            "Sports injury therapy"
-        ]
-    },
-    {
-        "id": 201,
-        "name": "OneMedical Group – Leeds City",
-        "type": "GP",
-        "location": "Leeds",
-        "address": "The Light, The Headrow, Leeds LS1 8TL",
-        "rating": 4.5,
-        "reviews": 95,
-        "image": CloudAssets.getClinicPlaceholder(1),
-        "premium": true,
-        "phone": "0113 869 2050",
-        "website": "https://onemedicalgroup.co.uk",
-        "services": [
-            "Private GP appointments",
-            "Vaccinations",
-            "Referrals",
-            "Occupational health"
-        ]
-    },
-    {
-        "id": 202,
-        "name": "Spire Leeds Hospital Private GP",
-        "type": "GP",
-        "location": "Leeds",
-        "address": "Jackson Avenue, Roundhay, Leeds LS8 1NT",
-        "rating": 4.7,
-        "reviews": 110,
-        "image": CloudAssets.getClinicPlaceholder(2),
-        "premium": true,
-        "phone": "0113 269 3939",
-        "website": "https://www.spirehealthcare.com/spire-leeds-hospital",
-        "services": [
-            "Same-day GP",
-            "Men's health",
-            "Women's health",
-            "Travel health"
-        ]
-    },
-    {
-        "id": 203,
-        "name": "Regent Street Clinic Leeds",
-        "type": "GP",
-        "location": "Leeds",
-        "address": "76a Street Lane, Roundhay, Leeds LS8 2AA",
-        "rating": 4.4,
-        "reviews": 120,
-        "image": CloudAssets.getClinicPlaceholder(3),
-        "premium": false,
-        "phone": "0113 833 0422",
-        "website": "https://www.regentstreetclinic.co.uk",
-        "services": [
-            "Private GP",
-            "STD testing",
-            "Occupational health",
-            "Blood tests"
-        ]
-    },
-    {
-        "id": 204,
-        "name": "Doctor Today Private GP Leeds",
-        "type": "GP",
-        "location": "Leeds",
-        "address": "2 Legrams Terrace, Bradford Road, Leeds LS6 1BU",
-        "rating": 4.3,
-        "reviews": 90,
-        "image": CloudAssets.getClinicPlaceholder(4),
-        "premium": false,
-        "phone": "0113 322 7249",
-        "website": "https://doctortoday.co.uk",
-        "services": [
-            "Acute illness",
-            "Prescriptions",
-            "Medicals",
-            "Wellness checks"
-        ]
-    },
-    {
-        "id": 205,
-        "name": "Aesthetique Dental Care",
-        "type": "Dentist",
-        "location": "Leeds",
-        "address": "44A The Headrow, Leeds LS1 8TL",
-        "rating": 4.9,
-        "reviews": 250,
-        "image": CloudAssets.getImageUrl("Aesthetique Dental Care.jpg"),
-        "premium": true,
-        "phone": "0113 245 8066",
-        "website": "https://www.aesthetique.co.uk",
-        "services": [
-            "Invisalign",
-            "Teeth whitening",
-            "Veneers",
-            "Cosmetic dentistry"
-        ]
-    },
-    {
-        "id": 206,
-        "name": "Ivory Dental Leeds",
-        "type": "Dentist",
-        "location": "Leeds",
-        "address": "69 Armley Ridge Road, Leeds LS12 3NP",
-        "rating": 4.7,
-        "reviews": 145,
-        "image": CloudAssets.getClinicPlaceholder(6),
-        "premium": false,
-        "phone": "0113 279 6669",
-        "website": "https://ivorydental.co.uk",
-        "services": [
-            "General dentistry",
-            "Dental hygiene",
-            "Emergency dentistry",
-            "Implants"
-        ]
-    },
-    {
-        "id": 207,
-        "name": "The Dental Architect",
-        "type": "Dentist",
-        "location": "Leeds",
-        "address": "20 Park Square E, Leeds LS1 2NE",
-        "rating": 4.8,
-        "reviews": 130,
-        "image": CloudAssets.getClinicPlaceholder(7),
-        "premium": true,
-        "phone": "0113 868 4324",
-        "website": "https://thedentalarchitect.com",
-        "services": [
-            "Smile makeovers",
-            "Whitening",
-            "Crowns",
-            "Orthodontics"
-        ]
-    },
-    {
-        "id": 208,
-        "name": "Whitehall Physiotherapy Clinic",
-        "type": "Physio",
-        "location": "Leeds",
-        "address": "15a Park Square East, Leeds LS1 2LF",
-        "rating": 4.6,
-        "reviews": 140,
-        "image": CloudAssets.getClinicPlaceholder(8),
-        "premium": false,
-        "phone": "0113 234 5553",
-        "website": "https://whitehallphysio.com",
-        "services": [
-            "Back pain",
-            "Sports injuries",
-            "Post-op rehab",
-            "Manual therapy"
-        ]
-    },
-    {
-        "id": 209,
-        "name": "Pure Sports Medicine Leeds",
-        "type": "Physio",
-        "location": "Leeds",
-        "address": "Wellington Place, Leeds LS1 4DL",
-        "rating": 4.9,
-        "reviews": 200,
-        "image": CloudAssets.getClinicPlaceholder(9),
-        "premium": true,
-        "phone": "0113 456 8790",
-        "website": "https://puresportsmed.com",
-        "services": [
-            "Performance physio",
-            "Injury prevention",
-            "Athlete rehab"
-        ]
-    },
-    {
-        "id": 210,
-        "name": "Yorkshire Physio Clinic",
-        "type": "Physio",
-        "location": "Leeds",
-        "address": "28 North Lane, Leeds LS6 3HE",
-        "rating": 4.4,
-        "reviews": 80,
-        "image": CloudAssets.getClinicPlaceholder(10),
-        "premium": false,
-        "phone": "0113 426 5432",
-        "website": "https://yorkshirephysioclinic.co.uk",
-        "services": [
-            "Electrotherapy",
-            "Joint mobilisation",
-            "Functional rehab"
-        ]
-    },
-    {
-        "id": 211,
-        "name": "Leeds Private Health",
-        "type": "GP",
-        "location": "Leeds",
-        "address": "8 Park Square East, Leeds LS1 2LH",
-        "rating": 4.5,
-        "reviews": 60,
-        "image": CloudAssets.getClinicPlaceholder(1),
-        "premium": false,
-        "phone": "0113 888 1122",
-        "website": "https://leedsprivatehealth.co.uk",
-        "services": [
-            "GP services",
-            "Mental health",
-            "Sexual health"
-        ]
-    },
-    {
-        "id": 212,
-        "name": "Clarendon Dental Spa",
-        "type": "Dentist",
-        "location": "Leeds",
-        "address": "2 Clarendon Road, Leeds LS2 9NN",
-        "rating": 4.6,
-        "reviews": 115,
-        "image": CloudAssets.getClinicPlaceholder(6),
-        "premium": true,
-        "phone": "0113 246 4877",
-        "website": "https://clarendondentalspa.co.uk",
-        "services": [
-            "Cosmetic dentistry",
-            "Invisalign",
-            "Smile makeovers"
-        ]
-    },
-    {
-        "id": 213,
-        "name": "Back to Fitness Physio",
-        "type": "Physio",
-        "location": "Leeds",
-        "address": "The Basement, 15 Park Row, Leeds LS1 5HD",
-        "rating": 4.3,
-        "reviews": 85,
-        "image": CloudAssets.getClinicPlaceholder(8),
-        "premium": false,
-        "phone": "0113 320 7000",
-        "website": "https://backtofitnessphysio.co.uk",
-        "services": [
-            "Chronic pain",
-            "Physio-led exercise",
-            "Postural assessments"
-        ]
-    },
-    {
-        "id": 301,
-        "name": "GP Matters Glasgow",
-        "type": "GP",
-        "location": "Glasgow",
-        "address": "24 Buckingham Terrace, Glasgow G12 8ED",
-        "rating": 4.8,
-        "reviews": 95,
-        "image": CloudAssets.getClinicPlaceholder(1),
-        "premium": true,
-        "phone": "0141 737 3270",
-        "website": "https://www.gpmatters.com",
-        "services": [
-            "Same-day GP",
-            "Medical tests",
-            "Vaccinations",
-            "Corporate health"
-        ]
-    },
-    {
-        "id": 302,
-        "name": "YourGP Glasgow",
-        "type": "GP",
-        "location": "Glasgow",
-        "address": "10 Newton Terrace, Glasgow G3 7PJ",
-        "rating": 4.5,
-        "reviews": 78,
-        "image": CloudAssets.getClinicPlaceholder(2),
-        "premium": true,
-        "phone": "0141 222 5778",
-        "website": "https://www.yourgp.com",
-        "services": [
-            "Travel health",
-            "Women's health",
-            "Men's health",
-            "Blood tests"
-        ]
-    },
-    {
-        "id": 303,
-        "name": "Dr. Nair's Medical Practice",
-        "type": "GP",
-        "location": "Glasgow",
-        "address": "30 Bellgrove Street, Glasgow G31 1HU",
-        "rating": 4.6,
-        "reviews": 64,
-        "image": CloudAssets.getClinicPlaceholder(3),
-        "premium": false,
-        "phone": "0141 551 5333",
-        "website": "https://www.drnairpractice.co.uk",
-        "services": [
-            "Private consultations",
-            "Mental health",
-            "Certificates"
-        ]
-    },
-    {
-        "id": 304,
-        "name": "3StepSmiles Dental Practice",
-        "type": "Dentist",
-        "location": "Glasgow",
-        "address": "41 Bath Street, Glasgow G2 1HW",
-        "rating": 4.9,
-        "reviews": 220,
-        "image": CloudAssets.getImageUrl("3StepSmiles Dental Practice.webp"),
-        "premium": true,
-        "phone": "0141 488 8292",
-        "website": "https://www.3stepsmiles.com/uk/glasgow",
-        "services": [
-            "Full mouth rehab",
-            "Implants",
-            "Cosmetic dentistry"
-        ]
-    },
-    {
-        "id": 305,
-        "name": "Dental Lounge Glasgow",
-        "type": "Dentist",
-        "location": "Glasgow",
-        "address": "30 St. Vincent Place, Glasgow G1 2HL",
-        "rating": 4.7,
-        "reviews": 180,
-        "image": CloudAssets.getClinicPlaceholder(6),
-        "premium": false,
-        "phone": "0141 222 6580",
-        "website": "https://www.dentalloungeglasgow.co.uk",
-        "services": [
-            "Invisalign",
-            "Hygiene",
-            "Restorative dentistry"
-        ]
-    },
-    {
-        "id": 306,
-        "name": "Blythswood Dental Practice",
-        "type": "Dentist",
-        "location": "Glasgow",
-        "address": "152 Bath Street, Glasgow G2 4TB",
-        "rating": 4.6,
-        "reviews": 140,
-        "image": CloudAssets.getClinicPlaceholder(7),
-        "premium": true,
-        "phone": "0141 332 8235",
-        "website": "https://www.blythswooddental.com",
-        "services": [
-            "Smile makeovers",
-            "Bridges",
-            "Teeth whitening"
-        ]
-    },
-    {
-        "id": 307,
-        "name": "Glasgow Physio Centre",
-        "type": "Physio",
-        "location": "Glasgow",
-        "address": "22 Newton Place, Glasgow G3 7PY",
-        "rating": 4.8,
-        "reviews": 150,
-        "image": CloudAssets.getClinicPlaceholder(8),
-        "premium": true,
-        "phone": "0141 433 7000",
-        "website": "https://glasgowphysiocentre.co.uk",
-        "services": [
-            "Sports rehab",
-            "Manual therapy",
-            "Back pain"
-        ]
-    },
-    {
-        "id": 308,
-        "name": "Back2Fitness Physiotherapy",
-        "type": "Physio",
-        "location": "Glasgow",
-        "address": "80 Berkeley Street, Glasgow G3 7DS",
-        "rating": 4.5,
-        "reviews": 100,
-        "image": CloudAssets.getClinicPlaceholder(9),
-        "premium": false,
-        "phone": "0141 248 4099",
-        "website": "https://back2fitnessphysio.com",
-        "services": [
-            "Postural correction",
-            "Joint mobilisations",
-            "Post-surgical rehab"
-        ]
-    },
-    {
-        "id": 309,
-        "name": "Phoenix Physio",
-        "type": "Physio",
-        "location": "Glasgow",
-        "address": "1 Dowanhill Street, Glasgow G11 5QR",
-        "rating": 4.6,
-        "reviews": 88,
-        "image": CloudAssets.getClinicPlaceholder(10),
-        "premium": true,
-        "phone": "0141 339 0040",
-        "website": "https://www.phoenixphysio.co.uk",
-        "services": [
-            "Chronic pain",
-            "Neurological rehab",
-            "Clinical Pilates"
-        ]
-    },
-    {
-        "id": 310,
-        "name": "The Medical Suite Glasgow",
-        "type": "GP",
-        "location": "Glasgow",
-        "address": "200 St Vincent Street, Glasgow G2 5RQ",
-        "rating": 4.5,
-        "reviews": 72,
-        "image": CloudAssets.getClinicPlaceholder(1),
-        "premium": false,
-        "phone": "0141 567 8899",
-        "website": "https://themedicalsuite.co.uk",
-        "services": [
-            "General practice",
-            "Work medicals",
-            "Health screening"
-        ]
-    },
-    {
-        "id": 311,
-        "name": "MyDentist Glasgow",
-        "type": "Dentist",
-        "location": "Glasgow",
-        "address": "170 Buchanan Street, Glasgow G1 2LW",
-        "rating": 4.2,
-        "reviews": 200,
-        "image": CloudAssets.getClinicPlaceholder(6),
-        "premium": false,
-        "phone": "0141 333 5555",
-        "website": "https://www.mydentist.co.uk",
-        "services": [
-            "General dental care",
-            "NHS and private",
-            "Check-ups"
-        ]
-    },
-    {
-        "id": 312,
-        "name": "Physio Effect",
-        "type": "Physio",
-        "location": "Glasgow",
-        "address": "33 Dornoch Street, Glasgow G40 2QT",
-        "rating": 4.9,
-        "reviews": 160,
-        "image": CloudAssets.getClinicPlaceholder(8),
-        "premium": true,
-        "phone": "0141 370 0400",
-        "website": "https://www.physioeffect.co.uk",
-        "services": [
-            "Sports injury rehab",
-            "Biomechanics",
-            "Acupuncture"
-        ]
-    },
-    {
-        "id": 313,
-        "name": "The Berkeley Clinic",
-        "type": "Dentist",
-        "location": "Glasgow",
-        "address": "5 Newton Terrace, Glasgow G3 7PJ",
-        "rating": 4.7,
-        "reviews": 300,
-        "image": CloudAssets.getClinicPlaceholder(7),
-        "premium": true,
-        "phone": "0141 564 1900",
-        "website": "https://www.berkeleyclinic.com",
-        "services": [
-            "Dental implants",
-            "Smile design",
-            "Sedation dentistry"
-        ]
-    },
-    {
-        "id": 401,
-        "name": "Midland Health Birmingham",
-        "type": "GP",
-        "location": "Birmingham",
-        "address": "23a Highfield Road, Edgbaston, Birmingham B15 3DP",
-        "rating": 4.9,
-        "reviews": 120,
-        "image": CloudAssets.getClinicPlaceholder(1),
-        "premium": true,
-        "phone": "0121 769 0999",
-        "website": "https://midlandhealth.co.uk",
-        "services": [
-            "Same-day GP",
-            "Health screening",
-            "Travel vaccines",
-            "Private prescriptions"
-        ]
-    },
-    {
-        "id": 402,
-        "name": "Regent Street Clinic Birmingham",
-        "type": "GP",
-        "location": "Birmingham",
-        "address": "28 George Road, Edgbaston, Birmingham B15 1PJ",
-        "rating": 4.7,
-        "reviews": 90,
-        "image": CloudAssets.getClinicPlaceholder(2),
-        "premium": false,
-        "phone": "0121 454 7779",
-        "website": "https://regentstreetclinic.co.uk",
-        "services": [
-            "Walk-in GP",
-            "STD testing",
-            "Visa medicals"
-        ]
-    },
-    {
-        "id": 403,
-        "name": "Private GP Clinic Birmingham",
-        "type": "GP",
-        "location": "Birmingham",
-        "address": "Lyndon House, 62 Hagley Road, Edgbaston B16 8PE",
-        "rating": 4.5,
-        "reviews": 65,
-        "image": CloudAssets.getClinicPlaceholder(3),
-        "premium": false,
-        "phone": "0121 517 0202",
-        "website": "https://privategpclinic.co.uk",
-        "services": [
-            "Occupational health",
-            "Health checks",
-            "Fit notes"
-        ]
-    },
-    {
-        "id": 404,
-        "name": "Changing Faces Dentistry",
-        "type": "Dentist",
-        "location": "Birmingham",
-        "address": "30a Great Charles Street, Birmingham B3 3JY",
-        "rating": 4.8,
-        "reviews": 110,
-        "image": CloudAssets.getClinicPlaceholder(5),
-        "premium": true,
-        "phone": "0121 633 1919",
-        "website": "https://www.changingfacesdentures.co.uk",
-        "services": [
-            "Implants",
-            "Dentures",
-            "Smile makeovers"
-        ]
-    },
-    {
-        "id": 405,
-        "name": "Edgbaston Smile Clinic",
-        "type": "Dentist",
-        "location": "Birmingham",
-        "address": "51 Calthorpe Rd, Birmingham B15 1TH",
-        "rating": 4.9,
-        "reviews": 150,
-        "image": CloudAssets.getImageUrl("edgbaston smile clinic.jpg"),
-        "premium": true,
-        "phone": "0121 456 7930",
-        "website": "https://www.edgbastonsmile.co.uk",
-        "services": [
-            "Teeth whitening",
-            "Invisalign",
-            "Crowns",
-            "Bridges"
-        ]
-    },
-    {
-        "id": 406,
-        "name": "St Paul's Square Dental Practice",
-        "type": "Dentist",
-        "location": "Birmingham",
-        "address": "17 St Paul's Square, Birmingham B3 1BU",
-        "rating": 4.6,
-        "reviews": 95,
-        "image": CloudAssets.getClinicPlaceholder(7),
-        "premium": false,
-        "phone": "0121 233 0867",
-        "website": "https://www.stpaulsdental.co.uk",
-        "services": [
-            "Restorative dentistry",
-            "Smile design",
-            "Implants"
-        ]
-    },
-    {
-        "id": 407,
-        "name": "Physio Art Birmingham",
-        "type": "Physio",
-        "location": "Birmingham",
-        "address": "Waterloo Road, Edgbaston, Birmingham B15 3JU",
-        "rating": 4.9,
-        "reviews": 130,
-        "image": CloudAssets.getClinicPlaceholder(8),
-        "premium": true,
-        "phone": "0121 685 2300",
-        "website": "https://www.physioart.co.uk",
-        "services": [
-            "Musculoskeletal physio",
-            "Sports injury",
-            "Rehabilitation"
-        ]
-    },
-    {
-        "id": 408,
-        "name": "Birmingham Physiotherapy Clinic",
-        "type": "Physio",
-        "location": "Birmingham",
-        "address": "38 Harborne Road, Birmingham B15 3HE",
-        "rating": 4.7,
-        "reviews": 85,
-        "image": CloudAssets.getClinicPlaceholder(9),
-        "premium": false,
-        "phone": "0121 455 0555",
-        "website": "https://birminghamphysio.co.uk",
-        "services": [
-            "Joint pain",
-            "Neurological rehab",
-            "Post-surgical physio"
-        ]
-    },
-    {
-        "id": 409,
-        "name": "Central City Physio",
-        "type": "Physio",
-        "location": "Birmingham",
-        "address": "Regus Building, 11 Brindleyplace, Birmingham B1 2LP",
-        "rating": 4.8,
-        "reviews": 110,
-        "image": CloudAssets.getClinicPlaceholder(10),
-        "premium": true,
-        "phone": "0121 285 6069",
-        "website": "https://www.centralcityphysio.co.uk",
-        "services": [
-            "Back pain",
-            "Taping",
-            "Workplace injury recovery"
-        ]
-    },
-    {
-        "id": 410,
-        "name": "Spire Little Aston Hospital",
-        "type": "GP",
-        "location": "Birmingham",
-        "address": "Little Aston Hall Dr, Sutton Coldfield B74 3UP",
-        "rating": 4.3,
-        "reviews": 210,
-        "image": CloudAssets.getClinicPlaceholder(1),
-        "premium": true,
-        "phone": "0121 580 7151",
-        "website": "https://www.spirehealthcare.com",
-        "services": [
-            "Private GP",
-            "Diagnostics",
-            "Consultant referrals"
-        ]
-    },
-    {
-        "id": 411,
-        "name": "The Clinic Room – Aesthetic & Skin",
-        "type": "Dentist",
-        "location": "Birmingham",
-        "address": "61 Charlotte St, Birmingham B3 1PX",
-        "rating": 4.6,
-        "reviews": 130,
-        "image": CloudAssets.getClinicPlaceholder(6),
-        "premium": true,
-        "phone": "0121 573 0088",
-        "website": "https://www.theclinicroom.co",
-        "services": [
-            "Skin treatments",
-            "Facial aesthetics",
-            "Dental hygiene"
-        ]
-    },
-    {
-        "id": 412,
-        "name": "Back2Fitness Edgbaston",
-        "type": "Physio",
-        "location": "Birmingham",
-        "address": "Unit 7, Chad Square, Birmingham B15 3TQ",
-        "rating": 4.5,
-        "reviews": 105,
-        "image": CloudAssets.getClinicPlaceholder(8),
-        "premium": false,
-        "phone": "0121 456 7890",
-        "website": "https://www.back2fitnessphysio.co.uk",
-        "services": [
-            "Manual therapy",
-            "Muscle rehab",
-            "Pre/post op recovery"
-        ]
-    },
-    {
-        "id": 501,
-        "name": "Harley Street Health Centre",
-        "type": "GP",
-        "location": "London",
-        "address": "17 Harley Street, London W1G 9QH",
-        "rating": 4.9,
-        "reviews": 200,
-        "image": CloudAssets.getClinicPlaceholder(1),
-        "premium": true,
-        "phone": "020 7486 1199",
-        "website": "https://harleystreethealthcentre.com",
-        "services": [
-            "Private GP",
-            "Executive health screens",
-            "STD testing"
-        ]
-    },
-    {
-        "id": 502,
-        "name": "London Doctors Clinic – Oxford Street",
-        "type": "GP",
-        "location": "London",
-        "address": "168 Oxford Street, London W1D 1NH",
-        "rating": 4.8,
-        "reviews": 320,
-        "image": CloudAssets.getClinicPlaceholder(2),
-        "premium": true,
-        "phone": "020 4551 9522",
-        "website": "https://londondoctorsclinic.co.uk",
-        "services": [
-            "Same-day GP",
-            "Prescriptions",
-            "Fit notes",
-            "Vaccinations"
-        ]
-    },
-    {
-        "id": 503,
-        "name": "GP London at London Bridge",
-        "type": "GP",
-        "location": "London",
-        "address": "1 St Thomas St, London SE1 9RY",
-        "rating": 4.7,
-        "reviews": 135,
-        "image": CloudAssets.getClinicPlaceholder(3),
-        "premium": false,
-        "phone": "020 7940 5000",
-        "website": "https://gplondon.uk",
-        "services": [
-            "Same-day GP",
-            "Occupational health",
-            "Travel clinic"
-        ]
-    },
-    {
-        "id": 504,
-        "name": "Chelsea Dental Clinic",
-        "type": "Dentist",
-        "location": "London",
-        "address": "298 Fulham Road, Chelsea, London SW10 9EP",
-        "rating": 4.9,
-        "reviews": 180,
-        "image": CloudAssets.getImageUrl("chelsea Dental Clinic.png"),
-        "premium": true,
-        "phone": "020 3947 8000",
-        "website": "https://www.chelseadentalclinic.co.uk",
-        "services": [
-            "Cosmetic dentistry",
-            "Dental implants",
-            "Invisalign"
-        ]
-    },
-    {
-        "id": 505,
-        "name": "Marylebone Dental Care",
-        "type": "Dentist",
-        "location": "London",
-        "address": "36 Paddington Street, London W1U 4HE",
-        "rating": 4.8,
-        "reviews": 110,
-        "image": CloudAssets.getClinicPlaceholder(6),
-        "premium": true,
-        "phone": "020 7935 9366",
-        "website": "https://marylebonesmileclinic.co.uk",
-        "services": [
-            "Smile makeovers",
-            "Teeth whitening",
-            "Gum treatments"
-        ]
-    },
-    {
-        "id": 506,
-        "name": "Wimpole Street Dental Clinic",
-        "type": "Dentist",
-        "location": "London",
-        "address": "43 Wimpole Street, London W1G 8DQ",
-        "rating": 4.7,
-        "reviews": 150,
-        "image": CloudAssets.getClinicPlaceholder(7),
-        "premium": false,
-        "phone": "020 7935 3832",
-        "website": "https://www.wimpolestreetdentalclinic.co.uk",
-        "services": [
-            "General dentistry",
-            "Endodontics",
-            "Dental hygiene"
-        ]
-    },
-    {
-        "id": 507,
-        "name": "Complete Physio – Chelsea",
-        "type": "Physio",
-        "location": "London",
-        "address": "321 Fulham Rd, London SW10 9QL",
-        "rating": 4.9,
-        "reviews": 230,
-        "image": CloudAssets.getClinicPlaceholder(8),
-        "premium": true,
-        "phone": "020 7482 3875",
-        "website": "https://complete-physio.co.uk",
-        "services": [
-            "Sports injuries",
-            "Ultrasound",
-            "Rehabilitation"
-        ]
-    },
-    {
-        "id": 508,
-        "name": "Ten Health & Fitness – Mayfair",
-        "type": "Physio",
-        "location": "London",
-        "address": "16-17 North Audley St, London W1K 6WL",
-        "rating": 4.8,
-        "reviews": 190,
-        "image": CloudAssets.getClinicPlaceholder(9),
-        "premium": true,
-        "phone": "020 7487 3222",
-        "website": "https://www.ten.co.uk",
-        "services": [
-            "Clinical Pilates",
-            "Massage",
-            "Back pain rehab"
-        ]
-    },
-    {
-        "id": 509,
-        "name": "London Physiotherapy and Wellness Clinic",
-        "type": "Physio",
-        "location": "London",
-        "address": "1 Snow Hill, Farringdon, London EC1A 2DH",
-        "rating": 4.6,
-        "reviews": 120,
-        "image": CloudAssets.getClinicPlaceholder(10),
-        "premium": false,
-        "phone": "020 7112 5006",
-        "website": "https://www.londonphysiotherapy.co.uk",
-        "services": [
-            "Posture correction",
-            "Manual therapy",
-            "Occupational health"
-        ]
-    },
-    {
-        "id": 510,
-        "name": "One5 Health – Bank",
-        "type": "GP",
-        "location": "London",
-        "address": "One Poultry, Bank, London EC2R 8EJ",
-        "rating": 4.7,
-        "reviews": 140,
-        "image": CloudAssets.getClinicPlaceholder(1),
-        "premium": true,
-        "phone": "020 8050 0505",
-        "website": "https://www.one5health.co.uk",
-        "services": [
-            "Preventive health",
-            "Workplace wellbeing",
-            "Health plans"
-        ]
-    },
-    {
-        "id": 511,
-        "name": "GPDQ – Private GP at Home",
-        "type": "GP",
-        "location": "London",
-        "address": "Home visits across Greater London",
-        "rating": 4.6,
-        "reviews": 175,
-        "image": CloudAssets.getClinicPlaceholder(2),
-        "premium": false,
-        "phone": "020 3370 0999",
-        "website": "https://gpdq.co.uk",
-        "services": [
-            "GP home visits",
-            "Children's care",
-            "Elderly care"
-        ]
-    },
-    {
-        "id": 512,
-        "name": "Smiles by Hillside",
-        "type": "Dentist",
-        "location": "London",
-        "address": "28 High St, Wimbledon Village, London SW19 5BY",
-        "rating": 4.9,
-        "reviews": 200,
-        "image": CloudAssets.getClinicPlaceholder(5),
-        "premium": true,
-        "phone": "020 8946 8999",
-        "website": "https://www.smilesbyhillside.co.uk",
-        "services": [
-            "Paediatric dentistry",
-            "Smile restoration",
-            "Emergency dental"
-        ]
-    },
-    {
-        "id": 513,
-        "name": "Bodyset – Waterloo",
-        "type": "Physio",
-        "location": "London",
-        "address": "The Cut, Waterloo, London SE1 8LN",
-        "rating": 4.7,
-        "reviews": 90,
-        "image": CloudAssets.getClinicPlaceholder(9),
-        "premium": false,
-        "phone": "020 7099 7730",
-        "website": "https://www.bodyset.co.uk",
-        "services": [
-            "Performance physio",
-            "Injury recovery",
-            "Corporate services"
-        ]
-    },
-    {
-        "name": "Boots Pharmacy Manchester",
-        "type": "Pharmacy",
-        "location": "Manchester",
-        "address": "Market Street, Manchester M1 1WA",
-        "rating": 4.5,
-        "reviews": 234,
-        "image": CloudAssets.getImageUrl("images/pharmacy1.svg"),
-        "premium": false,
-        "phone": "0161 834 5678",
-        "website": "https://www.boots.com",
-        "services": [
-            "Prescription dispensing",
-            "Health consultations",
-            "Vaccinations",
-            "NHS services"
-        ]
-    },
-    {
-        "name": "Superdrug Pharmacy Liverpool",
-        "type": "Pharmacy",
-        "location": "Liverpool",
-        "address": "Church Street, Liverpool L1 3AY",
-        "rating": 4.3,
-        "reviews": 156,
-        "image": CloudAssets.getImageUrl("images/pharmacy2.svg"),
-        "premium": false,
-        "phone": "0151 709 1234",
-        "website": "https://www.superdrug.com",
-        "services": [
-            "Prescription services",
-            "Health advice",
-            "Beauty consultations",
-            "Travel health"
-        ]
-    },
-    {
-        "name": "Lloyds Pharmacy London",
-        "type": "Pharmacy",
-        "location": "London",
-        "address": "Oxford Street, London W1C 1JN",
-        "rating": 4.6,
-        "reviews": 189,
-        "image": CloudAssets.getImageUrl("images/pharmacy3.svg"),
-        "premium": true,
-        "phone": "020 7629 5678",
-        "website": "https://www.lloydspharmacy.com",
-        "services": [
-            "Prescription collection",
-            "Medicine reviews",
-            "Health screenings",
-            "Emergency contraception"
-        ]
-    },
-    {
-        "id": 514,
-        "name": "City GP Clinic",
-        "type": "Private GP",
-        "location": "Manchester",
-        "address": "12 Deansgate, M3 4JL",
-        "rating": 4.5,
-        "reviews": 224,
-        "image": CloudAssets.getClinicPlaceholder(1),
-        "premium": true,
-        "phone": "0161 000 1234",
-        "website": "https://citygp.example.com",
-        "description": "City GP Clinic is a professional healthcare provider in Manchester, offering quality medical services to the local community.",
-        "services": [
-            "General Practice",
-            "Private Prescriptions",
-            "Same-day Appointments"
-        ]
-    },
-    {
-        "id": 515,
-        "name": "Smile Dental",
-        "type": "Private Dentist",
-        "location": "Manchester",
-        "address": "22 Oxford Rd, M1 5AN",
-        "rating": 4.5,
-        "reviews": 50,
-        "image": CloudAssets.getImageUrl("Smile Dental.jpg"),
-        "premium": true,
-        "phone": "0161 000 5678",
-        "website": "https://smiledental.example.com",
-        "description": "Smile Dental is a professional healthcare provider in Manchester, offering quality medical services to the local community.",
-        "services": [
-            "Invisalign",
-            "Implants",
-            "Hygiene Services"
-        ]
-    },
-    {
-        "id": 516,
-        "name": "Bolton Physio Centre",
-        "type": "Private Physiotherapy",
-        "location": "Bolton",
-        "address": "5 Market Street, BL1 1AA",
-        "rating": 4.5,
-        "reviews": 162,
-        "image": CloudAssets.getClinicPlaceholder(1),
-        "premium": true,
-        "phone": "01204 000 987",
-        "website": "https://boltonphysio.example.com",
-        "description": "Bolton Physio Centre is a professional healthcare provider in Bolton, offering quality medical services to the local community.",
-        "services": [
-            "Sports Injury Rehab",
-            "Manual Therapy",
-            "Exercise Plans"
-        ]
-    },
-    {
-        "id": 517,
-        "name": "Aesthetic Glow",
-        "type": "Private Aesthetics",
-        "location": "Liverpool",
-        "address": "8 Bold Street, L1 4DS",
-        "rating": 4.5,
-        "reviews": 158,
-        "image": CloudAssets.getClinicPlaceholder(1),
-        "premium": true,
-        "phone": "0151 000 246",
-        "website": "https://aestheticglow.example.com",
-        "description": "Aesthetic Glow is a professional healthcare provider in Liverpool, offering quality medical services to the local community.",
-        "services": [
-            "Botox",
-            "Dermal Fillers",
-            "Skin Peels"
-        ]
-    },
-    {
-        "id": 518,
-        "name": "Manchester Medical Centre",
-        "type": "Private GP",
-        "location": "Manchester",
-        "address": "123 Oxford Road, Manchester City Centre, M1 7ED",
-        "rating": 4.5,
-        "reviews": 152,
-        "image": CloudAssets.getClinicPlaceholder(1),
-        "premium": true,
-        "phone": "07123456789",
-        "website": "https://manchestermedical.example.com",
-        "description": "Manchester Medical Centre is a professional healthcare provider in Manchester, offering quality medical services to the local community.",
-        "services": [
-            "General Practice",
-            "Health Checks"
-        ]
-    },
-    {
-        "id": 519,
-        "name": "Bolton Dental Practice",
-        "type": "Private Dentist",
-        "location": "Bolton",
-        "address": "45 High Street, Bolton Town Centre, BL1 2AB",
-        "rating": 4.5,
-        "reviews": 153,
-        "image": CloudAssets.getClinicPlaceholder(1),
-        "premium": true,
-        "phone": "07987654321",
-        "website": "https://boltondental.example.com",
-        "description": "Bolton Dental Practice is a professional healthcare provider in Bolton, offering quality medical services to the local community.",
-        "services": [
-            "General Dentistry",
-            "Cosmetic Dentistry"
-        ]
-    },
-    {
-        "id": 520,
-        "name": "Vision Express Manchester",
-        "type": "Optician",
-        "location": "Manchester",
-        "address": "Market Street, Manchester M1 1WA",
-        "rating": 4.6,
-        "reviews": 189,
-        "image": CloudAssets.getClinicPlaceholder(1),
-        "premium": true,
-        "phone": "0161 834 9876",
-        "website": "https://visionexpress.com",
-        "description": "Vision Express Manchester is a leading optician providing comprehensive eye care services in the heart of Manchester. Our qualified optometrists offer thorough eye examinations, contact lens fittings, and a wide selection of designer frames to suit every style and budget.",
-        "services": [
-            "Eye Examinations",
-            "Contact Lens Fitting",
-            "Designer Frames",
-            "Prescription Glasses"
-        ]
-    },
-    {
-        "id": 521,
-        "name": "Specsavers Liverpool",
-        "type": "Optician",
-        "location": "Liverpool",
-        "address": "Church Street, Liverpool L1 3AY",
-        "rating": 4.4,
-        "reviews": 267,
-        "image": CloudAssets.getClinicPlaceholder(2),
-        "premium": false,
-        "phone": "0151 709 5432",
-        "website": "https://specsavers.co.uk",
-        "description": "Specsavers Liverpool offers affordable eye care with professional optometry services. Our experienced team provides comprehensive eye tests, hearing tests, and a vast range of glasses and contact lenses at competitive prices.",
-        "services": [
-            "Eye Tests",
-            "Hearing Tests",
-            "Glasses",
-            "Contact Lenses"
-        ]
-    },
-    {
-        "id": 522,
-        "name": "Optical Express London",
-        "type": "Private Optician",
-        "location": "London",
-        "address": "Oxford Street, London W1C 1JN",
-        "rating": 4.7,
-        "reviews": 324,
-        "image": CloudAssets.getImageUrl("Optical Express London.jpg"),
-        "premium": true,
-        "phone": "020 7629 8765",
-        "website": "https://opticalexpress.co.uk",
-        "description": "Optical Express London is a premium eye care clinic specializing in laser eye surgery, advanced eye treatments, and luxury eyewear. Our state-of-the-art facility offers the latest technology in vision correction and comprehensive eye health assessments.",
-        "services": [
-            "Laser Eye Surgery",
-            "Advanced Eye Treatments",
-            "Luxury Eyewear",
-            "Vision Correction"
-        ]
+        id: 1,
+        name: "Pall Mall Medical Manchester",
+        type: "Private GP",
+        location: "Manchester",
+        address: "61 King Street, Manchester M2 4PD",
+        rating: 4.8,
+        reviews: 342,
+        image: "https://vzjqrbicwhyawtsjnplt.supabase.co/storage/v1/object/public/clinic-images/pall_mall_medical.jpg",
+        premium: true,
+        phone: "0161 832 2111",
+        website: "https://pallmallmedical.co.uk",
+        description: "Private healthcare provider in Manchester's business district.",
+        services: ["Private GP Consultations", "Health Screening", "Executive Health", "Travel Medicine"]
+    },
+    {
+        id: 2,
+        name: "Didsbury Dental Practice",
+        type: "Private Dentist",
+        location: "Manchester",
+        address: "90 Barlow Moor Rd, Manchester M20 2PN",
+        rating: 4.9,
+        reviews: 567,
+        image: "https://vzjqrbicwhyawtsjnplt.supabase.co/storage/v1/object/public/clinic-images/didsbury_dental_practice.jpg",
+        premium: true,
+        phone: "0161 455 0005",
+        website: "https://didsburydental.co.uk",
+        description: "Modern dental clinic in Didsbury providing exceptional dental care.",
+        services: ["General Dentistry", "Cosmetic Dentistry", "Invisalign", "Emergency Dental Care"]
+    },
+    {
+        id: 3,
+        name: "Manchester Eye Hospital",
+        type: "NHS Hospital",
+        location: "Manchester",
+        address: "Oxford Rd, Manchester M13 9WL",
+        rating: 4.2,
+        reviews: 128,
+        image: "https://vzjqrbicwhyawtsjnplt.supabase.co/storage/v1/object/public/clinic-images/manchester_eye_hospital.jpg",
+        premium: false,
+        phone: "0161 276 1234",
+        website: "https://www.mft.nhs.uk",
+        description: "Specialist eye care services in Manchester.",
+        services: ["Eye Examinations", "Cataract Surgery", "Retinal Services", "Emergency Eye Care"]
     }
 ];
+
+// Load data on page load (function defined later)
+document.addEventListener('DOMContentLoaded', async function() {
+  try {
+    // Wait for Supabase to be ready
+    if (!window.supabase) {
+      console.log('Waiting for Supabase to initialize...');
+      await new Promise(resolve => {
+        if (window.supabase) {
+          resolve();
+        } else {
+          window.addEventListener('supabaseReady', resolve, { once: true });
+          // Fallback timeout in case event doesn't fire
+          setTimeout(resolve, 2000);
+        }
+      });
+    }
+    
+    const loadedClinics = await loadClinicsFromSupabase();
+    if (loadedClinics && Array.isArray(loadedClinics)) {
+      clinicsData = loadedClinics;
+      console.log('Loaded', clinicsData.length, 'clinics successfully');
+    } else {
+      console.warn('Failed to load clinics, using existing fallback data');
+    }
+    
+    // Trigger any existing initialization functions
+    if (typeof initializePage === 'function') {
+      initializePage();
+    }
+    if (typeof displayClinics === 'function') {
+      displayClinics(clinicsData);
+    }
+    if (typeof initializeSearch === 'function') {
+      initializeSearch();
+    }
+  } catch (error) {
+    console.error('Error initializing page:', error);
+  }
+});
+
 
 // Global variables
 let currentFilters = {
@@ -2073,8 +159,16 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 async function initializeApp() {
-    // Load clinic data from API
-    await loadClinicsFromAPI();
+    // Wait for CloudAssets to be ready
+    if (!window.CloudAssets || !window.CloudAssets.supabase) {
+        console.log('⏳ Waiting for CloudAssets to initialize...');
+        await new Promise(resolve => {
+            document.addEventListener('cloudAssetsReady', resolve, { once: true });
+        });
+    }
+    
+    // Load clinic data from Supabase
+    await loadClinicsFromSupabase();
     
     setupEventListeners();
     
@@ -2115,43 +209,48 @@ function handleURLParameters() {
     }
 }
 
-// Load clinics using cloud service
-async function loadClinicsFromAPI(retryCount = 0) {
+// Load clinics using Supabase (renamed from loadClinicsFromAPI)
+async function loadClinicsFromSupabase(retryCount = 0) {
     // Show loading status
-    showAPIStatus('Loading clinics...', 'info');
+    showAPIStatus('Loading clinics from Supabase...', 'info');
     
     try {
-        // Use the new clinic service
+        // Wait for Supabase to be available
+        if (!window.supabase) {
+            console.warn('Supabase client not available, using fallback data');
+            showAPIStatus('Using sample data', 'info');
+            return clinicsData; // Return fallback data
+        }
+        
+        // Use the clinic service (now uses Supabase)
         const clinics = await clinicService.getClinics();
         
         if (clinics && Array.isArray(clinics) && clinics.length > 0) {
             clinicsData = clinics;
             
-            // Only log success in development mode
-            const apiBase = window.__CONFIG__ ? window.__CONFIG__.getApiBase() : window.__API_BASE__;
-            if (apiBase && apiBase.includes('localhost')) {
-                console.log('✅ Loaded', clinics.length, 'clinics from cloud service');
-            }
+            console.log('✅ Loaded', clinics.length, 'clinics from Supabase');
             
             // Show success indicator
-            showAPIStatus('Live data loaded', 'success');
+            showAPIStatus('Live data loaded from Supabase', 'success');
+            return clinics;
         } else {
             // Service returned empty data, use fallback
-            loadFallbackData();
+            console.warn('No clinics data received, using fallback');
             showAPIStatus('Using sample data', 'info');
+            return clinicsData;
         }
     } catch (error) {
         // Handle errors gracefully
+        console.error('❌ Failed to load clinics from Supabase:', error.message);
         handleAPIError(error);
-        loadFallbackData();
+        showAPIStatus('Using sample data', 'info');
         
-        // Only log errors in development mode
-        const apiBase = window.__CONFIG__ ? window.__CONFIG__.getApiBase() : window.__API_BASE__;
-        if (apiBase && apiBase.includes('localhost')) {
-            console.warn('❌ Failed to load clinics from cloud service, using fallback data:', error.message);
-        }
+        return clinicsData; // Always return fallback data on error
     }
 }
+
+// Keep old function name for backward compatibility
+const loadClinicsFromAPI = loadClinicsFromSupabase;
 
 // Determine if an error should trigger a retry
 function shouldRetry(error) {
@@ -2364,9 +463,61 @@ function setupEventListeners() {
     const navMenu = document.querySelector('.nav-menu');
     
     if (hamburger && navMenu) {
+        // Add ARIA attributes for accessibility
+        hamburger.setAttribute('aria-label', 'Toggle navigation menu');
+        hamburger.setAttribute('aria-expanded', 'false');
+        navMenu.setAttribute('aria-hidden', 'true');
+        
         hamburger.addEventListener('click', () => {
+            const isActive = navMenu.classList.contains('active');
+            
             navMenu.classList.toggle('active');
             hamburger.classList.toggle('active');
+            document.body.classList.toggle('nav-open');
+            
+            // Update ARIA attributes
+            hamburger.setAttribute('aria-expanded', !isActive);
+            navMenu.setAttribute('aria-hidden', isActive);
+        });
+        
+        // Close mobile menu when clicking on nav links
+        const navLinks = navMenu.querySelectorAll('.nav-link');
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                navMenu.classList.remove('active');
+                hamburger.classList.remove('active');
+                document.body.classList.remove('nav-open');
+                
+                // Update ARIA attributes
+                hamburger.setAttribute('aria-expanded', 'false');
+                navMenu.setAttribute('aria-hidden', 'true');
+            });
+        });
+        
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!hamburger.contains(e.target) && !navMenu.contains(e.target) && navMenu.classList.contains('active')) {
+                navMenu.classList.remove('active');
+                hamburger.classList.remove('active');
+                document.body.classList.remove('nav-open');
+                
+                // Update ARIA attributes
+                hamburger.setAttribute('aria-expanded', 'false');
+                navMenu.setAttribute('aria-hidden', 'true');
+            }
+        });
+        
+        // Close mobile menu on window resize
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768 && navMenu.classList.contains('active')) {
+                navMenu.classList.remove('active');
+                hamburger.classList.remove('active');
+                document.body.classList.remove('nav-open');
+                
+                // Update ARIA attributes
+                hamburger.setAttribute('aria-expanded', 'false');
+                navMenu.setAttribute('aria-hidden', 'true');
+            }
         });
     }
     
@@ -2620,18 +771,16 @@ function filterByCategory(category) {
     
     applyFilters();
     
-    // Scroll to locations section only on mobile devices (768px and below)
-    if (window.innerWidth <= 768) {
-        const locationsSection = document.querySelector('.locations');
-        if (locationsSection) {
-            setTimeout(() => {
-                locationsSection.scrollIntoView({ 
-                    behavior: 'smooth', 
-                    block: 'start',
-                    inline: 'nearest'
-                });
-            }, 100);
-        }
+    // Scroll to featured clinics section to show filtered results
+    const featuredClinicsSection = document.querySelector('.featured-clinics');
+    if (featuredClinicsSection) {
+        setTimeout(() => {
+            featuredClinicsSection.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start',
+                inline: 'nearest'
+            });
+        }, 100);
     }
 }
 
@@ -2860,10 +1009,70 @@ function renderClinics() {
     renderPagination();
 }
 
+/**
+ * Validate clinic data completeness
+ * @param {Object} clinic - Clinic data object
+ * @returns {Object} Validation result with missing fields and completeness score
+ */
+function validateClinicData(clinic) {
+    const requiredFields = {
+        name: 'Clinic name',
+        type: 'Clinic type',
+        address: 'Address'
+    };
+    
+    const optionalFields = {
+        phone: 'Phone number',
+        website: 'Website',
+        rating: 'Rating',
+        image: 'Image',
+        description: 'Description'
+    };
+    
+    const missing = [];
+    const present = [];
+    
+    // Check required fields
+    Object.keys(requiredFields).forEach(field => {
+        if (!clinic[field] || clinic[field].toString().trim() === '') {
+            missing.push(requiredFields[field]);
+        } else {
+            present.push(requiredFields[field]);
+        }
+    });
+    
+    // Check optional fields
+    Object.keys(optionalFields).forEach(field => {
+        if (clinic[field] && clinic[field].toString().trim() !== '') {
+            present.push(optionalFields[field]);
+        }
+    });
+    
+    const totalFields = Object.keys(requiredFields).length + Object.keys(optionalFields).length;
+    const completenessScore = Math.round((present.length / totalFields) * 100);
+    
+    return {
+        isValid: missing.length === 0,
+        missing,
+        present,
+        completenessScore,
+        hasMinimumData: clinic.name && clinic.type
+    };
+}
+
 function createClinicCard(clinic) {
     const card = document.createElement('div');
     card.className = 'clinic-card fade-in';
     card.style.cursor = 'pointer';
+    
+    // Validate clinic data
+    const validation = validateClinicData(clinic);
+    
+    // Add data quality indicator
+    if (!validation.isValid) {
+        card.classList.add('incomplete-data');
+        card.setAttribute('data-completeness', validation.completenessScore);
+    }
     
     // Add click event to entire card
     card.addEventListener('click', function(e) {
@@ -2890,40 +1099,71 @@ function createClinicCard(clinic) {
     }
     
     // Get type icon for overlay
-    const typeIcon = getTypeIcon(clinic.type);
+    const typeIcon = getTypeIcon(clinic.type || 'healthcare');
+    
+    // Handle missing or incomplete data with fallbacks
+    const clinicName = clinic.name || 'Healthcare Provider';
+    const clinicType = clinic.type || 'Healthcare';
+    const clinicAddress = clinic.address || 'Address not available';
+    const clinicImage = clinic.logoUrl || (clinic.images && clinic.images[0]) || clinic.image || 'https://vzjqrbicwhyawtsjnplt.supabase.co/storage/v1/object/public/clinic-images/clinic1.svg';
+    const clinicPhone = clinic.phone || null;
+    const clinicRating = clinic.rating || 0;
+    const reviewCount = clinic.reviewCount || clinic.reviews || 0;
+    
+    // Generate data completeness indicator
+    let completenessIndicator = '';
+    if (!validation.isValid) {
+        completenessIndicator = `
+            <div class="data-completeness-indicator" title="Profile ${validation.completenessScore}% complete">
+                <i class="fas fa-info-circle"></i>
+                <span>${validation.completenessScore}% complete</span>
+            </div>
+        `;
+    }
+    
+    // Generate contact actions based on available data
+    let contactActions = '';
+    if (clinicPhone) {
+        contactActions += `<a href="tel:${clinicPhone}" class="contact-btn">Call Now</a>`;
+    } else {
+        contactActions += `<span class="contact-btn disabled" title="Phone number not available">No Phone</span>`;
+    }
     
     card.innerHTML = `
         <div class="clinic-image-container">
-            <img src="${clinic.logoUrl || clinic.image}" 
-                 alt="${clinic.name} - ${formatType(clinic.type)} clinic" 
+            <img src="${clinicImage}" 
+                 alt="${clinicName} - ${formatType(clinicType)} clinic" 
                  class="clinic-image" 
                  loading="lazy"
-                 onerror="this.src=CloudAssets.getClinicPlaceholder(1)">
+                 onerror="this.src='https://vzjqrbicwhyawtsjnplt.supabase.co/storage/v1/object/public/clinic-images/clinic1.svg'">
             <div class="image-overlay">
                 <div class="type-badge">
                     <i class="${typeIcon}"></i>
-                    <span>${formatType(clinic.type)}</span>
+                    <span>${formatType(clinicType)}</span>
                 </div>
                 ${(clinic.premium !== undefined ? clinic.premium : false) ? '<div class="premium-badge-image"><i class="fas fa-crown"></i> Premium</div>' : ''}
+                ${completenessIndicator}
             </div>
             <div class="image-gradient"></div>
         </div>
         <div class="clinic-content">
             <div class="clinic-header">
                 <div>
-                    <h3 class="clinic-name">${clinic.name}</h3>
-                    <p class="clinic-type">${formatType(clinic.type)}</p>
+                    <h3 class="clinic-name">${clinicName}</h3>
+                    <p class="clinic-type">${formatType(clinicType)}</p>
                 </div>
             </div>
-            <p class="clinic-location">${clinic.address}</p>
+            <p class="clinic-location ${!clinic.address ? 'missing-data' : ''}">
+                ${clinicAddress === 'Address not available' ? '<i class="fas fa-exclamation-triangle"></i> ' : ''}${clinicAddress}
+            </p>
             <div class="clinic-rating">
                 <div class="stars">${starsHTML}</div>
-                <span class="rating-text">${clinic.rating}</span>
-                <span class="review-count">(${clinic.reviewCount || clinic.reviews} reviews)</span>
+                <span class="rating-text">${clinicRating || 'N/A'}</span>
+                <span class="review-count">(${reviewCount} reviews)</span>
             </div>
             <div class="clinic-actions">
                 <a href="clinic-profile.html?id=${clinic.id}" class="visit-btn">View Details</a>
-                <a href="tel:${clinic.phone}" class="contact-btn">Call Now</a>
+                ${contactActions}
             </div>
         </div>
     `;
@@ -3057,7 +1297,7 @@ async function updateLocationCounts() {
     try {
         let totalCount;
         if (isBackendHealthy) {
-            const totalData = await window.apiService.getClinics({ limit: 1000 });
+            const totalData = await clinicService.getClinics({ limit: 1000 });
             totalCount = totalData.pagination?.total || totalData.data?.length || 0;
         } else {
             // Use fallback data when backend is not healthy
@@ -3099,7 +1339,7 @@ async function updateLocationCounts() {
         try {
             let count;
             if (isBackendHealthy) {
-                const data = await window.apiService.getClinics({ city: location.city, limit: 1000 });
+                const data = await clinicService.getClinics({ city: location.city, limit: 1000 });
                 count = data.pagination?.total || data.data?.length || 0;
             } else {
                 // Use fallback data when backend is not healthy
@@ -4012,11 +2252,11 @@ function createEnhancedClinicCard(clinic) {
     
     card.innerHTML = `
         <div class="clinic-image-container">
-            <img src="${clinic.logoUrl || clinic.image}" 
+            <img src="${clinic.logoUrl || (clinic.images && clinic.images[0]) || clinic.image}" 
                  alt="${clinic.name} - ${formatType(clinic.type)} clinic" 
                  class="clinic-image" 
                  loading="lazy"
-                 onerror="this.src=CloudAssets.getClinicPlaceholder(1)">
+                 onerror="this.src="https://vzjqrbicwhyawtsjnplt.supabase.co/storage/v1/object/public/clinic-images/clinic1.svg"">
             <div class="image-overlay">
                 <div class="type-badge">
                     <i class="${typeIcon}"></i>

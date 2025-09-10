@@ -151,7 +151,7 @@ app.use(helmet({
       fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com"],
       scriptSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://cdn.jsdelivr.net", "https://va.vercel-scripts.com"],
       imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'", "http://localhost:3000", "https://caregrid-backend.onrender.com", "https://vitals.vercel-insights.com"],
+      connectSrc: ["'self'", "http://localhost:3000", "https://vzjqrbicwhyawtsjnplt.supabase.co", "https://vitals.vercel-insights.com"],
       frameSrc: ["'none'"],
       objectSrc: ["'none'"],
       upgradeInsecureRequests: []

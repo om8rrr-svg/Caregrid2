@@ -1,4 +1,14 @@
+
+// Supabase client initialization
+const { createClient } = supabase;
+const supabaseUrl = 'https://vzjqrbicwhyawtsjnplt.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ6anFyYmljd2h5YXd0c2pucGx0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcxODU1NzksImV4cCI6MjA3Mjc2MTU3OX0.JlK3oGXK3rzaez8p-6BmGDZRNAUEKTpJgZ3flicw7ds';
+const supabaseClient = createClient(supabaseUrl, supabaseKey);
+
+// Alias for easier migration
+const supabase = supabaseClient;
 import { CloudAssets } from './cloud-config.js';
+import clinicService from './clinic-service.js';
 
 // Advanced Search & Filters JavaScript
 
@@ -494,15 +504,30 @@ class AdvancedSearch {
             const timeout = retryCount === 0 ? 15000 : 30000; // Shorter timeout for first attempt
             const timeoutId = setTimeout(() => controller.abort(), timeout);
             
-            // Call API with filters using the enhanced API service
-            const response = await this.apiService.makeRequestWithRetry('/api/clinics', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ filters: params }),
-                signal: controller.signal
-            });
+            // Use clinic service to fetch data with fallback to Supabase
+            let response;
+            try {
+                // Try clinic service first
+                response = await clinicService.getClinics(params);
+            } catch (apiError) {
+                console.warn('Clinic service failed, falling back to Supabase:', apiError);
+                // Fallback to direct Supabase query
+                let query = supabaseClient.from('clinics').select('*');
+                
+                if (params.city) {
+                    query = query.ilike('city', `%${params.city}%`);
+                }
+                if (params.type) {
+                    query = query.ilike('type', `%${params.type}%`);
+                }
+                if (params.search) {
+                    query = query.or(`name.ilike.%${params.search}%,description.ilike.%${params.search}%,services.cs.{"${params.search}"}`);
+                }
+                
+                const { data, error } = await query.limit(params.limit || 100);
+                if (error) throw error;
+                response = { data };
+            }
             
             clearTimeout(timeoutId);
             
@@ -780,10 +805,10 @@ class AdvancedSearch {
         return `
             <article class="clinic-card" data-clinic-id="${clinic.id}" role="listitem" aria-labelledby="clinic-name-${clinic.id}">
                 <div class="clinic-image">
-                    <img src="${clinic.image || CloudAssets.getImageUrl("clinic-placeholder.jpg")}" 
+                    <img src="${(clinic.images && clinic.images[0]) || clinic.image || "https://vzjqrbicwhyawtsjnplt.supabase.co/storage/v1/object/public/clinic-images/clinic-placeholder.jpg"}" 
                          alt="${clinic.name} clinic exterior" 
                          loading="lazy"
-                         onerror="this.src=CloudAssets.getImageUrl("clinic-placeholder.jpg")">
+                         onerror="this.src='https://vzjqrbicwhyawtsjnplt.supabase.co/storage/v1/object/public/clinic-images/clinic-placeholder.jpg'">
                 </div>
                 <div class="clinic-info">
                     <h3 class="clinic-name" id="clinic-name-${clinic.id}">${clinic.name}</h3>

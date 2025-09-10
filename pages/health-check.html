@@ -85,7 +85,8 @@
     </div>
 
     <script>
-        const API_BASE = 'https://caregrid-backend.onrender.com';
+        // Use Supabase for health checks instead of Render backend
+        const API_BASE = null; // No longer needed - using Supabase directly
         
         async function checkHealth() {
             try {

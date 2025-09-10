@@ -215,7 +215,7 @@ function initializeLazyLoading() {
     // Special handling for booking page - load booking.js immediately
     if (window.location.pathname.includes('booking.html')) {
         console.log('Booking page detected, loading booking.js immediately');
-        window.lazyLoader.loadScripts(['js/booking.js']);
+        window.lazyLoader.loadScripts(['../js/booking.js']);
         // Skip the normal booking config since we're loading it immediately
         return;
     }

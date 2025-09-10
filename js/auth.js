@@ -1,3 +1,4 @@
+
 // Authentication System JavaScript
 import { buildUrl } from './api-base.js';
 
@@ -176,7 +177,7 @@ class AuthSystem {
             // Dispatch auth state change event
             window.dispatchEvent(new CustomEvent('authStateChanged'));
             
-            window.location.href = 'dashboard.html';
+            window.location.href = 'pages/dashboard.html';
             
         } catch (error) {
             console.log('Sign-in failed:', error.message);
@@ -1088,13 +1089,13 @@ class AuthSystem {
         if (redirect) {
             window.location.href = redirect;
         } else {
-            window.location.href = 'dashboard.html';
+            window.location.href = 'pages/dashboard.html';
         }
     }
     
     redirectToDashboard() {
         // If user is already logged in, redirect to dashboard
-        //window.location.href = 'dashboard.html';
+        window.location.href = 'pages/dashboard.html';
     }
     
     delay(ms) {

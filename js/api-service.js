@@ -1,3 +1,4 @@
+
 // API Service for CareGrid Backend Communication
 // Import the centralized API base configuration
 import { API_BASE, buildUrl, fetchJson } from './api-base.js';
@@ -409,13 +410,17 @@ class APIService {
         return response;
     }
 
-    // Clinic endpoints
+    // Clinic endpoints with fallback to Supabase
     async getClinics(filters = {}) {
-        // Use buildUrl to construct the URL with query parameters
-        const url = buildUrl('/api/clinics', filters);
-        
-        // Try with retry mechanism for clinic requests (backend might be sleeping)
-        return await this.makeRequestWithRetryForUrl(url);
+        try {
+            // Try the old API first for backward compatibility
+            const url = buildUrl('/api/clinics', filters);
+            return await this.makeRequestWithRetryForUrl(url);
+        } catch (apiError) {
+            console.warn('Legacy API failed, using fallback data handling:', apiError);
+            // Return empty result to trigger fallback in calling code
+            throw new Error('API_UNAVAILABLE');
+        }
     }
     
     // Retry mechanism specifically for critical requests like clinics (URL version)

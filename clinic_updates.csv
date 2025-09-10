@@ -1,0 +1,11 @@
+id,name,type,address,phone,website,city,postcode,match_confidence,notes
+3aeb8bb1-0147-4a8c-a331-f905f9cce2fc,London Smile Clinic,Dentist,"40-44 Clipstone Street, London",020 7255 2559,https://www.londonsmile.co.uk,London,W1W 5DW,high,"Verified on clinic site"
+7d284bf7-61a3-4b74-ad82-58aab6a6583a,London Vision Clinic,Optometry,"138 Harley Street, London",020 7224 1005,https://www.londonvisionclinic.com,London,W1G 7LA,high,"Verified on clinic site"
+LDS001,London Dental Studio,Dentist,"27-29 Warwick Way, Victoria, London",0207 630 0782,https://www.londondentalstudio.co.uk,London,SW1V 1QT,high,"Verified on clinic site"
+LDC002,London Dental Centre,Dentist,"109 Lever Street, Islington, London",020 3667 7070,https://thelondondentalcentre.co.uk,London,EC1V 3RQ,high,"Verified on clinic site"
+HDC003,Hermes London Dental Clinic,Dentist,"205 Vauxhall Bridge Road, London",020 7233 7660,https://hermeslondondentalclinic.com,London,SW1V 1ER,high,"Verified on clinic site"
+MPH004,Manchester Private Hospital,Hospital,"New Court, Regents Place, Windsor Street, Salford, Greater Manchester",0161 507 8822,https://manchesterprivatehospital.co.uk,Manchester,M5 4HB,high,"Verified on clinic site"
+SMC005,Spire Manchester Clinic Hale,Hospital,"159 Ashley Road, Hale, Cheshire",0161 927 3878,https://www.spirehealthcare.com/spire-manchester-clinic-hale,Manchester,WA15 9SF,high,"Verified on clinic site"
+MED006,Medika Clinic Manchester,Clinic,"3 Hardman St, Spinningfields, Manchester",0161 394 1559,https://medika.health/the-medika-clinic,Manchester,M3 3AT,high,"Verified on clinic site"
+STAR007,Star Clinic,Clinic,"Gallant House, Hope Square, Altrincham",+44 371 705 4565,https://www.starclinic.co.uk,Manchester,WA14 2RL,high,"Verified on clinic site"
+CDC008,Chelsea Dental Clinic,Dentist,"298 Fulham Road, London",020 7349 8889,https://www.chelseadentalclinic.co.uk,London,SW10 9EP,high,"Verified on clinic site"

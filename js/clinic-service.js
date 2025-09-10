@@ -1,3 +1,6 @@
+
+// Use global Supabase client initialized in HTML
+// The client is available as window.supabase after the CDN loads
 import { CloudAssets } from './cloud-config.js';
 
 /**
@@ -13,21 +16,37 @@ class ClinicService {
     }
 
     waitForConfig() {
-        // Check if config is already loaded
-        if (window.__API_BASE__) {
-            this.baseUrl = window.__API_BASE__ + '/api';
-            console.log('✅ Config loaded, API base:', this.baseUrl);
+        // Use Supabase client exclusively - no more backend API calls
+        if (window.supabase) {
+            console.log('✅ Supabase client available, using direct database access');
         } else {
-            // Use local backend when running locally, otherwise production
-            this.baseUrl = window.location.hostname === 'localhost' ? 
-                'http://localhost:3000/api' : 
-                'https://caregrid-backend-latest.onrender.com/api';
-            console.log('⚠️ Config not loaded, using fallback:', this.baseUrl);
+            console.warn('⚠️ Supabase client not available, waiting for initialization');
         }
     }
 
     /**
-     * Fetch all clinics from the API
+     * Wait for Supabase to be ready
+     * @returns {Promise<void>}
+     */
+    async waitForSupabase() {
+        if (window.supabase) {
+            return Promise.resolve();
+        }
+        
+        return new Promise((resolve) => {
+            const checkSupabase = () => {
+                if (window.supabase) {
+                    resolve();
+                } else {
+                    window.addEventListener('supabaseReady', resolve, { once: true });
+                }
+            };
+            checkSupabase();
+        });
+    }
+
+    /**
+     * Fetch all clinics from Supabase
      * @param {Object} filters - Optional filters for clinics
      * @returns {Promise<Array>} Array of clinic objects
      */
@@ -38,27 +57,48 @@ class ClinicService {
         if (this.cache.has(cacheKey)) {
             const cached = this.cache.get(cacheKey);
             if (Date.now() - cached.timestamp < this.cacheTimeout) {
+                console.log('📦 Returning cached clinics data');
                 return cached.data;
             }
         }
 
         try {
-            const queryParams = new URLSearchParams(filters);
-            const url = `${this.baseUrl}/clinics?${queryParams}`;
-            console.log('🔍 Fetching clinics from:', url);
-            console.log('📡 API Base URL:', window.__API_BASE__);
-            const response = await fetch(url);
+            console.log('🔍 Fetching clinics from Supabase...');
             
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+            // Wait for Supabase to be ready
+            await this.waitForSupabase();
+            
+            if (!window.supabase) {
+                throw new Error('Supabase client not available');
+            }
+
+            const supabaseClient = window.supabase;
+
+            let query = supabaseClient.from('clinics').select('*');
+            
+            // Apply filters if provided
+            if (filters.type) {
+                query = query.eq('type', filters.type);
+            }
+            if (filters.city) {
+                query = query.eq('location->>city', filters.city);
+            }
+            if (filters.verified) {
+                query = query.eq('verified', true);
             }
             
-            const clinics = await response.json();
+            const { data, error } = await query;
+            
+            if (error) {
+                throw new Error(error.message);
+            }
+
+            console.log(`✅ Fetched ${data.length} clinics from Supabase`);
             
             // Process image URLs through CloudAssets
-            const processedClinics = clinics.map(clinic => ({
+            const processedClinics = data.map(clinic => ({
                 ...clinic,
-                image: clinic.image ? CloudAssets.getImageUrl(clinic.image) : CloudAssets.getDefaultImage('clinic')
+                image: (clinic.images && clinic.images[0]) || clinic.image ? CloudAssets.getImageUrl((clinic.images && clinic.images[0]) || clinic.image) : CloudAssets.getDefaultImage('clinic')
             }));
             
             // Cache the result
@@ -69,8 +109,9 @@ class ClinicService {
             
             return processedClinics;
         } catch (error) {
-            console.error('Error fetching clinics:', error);
-            return this.getFallbackData();
+            console.error('❌ Error fetching clinics from Supabase:', error);
+            console.log('🚫 API unavailable - not showing demo data');
+            throw new Error('Clinic data service is currently unavailable. Please try again later.');
         }
     }
 
@@ -86,26 +127,42 @@ class ClinicService {
         if (this.cache.has(cacheKey)) {
             const cached = this.cache.get(cacheKey);
             if (Date.now() - cached.timestamp < this.cacheTimeout) {
+                console.log(`📦 Returning cached clinic data for ID: ${id}`);
                 return cached.data;
             }
         }
 
         try {
-            const response = await fetch(`${this.baseUrl}/clinics/${id}`);
+            console.log(`🔍 Fetching clinic ${id} from Supabase...`);
             
-            if (!response.ok) {
-                if (response.status === 404) {
+            // Wait for Supabase to be ready
+            await this.waitForSupabase();
+            
+            if (!window.supabase) {
+                throw new Error('Supabase client not available');
+            }
+
+            const supabaseClient = window.supabase;
+            
+            const { data, error } = await supabaseClient
+                .from('clinics')
+                .select('*')
+                .eq('id', id)
+                .single();
+            
+            if (error) {
+                if (error.code === 'PGRST116') {
                     return null;
                 }
-                throw new Error(`HTTP error! status: ${response.status}`);
+                throw new Error(error.message);
             }
             
-            const clinic = await response.json();
+            const clinic = data;
             
             // Process image URL through CloudAssets
             const processedClinic = {
                 ...clinic,
-                image: clinic.image ? CloudAssets.getImageUrl(clinic.image) : CloudAssets.getDefaultImage('clinic')
+                image: (clinic.images && clinic.images[0]) || clinic.image ? CloudAssets.getImageUrl((clinic.images && clinic.images[0]) || clinic.image) : CloudAssets.getDefaultImage('clinic')
             };
             
             // Cache the result
@@ -116,7 +173,7 @@ class ClinicService {
             
             return processedClinic;
         } catch (error) {
-            console.error(`Error fetching clinic ${id}:`, error);
+            console.error(`❌ Error fetching clinic ${id} from Supabase:`, error);
             return this.getFallbackClinicById(id);
         }
     }
@@ -145,7 +202,7 @@ class ClinicService {
             // Process image URLs through CloudAssets
             return clinics.map(clinic => ({
                 ...clinic,
-                image: clinic.image ? CloudAssets.getImageUrl(clinic.image) : CloudAssets.getDefaultImage('clinic')
+                image: (clinic.images && clinic.images[0]) || clinic.image ? CloudAssets.getImageUrl((clinic.images && clinic.images[0]) || clinic.image) : CloudAssets.getDefaultImage('clinic')
             }));
         } catch (error) {
             console.error('Error searching clinics:', error);
@@ -198,7 +255,7 @@ class ClinicService {
                 address: "61 King Street, Manchester M2 4PD",
                 rating: 4.8,
                 reviews: 342,
-                image: CloudAssets.getImageUrl("pall_mall_medical.jpg"),
+                image: "https://vzjqrbicwhyawtsjnplt.supabase.co/storage/v1/object/public/clinic-images/pall_mall_medical.jpg",
                 premium: true,
                 phone: "0161 832 2111",
                 website: "https://pallmallmedical.co.uk",
@@ -213,7 +270,7 @@ class ClinicService {
                 address: "90 Barlow Moor Rd, Manchester M20 2PN",
                 rating: 4.9,
                 reviews: 567,
-                image: CloudAssets.getImageUrl("didsbury_dental_practice.jpg"),
+                image: "https://vzjqrbicwhyawtsjnplt.supabase.co/storage/v1/object/public/clinic-images/didsbury_dental_practice.jpg",
                 premium: true,
                 phone: "0161 455 0005",
                 website: "https://didsburydental.co.uk",
@@ -255,15 +312,25 @@ if (typeof window !== 'undefined') {
     // Initialize with empty array, will be populated by first API call
     window.clinicsData = [];
     
-    // Load initial data
-    clinicService.getClinics().then(clinics => {
-        window.clinicsData = clinics;
-        // Dispatch event for components waiting for data
-        window.dispatchEvent(new CustomEvent('clinicsDataLoaded', { detail: clinics }));
-    }).catch(error => {
-        console.warn('Failed to load initial clinic data:', error);
-        window.clinicsData = clinicService.getFallbackData();
-    });
+    // Wait for Supabase to be ready before loading data
+    const loadInitialData = () => {
+        clinicService.getClinics().then(clinics => {
+            window.clinicsData = clinics;
+            // Dispatch event for components waiting for data
+            window.dispatchEvent(new CustomEvent('clinicsDataLoaded', { detail: clinics }));
+        }).catch(error => {
+            console.warn('Failed to load initial clinic data:', error);
+            window.clinicsData = clinicService.getFallbackData();
+        });
+    };
+    
+    // Check if CloudAssets is already ready
+    if (window.supabase) {
+        loadInitialData();
+    } else {
+        console.log('⏳ Waiting for Supabase to be ready...');
+        window.addEventListener('supabaseReady', loadInitialData, { once: true });
+    }
 }
 
 export default clinicService;

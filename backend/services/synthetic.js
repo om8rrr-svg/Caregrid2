@@ -34,7 +34,7 @@ let transactionResults = {
 
 // Configuration for synthetic transactions
 const config = {
-  baseUrl: process.env.BASE_URL || 'https://caregrid-backend-latest.onrender.com',
+  baseUrl: null, // No longer needed - using Supabase directly
   timeout: 30000, // 30 seconds
   retries: 3,
   interval: 300000, // 5 minutes

@@ -283,6 +283,12 @@ class CareGridErrorTracker {
   
   captureError(errorData) {
     try {
+      // Skip expected API unavailability errors
+      if (this.isExpectedApiError(errorData)) {
+        console.debug('Skipping expected API error:', errorData.message);
+        return;
+      }
+      
       // Add common metadata
       const enrichedError = {
         ...errorData,
@@ -322,6 +328,25 @@ class CareGridErrorTracker {
     } catch (error) {
       console.error('[CareGrid Error Tracker] Failed to capture error:', error);
     }
+  }
+  
+  isExpectedApiError(errorData) {
+    const message = errorData.message || '';
+    const stack = errorData.stack || '';
+    const requestUrl = errorData.metadata?.requestUrl || '';
+    
+    // Skip API unavailability errors
+    if (message.includes('API_UNAVAILABLE') || 
+        message.includes('net::ERR_FAILED') ||
+        message.includes('net::ERR_ABORTED') ||
+        requestUrl.includes('/api/clinics') ||
+        requestUrl.includes('/api/errors') ||
+        stack.includes('/api/clinics') ||
+        stack.includes('/api/errors')) {
+      return true;
+    }
+    
+    return false;
   }
   
   async flush(synchronous = false) {
@@ -379,7 +404,12 @@ class CareGridErrorTracker {
         console.log(`[CareGrid Error Tracker] Successfully sent ${errorsToSend.length} errors`);
       }
     } catch (error) {
-      console.error('[CareGrid Error Tracker] Failed to send errors:', error);
+      // Don't log flush errors as critical if they're expected API unavailability
+      if (this.isExpectedApiError({ message: error.message, stack: error.stack })) {
+        console.debug('[CareGrid Error Tracker] Expected API unavailability during flush');
+      } else {
+        console.error('[CareGrid Error Tracker] Failed to send errors:', error);
+      }
       // Re-add errors to queue for retry
       this.errorQueue.unshift(...errorsToSend);
     }

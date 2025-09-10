@@ -125,7 +125,7 @@ async function loadClinicsFromAPI(retryCount = 0) {
     try {
         showAPIStatus('Loading clinics...', 'loading');
         
-        const response = await apiService.getClinics({
+        const response = await clinicService.getClinics({
             limit: 50, // Reduced from unlimited
             timeout: 8000
         });

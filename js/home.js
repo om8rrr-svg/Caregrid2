@@ -1,6 +1,36 @@
+
 // /js/home.js
 import { fetchJson } from './api-base.js';
 import { CloudAssets } from './cloud-config.js';
+import clinicService from './clinic-service.js';
+
+// Validate clinic data completeness
+function validateClinicData(clinic) {
+    const requiredFields = ['name', 'type', 'address'];
+    const optionalFields = ['phone', 'website', 'rating', 'reviews', 'description', 'image'];
+    
+    let score = 0;
+    let maxScore = requiredFields.length + optionalFields.length;
+    
+    // Check required fields (weighted more heavily)
+    const missingRequired = requiredFields.filter(field => !clinic[field] || clinic[field].trim() === '');
+    score += (requiredFields.length - missingRequired.length);
+    
+    // Check optional fields
+    const presentOptional = optionalFields.filter(field => clinic[field] && clinic[field].toString().trim() !== '');
+    score += presentOptional.length;
+    
+    const completenessScore = Math.round((score / maxScore) * 100);
+    const isValid = missingRequired.length === 0 && completenessScore >= 60;
+    
+    return {
+        isValid,
+        completenessScore,
+        missingRequired,
+        presentOptional: presentOptional.length,
+        quality: completenessScore >= 80 ? 'good' : completenessScore >= 60 ? 'incomplete' : 'poor'
+    };
+}
 
 
 function el(id) { return document.getElementById(id); }
@@ -11,8 +41,7 @@ async function loadCities() {
   container.innerHTML = '<div class="muted">Loading…</div>';
 
   try {
-    const rsp = await fetchJson('/api/clinics', { params: { limit: 500 } });
-    const clinics = rsp?.data || rsp || [];
+    const clinics = await clinicService.getClinics({ limit: 500 });
     
     // Add deduplication safeguard
     const uniq = arr => [...new Set(arr.filter(Boolean))];
@@ -45,8 +74,7 @@ async function loadClinicsForCity(city) {
   list.innerHTML = '<div class="muted">Loading clinics…</div>';
 
   try {
-    const rsp = await fetchJson('/api/clinics', { params: { city, limit: 100 } });
-    const items = rsp?.data || rsp || [];
+    const items = await clinicService.getClinics({ city, limit: 100 });
     if (items.length === 0) {
       list.innerHTML = `<div class="muted">No clinics found in ${city} yet.</div>`;
       return;
@@ -61,29 +89,48 @@ async function loadClinicsForCity(city) {
   }
 }
 
-function renderClinicCard(c, isDemo = false) {
-  const name = c.name || 'Clinic';
-  const addr = [c.address, c.city, c.postcode].filter(Boolean).join(', ');
-  const phone = c.phone || '—';
+function renderClinicCard(c) {
+  // Validate clinic data
+  const validation = validateClinicData(c);
+  
+  // Handle missing or incomplete data with fallbacks
+  const name = c.name || 'Healthcare Provider';
+  const addr = [c.address, c.city, c.postcode].filter(Boolean).join(', ') || 'Address not available';
+  const phone = c.phone || null;
   const site = c.website ? `<a href="${c.website}" target="_blank" rel="noopener">Website</a>` : '';
-  const rating = c.rating ? c.rating.toFixed(1) : '—';
+  const rating = c.rating ? c.rating.toFixed(1) : 'N/A';
   const reviews = c.reviews || 0;
   const image = c.image || 'images/clinic-placeholder.svg';
   const description = c.description || 'Healthcare services available';
+  const clinicType = c.type || c.category || 'Healthcare';
   
-  // Demo badge for fallback cards
-  const demoBadge = isDemo ? 
-    '<span class="demo-badge" style="background: #ff9500; color: white; padding: 2px 6px; border-radius: 3px; font-size: 10px; font-weight: 600; position: absolute; top: 8px; right: 8px; z-index: 2;">Demo</span>' : '';
+  // Generate data completeness indicator
+  let completenessIndicator = '';
+  if (!validation.isValid) {
+    completenessIndicator = `
+      <div class="data-completeness-badge" style="position: absolute; top: 10px; right: 10px; background: rgba(255, 193, 7, 0.9); color: #856404; padding: 4px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: 600; z-index: 10;" title="Profile ${validation.completenessScore}% complete">
+        <i class="fas fa-info-circle" style="margin-right: 4px;"></i>${validation.completenessScore}%
+      </div>
+    `;
+  }
+  
+  // Generate contact actions based on available data
+  let phoneAction = '';
+  if (phone) {
+    phoneAction = `<div class="clinic-phone" style="color: #888; font-size: 13px;"><a href="tel:${phone}" style="color: #2A6EF3; text-decoration: none;">${phone}</a></div>`;
+  } else {
+    phoneAction = `<div class="clinic-phone" style="color: #dc3545; font-size: 13px; font-style: italic;"><i class="fas fa-exclamation-triangle" style="margin-right: 4px;"></i>Phone not available</div>`;
+  }
   
   return `
-    <div class="clinic-card" style="position: relative;">
-      ${demoBadge}
+    <div class="clinic-card" data-quality="${validation.quality}" style="position: relative;">
+      ${completenessIndicator}
       <div class="clinic-card__image">
         <img src="${image}" alt="${name}" loading="lazy" style="width: 100%; height: 200px; object-fit: cover;">
       </div>
       <div class="clinic-card__head">
         <h3>${name}</h3>
-        <span class="badge">${c.type || c.category || 'Healthcare'}</span>
+        <span class="badge">${clinicType}</span>
       </div>
       <div class="clinic-card__body">
         <div class="clinic-rating" style="display: flex; align-items: center; margin-bottom: 8px;">
@@ -92,8 +139,10 @@ function renderClinicCard(c, isDemo = false) {
           <span style="color: #666; margin-left: 5px;">(${reviews} reviews)</span>
         </div>
         <div class="clinic-description" style="color: #666; font-size: 14px; margin-bottom: 8px;">${description}</div>
-        <div class="clinic-address" style="color: #888; font-size: 13px;">${addr}</div>
-        <div class="clinic-phone" style="color: #888; font-size: 13px;">${phone}</div>
+        <div class="clinic-address ${addr === 'Address not available' ? 'missing-data' : ''}" style="color: #888; font-size: 13px; ${addr === 'Address not available' ? 'color: #dc3545; font-style: italic;' : ''}">
+          ${addr === 'Address not available' ? '<i class="fas fa-exclamation-triangle" style="margin-right: 4px;"></i>' : ''}${addr}
+        </div>
+        ${phoneAction}
       </div>
       <div class="clinic-card__actions">
         ${site}
@@ -141,81 +190,45 @@ async function loadFeaturedClinics() {
     list.innerHTML = renderSkeletonCards(3);
   }
 
-  // Define demo clinic data
-  const demoClinicData = [
-    { 
-      name: 'Manchester Private GP', 
-      city: 'Manchester', 
-      postcode: 'M3 2BB', 
-      type: 'GP', 
-      website: '#',
-      rating: 4.8,
-      reviews: 156,
-      description: 'Comprehensive private healthcare services in Manchester city centre',
-      phone: '0161 234 5678',
-      address: '123 Deansgate, Manchester',
-      image: CloudAssets.getClinicPlaceholder(1)
-    },
-    { 
-      name: 'Bolton Smile Dental', 
-      city: 'Bolton', 
-      postcode: 'BL1 1AA', 
-      type: 'Dentist', 
-      website: '#',
-      rating: 4.9,
-      reviews: 89,
-      description: 'Modern dental practice offering cosmetic and general dentistry',
-      phone: '01204 567 890',
-      address: '45 Chorley New Road, Bolton',
-      image: CloudAssets.getClinicPlaceholder(2)
-    },
-    { 
-      name: 'Leeds Physio Hub', 
-      city: 'Leeds', 
-      postcode: 'LS1 4HT', 
-      type: 'Physio', 
-      website: '#',
-      rating: 4.7,
-      reviews: 124,
-      description: 'Sports injury rehabilitation and physiotherapy specialists',
-      phone: '0113 456 7890',
-      address: '78 The Headrow, Leeds',
-      image: CloudAssets.getClinicPlaceholder(3)
-    }
-  ];
+  // No demo data - service will show error state if API is unavailable
 
   try {
-    const rsp = await fetchJson('/api/clinics', { params: { limit: 100 } });
-    const clinics = rsp?.data || rsp || [];
+    let clinics;
+    try {
+      // Try clinic service first
+      clinics = await clinicService.getClinics({ limit: 100 });
+    } catch (serviceError) {
+      console.warn('Clinic service failed, falling back to Supabase:', serviceError);
+      // Fallback to direct Supabase query
+      const { createClient } = supabase;
+      const supabaseUrl = 'https://vzjqrbicwhyawtsjnplt.supabase.co';
+      const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ6anFyYmljd2h5YXd0c2pucGx0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcxODU1NzksImV4cCI6MjA3Mjc2MTU3OX0.JlK3oGXK3rzaez8p-6BmGDZRNAUEKTpJgZ3flicw7ds';
+      const supabaseClient = createClient(supabaseUrl, supabaseKey);
+      
+      const { data, error } = await supabaseClient
+        .from('clinics')
+        .select('*')
+        .limit(100);
+      
+      if (error) throw error;
+      clinics = data || [];
+    }
+    
     const items = Array.isArray(clinics) ? clinics.slice(0, 6) : []; // Take up to 6 featured
     
     let data, isDemo = false;
     
     if (items.length > 0) {
       data = items;
-    } else {
-      // Use real clinic data from window.clinicsData if available
-      if (typeof window !== 'undefined' && window.clinicsData && Array.isArray(window.clinicsData) && window.clinicsData.length > 0) {
-        data = window.clinicsData.slice(0, 6); // Take first 6 real clinics
-        isDemo = false;
-        
-        // Hide any demo badge if present
-        const resultsInfo = el('resultsInfo');
-        if (resultsInfo) {
-          resultsInfo.style.display = 'none';
-        }
-      } else {
-        // Use demo data as last resort
-        data = demoClinicData;
-        isDemo = true;
-        
-        // Show demo data badge
-        const resultsInfo = el('resultsInfo');
-        if (resultsInfo) {
-          resultsInfo.innerHTML = '<span class="badge demo-badge" style="background: #ff9500; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; margin-right: 10px;">Demo Data</span>Showing demo clinics';
-          resultsInfo.style.display = 'block';
-        }
+      
+      // Hide any demo badge if present
+      const resultsInfo = el('resultsInfo');
+      if (resultsInfo) {
+        resultsInfo.style.display = 'none';
       }
+    } else {
+      // If no data from any source, throw error
+      throw new Error('No clinic data available from any source');
     }
     
     // Hide skeleton and render actual clinics
@@ -223,38 +236,35 @@ async function loadFeaturedClinics() {
       window.skeletonLoader.hide(list);
     }
     
-    renderClinics(data, isDemo);
+    renderClinics(data);
   } catch (e) {
-    // Try to use real clinic data from window.clinicsData if available
-    if (typeof window !== 'undefined' && window.clinicsData && Array.isArray(window.clinicsData) && window.clinicsData.length > 0) {
-      const data = window.clinicsData.slice(0, 6); // Take first 6 real clinics
-      const isDemo = false;
-      
-      // Hide any demo badge if present
-      const resultsInfo = el('resultsInfo');
-      if (resultsInfo) {
-        resultsInfo.style.display = 'none';
-      }
-      
-      renderClinics(data, isDemo);
-    } else {
-      // Always use demo data on API failure as last resort
-      const data = demoClinicData;
-      const isDemo = true;
+    // Hide skeleton and show error state
+    if (window.skeletonLoader && window.skeletonLoader.isLoading(list)) {
+      window.skeletonLoader.hide(list);
+    }
     
-      // Show demo data badge with API unavailable message
-      const resultsInfo = el('resultsInfo');
-      if (resultsInfo) {
-        resultsInfo.innerHTML = '<span class="badge demo-badge" style="background: #ff9500; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; margin-right: 10px;">Demo Data</span>Showing demo clinics (API unavailable)';
-        resultsInfo.style.display = 'block';
-      }
-      
-      renderClinics(data, isDemo);
+    // Show error message instead of demo data
+    list.innerHTML = `
+      <div class="error-state" style="text-align: center; padding: 40px 20px; background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; margin: 20px 0;">
+        <div style="font-size: 48px; color: #856404; margin-bottom: 16px;">⚠️</div>
+        <h3 style="color: #856404; margin-bottom: 12px;">Service Temporarily Unavailable</h3>
+        <p style="color: #856404; margin-bottom: 20px;">We're currently working to fix this issue. Please try again in a few moments.</p>
+        <button class="btn btn-primary" id="retryFeatured" style="background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">Try Again</button>
+      </div>
+    `;
+    
+    // Add retry functionality
+    el('retryFeatured')?.addEventListener('click', loadFeaturedClinics);
+    
+    // Hide results info
+    const resultsInfo = el('resultsInfo');
+    if (resultsInfo) {
+      resultsInfo.style.display = 'none';
     }
   }
 }
 
-function renderClinics(data, isDemo = false) {
+function renderClinics(data) {
   const list = el('clinicGrid');
   if (!list) return;
   
@@ -263,7 +273,7 @@ function renderClinics(data, isDemo = false) {
     return;
   }
   
-  list.innerHTML = data.map(clinic => renderClinicCard(clinic, isDemo)).join('');
+  list.innerHTML = data.map(clinic => renderClinicCard(clinic)).join('');
 }
 
 document.addEventListener('DOMContentLoaded', () => {

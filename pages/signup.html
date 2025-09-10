@@ -269,20 +269,24 @@
                 this.showLoading('signUpForm');
                 
                 try {
-                    // Try backend API first
-                    const response = await fetch('https://caregrid-backend.onrender.com/api/auth/register', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            firstName: formData.firstName,
-                            lastName: formData.lastName,
-                            email: formData.email,
-                            phone: formData.phone,
-                            password: formData.password
-                        })
+                    // Use Supabase for user registration instead of Render backend
+                    const { data, error } = await window.supabase.auth.signUp({
+                        email: formData.email,
+                        password: formData.password,
+                        options: {
+                            data: {
+                                full_name: formData.fullName,
+                                phone: formData.phone,
+                                organization: formData.organization
+                            }
+                        }
                     });
+                    
+                    if (error) {
+                        throw new Error(error.message);
+                    }
+                    
+                    const response = { ok: true, data };
 
                     if (response.ok) {
                         const result = await response.json();

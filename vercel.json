@@ -7,10 +7,7 @@
       "source": "/api/v1/(.*)",
       "destination": "/api/supabase/$1"
     },
-    {
-      "source": "/api/legacy/(.*)",
-      "destination": "https://caregrid-backend.onrender.com/api/$1"
-    },
+
     {
       "source": "/health",
       "destination": "/api/health"

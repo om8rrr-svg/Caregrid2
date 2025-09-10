@@ -79,7 +79,7 @@ class CloudConfigManager {
             development: {
                 // Development configuration
                 api: {
-                    baseUrl: process?.env?.API_BASE || 'https://caregrid-backend.onrender.com/api',
+                    baseUrl: null, // No longer needed - using Supabase directly
                     timeout: 10000,
                     retries: 3
                 },

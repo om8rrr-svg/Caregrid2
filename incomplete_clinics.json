@@ -1,0 +1,1296 @@
+{
+  "id": "04d1ce07-ee96-4d2a-bced-cfc41d2fd15c",
+  "name": "London Surgery",
+  "type": "GP",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "130522a1-ab3d-4109-8f1f-4d660b6f6cd6",
+  "name": "London Health Centre",
+  "type": "GP",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "d3920587-91e4-4434-922d-543da5db7933",
+  "name": "London Surgery",
+  "type": "GP",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "2c1aa750-880d-4fab-8312-023f04b22cd8",
+  "name": "London Dental Care",
+  "type": "Dentist",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "3aeb8bb1-0147-4a8c-a331-f905f9cce2fc",
+  "name": "London Smile Clinic",
+  "type": "Dentist",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "85fee3b4-e494-4407-b7be-e2ea1f905635",
+  "name": "London Physical Therapy",
+  "type": "Physiotherapy",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "22795d19-429a-4eb4-a84e-8f1384462d86",
+  "name": "London Physical Therapy",
+  "type": "Physiotherapy",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "7d284bf7-61a3-4b74-ad82-58aab6a6583a",
+  "name": "London Vision Centre",
+  "type": "Optometry",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "0df08765-d77d-4107-89d9-18037ea49866",
+  "name": "London Optical Practice",
+  "type": "Optometry",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "d3a3214b-5812-4122-b293-ccf4aa839ab5",
+  "name": "London Wellness Pharmacy",
+  "type": "Pharmacy",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "ea35261b-55c5-4dba-ab60-71458151ef8b",
+  "name": "London Chemist",
+  "type": "Pharmacy",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "c7123cc1-d5c3-4ff9-86ce-b4c9ef5a9fd4",
+  "name": "Manchester Clinic",
+  "type": "GP",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "72d848a2-2a33-4409-8d30-418d934251a3",
+  "name": "Manchester Surgery",
+  "type": "GP",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "77e8f5ae-2058-474d-8795-0f2100262ae5",
+  "name": "Manchester Surgery",
+  "type": "GP",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "9996078b-e9f9-44ad-b452-eb962d860c10",
+  "name": "Manchester Smile Clinic",
+  "type": "Dentist",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "82cc5fe0-5676-49a5-91ff-c2e32ae0d6c8",
+  "name": "Manchester Physical Therapy",
+  "type": "Physiotherapy",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "72723b35-c41d-4a31-9d09-295eab30538f",
+  "name": "Manchester Physical Therapy",
+  "type": "Physiotherapy",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "3fa43d6e-216f-4d28-b2ff-c7f57d88bd4c",
+  "name": "Manchester Sports Clinic",
+  "type": "Physiotherapy",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "92490543-848e-4d2e-9e47-c23bdfaed446",
+  "name": "Manchester Eye Clinic",
+  "type": "Optometry",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "899ea9fa-bda6-484a-bb30-c3e6b2349363",
+  "name": "Manchester Eye Clinic",
+  "type": "Optometry",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "0851be5e-e19b-4a30-bb4d-ac7c0cce7492",
+  "name": "Manchester Chemist",
+  "type": "Pharmacy",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "c7972e53-41c1-4da7-944f-b84adf329b30",
+  "name": "Manchester Community Pharmacy",
+  "type": "Pharmacy",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "8bf82500-cb5c-42d0-8fe1-aec412fb3afc",
+  "name": "Birmingham Clinic",
+  "type": "GP",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "e0af9f22-b602-4b61-8983-2120c99f3209",
+  "name": "Birmingham Dental Practice",
+  "type": "Dentist",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "626008b7-1710-4aa6-a55c-50bf850453a4",
+  "name": "Birmingham Dental Surgery",
+  "type": "Dentist",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "15b2e870-3ea9-4be2-82a9-a5ee10038fdc",
+  "name": "Birmingham Physical Therapy",
+  "type": "Physiotherapy",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "a7574d0d-b8a5-4025-8ae0-3cf48cabb097",
+  "name": "Birmingham Physical Therapy",
+  "type": "Physiotherapy",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "31a4a55a-aac2-4328-877f-31c968385766",
+  "name": "Birmingham Movement Clinic",
+  "type": "Physiotherapy",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "d1ff8a81-8f6b-4441-889b-df02bab52702",
+  "name": "Birmingham Eye Care",
+  "type": "Optometry",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "26d1828d-add3-4608-8180-401dcf973a31",
+  "name": "Birmingham Eye Care",
+  "type": "Optometry",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "3661d5dd-51fd-45bb-9cc3-b17ad76cfe0e",
+  "name": "Birmingham Wellness Pharmacy",
+  "type": "Pharmacy",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "edd8b6fa-c603-47fd-98d1-e7eba0c3b948",
+  "name": "Birmingham Chemist",
+  "type": "Pharmacy",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "da52e8ea-1672-4319-b638-9dc4b90c083f",
+  "name": "Leeds Clinic",
+  "type": "GP",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "536e84ba-fb5a-4e2f-a9c1-4167eb43906d",
+  "name": "Leeds Health Centre",
+  "type": "GP",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "d6463ad7-3b56-4aae-beac-81f1b03aaf5c",
+  "name": "Leeds Health Centre",
+  "type": "GP",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "50f21a31-19d6-4945-a437-d52424676b7b",
+  "name": "Leeds Smile Clinic",
+  "type": "Dentist",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "e38825cd-1111-4c0c-aaae-df25d8261ff8",
+  "name": "Leeds Dental Practice",
+  "type": "Dentist",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "85bf947b-9fbd-4e84-8e04-6fb8caf76d9f",
+  "name": "Leeds Physiotherapy Clinic",
+  "type": "Physiotherapy",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "33221268-6fe9-4401-b23a-ae47cf6c70ed",
+  "name": "Leeds Movement Clinic",
+  "type": "Physiotherapy",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "5788d181-50bc-460a-b190-761a54b127fe",
+  "name": "Leeds Rehab Centre",
+  "type": "Physiotherapy",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "8a970e4c-55aa-446f-a66c-d8e8af8639d3",
+  "name": "Leeds Eye Clinic",
+  "type": "Optometry",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "ee5c98fe-813e-42d4-8fd4-d19b41b402f4",
+  "name": "Leeds Eye Care",
+  "type": "Optometry",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "701d7b65-79f4-4e39-837a-5818b529e19b",
+  "name": "Leeds Optical Practice",
+  "type": "Optometry",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "d76b274d-2da0-448e-b9bf-00d97f38ce25",
+  "name": "Leeds Community Pharmacy",
+  "type": "Pharmacy",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "0b26c462-1d79-4190-8f3c-feaf63f477de",
+  "name": "Leeds Pharmacy",
+  "type": "Pharmacy",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "c1f25f69-0d7e-4fdd-aa11-d295ba9dfcdf",
+  "name": "Liverpool Family Practice",
+  "type": "GP",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "50a975b6-9454-43ba-950a-1b3ddf359b1b",
+  "name": "Liverpool Health Centre",
+  "type": "GP",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "33fc273d-058f-4e64-8ebb-3f24732ff4fa",
+  "name": "Liverpool Family Practice",
+  "type": "GP",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "53fc77e1-95a5-4e1f-85e4-024649ac3e02",
+  "name": "Liverpool Dental Surgery",
+  "type": "Dentist",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "11e542e2-34b6-42e8-857d-ac568e148398",
+  "name": "Liverpool Dental Clinic",
+  "type": "Dentist",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "6072974e-bce0-41cf-ab3f-5234209b60ba",
+  "name": "Liverpool Rehab Centre",
+  "type": "Physiotherapy",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "9c5f4891-d714-41e5-aa55-c5f988a048c2",
+  "name": "Liverpool Sports Clinic",
+  "type": "Physiotherapy",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "628af466-f783-41ae-a2db-556fe315616a",
+  "name": "Liverpool Sight Centre",
+  "type": "Optometry",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "d09b38d0-e4a0-4906-98bc-67d9c98edfb6",
+  "name": "Liverpool Sight Centre",
+  "type": "Optometry",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "f355b8b6-92ba-45c4-9b09-12873656ec1d",
+  "name": "Liverpool Wellness Pharmacy",
+  "type": "Pharmacy",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "9d015334-282a-46e3-bc0b-5c4ba47c9d00",
+  "name": "Liverpool Health Pharmacy",
+  "type": "Pharmacy",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "b597fc43-d685-407b-bb75-178e4e42267e",
+  "name": "Liverpool Community Pharmacy",
+  "type": "Pharmacy",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "44caacde-ed43-481a-b6d1-be52ec4fe73b",
+  "name": "Bristol Health Centre",
+  "type": "GP",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "2040fa15-a250-4df5-9328-35ee44e5aa16",
+  "name": "Bristol Family Practice",
+  "type": "GP",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "5a942dcb-2d16-4ed0-842e-6d7b10049ff4",
+  "name": "Bristol Dental Surgery",
+  "type": "Dentist",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "f7cb455d-6ff7-4070-a675-53d03d9a4827",
+  "name": "Bristol Dental Clinic",
+  "type": "Dentist",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "bd079bae-968f-4ded-8e4b-fc286ef3abf9",
+  "name": "Bristol Physical Therapy",
+  "type": "Physiotherapy",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "74d54a2e-c95f-4d5f-808b-67fdbfbdcd99",
+  "name": "Bristol Optical Practice",
+  "type": "Optometry",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "f65cbbf6-8cd2-40ce-a1d3-dd1a18553bfa",
+  "name": "Bristol Eye Care",
+  "type": "Optometry",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "bce79e60-8e45-48ec-8a3a-6e212cdf982b",
+  "name": "Bristol Chemist",
+  "type": "Pharmacy",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "196fcf7e-ccea-4eb3-9e81-9a6d9fa4efeb",
+  "name": "Bristol Pharmacy",
+  "type": "Pharmacy",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "56d1e566-9b7a-42a2-a095-e31a84297ec4",
+  "name": "Sheffield Medical Centre",
+  "type": "GP",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "ca7de3ec-c3f0-4943-9358-0129e1e957ba",
+  "name": "Sheffield Medical Centre",
+  "type": "GP",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "8b175d10-70a5-4a2c-a854-64a289ccc6db",
+  "name": "Sheffield Clinic",
+  "type": "GP",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "ed5f61cc-6488-43da-b43b-43bb77a1f0a6",
+  "name": "Sheffield Dental Care",
+  "type": "Dentist",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "453988c2-7b74-443b-b094-0853d545de9b",
+  "name": "Sheffield Smile Clinic",
+  "type": "Dentist",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "80355b5c-a50d-4800-9bbb-4cd57bd01eb3",
+  "name": "Sheffield Movement Clinic",
+  "type": "Physiotherapy",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "c9640021-5030-41e8-af1e-35cca0b7fa33",
+  "name": "Sheffield Sports Clinic",
+  "type": "Physiotherapy",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "ecb36422-c18e-4093-b9f6-68872f11d4fd",
+  "name": "Sheffield Movement Clinic",
+  "type": "Physiotherapy",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "d97a9e4b-4db6-4e4e-9bb9-12bb73c28d30",
+  "name": "Sheffield Eye Care",
+  "type": "Optometry",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "ce2b6e47-4a04-417c-8fd6-507a14e00c17",
+  "name": "Sheffield Community Pharmacy",
+  "type": "Pharmacy",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "f5d9fdde-a4ec-4ed7-a977-1e29086cfda9",
+  "name": "Sheffield Health Pharmacy",
+  "type": "Pharmacy",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "d0059892-7cb3-4b4b-b59d-1d2e5bc36c11",
+  "name": "Newcastle Surgery",
+  "type": "GP",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "47bf972c-6a1b-4186-bbbe-3fafcf54a02b",
+  "name": "Newcastle Medical Centre",
+  "type": "GP",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "93b7351c-d217-4f05-8e01-dcc3ce37ccfe",
+  "name": "Newcastle Dental Care",
+  "type": "Dentist",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "e228f6f5-1739-4358-ac8e-7b4bb513a2ff",
+  "name": "Newcastle Dental Practice",
+  "type": "Dentist",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "913fe9aa-b3b9-4a10-91c0-f914f34875b4",
+  "name": "Newcastle Movement Clinic",
+  "type": "Physiotherapy",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "78f50839-a525-49b6-b581-7bf90d243e79",
+  "name": "Newcastle Rehab Centre",
+  "type": "Physiotherapy",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "6525802f-2aa7-4db8-a9ee-2a165039f30a",
+  "name": "Newcastle Sight Centre",
+  "type": "Optometry",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "c04a3b0e-1eaf-403f-aa33-5dc498982276",
+  "name": "Newcastle Health Pharmacy",
+  "type": "Pharmacy",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "42a77cf7-0afd-4530-95be-3daeca9294df",
+  "name": "Newcastle Health Pharmacy",
+  "type": "Pharmacy",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "ae00bad2-94a9-49fe-88a7-c5dc80e56905",
+  "name": "Nottingham Clinic",
+  "type": "GP",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "c8ec8918-56f2-4547-89e2-829a8041574a",
+  "name": "Nottingham Family Practice",
+  "type": "GP",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "f5a8642e-d127-49d8-a1ce-1ca3a802bac1",
+  "name": "Nottingham Dental Clinic",
+  "type": "Dentist",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "25d0be83-c379-43f7-9576-45bed8886ba5",
+  "name": "Nottingham Dental Practice",
+  "type": "Dentist",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "5320d366-501b-4627-b03d-add0a5770346",
+  "name": "Nottingham Dental Surgery",
+  "type": "Dentist",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "d1f59df5-0523-46f3-bb78-f3f29ba2acdb",
+  "name": "Nottingham Movement Clinic",
+  "type": "Physiotherapy",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "c0d04cf9-6a69-448d-8fb3-34ed58a7b92a",
+  "name": "Nottingham Movement Clinic",
+  "type": "Physiotherapy",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "dbf074c0-324e-477e-a8fb-5f4b8102310e",
+  "name": "Nottingham Eye Care",
+  "type": "Optometry",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "78fa4a6a-c334-48de-aa1d-90f8c92277c2",
+  "name": "Nottingham Sight Centre",
+  "type": "Optometry",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "2ce65886-80b3-484a-94c6-f7d103f0f8d8",
+  "name": "Nottingham Health Pharmacy",
+  "type": "Pharmacy",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "ed99a579-e32e-424f-9ba1-ac6ea529ae6a",
+  "name": "Nottingham Community Pharmacy",
+  "type": "Pharmacy",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "72ebe763-3094-46c5-ac35-600e2ae7efaa",
+  "name": "Leicester Clinic",
+  "type": "GP",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "dc4eea93-1626-42c3-97fa-4bb15a7323b4",
+  "name": "Leicester Clinic",
+  "type": "GP",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "dd71aabb-38af-475f-bc4b-4093f9698418",
+  "name": "Leicester Dental Care",
+  "type": "Dentist",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "338f97d8-6025-4aea-854b-f729dc04cf5f",
+  "name": "Leicester Dental Surgery",
+  "type": "Dentist",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "1c3b3442-ed0e-48ab-a718-08d2dd7b4622",
+  "name": "Leicester Dental Clinic",
+  "type": "Dentist",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "0a2eae36-4f92-4057-bd42-724a04d50c52",
+  "name": "Leicester Rehab Centre",
+  "type": "Physiotherapy",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "9547585a-8daf-4409-94ec-c711cc1cf1b1",
+  "name": "Leicester Physical Therapy",
+  "type": "Physiotherapy",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "a2dad064-838b-4747-b583-41a39d45ac5c",
+  "name": "Leicester Eye Clinic",
+  "type": "Optometry",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "e5100d48-bfc2-45c7-b65f-c4da892bf41b",
+  "name": "Leicester Eye Clinic",
+  "type": "Optometry",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "60e35fac-356b-4980-88f9-e0658eb37c04",
+  "name": "Leicester Health Pharmacy",
+  "type": "Pharmacy",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}
+{
+  "id": "04bdab83-0fb0-4c09-a407-8e50c9fe7a5e",
+  "name": "Leicester Community Pharmacy",
+  "type": "Pharmacy",
+  "missing_fields": [
+    "address",
+    "phone",
+    "website",
+    "city",
+    "postcode"
+  ]
+}

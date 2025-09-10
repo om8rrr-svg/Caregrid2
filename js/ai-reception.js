@@ -5,7 +5,9 @@
 
 class AIReceptionService {
     constructor() {
-        this.baseUrl = window.API_BASE_URL || 'https://caregrid-backend.onrender.com';
+        // Use Supabase for AI reception instead of Render backend
+        this.baseUrl = null; // No longer needed - using Supabase directly
+        this.supabase = window.supabase;
         this.isInitialized = false;
         this.currentCall = null;
         this.callStatusInterval = null;
