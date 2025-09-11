@@ -9,7 +9,7 @@
     <meta name="description" content="Find and book top-rated private clinics for GPs, dentists, physios in UK cities like Manchester, Bolton, Leeds and Liverpool. Discover trusted healthcare providers near you.">
     <meta name="keywords" content="private healthcare, GP Manchester, dentist Leeds, private GP Manchester, physiotherapy, aesthetic clinic, Manchester, Bolton, Leeds, Liverpool">
     <link rel="canonical" href="https://www.caregrid.co.uk/">
-    
+
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:title" content="CareGrid - Find Private Healthcare Near You | Top-Rated Clinics">
@@ -17,7 +17,7 @@
     <meta property="og:url" content="https://www.caregrid.co.uk/">
     <meta property="og:image" content="https://www.caregrid.co.uk/og-image.svg">
     <meta property="og:site_name" content="CareGrid">
-    
+
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="CareGrid - Find Private Healthcare Near You">
@@ -34,7 +34,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/fontawesome/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
-    
+
     <!-- Analytics handled by consent management system -->
 
     <!-- JSON-LD Schema Markup -->
@@ -132,7 +132,7 @@
             <h1 class="hero-title animate-fade-up" style="animation-delay: 0.1s;">Premium Private Healthcare</h1>
             <h2 class="hero-subtitle animate-fade-up" style="animation-delay: 0.2s;">Discover & Book Exceptional <span id="rotating-text">Medical Care</span></h2>
             <p class="hero-description animate-fade-up" style="animation-delay: 0.3s;">Connect with elite healthcare professionals and world-class clinics across the UK</p>
-            
+
             <div class="search-container animate-fade-up" id="search" style="animation-delay: 0.4s;" role="search" aria-label="Healthcare provider search">
                 <!-- Main Search Box -->
                 <div class="search-box">
@@ -147,13 +147,13 @@
                         </svg>
                     </button>
                 </div>
-                
+
                 <!-- Advanced Filters Toggle -->
                 <button class="filters-toggle" id="filtersToggle" onclick="toggleAdvancedFilters()" aria-expanded="false" aria-controls="advancedFilters" data-onboarding="filter-help">
                     <i class="fas fa-sliders-h"></i>
                     Advanced Filters
                 </button>
-                
+
                 <!-- Advanced Filters Panel -->
                 <div class="advanced-filters" id="advancedFilters" hidden role="region" aria-labelledby="filtersToggle" aria-label="Advanced search filters">
                     <div class="filters-grid" role="group" aria-label="Filter options">
@@ -168,7 +168,7 @@
                                 <option value="month">This month</option>
                             </select>
                         </div>
-                        
+
                         <div class="filter-group">
                             <label for="treatmentFilter">Treatment Type</label>
                             <select id="treatmentFilter" onchange="applyFilters()" aria-describedby="treatment-help">
@@ -184,7 +184,7 @@
                                 <option value="aesthetic">Aesthetic Treatment</option>
                             </select>
                         </div>
-                        
+
                         <div class="filter-group">
                             <label for="distanceFilter">Distance</label>
                             <select id="distanceFilter" onchange="applyFilters()">
@@ -195,7 +195,7 @@
                                 <option value="25">Within 25 miles</option>
                             </select>
                         </div>
-                        
+
                         <div class="filter-group">
                             <label for="ratingFilter">Minimum Rating</label>
                             <select id="ratingFilter" onchange="applyFilters()">
@@ -206,7 +206,7 @@
                                 <option value="3.0">3.0+ stars</option>
                             </select>
                         </div>
-                        
+
                         <div class="filter-group">
                             <label for="languageFilter">Languages</label>
                             <select id="languageFilter" onchange="applyFilters()">
@@ -218,7 +218,7 @@
                                 <option value="urdu">Urdu</option>
                             </select>
                         </div>
-                        
+
                         <div class="filter-group">
                             <label for="genderFilter">Doctor Gender</label>
                             <select id="genderFilter" onchange="applyFilters()">
@@ -228,7 +228,7 @@
                             </select>
                         </div>
                     </div>
-                    
+
                     <div class="filter-actions">
                         <button class="filter-btn secondary" onclick="clearAllFilters()">
                             <i class="fas fa-times"></i>
@@ -424,7 +424,7 @@
                 </div>
             </div>
         </div>
-        
+
         <!-- Mobile Filter Chips (Sticky) -->
         <div class="filters-section mobile-only">
             <div class="filter-chips">
@@ -439,7 +439,7 @@
                 <a href="#" class="filter-chip overflow-chip" data-filter="more">+2 More</a>
             </div>
         </div>
-        
+
         <div class="featured-clinics-content">
             <div class="container">
                 <div class="results-info" id="resultsInfo" style="margin-bottom: 20px; color: #666; font-size: 14px;"></div>
@@ -450,7 +450,7 @@
                 <div id="clinicsList" style="display: none;">
                     <!-- Clinic cards will be populated by home.js when a city is selected -->
                 </div>
-                
+
                 <div class="pagination">
                     <div class="pagination-controls" id="paginationControls">
                         <!-- Pagination will be populated by JavaScript -->
@@ -594,25 +594,25 @@
     <!-- Supabase ES6 Module -->
     <script type="module">
         import { createClient } from 'https://cdn.skypack.dev/@supabase/supabase-js@2';
-        
+
         // Initialize Supabase client globally
         const SUPABASE_URL = 'https://vzjqrbicwhyawtsjnplt.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ6anFyYmljd2h5YXd0c2pucGx0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcxODU1NzksImV4cCI6MjA3Mjc2MTU3OX0.JlK3oGXK3rzaez8p-6BmGDZRNAUEKTpJgZ3flicw7ds';
-        
+
         // Create and expose Supabase client globally
         window.supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         console.log('✅ Supabase client initialized via ES6 module');
-        
+
         // Dispatch a custom event to notify other scripts that Supabase is ready
         window.dispatchEvent(new CustomEvent('supabaseReady'));
     </script>
-    
+
     <!-- Configuration loaded inline above -->
     <script type="module" src="js/error-handler.js"></script>
     <script src="js/accessibility-helper.js"></script>
     <!-- <script src="js/onboarding-guide.js"></script> -->
     <script src="js/progress-indicators.js"></script>
-    
+
     <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
     <script>
         // Initialize AOS with fallback
@@ -628,7 +628,7 @@
                 console.log('AOS library not available, animations disabled');
             }
         }
-        
+
         // Try to initialize AOS, with fallback if library fails to load
         if (typeof AOS !== 'undefined') {
             initializeAOS();
@@ -636,21 +636,21 @@
             // Wait a bit for the library to load, then try again
             setTimeout(initializeAOS, 500);
         }
-        
+
         // Advanced filters toggle function (not auth-related)
         function toggleAdvancedFilters() {
             const filtersPanel = document.getElementById('advancedFilters');
             const toggle = document.getElementById('filtersToggle');
             const isOpen = toggle.getAttribute('aria-expanded') === 'true';
-            
+
             toggle.setAttribute('aria-expanded', String(!isOpen));
             filtersPanel.hidden = isOpen;
             filtersPanel.classList.toggle('show');
         }
-        
+
         <!-- Navigation and authentication state is now handled by js/header.js -->
     </script>
-    
+
     <!-- API Base and Page Scripts -->
     <script type="module" src="js/api-base.js?v=2025090901"></script>
     <script type="module" src="js/api-service.js?v=2025090901"></script>
@@ -661,27 +661,27 @@
     <script type="module" src="js/script.js?v=2025090901"></script>
     <script type="module" src="js/consent.js?v=2025090901"></script>
     <script type="module" src="js/auth.js?v=2025090901"></script>
-    
+
     <!-- Lazy Loading Script -->
     <script src="js/skeleton-loader.js"></script>
     <script src="js/lazy-loader.js?v=2025090901"></script>
-    
+
     <!-- Service Worker Cleanup -->
     <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then(rs => rs.forEach(r => r.unregister())).catch(()=>{});
     }
     </script>
-    
+
     <!-- Vercel Speed Insights -->
     <script>
         window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
     </script>
     <!-- Vercel Speed Insights script removed for local development -->
-    
+
     <!-- App scripts -->
     <script src="js/advanced-image-optimizer.js"></script>
-    
+
     <!-- Frontend Configuration Class -->
     <script>
     // Configuration for CareGrid application
@@ -694,7 +694,7 @@
             // Get environment from meta tag or default to production
             const envMeta = document.querySelector('meta[name="environment"]');
             this.environment = envMeta ? envMeta.content : 'production';
-            
+
             // Load configuration based on environment
             if (this.environment === 'development') {
                 this.apiBase = 'http://localhost:3000';
@@ -728,18 +728,18 @@
             return this.environment;
         }
     }
-    
+
     // Make FrontendConfig available globally
     window.FrontendConfig = FrontendConfig;
     </script>
-    
+
     <!-- Environment Configuration Injection -->
     <script>
     // Environment Configuration Injection
     // This script detects the environment and loads the appropriate configuration
     (function() {
         'use strict';
-        
+
         // Detect environment from meta tag or URL
         function detectEnvironment() {
             // Check for explicit environment meta tag
@@ -747,10 +747,10 @@
             if (envMeta && envMeta.content) {
                 return envMeta.content;
             }
-            
+
             // Auto-detect based on hostname
             const hostname = window.location.hostname;
-            
+
             if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.includes('localhost')) {
                 return 'development';
             } else if (hostname.includes('staging') || hostname.includes('test')) {
@@ -759,11 +759,11 @@
                 return 'production';
             }
         }
-        
+
         // Load environment configuration
         function loadEnvironmentConfig() {
             const environment = detectEnvironment();
-            
+
             // Set environment meta tag if not already set
             if (!document.querySelector('meta[name="environment"]')) {
                 const meta = document.createElement('meta');
@@ -771,7 +771,7 @@
                 meta.content = environment;
                 document.head.appendChild(meta);
             }
-            
+
             // Load the centralized configuration
             if (typeof window.FrontendConfig !== 'undefined') {
                 try {
@@ -788,11 +788,11 @@
                 initializeLegacyConfig(environment);
             }
         }
-        
+
         // Legacy configuration fallback
         function initializeLegacyConfig(environment) {
             let apiBase, publicWebBase, cdnBase;
-            
+
             switch (environment) {
                 case 'development':
                     apiBase = 'http://localhost:3000';
@@ -811,27 +811,27 @@
                     cdnBase = 'https://caregrid.co.uk';
                     break;
             }
-            
+
             // Set global variables for backward compatibility
             window.__API_BASE__ = apiBase;
             window.__PUBLIC_WEB_BASE__ = publicWebBase;
             window.__CDN_BASE__ = cdnBase;
-            
+
             console.log(`🌍 Environment: ${environment} (legacy mode)`);
             console.log(`🔗 API Base: ${apiBase}`);
         }
-        
+
         // Initialize immediately
         loadEnvironmentConfig();
     })();
     </script>
-    
+
     <script type="module" src="js/mobile-enhancements.js"></script>
     <script type="module" src="js/header.js?v=2025082512"></script>
-    
+
     <!-- Performance Monitor -->
     <script src="js/performance-monitor.js?v=2025082513"></script>
-    
+
     <!-- Error Tracking for CareGrid Ops -->
     <script src="js/error-tracker.js?v=2025090901"></script>
 </body>

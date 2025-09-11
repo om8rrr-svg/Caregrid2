@@ -76,7 +76,7 @@ class SupabaseTableEditor {
 
     renderTable() {
         const container = document.getElementById('tableContainer');
-        
+
         if (this.clinics.length === 0) {
             container.innerHTML = `
                 <div class="loading">
@@ -158,24 +158,24 @@ class SupabaseTableEditor {
 
     createJsonbPreview(jsonbField) {
         if (!jsonbField) return 'NULL';
-        
+
         const keys = Object.keys(jsonbField);
         if (keys.length === 0) return 'Empty';
-        
+
         // Create a meaningful preview based on the field type
         if (jsonbField.address || jsonbField.city) {
             return `${jsonbField.address || ''}, ${jsonbField.city || ''}`;
         }
-        
+
         if (jsonbField.phone || jsonbField.email) {
             return `${jsonbField.phone || ''} ${jsonbField.email || ''}`;
         }
-        
+
         if (jsonbField.Monday || jsonbField.monday) {
             const dayCount = keys.filter(k => k.toLowerCase().includes('day') || ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'].includes(k.toLowerCase().substring(0, 3))).length;
             return `${dayCount} days configured`;
         }
-        
+
         return `${keys.length} fields`;
     }
 
@@ -202,7 +202,7 @@ class SupabaseTableEditor {
         document.getElementById('locationAddress').value = location.address || '';
         document.getElementById('locationCity').value = location.city || '';
         document.getElementById('locationPostcode').value = location.postcode || '';
-        
+
         if (location.coordinates && Array.isArray(location.coordinates)) {
             document.getElementById('locationLat').value = location.coordinates[1] || '';
             document.getElementById('locationLng').value = location.coordinates[0] || '';
@@ -224,7 +224,7 @@ class SupabaseTableEditor {
     generateHoursEditor() {
         const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
         const hoursGrid = document.getElementById('hoursGrid');
-        
+
         hoursGrid.innerHTML = days.map(day => `
             <div class="day-hours">
                 <h4>${day}</h4>
@@ -245,13 +245,13 @@ class SupabaseTableEditor {
 
     populateHours(hours) {
         const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-        
+
         days.forEach(day => {
             const dayData = hours[day] || hours[day.charAt(0).toUpperCase() + day.slice(1)] || {};
             const openInput = document.getElementById(`${day}Open`);
             const closeInput = document.getElementById(`${day}Close`);
             const closedCheckbox = document.getElementById(`${day}Closed`);
-            
+
             if (dayData.closed || dayData.isClosed) {
                 closedCheckbox.checked = true;
                 openInput.disabled = true;
@@ -272,7 +272,7 @@ class SupabaseTableEditor {
         const openInput = document.getElementById(`${day}Open`);
         const closeInput = document.getElementById(`${day}Close`);
         const closedCheckbox = document.getElementById(`${day}Closed`);
-        
+
         if (closedCheckbox.checked) {
             openInput.disabled = true;
             closeInput.disabled = true;
@@ -287,7 +287,7 @@ class SupabaseTableEditor {
     async saveClinic() {
         try {
             const clinicId = document.getElementById('clinicId').value;
-            
+
             // Collect form data
             const updateData = {
                 name: document.getElementById('clinicName').value,
@@ -327,47 +327,47 @@ class SupabaseTableEditor {
 
     collectLocationData() {
         const location = {};
-        
+
         const address = document.getElementById('locationAddress').value.trim();
         const city = document.getElementById('locationCity').value.trim();
         const postcode = document.getElementById('locationPostcode').value.trim();
         const lat = parseFloat(document.getElementById('locationLat').value);
         const lng = parseFloat(document.getElementById('locationLng').value);
-        
+
         if (address) location.address = address;
         if (city) location.city = city;
         if (postcode) location.postcode = postcode;
-        
+
         if (!isNaN(lat) && !isNaN(lng)) {
             location.coordinates = [lng, lat]; // GeoJSON format: [longitude, latitude]
         }
-        
+
         return location;
     }
 
     collectContactData() {
         const contact = {};
-        
+
         const phone = document.getElementById('contactPhone').value.trim();
         const email = document.getElementById('contactEmail').value.trim();
         const website = document.getElementById('contactWebsite').value.trim();
-        
+
         if (phone) contact.phone = phone;
         if (email) contact.email = email;
         if (website) contact.website = website;
-        
+
         return contact;
     }
 
     collectHoursData() {
         const hours = {};
         const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-        
+
         days.forEach(day => {
             const openInput = document.getElementById(`${day}Open`);
             const closeInput = document.getElementById(`${day}Close`);
             const closedCheckbox = document.getElementById(`${day}Closed`);
-            
+
             if (closedCheckbox.checked) {
                 hours[day] = { closed: true };
             } else if (openInput.value && closeInput.value) {
@@ -378,7 +378,7 @@ class SupabaseTableEditor {
                 };
             }
         });
-        
+
         return hours;
     }
 
@@ -396,16 +396,16 @@ class SupabaseTableEditor {
     showAlert(message, type = 'info') {
         const alertContainer = document.getElementById('alertContainer');
         const alertId = 'alert-' + Date.now();
-        
+
         const alertHTML = `
             <div id="${alertId}" class="alert alert-${type}">
                 <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'danger' ? 'exclamation-triangle' : 'info-circle'}"></i>
                 ${this.escapeHtml(message)}
             </div>
         `;
-        
+
         alertContainer.innerHTML = alertHTML;
-        
+
         // Auto-remove after 5 seconds
         setTimeout(() => {
             const alertElement = document.getElementById(alertId);

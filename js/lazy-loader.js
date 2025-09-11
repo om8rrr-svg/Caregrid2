@@ -31,7 +31,7 @@ class LazyScriptLoader {
     loadScript(src, options = {}) {
         // Add cache busting version to local scripts
         const versionedSrc = this.addCacheVersion(src);
-        
+
         // Return existing promise if script is already loading
         if (this.loadingPromises.has(versionedSrc)) {
             return this.loadingPromises.get(versionedSrc);
@@ -47,13 +47,13 @@ class LazyScriptLoader {
             script.src = versionedSrc;
             script.async = options.async !== false;
             script.defer = options.defer || false;
-            
+
             // Set type='module' for ES6 modules
             const moduleFiles = ['dashboard.js', 'auth.js', 'api-service.js', 'api-base.js', 'script.js', 'script-optimized.js', 'home.js', 'header.js', 'search.js', 'clinic-service.js', 'list-clinic.js'];
             if (options.type === 'module' || moduleFiles.some(file => src.includes(file))) {
                 script.type = 'module';
             }
-            
+
             if (options.crossorigin) {
                 script.crossOrigin = options.crossorigin;
             }
@@ -167,41 +167,41 @@ const lazyLoadingConfigs = {
         trigger: 'input[type="search"], .search-input, #searchInput',
         method: 'focus'
     },
-    
+
     // Booking functionality is now loaded directly in booking.html
     // booking: {
     //     scripts: ['js/booking.js'],
     //     trigger: '.booking-section, .book-appointment',
     //     method: 'visible'
     // },
-    
+
     // Load dashboard functionality after user interaction
     dashboard: {
         scripts: [{ src: '/js/dashboard.js', options: { type: 'module' } }],
         trigger: 'interaction',
         delay: 1000
     },
-    
+
     // Load test booking on interaction
     testBooking: {
         scripts: ['js/test-booking.js'],
         trigger: 'interaction'
     },
-    
+
     // Load form security for forms (Contact, List Clinic pages) - DISABLED: Using Google reCAPTCHA instead
     // formSecurity: {
     //     scripts: ['js/form-security.js'],
     //     trigger: 'form input, form textarea, form select',
     //     method: 'focus'
     // },
-    
+
     // Load image lazy loader for pages with images
     imageLazyLoader: {
         scripts: ['/js/image-lazy-loader.js'],
         trigger: 'immediate',
         priority: true
     },
-    
+
     // Load non-critical analytics and tracking after interaction
     analytics: {
         scripts: [], // Add analytics scripts here when needed
@@ -219,7 +219,7 @@ function initializeLazyLoading() {
         // Skip the normal booking config since we're loading it immediately
         return;
     }
-    
+
     // Load high-priority scripts immediately
     Object.entries(lazyLoadingConfigs).forEach(([name, config]) => {
         if (config.priority && config.trigger === 'immediate') {
@@ -227,11 +227,11 @@ function initializeLazyLoading() {
             return;
         }
     });
-    
+
     // Check which scripts are needed based on page content
     Object.entries(lazyLoadingConfigs).forEach(([name, config]) => {
         if (config.priority) return; // Skip already loaded priority scripts
-        
+
         if (config.trigger === 'interaction') {
             if (config.delay) {
                 window.lazyLoader.loadAfterDelay(config.scripts, config.delay);

@@ -1,5 +1,4 @@
 // Import required functions
-import { CloudAssets } from './cloud-config.js';
 import clinicService from './clinic-service.js';
 
 // No longer need API service - using Supabase directly
@@ -64,9 +63,26 @@ let clinicsData = [
 // Load data on page load (function defined later)
 document.addEventListener('DOMContentLoaded', async function() {
   try {
+<<<<<<< Updated upstream
     // Load clinics directly from API (no need to wait for Supabase client)
     console.log('🔍 Fetching clinics from Supabase...');
     
+=======
+    // Wait for Supabase to be ready
+    if (!window.supabase) {
+      console.log('Waiting for Supabase to initialize...');
+      await new Promise(resolve => {
+        if (window.supabase) {
+          resolve();
+        } else {
+          window.addEventListener('supabaseReady', resolve, { once: true });
+          // Fallback timeout in case event doesn't fire
+          setTimeout(resolve, 2000);
+        }
+      });
+    }
+
+>>>>>>> Stashed changes
     const loadedClinics = await loadClinicsFromSupabase();
     if (loadedClinics && Array.isArray(loadedClinics)) {
       clinicsData = loadedClinics;
@@ -87,7 +103,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     } else {
       console.warn('Failed to load clinics, using existing fallback data');
     }
-    
+
     // Trigger any existing initialization functions
     if (typeof initializePage === 'function') {
       initializePage();
@@ -122,16 +138,16 @@ function resetFilters() {
         sortBy: null,
         premium: null
     };
-    
+
     // Reset dropdowns
     const categoryFilter = document.getElementById('categoryFilter');
     const locationFilter = document.getElementById('locationFilter');
     const searchInput = document.getElementById('searchInput');
-    
+
     if (categoryFilter) categoryFilter.value = 'all';
     if (locationFilter) locationFilter.value = 'all';
     if (searchInput) searchInput.value = '';
-    
+
     applyFilters();
 }
 let currentPage = 1;
@@ -141,20 +157,20 @@ let filteredClinics = [];
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
     initializeApp();
-    
+
     // Handle navbar shrinking on scroll for mobile
     let lastScrollTop = 0;
     window.addEventListener('scroll', function() {
         const navbar = document.querySelector('.navbar');
         if (navbar) {
             const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-            
+
             if (scrollTop > 100) {
                 navbar.classList.add('scrolled');
             } else {
                 navbar.classList.remove('scrolled');
             }
-            
+
             lastScrollTop = scrollTop;
         }
     });
@@ -168,15 +184,15 @@ async function initializeApp() {
             document.addEventListener('cloudAssetsReady', resolve, { once: true });
         });
     }
-    
+
     // Load clinic data from Supabase
     await loadClinicsFromSupabase();
-    
+
     setupEventListeners();
-    
+
     // Handle URL parameters for category filtering
     handleURLParameters();
-    
+
     filteredClinics = [...clinicsData];
     applyFilters();
     await updateLocationCounts();
@@ -187,21 +203,21 @@ async function initializeApp() {
 function handleURLParameters() {
     const urlParams = new URLSearchParams(window.location.search);
     const category = urlParams.get('category');
-    
+
     if (category) {
         // Map URL parameter values to filter values
         const categoryMap = {
             'gp': 'Private GP',
-            'dentist': 'Private Dentist', 
+            'dentist': 'Private Dentist',
             'physiotherapy': 'Private Physiotherapy',
             'aesthetics': 'Private Aesthetics',
             'pharmacy': 'Pharmacy'
         };
-        
+
         const filterValue = categoryMap[category.toLowerCase()];
         if (filterValue) {
             currentFilters.category = filterValue;
-            
+
             // Update the category dropdown to reflect the selection
             const categoryFilter = document.getElementById('categoryFilter');
             if (categoryFilter) {
@@ -214,8 +230,13 @@ function handleURLParameters() {
 // Load clinics using REST API (with Supabase backend)
 async function loadClinicsFromSupabase(retryCount = 0) {
     // Show loading status
+<<<<<<< Updated upstream
     showAPIStatus('Loading clinics...', 'info');
     
+=======
+    showAPIStatus('Loading clinics from Supabase...', 'info');
+
+>>>>>>> Stashed changes
     try {
         // Get API base URL
         const apiBase = window.__CONFIG__ ? window.__CONFIG__.getApiBase() : window.__API_BASE__;
@@ -236,6 +257,7 @@ async function loadClinicsFromSupabase(retryCount = 0) {
         if (!response.ok) {
             throw new Error(`API responded with ${response.status}: ${response.statusText}`);
         }
+<<<<<<< Updated upstream
         
         const data = await response.json();
         
@@ -248,6 +270,17 @@ async function loadClinicsFromSupabase(retryCount = 0) {
             // Cache the data
             setCachedClinics(data.clinics);
             
+=======
+
+        // Use the clinic service (now uses Supabase)
+        const clinics = await clinicService.getClinics();
+
+        if (clinics && Array.isArray(clinics) && clinics.length > 0) {
+            clinicsData = clinics;
+
+            console.log('✅ Loaded', clinics.length, 'clinics from Supabase');
+
+>>>>>>> Stashed changes
             // Show success indicator
             showAPIStatus(`Live data loaded (${data.clinics.length} clinics)`, 'success');
             return data.clinics;
@@ -272,7 +305,7 @@ async function loadClinicsFromSupabase(retryCount = 0) {
         
         handleAPIError(error);
         showAPIStatus('Using sample data', 'info');
-        
+
         return clinicsData; // Always return fallback data on error
     }
 }
@@ -288,9 +321,9 @@ function shouldRetry(error) {
         'RATE_LIMITED',
         'SERVER_ERROR'
     ];
-    
-    return retryableErrors.some(retryableError => 
-        error.message.includes(retryableError) || 
+
+    return retryableErrors.some(retryableError =>
+        error.message.includes(retryableError) ||
         error.name === retryableError
     );
 }
@@ -304,7 +337,7 @@ function handleAPIError(error, context = 'general', retryFunction = null) {
             allowRetry: retryFunction !== null
         });
     }
-    
+
     // Fallback to existing API status display
     if (error.message === 'BACKEND_UNAVAILABLE') {
         showAPIStatus('Demo mode', 'offline');
@@ -315,7 +348,7 @@ function handleAPIError(error, context = 'general', retryFunction = null) {
     } else {
         showAPIStatus('Demo mode', 'offline');
     }
-    
+
     return { success: false, error: error };
 }
 
@@ -323,7 +356,7 @@ function handleAPIError(error, context = 'general', retryFunction = null) {
 function loadFallbackData() {
     // clinicsData is already populated with sample data from the beginning of the file
     // This function can be extended to load from localStorage or other sources
-    
+
     // Try to load from localStorage as secondary fallback
     const localData = localStorage.getItem('clinics_backup');
     if (localData) {
@@ -341,7 +374,7 @@ function loadFallbackData() {
             // Invalid localStorage data, continue with default sample data
         }
     }
-    
+
     // Default sample data is already loaded at the top of the file
     const apiBase = window.__CONFIG__ ? window.__CONFIG__.getApiBase() : window.__API_BASE__;
     if (apiBase && apiBase.includes('localhost')) {
@@ -356,7 +389,7 @@ function setCachedClinics(clinics) {
         timestamp: Date.now(),
         version: '1.0'
     };
-    
+
     try {
         localStorage.setItem('clinics_cache', JSON.stringify(cacheData));
         // Also store as backup
@@ -374,15 +407,15 @@ function getCachedClinics() {
     try {
         const cached = localStorage.getItem('clinics_cache');
         if (!cached) return null;
-        
+
         const cacheData = JSON.parse(cached);
         const cacheAge = Date.now() - cacheData.timestamp;
         const maxAge = 5 * 60 * 1000; // 5 minutes
-        
+
         if (cacheAge < maxAge && cacheData.data && Array.isArray(cacheData.data)) {
             return cacheData.data;
         }
-        
+
         // Cache expired, remove it
         localStorage.removeItem('clinics_cache');
         return null;
@@ -399,7 +432,7 @@ function showAPIStatus(message, status) {
     if (document.body.classList.contains('auth-page')) {
         return;
     }
-    
+
     // Create or update a small status indicator
     let statusIndicator = document.getElementById('api-status-indicator');
     if (!statusIndicator) {
@@ -419,7 +452,7 @@ function showAPIStatus(message, status) {
         `;
         document.body.appendChild(statusIndicator);
     }
-    
+
     // Set styles based on status
     const styles = {
         success: {
@@ -429,7 +462,7 @@ function showAPIStatus(message, status) {
         },
         info: {
             background: '#cce7ff',
-            color: '#004085', 
+            color: '#004085',
             border: '1px solid #a6d3ff'
         },
         offline: {
@@ -438,13 +471,13 @@ function showAPIStatus(message, status) {
             border: '1px solid #f1aeb5'
         }
     };
-    
+
     const style = styles[status] || styles.info;
     statusIndicator.style.background = style.background;
     statusIndicator.style.color = style.color;
     statusIndicator.style.border = style.border;
     statusIndicator.textContent = message;
-    
+
     // Auto-hide success messages after 3 seconds
     if (status === 'success') {
         setTimeout(() => {
@@ -464,7 +497,7 @@ function showAPIStatus(message, status) {
 window.addEventListener('api-error', (event) => {
     const errorDetail = event.detail;
     let message = typeof errorDetail === 'string' ? errorDetail : errorDetail.message;
-    
+
     // Provide context-specific error messages
     if (errorDetail.endpoint) {
         if (errorDetail.endpoint.includes('/clinics')) {
@@ -475,9 +508,9 @@ window.addEventListener('api-error', (event) => {
             message = 'Appointment service temporarily unavailable.';
         }
     }
-    
+
     showAPIStatus(message, 'error');
-    
+
     // Log detailed error info in development
     const apiBase = window.__CONFIG__ ? window.__CONFIG__.getApiBase() : window.__API_BASE__;
     if (apiBase && apiBase.includes('localhost')) {
@@ -489,25 +522,25 @@ function setupEventListeners() {
     // Mobile menu toggle
     const hamburger = document.querySelector('.hamburger');
     const navMenu = document.querySelector('.nav-menu');
-    
+
     if (hamburger && navMenu) {
         // Add ARIA attributes for accessibility
         hamburger.setAttribute('aria-label', 'Toggle navigation menu');
         hamburger.setAttribute('aria-expanded', 'false');
         navMenu.setAttribute('aria-hidden', 'true');
-        
+
         hamburger.addEventListener('click', () => {
             const isActive = navMenu.classList.contains('active');
-            
+
             navMenu.classList.toggle('active');
             hamburger.classList.toggle('active');
             document.body.classList.toggle('nav-open');
-            
+
             // Update ARIA attributes
             hamburger.setAttribute('aria-expanded', !isActive);
             navMenu.setAttribute('aria-hidden', isActive);
         });
-        
+
         // Close mobile menu when clicking on nav links
         const navLinks = navMenu.querySelectorAll('.nav-link');
         navLinks.forEach(link => {
@@ -515,40 +548,40 @@ function setupEventListeners() {
                 navMenu.classList.remove('active');
                 hamburger.classList.remove('active');
                 document.body.classList.remove('nav-open');
-                
+
                 // Update ARIA attributes
                 hamburger.setAttribute('aria-expanded', 'false');
                 navMenu.setAttribute('aria-hidden', 'true');
             });
         });
-        
+
         // Close mobile menu when clicking outside
         document.addEventListener('click', (e) => {
             if (!hamburger.contains(e.target) && !navMenu.contains(e.target) && navMenu.classList.contains('active')) {
                 navMenu.classList.remove('active');
                 hamburger.classList.remove('active');
                 document.body.classList.remove('nav-open');
-                
+
                 // Update ARIA attributes
                 hamburger.setAttribute('aria-expanded', 'false');
                 navMenu.setAttribute('aria-hidden', 'true');
             }
         });
-        
+
         // Close mobile menu on window resize
         window.addEventListener('resize', () => {
             if (window.innerWidth > 768 && navMenu.classList.contains('active')) {
                 navMenu.classList.remove('active');
                 hamburger.classList.remove('active');
                 document.body.classList.remove('nav-open');
-                
+
                 // Update ARIA attributes
                 hamburger.setAttribute('aria-expanded', 'false');
                 navMenu.setAttribute('aria-hidden', 'true');
             }
         });
     }
-    
+
     // Search input - only handle if AdvancedSearch is not available
     const searchInput = document.getElementById('searchInput');
     if (searchInput && typeof AdvancedSearch === 'undefined') {
@@ -559,15 +592,15 @@ function setupEventListeners() {
             }
         });
     }
-    
+
     // Filter dropdowns
     const categoryFilter = document.getElementById('categoryFilter');
     const locationFilter = document.getElementById('locationFilter');
-    
+
     if (categoryFilter) {
         categoryFilter.addEventListener('change', applyFilters);
     }
-    
+
     if (locationFilter) {
         locationFilter.addEventListener('change', applyFilters);
     }
@@ -580,15 +613,15 @@ function performSearch() {
         const query = searchInput.value.toLowerCase().trim();
         parseNaturalLanguageQuery(query);
         applyFilters();
-        
+
         // Scroll to results section if search has content
         if (query.length > 0) {
             const clinicGrid = document.getElementById('clinicGrid');
             if (clinicGrid) {
                 // Add a small delay to ensure filters are applied first
                 setTimeout(() => {
-                    clinicGrid.scrollIntoView({ 
-                        behavior: 'smooth', 
+                    clinicGrid.scrollIntoView({
+                        behavior: 'smooth',
                         block: 'start',
                         inline: 'nearest'
                     });
@@ -612,18 +645,18 @@ function parseNaturalLanguageQuery(query) {
         applyFilters(); // Re-render clinics to remove highlighting
         return;
     }
-    
+
     // Reset specific filters but keep search term
     currentFilters.search = query;
     currentFilters.sortBy = null;
     currentFilters.premium = null;
-    
+
     // Define patterns for different types of queries
     const patterns = {
         // Location patterns
         location: {
             'in manchester': 'Manchester',
-            'in liverpool': 'Liverpool', 
+            'in liverpool': 'Liverpool',
             'in london': 'London',
             'in preston': 'Preston',
             'manchester': 'Manchester',
@@ -634,7 +667,7 @@ function parseNaturalLanguageQuery(query) {
             'nearby': 'all',
             'close to me': 'all'
         },
-        
+
         // Service type patterns
         serviceType: {
             'gp': 'gp',
@@ -662,7 +695,7 @@ function parseNaturalLanguageQuery(query) {
             'cosmetic': 'aesthetic',
             'beauty': 'aesthetic'
         },
-        
+
         // Service-specific patterns
         services: {
             'same day': ['same-day', 'same day'],
@@ -691,7 +724,7 @@ function parseNaturalLanguageQuery(query) {
             'neck pain': ['neck pain']
         }
     };
-    
+
     // Extract location from query
     for (const [pattern, location] of Object.entries(patterns.location)) {
         if (query.includes(pattern)) {
@@ -706,7 +739,7 @@ function parseNaturalLanguageQuery(query) {
             break;
         }
     }
-    
+
     // Extract service type from query
     for (const [pattern, serviceType] of Object.entries(patterns.serviceType)) {
         if (query.includes(pattern)) {
@@ -719,7 +752,7 @@ function parseNaturalLanguageQuery(query) {
             break;
         }
     }
-    
+
     // Handle complex queries like "dentist in manchester"
     const complexPatterns = [
         {
@@ -739,14 +772,14 @@ function parseNaturalLanguageQuery(query) {
             type: 'pharmacy'
         }
     ];
-    
+
     for (const pattern of complexPatterns) {
         const match = query.match(pattern.regex);
         if (match) {
             currentFilters.category = pattern.type;
             const location = match[3];
             currentFilters.location = location.toLowerCase();
-            
+
             // Update dropdowns
             const categoryFilter = document.getElementById('categoryFilter');
             const locationFilter = document.getElementById('locationFilter');
@@ -755,7 +788,7 @@ function parseNaturalLanguageQuery(query) {
             break;
         }
     }
-    
+
     // Handle "near me" queries with geolocation (placeholder for future enhancement)
     if (query.includes('near me') || query.includes('nearby') || query.includes('close to me')) {
         // For now, show all locations. Could be enhanced with geolocation API
@@ -763,18 +796,18 @@ function parseNaturalLanguageQuery(query) {
         const locationFilter = document.getElementById('locationFilter');
         if (locationFilter) locationFilter.value = 'all';
     }
-    
+
     // Handle rating-based queries
     if (query.includes('best') || query.includes('top rated') || query.includes('highest rated')) {
         // This will be handled in the enhanced applyFilters function
         currentFilters.sortBy = 'rating';
     }
-    
+
     // Handle premium/private queries
     if (query.includes('private') || query.includes('premium')) {
         currentFilters.premium = true;
     }
-    
+
     // Handle NHS queries
     if (query.includes('nhs') || query.includes('free')) {
         currentFilters.premium = false;
@@ -784,27 +817,27 @@ function parseNaturalLanguageQuery(query) {
 // Filter functions
 function filterByCategory(category) {
     currentFilters.category = category;
-    
+
     // Update UI
     document.querySelectorAll('.category-btn').forEach(btn => {
         btn.classList.remove('active');
     });
     document.querySelector(`[data-category="${category}"]`).classList.add('active');
-    
+
     // Update dropdown
     const categoryFilter = document.getElementById('categoryFilter');
     if (categoryFilter) {
         categoryFilter.value = category;
     }
-    
+
     applyFilters();
-    
+
     // Scroll to featured clinics section to show filtered results
     const featuredClinicsSection = document.querySelector('.featured-clinics');
     if (featuredClinicsSection) {
         setTimeout(() => {
-            featuredClinicsSection.scrollIntoView({ 
-                behavior: 'smooth', 
+            featuredClinicsSection.scrollIntoView({
+                behavior: 'smooth',
                 block: 'start',
                 inline: 'nearest'
             });
@@ -814,7 +847,7 @@ function filterByCategory(category) {
 
 function filterByLocation(location) {
     currentFilters.location = location;
-    
+
     // Update UI
     document.querySelectorAll('.location-btn').forEach(btn => {
         btn.classList.remove('active');
@@ -823,21 +856,21 @@ function filterByLocation(location) {
     if (targetBtn) {
         targetBtn.classList.add('active');
     }
-    
+
     // Update dropdown
     const locationFilter = document.getElementById('locationFilter');
     if (locationFilter) {
         locationFilter.value = location;
     }
-    
+
     applyFilters();
-    
+
     // Scroll to featured clinics section
     const featuredClinicsSection = document.querySelector('.featured-clinics');
     if (featuredClinicsSection) {
         setTimeout(() => {
-            featuredClinicsSection.scrollIntoView({ 
-                behavior: 'smooth', 
+            featuredClinicsSection.scrollIntoView({
+                behavior: 'smooth',
                 block: 'start',
                 inline: 'nearest'
             });
@@ -848,52 +881,52 @@ function filterByLocation(location) {
 function applyFilters() {
     const categoryFilter = document.getElementById('categoryFilter');
     const locationFilter = document.getElementById('locationFilter');
-    
+
     // Always update from dropdowns if they exist (allows manual filter changes to override search)
     if (categoryFilter) {
         currentFilters.category = categoryFilter.value;
     }
-    
+
     if (locationFilter) {
         currentFilters.location = locationFilter.value;
     }
-    
+
     filteredClinics = clinicsData.filter(clinic => {
         // Map filter categories to clinic types with enhanced matching
         let matchesCategory = currentFilters.category === 'all' || !currentFilters.category;
         if (!matchesCategory) {
             const categoryMap = {
                 'gp': ['GP', 'Private GP'],
-                'dentist': ['Dentist', 'Private Dentist'], 
+                'dentist': ['Dentist', 'Private Dentist'],
                 'physio': ['Physio', 'Private Physiotherapy'],
                 'optician': ['Optician', 'Private Optician'],
                 'pharmacy': ['Pharmacy']
             };
             const allowedTypes = categoryMap[currentFilters.category] || [];
-            matchesCategory = allowedTypes.some(type => 
+            matchesCategory = allowedTypes.some(type =>
                 (clinic.type || '').toLowerCase().includes(type.toLowerCase())
             );
         }
-        
+
         // Enhanced location matching
-        const matchesLocation = currentFilters.location === 'all' || 
-            !currentFilters.location || 
+        const matchesLocation = currentFilters.location === 'all' ||
+            !currentFilters.location ||
             (clinic.city || clinic.location || '').toLowerCase() === currentFilters.location.toLowerCase();
-        
+
         // Enhanced search matching with better natural language support
         let matchesSearch = currentFilters.search === '' || !currentFilters.search;
         if (!matchesSearch) {
             const searchTerms = currentFilters.search.toLowerCase();
-            
+
             // Basic field matching
-            const basicMatch = 
+            const basicMatch =
                 (clinic.name || '').toLowerCase().includes(searchTerms) ||
                 (clinic.type || '').toLowerCase().includes(searchTerms) ||
                 (clinic.city || clinic.location || '').toLowerCase().includes(searchTerms) ||
                 (clinic.address || '').toLowerCase().includes(searchTerms) ||
                 (clinic.description || '').toLowerCase().includes(searchTerms) ||
                 (clinic.services || []).some(service => (service || '').toLowerCase().includes(searchTerms));
-            
+
             // Enhanced service matching for natural language
             const serviceKeywords = {
                 'same day': ['same-day', 'same day', 'urgent', 'immediate'],
@@ -913,21 +946,21 @@ function applyFilters() {
                 'acupuncture': ['acupuncture'],
                 'pilates': ['pilates']
             };
-            
+
             let enhancedMatch = false;
             for (const [keyword, variations] of Object.entries(serviceKeywords)) {
                 if (variations.some(variation => searchTerms.includes(variation))) {
-                    enhancedMatch = clinic.services.some(service => 
+                    enhancedMatch = clinic.services.some(service =>
                         service.toLowerCase().includes(keyword) ||
                         variations.some(v => service.toLowerCase().includes(v))
                     );
                     if (enhancedMatch) break;
                 }
             }
-            
+
             matchesSearch = basicMatch || enhancedMatch;
         }
-        
+
         // Premium/Private filter
         let matchesPremium = true;
         if (currentFilters.premium === true) {
@@ -935,10 +968,10 @@ function applyFilters() {
         } else if (currentFilters.premium === false) {
             matchesPremium = clinic.premium === false || !clinic.premium;
         }
-        
+
         return matchesCategory && matchesLocation && matchesSearch && matchesPremium;
     });
-    
+
     // Apply sorting - default to premium first, then rating, then name
     if (currentFilters.sortBy === 'rating') {
         filteredClinics.sort((a, b) => (b.rating || 0) - (a.rating || 0));
@@ -953,21 +986,21 @@ function applyFilters() {
             if (aPremium !== bPremium) {
                 return bPremium - aPremium; // true (1) comes before false (0)
             }
-            
+
             // Then sort by rating (higher first)
             const aRating = a.rating || 0;
             const bRating = b.rating || 0;
             if (aRating !== bRating) {
                 return bRating - aRating;
             }
-            
+
             // Finally sort by name (alphabetical)
             const aName = (a.name || '').toLowerCase();
             const bName = (b.name || '').toLowerCase();
             return aName.localeCompare(bName);
         });
     }
-    
+
     currentPage = 1;
     renderClinics();
 }
@@ -976,16 +1009,16 @@ function applyFilters() {
 function renderClinics() {
     const clinicGrid = document.getElementById('clinicGrid');
     if (!clinicGrid) return;
-    
+
     // Log search analytics
     if (currentFilters.search) {
         logSearchQuery(currentFilters.search, filteredClinics.length);
     }
-    
+
     const startIndex = (currentPage - 1) * clinicsPerPage;
     const endIndex = startIndex + clinicsPerPage;
     const clinicsToShow = filteredClinics.slice(startIndex, endIndex);
-    
+
     // Display results count
     const resultsInfo = document.getElementById('resultsInfo');
     if (resultsInfo) {
@@ -998,9 +1031,9 @@ function renderClinics() {
             resultsInfo.style.display = 'none';
         }
     }
-    
+
     clinicGrid.innerHTML = '';
-    
+
     if (clinicsToShow.length === 0) {
         let noResultsMessage = getNoResultsMessage();
         clinicGrid.innerHTML = `
@@ -1012,10 +1045,10 @@ function renderClinics() {
         `;
         return;
     }
-    
+
     clinicsToShow.forEach(clinic => {
         const clinicCard = createClinicCard(clinic);
-        
+
         // Highlight search terms if there's an active search, or remove highlights if search is cleared
         const searchableElements = clinicCard.querySelectorAll('.clinic-name, .clinic-type, .clinic-location, .clinic-services');
         searchableElements.forEach(element => {
@@ -1029,10 +1062,10 @@ function renderClinics() {
                 }
             }
         });
-        
+
         clinicGrid.appendChild(clinicCard);
     });
-    
+
     // Render pagination
     renderPagination();
 }
@@ -1048,7 +1081,7 @@ function validateClinicData(clinic) {
         type: 'Clinic type',
         address: 'Address'
     };
-    
+
     const optionalFields = {
         phone: 'Phone number',
         website: 'Website',
@@ -1056,10 +1089,10 @@ function validateClinicData(clinic) {
         image: 'Image',
         description: 'Description'
     };
-    
+
     const missing = [];
     const present = [];
-    
+
     // Check required fields
     Object.keys(requiredFields).forEach(field => {
         if (!clinic[field] || clinic[field].toString().trim() === '') {
@@ -1068,17 +1101,17 @@ function validateClinicData(clinic) {
             present.push(requiredFields[field]);
         }
     });
-    
+
     // Check optional fields
     Object.keys(optionalFields).forEach(field => {
         if (clinic[field] && clinic[field].toString().trim() !== '') {
             present.push(optionalFields[field]);
         }
     });
-    
+
     const totalFields = Object.keys(requiredFields).length + Object.keys(optionalFields).length;
     const completenessScore = Math.round((present.length / totalFields) * 100);
-    
+
     return {
         isValid: missing.length === 0,
         missing,
@@ -1092,16 +1125,16 @@ function createClinicCard(clinic) {
     const card = document.createElement('div');
     card.className = 'clinic-card fade-in';
     card.style.cursor = 'pointer';
-    
+
     // Validate clinic data
     const validation = validateClinicData(clinic);
-    
+
     // Add data quality indicator
     if (!validation.isValid) {
         card.classList.add('incomplete-data');
         card.setAttribute('data-completeness', validation.completenessScore);
     }
-    
+
     // Add click event to entire card
     card.addEventListener('click', function(e) {
         // Don't navigate if clicking on action buttons
@@ -1109,12 +1142,12 @@ function createClinicCard(clinic) {
             window.location.href = `clinic-profile.html?id=${clinic.frontendId || clinic.id}`;
         }
     });
-    
+
     // Create star rating with actual star icons
     const fullStars = Math.floor(clinic.rating);
     const hasHalfStar = clinic.rating % 1 >= 0.5;
     const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
-    
+
     let starsHTML = '';
     for (let i = 0; i < fullStars; i++) {
         starsHTML += '<i class="fas fa-star"></i>';
@@ -1125,10 +1158,10 @@ function createClinicCard(clinic) {
     for (let i = 0; i < emptyStars; i++) {
         starsHTML += '<i class="far fa-star"></i>';
     }
-    
+
     // Get type icon for overlay
     const typeIcon = getTypeIcon(clinic.type || 'healthcare');
-    
+
     // Handle missing or incomplete data with fallbacks
     const clinicName = clinic.name || 'Healthcare Provider';
     const clinicType = clinic.type || 'Healthcare';
@@ -1137,7 +1170,7 @@ function createClinicCard(clinic) {
     const clinicPhone = clinic.phone || null;
     const clinicRating = clinic.rating || 0;
     const reviewCount = clinic.reviewCount || clinic.reviews || 0;
-    
+
     // Generate data completeness indicator
     let completenessIndicator = '';
     if (!validation.isValid) {
@@ -1148,7 +1181,7 @@ function createClinicCard(clinic) {
             </div>
         `;
     }
-    
+
     // Generate contact actions based on available data
     let contactActions = '';
     if (clinicPhone) {
@@ -1156,12 +1189,12 @@ function createClinicCard(clinic) {
     } else {
         contactActions += `<span class="contact-btn disabled" title="Phone number not available">No Phone</span>`;
     }
-    
+
     card.innerHTML = `
         <div class="clinic-image-container">
-            <img src="${clinicImage}" 
-                 alt="${clinicName} - ${formatType(clinicType)} clinic" 
-                 class="clinic-image" 
+            <img src="${clinicImage}"
+                 alt="${clinicName} - ${formatType(clinicType)} clinic"
+                 class="clinic-image"
                  loading="lazy"
                  onerror="this.src='https://vzjqrbicwhyawtsjnplt.supabase.co/storage/v1/object/public/clinic-images/clinic1.svg'">
             <div class="image-overlay">
@@ -1195,7 +1228,7 @@ function createClinicCard(clinic) {
             </div>
         </div>
     `;
-    
+
     return card;
 }
 
@@ -1236,7 +1269,7 @@ function getTypeIcon(type) {
 function goToPage(page) {
     currentPage = page;
     renderClinics();
-    
+
     // Scroll to top of clinic results
     const clinicGrid = document.getElementById('clinicGrid');
     if (clinicGrid) {
@@ -1247,31 +1280,31 @@ function goToPage(page) {
 function renderPagination() {
     const paginationControls = document.getElementById('paginationControls');
     if (!paginationControls) return;
-    
+
     const totalPages = Math.ceil(filteredClinics.length / clinicsPerPage);
-    
+
     if (totalPages <= 1) {
         paginationControls.innerHTML = '';
         return;
     }
-    
+
     const maxVisiblePages = 5; // Maximum number of page buttons to show
     let paginationHTML = '';
-    
+
     // Calculate the range of pages to show
     let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
     let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-    
+
     // Adjust start page if we're near the end
     if (endPage - startPage + 1 < maxVisiblePages) {
         startPage = Math.max(1, endPage - maxVisiblePages + 1);
     }
-    
+
     // Previous button
     if (currentPage > 1) {
         paginationHTML += `<button class="pagination-btn" onclick="goToPage(${currentPage - 1})">&laquo; Previous</button>`;
     }
-    
+
     // First page and ellipsis if needed
     if (startPage > 1) {
         paginationHTML += `<button class="pagination-btn" onclick="goToPage(1)">1</button>`;
@@ -1279,7 +1312,7 @@ function renderPagination() {
             paginationHTML += `<span class="pagination-ellipsis">...</span>`;
         }
     }
-    
+
     // Page numbers
     for (let i = startPage; i <= endPage; i++) {
         if (i === currentPage) {
@@ -1288,7 +1321,7 @@ function renderPagination() {
             paginationHTML += `<button class="pagination-btn" onclick="goToPage(${i})">${i}</button>`;
         }
     }
-    
+
     // Last page and ellipsis if needed
     if (endPage < totalPages) {
         if (endPage < totalPages - 1) {
@@ -1296,12 +1329,12 @@ function renderPagination() {
         }
         paginationHTML += `<button class="pagination-btn" onclick="goToPage(${totalPages})">${totalPages}</button>`;
     }
-    
+
     // Next button
     if (currentPage < totalPages) {
         paginationHTML += `<button class="pagination-btn" onclick="goToPage(${currentPage + 1})">Next &raquo;</button>`;
     }
-    
+
     paginationControls.innerHTML = paginationHTML;
 }
 
@@ -1316,11 +1349,11 @@ async function updateLocationCounts() {
         { key: 'birmingham', city: 'Birmingham' },
         { key: 'london', city: 'London' }
     ];
-    
+
     // Check if backend is healthy before making requests
     const isBackendHealthy = await window.apiService.isBackendHealthy();
     console.log('updateLocationCounts: Backend healthy?', isBackendHealthy);
-    
+
     // Update total count for 'All Locations'
     try {
         let totalCount;
@@ -1331,14 +1364,14 @@ async function updateLocationCounts() {
             // Use fallback data when backend is not healthy
             totalCount = clinicsData.length;
         }
-        
+
         const totalCountElement = document.querySelector('[data-location="all"] .clinic-count');
         console.log('updateLocationCounts: Total count:', totalCount, 'Element found:', !!totalCountElement);
         if (totalCountElement) {
             totalCountElement.textContent = `${totalCount} clinics`;
             console.log('updateLocationCounts: Updated total count element to:', totalCountElement.textContent);
         }
-        
+
         // Also update mobile dropdown
         const mobileAllOption = document.querySelector('.mobile-location-select option[value="all"]');
         if (mobileAllOption) {
@@ -1355,13 +1388,13 @@ async function updateLocationCounts() {
         if (totalCountElement) {
             totalCountElement.textContent = `${totalCount} clinics`;
         }
-        
+
         const mobileAllOption = document.querySelector('.mobile-location-select option[value="all"]');
         if (mobileAllOption) {
             mobileAllOption.textContent = `All Locations (${totalCount} clinics)`;
         }
     }
-    
+
     // Update individual location counts
     for (const location of locations) {
         try {
@@ -1371,18 +1404,18 @@ async function updateLocationCounts() {
                 count = data.pagination?.total || data.data?.length || 0;
             } else {
                 // Use fallback data when backend is not healthy
-                count = clinicsData.filter(clinic => 
+                count = clinicsData.filter(clinic =>
                     clinic.location && clinic.location.toLowerCase() === location.city.toLowerCase()
                 ).length;
             }
-            
+
             const countElement = document.querySelector(`[data-location="${location.key}"] .clinic-count`);
             console.log(`updateLocationCounts: ${location.city} count:`, count, 'Element found:', !!countElement);
             if (countElement) {
                 countElement.textContent = `${count} ${count === 1 ? 'clinic' : 'clinics'}`;
                 console.log(`updateLocationCounts: Updated ${location.city} element to:`, countElement.textContent);
             }
-            
+
             // Also update mobile dropdown
             const mobileOption = document.querySelector(`.mobile-location-select option[value="${location.key}"]`);
             if (mobileOption) {
@@ -1394,16 +1427,16 @@ async function updateLocationCounts() {
                 console.warn(`Error fetching clinic count for ${location.city}, using fallback data:`, error.message);
             }
             // Use local fallback data
-            const count = clinicsData.filter(clinic => 
+            const count = clinicsData.filter(clinic =>
                 clinic.location && clinic.location.toLowerCase() === location.city.toLowerCase()
             ).length;
-            
+
             const countElement = document.querySelector(`[data-location="${location.key}"] .clinic-count`);
             if (countElement) {
                 countElement.textContent = `${count} ${count === 1 ? 'clinic' : 'clinics'}`;
             }
-            
-            // Also update mobile dropdown  
+
+            // Also update mobile dropdown
             const mobileOption = document.querySelector(`.mobile-location-select option[value="${location.key}"]`);
             if (mobileOption) {
                 mobileOption.textContent = `${location.city} (${count} ${count === 1 ? 'clinic' : 'clinics'})`;
@@ -1421,7 +1454,7 @@ async function updateCategoryCounts() {
         { key: 'optician', type: 'Optician' },
         { key: 'pharmacy', type: 'Pharmacy' }
     ];
-    
+
     // Update individual category counts
     for (const category of categories) {
         try {
@@ -1435,7 +1468,7 @@ async function updateCategoryCounts() {
                     if (!clinic.type) return false;
                     const clinicType = clinic.type.toLowerCase();
                     const categoryType = category.type.toLowerCase();
-                    
+
                     // Handle different naming variations
                     if (category.key === 'gp') {
                         return clinicType.includes('gp') || clinicType.includes('general practice');
@@ -1451,11 +1484,11 @@ async function updateCategoryCounts() {
                     return false;
                 }).length;
             }
-            
+
             const countElement = document.querySelector(`[data-category="${category.key}"] .clinic-count`);
             if (countElement) {
                 countElement.textContent = `${count} ${count === 1 ? 'clinic' : 'clinics'}`;
-                
+
                 // Disable category if count is 0 (except for 'all')
                 const categoryBtn = document.querySelector(`[data-category="${category.key}"]`);
                 if (categoryBtn && category.key !== 'all') {
@@ -1565,7 +1598,7 @@ const observer = new IntersectionObserver(function(entries) {
 document.addEventListener('DOMContentLoaded', function() {
     const elementsToAnimate = document.querySelectorAll('.category-btn, .location-btn, .clinic-card');
     elementsToAnimate.forEach(el => observer.observe(el));
-    
+
     // Handle hash navigation after page loads
     handleHashNavigation();
 });
@@ -1591,7 +1624,7 @@ window.parseNaturalLanguageQuery = parseNaturalLanguageQuery;
 function getSearchSuggestions(query) {
     const suggestions = [];
     const lowerQuery = query.toLowerCase();
-    
+
     // Location suggestions
     const locations = ['Manchester', 'Liverpool', 'London', 'Preston'];
     locations.forEach(location => {
@@ -1599,7 +1632,7 @@ function getSearchSuggestions(query) {
             suggestions.push(location);
         }
     });
-    
+
     // Service type suggestions
     const serviceTypes = ['GP', 'Dentist', 'Physiotherapy', 'Pharmacy', 'Aesthetic'];
     serviceTypes.forEach(type => {
@@ -1607,7 +1640,7 @@ function getSearchSuggestions(query) {
             suggestions.push(type);
         }
     });
-    
+
     // Common search patterns
     const commonSearches = [
         'dentist in manchester',
@@ -1621,20 +1654,20 @@ function getSearchSuggestions(query) {
         'cosmetic dentistry',
         'travel vaccination'
     ];
-    
+
     commonSearches.forEach(search => {
         if (search.includes(lowerQuery)) {
             suggestions.push(search);
         }
     });
-    
+
     return suggestions.slice(0, 5); // Return top 5 suggestions
 }
 
 // Function to highlight search terms in results
 function highlightSearchTerms(text, searchTerm) {
     if (!searchTerm || searchTerm.trim() === '') return text;
-    
+
     const regex = new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
     return text.replace(regex, '<mark>$1</mark>');
 }
@@ -1648,7 +1681,7 @@ function logSearchQuery(query, resultsCount) {
 // Get contextual no results message
 function getNoResultsMessage() {
     const { search, category, location, premium } = currentFilters;
-    
+
     if (search && search.trim()) {
         if (location !== 'all' && category !== 'all') {
             return `No ${category.toLowerCase()} found for "${search}" in ${location}. Try expanding your search area or adjusting your criteria.`;
@@ -1676,35 +1709,35 @@ function getNoResultsMessage() {
 function initRotatingText() {
     const rotatingText = document.getElementById('rotating-text');
     if (!rotatingText) return;
-    
+
     const words = ['Medical Care', 'GPs', 'Dentists', 'Physios', 'Pharmacies'];
     let currentIndex = 1;
     let isAnimating = false;
-    
+
     function rotateText() {
         if (isAnimating) return;
         isAnimating = true;
-        
+
         // Start fade-out animation
         rotatingText.classList.add('text-fade-out');
-        
+
         setTimeout(() => {
             // Add shimmer effect during text change
             rotatingText.classList.add('changing');
-            
+
             setTimeout(() => {
                 // Change the text
                 rotatingText.textContent = words[currentIndex];
-                
+
                 // Remove fade-out and changing classes
                 rotatingText.classList.remove('text-fade-out', 'changing');
-                
+
                 // Add fade-in animation
                 rotatingText.classList.add('text-fade-in');
-                
+
                 // Move to next word
                 currentIndex = (currentIndex + 1) % words.length;
-                
+
                 // Clean up after fade-in completes
                 setTimeout(() => {
                     rotatingText.classList.remove('text-fade-in');
@@ -1713,7 +1746,7 @@ function initRotatingText() {
             }, 200);
         }, 400);
     }
-    
+
     // Start rotation after initial delay
     setTimeout(() => {
         rotateText();
@@ -1734,15 +1767,15 @@ window.currentFilters = currentFilters;
 function initStakeholderMode() {
     // Check for stakeholder parameter in URL
     const urlParams = new URLSearchParams(window.location.search);
-    const isStakeholder = urlParams.get('stakeholder') === 'true' || 
+    const isStakeholder = urlParams.get('stakeholder') === 'true' ||
                          localStorage.getItem('stakeholderMode') === 'true';
-    
+
     if (isStakeholder) {
         document.body.classList.add('stakeholder');
         // Store stakeholder mode in localStorage for persistence
         localStorage.setItem('stakeholderMode', 'true');
     }
-    
+
     // Add keyboard shortcut (Ctrl+Shift+S) to toggle stakeholder mode
     document.addEventListener('keydown', function(e) {
         if (e.ctrlKey && e.shiftKey && e.key === 'S') {
@@ -1754,7 +1787,7 @@ function initStakeholderMode() {
 
 function toggleStakeholderMode() {
     const isCurrentlyStakeholder = document.body.classList.contains('stakeholder');
-    
+
     if (isCurrentlyStakeholder) {
         document.body.classList.remove('stakeholder');
         localStorage.setItem('stakeholderMode', 'false');
@@ -1779,7 +1812,7 @@ function shareClinic() {
     const url = window.location.href;
     const title = `${clinicName} - CareGrid`;
     const text = `Check out ${clinicName} on CareGrid - Your trusted healthcare directory`;
-    
+
     // Check if Web Share API is supported
     if (navigator.share) {
         navigator.share({
@@ -1817,7 +1850,7 @@ function showShareModal(url, title, text) {
     const encodedUrl = encodeURIComponent(url);
     const encodedTitle = encodeURIComponent(title);
     const encodedText = encodeURIComponent(text);
-    
+
     const shareOptions = [
         {
             name: 'Facebook',
@@ -1845,7 +1878,7 @@ function showShareModal(url, title, text) {
             icon: 'fas fa-envelope'
         }
     ];
-    
+
     let modalHtml = `
         <div id="shareModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; display: flex; align-items: center; justify-content: center;">
             <div style="background: white; padding: 30px; border-radius: 10px; max-width: 400px; width: 90%;">
@@ -1856,7 +1889,7 @@ function showShareModal(url, title, text) {
                 </div>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(60px, 1fr)); gap: 10px; margin: 20px 0;">
     `;
-    
+
     shareOptions.forEach(option => {
         modalHtml += `
             <a href="${option.url}" target="_blank" style="display: flex; flex-direction: column; align-items: center; padding: 10px; text-decoration: none; color: #333; border: 1px solid #ddd; border-radius: 5px; transition: background 0.3s;" onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='white'">
@@ -1865,14 +1898,14 @@ function showShareModal(url, title, text) {
             </a>
         `;
     });
-    
+
     modalHtml += `
                 </div>
                 <button onclick="closeShareModal()" style="width: 100%; padding: 10px; background: #6c757d; color: white; border: none; border-radius: 5px; cursor: pointer;">Close</button>
             </div>
         </div>
     `;
-    
+
     document.body.insertAdjacentHTML('beforeend', modalHtml);
 }
 
@@ -1906,7 +1939,7 @@ function closeShareModal() {
 function getDirections(address) {
     // Encode the address for URL
     const encodedAddress = encodeURIComponent(address);
-    
+
     // Check if geolocation is available
     if ('geolocation' in navigator) {
         // Request user's current location
@@ -1937,15 +1970,15 @@ function getDirections(address) {
 function openMapsWithLocation(encodedAddress, userLat, userLng) {
     // Check if user is on mobile device
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    
+
     if (isMobile) {
         // Try to open in native maps app with current location as start point
         const mapsUrl = `maps://maps.google.com/maps?saddr=${userLat},${userLng}&daddr=${encodedAddress}`;
         const googleMapsUrl = `https://www.google.com/maps/dir/${userLat},${userLng}/${encodedAddress}`;
-        
+
         // Try native app first, fallback to web
         window.location.href = mapsUrl;
-        
+
         // Fallback to Google Maps web after a short delay
         setTimeout(() => {
             window.open(googleMapsUrl, '_blank');
@@ -1960,19 +1993,19 @@ function openMapsWithLocation(encodedAddress, userLat, userLng) {
 function openMapsWithoutLocation(encodedAddress) {
     // Check if user is on mobile device
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    
+
     if (isMobile) {
         // Try to open in native maps app first, fallback to Google Maps web
         const mapsUrl = `maps://maps.google.com/maps?daddr=${encodedAddress}`;
         const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodedAddress}`;
-        
+
         // Create a temporary link to test if maps:// protocol is supported
         const tempLink = document.createElement('a');
         tempLink.href = mapsUrl;
-        
+
         // Try native app, fallback to web
         window.location.href = mapsUrl;
-        
+
         // Fallback to Google Maps web after a short delay
         setTimeout(() => {
             window.open(googleMapsUrl, '_blank');
@@ -1989,13 +2022,13 @@ function updateNavbarAuthState() {
     const authNavItem = document.getElementById('authNavItem');
     const userNavItem = document.getElementById('userNavItem');
     const userName = document.getElementById('userName');
-    
+
     if (window.authSystem && window.authSystem.isAuthenticated()) {
         const currentUser = window.authSystem.getCurrentUser();
-        
+
         if (authNavItem) authNavItem.style.display = 'none';
         if (userNavItem) userNavItem.style.display = 'block';
-        
+
         if (userName && currentUser) {
             const firstName = currentUser.firstName || currentUser.name || 'User';
             const title = currentUser.role === 'doctor' ? 'Dr.' : '';
@@ -2051,7 +2084,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-    
+
     // Initialize mobile filter chips
     initializeMobileFilters();
 });
@@ -2062,25 +2095,25 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function initializeMobileFilters() {
     const filterChips = document.querySelectorAll('.filter-chip');
-    
+
     filterChips.forEach(chip => {
         chip.addEventListener('click', function(e) {
             e.preventDefault();
-            
+
             const filter = this.getAttribute('data-filter');
-            
+
             if (filter === 'more') {
                 // Show more filters modal/sheet
                 showMoreFiltersSheet();
                 return;
             }
-            
+
             // Remove active class from all chips
             filterChips.forEach(c => c.classList.remove('active'));
-            
+
             // Add active class to clicked chip
             this.classList.add('active');
-            
+
             // Apply the filter
             applyMobileFilter(filter);
         });
@@ -2139,9 +2172,9 @@ function showMoreFiltersSheet() {
             </div>
         </div>
     `;
-    
+
     document.body.appendChild(modal);
-    
+
     // Add styles for the modal
     if (!document.getElementById('mobile-filter-modal-styles')) {
         const styles = document.createElement('style');
@@ -2155,7 +2188,7 @@ function showMoreFiltersSheet() {
                 bottom: 0;
                 z-index: 1000;
             }
-            
+
             .modal-backdrop {
                 position: absolute;
                 top: 0;
@@ -2164,7 +2197,7 @@ function showMoreFiltersSheet() {
                 bottom: 0;
                 background: rgba(0, 0, 0, 0.5);
             }
-            
+
             .modal-content {
                 position: absolute;
                 bottom: 0;
@@ -2176,14 +2209,14 @@ function showMoreFiltersSheet() {
                 max-height: 70vh;
                 overflow-y: auto;
             }
-            
+
             .modal-header {
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
                 margin-bottom: 20px;
             }
-            
+
             .modal-close {
                 background: none;
                 border: none;
@@ -2196,24 +2229,24 @@ function showMoreFiltersSheet() {
                 align-items: center;
                 justify-content: center;
             }
-            
+
             .filter-group {
                 margin-bottom: 20px;
             }
-            
+
             .filter-group label {
                 display: block;
                 font-weight: 600;
                 margin-bottom: 12px;
                 color: #333;
             }
-            
+
             .filter-options {
                 display: flex;
                 flex-wrap: wrap;
                 gap: 8px;
             }
-            
+
             .filter-option {
                 padding: 8px 16px;
                 background: #f3f4f6;
@@ -2223,7 +2256,7 @@ function showMoreFiltersSheet() {
                 cursor: pointer;
                 transition: all 0.2s ease;
             }
-            
+
             .filter-option:hover,
             .filter-option.active {
                 background: #2A6EF3;
@@ -2233,7 +2266,7 @@ function showMoreFiltersSheet() {
         `;
         document.head.appendChild(styles);
     }
-    
+
     // Close modal when clicking backdrop
     modal.querySelector('.modal-backdrop').addEventListener('click', closeMobileFilterModal);
 }
@@ -2250,7 +2283,7 @@ function createEnhancedClinicCard(clinic) {
     const card = document.createElement('div');
     card.className = 'clinic-card fade-in';
     card.style.cursor = 'pointer';
-    
+
     // Add click event to entire card
     card.addEventListener('click', function(e) {
         // Don't navigate if clicking on action buttons
@@ -2258,12 +2291,12 @@ function createEnhancedClinicCard(clinic) {
             window.location.href = `clinic-profile.html?id=${clinic.frontendId || clinic.id}`;
         }
     });
-    
+
     // Create star rating with actual star icons
     const fullStars = Math.floor(clinic.rating);
     const hasHalfStar = clinic.rating % 1 >= 0.5;
     const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
-    
+
     let starsHTML = '';
     for (let i = 0; i < fullStars; i++) {
         starsHTML += '<i class="fas fa-star"></i>';
@@ -2274,15 +2307,15 @@ function createEnhancedClinicCard(clinic) {
     for (let i = 0; i < emptyStars; i++) {
         starsHTML += '<i class="far fa-star"></i>';
     }
-    
+
     // Get type icon for overlay
     const typeIcon = getTypeIcon(clinic.type);
-    
+
     card.innerHTML = `
         <div class="clinic-image-container">
-            <img src="${clinic.logoUrl || (clinic.images && clinic.images[0]) || clinic.image}" 
-                 alt="${clinic.name} - ${formatType(clinic.type)} clinic" 
-                 class="clinic-image" 
+            <img src="${clinic.logoUrl || (clinic.images && clinic.images[0]) || clinic.image}"
+                 alt="${clinic.name} - ${formatType(clinic.type)} clinic"
+                 class="clinic-image"
                  loading="lazy"
                  onerror="this.src="https://vzjqrbicwhyawtsjnplt.supabase.co/storage/v1/object/public/clinic-images/clinic1.svg"">
             <div class="image-overlay">
@@ -2312,7 +2345,7 @@ function createEnhancedClinicCard(clinic) {
             </div>
         </div>
     `;
-    
+
     return card;
 }
 
@@ -2320,7 +2353,7 @@ function createEnhancedClinicCard(clinic) {
 function createSkeletonCard() {
     const card = document.createElement('div');
     card.className = 'clinic-card skeleton';
-    
+
     card.innerHTML = `
         <div class="clinic-image-container">
             <div class="clinic-image"></div>
@@ -2340,14 +2373,14 @@ function createSkeletonCard() {
             </div>
         </div>
     `;
-    
+
     return card;
 }
 
 // Show skeleton loading state
 function showSkeletonLoading(container, count = 6) {
     if (!container) return;
-    
+
     container.innerHTML = '';
     for (let i = 0; i < count; i++) {
         container.appendChild(createSkeletonCard());
@@ -2357,11 +2390,11 @@ function showSkeletonLoading(container, count = 6) {
 // Hide skeleton and show actual content with fade-in
 function hideSkeletonAndShowContent(container, content) {
     if (!container) return;
-    
+
     // Remove skeleton cards
     const skeletons = container.querySelectorAll('.clinic-card.skeleton');
     skeletons.forEach(skeleton => skeleton.remove());
-    
+
     // Add real content with fade-in animation
     if (Array.isArray(content)) {
         content.forEach((card, index) => {
