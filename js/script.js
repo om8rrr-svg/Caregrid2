@@ -79,6 +79,11 @@ document.addEventListener('DOMContentLoaded', async function() {
       if (typeof updateStatsDisplay === 'function') {
         updateStatsDisplay();
       }
+      
+      // Also call renderClinics directly
+      console.log('📋 Sample clinic data:', loadedClinics[0]);
+      filteredClinics = loadedClinics;
+      renderClinics();
     } else {
       console.warn('Failed to load clinics, using existing fallback data');
     }
