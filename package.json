@@ -20,7 +20,11 @@
     "health:check": "curl -f http://localhost:3000/api/health || curl -f https://your-app.vercel.app/api/health",
     "performance:test": "node js/performance-monitor.js --test",
     "backup:create": "node scripts/backup-data.js",
-    "backup:restore": "node scripts/restore-data.js"
+    "backup:restore": "node scripts/restore-data.js",
+    "security:dev-audit": "node scripts/dev-security-scan.js",
+    "security:env-check": "node scripts/check-dev-env-isolation.js",
+    "security:synthetic-data": "node scripts/validate-synthetic-data.js",
+    "security:all": "npm run security:dev-audit && npm run security:env-check && npm run security:synthetic-data"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.2",
