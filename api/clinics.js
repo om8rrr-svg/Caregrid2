@@ -3,7 +3,7 @@
  * Handles all clinic-related operations using Supabase
  */
 
-const { createClient } = require('@supabase/supabase-js');
+import { createClient } from '@supabase/supabase-js';
 
 // Initialize Supabase client
 const supabase = createClient(

@@ -64,24 +64,21 @@ let clinicsData = [
 // Load data on page load (function defined later)
 document.addEventListener('DOMContentLoaded', async function() {
   try {
-    // Wait for Supabase to be ready
-    if (!window.supabase) {
-      console.log('Waiting for Supabase to initialize...');
-      await new Promise(resolve => {
-        if (window.supabase) {
-          resolve();
-        } else {
-          window.addEventListener('supabaseReady', resolve, { once: true });
-          // Fallback timeout in case event doesn't fire
-          setTimeout(resolve, 2000);
-        }
-      });
-    }
+    // Load clinics directly from API (no need to wait for Supabase client)
+    console.log('🔍 Fetching clinics from Supabase...');
     
     const loadedClinics = await loadClinicsFromSupabase();
     if (loadedClinics && Array.isArray(loadedClinics)) {
       clinicsData = loadedClinics;
       console.log('Loaded', clinicsData.length, 'clinics successfully');
+      
+      // Refresh the clinic display with new data
+      if (typeof displayClinics === 'function') {
+        displayClinics();
+      }
+      if (typeof updateStatsDisplay === 'function') {
+        updateStatsDisplay();
+      }
     } else {
       console.warn('Failed to load clinics, using existing fallback data');
     }
@@ -209,39 +206,65 @@ function handleURLParameters() {
     }
 }
 
-// Load clinics using Supabase (renamed from loadClinicsFromAPI)
+// Load clinics using REST API (with Supabase backend)
 async function loadClinicsFromSupabase(retryCount = 0) {
     // Show loading status
-    showAPIStatus('Loading clinics from Supabase...', 'info');
+    showAPIStatus('Loading clinics...', 'info');
     
     try {
-        // Wait for Supabase to be available
-        if (!window.supabase) {
-            console.warn('Supabase client not available, using fallback data');
-            showAPIStatus('Using sample data', 'info');
-            return clinicsData; // Return fallback data
+        // Get API base URL
+        const apiBase = window.__CONFIG__ ? window.__CONFIG__.getApiBase() : window.__API_BASE__;
+        const apiUrl = `${apiBase}/api/clinics`;
+        
+        console.log('🔍 Fetching clinics from:', apiUrl);
+        
+        // Fetch clinics from REST API
+        const response = await fetch(apiUrl, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            // Add timeout
+            signal: AbortSignal.timeout(10000)
+        });
+        
+        if (!response.ok) {
+            throw new Error(`API responded with ${response.status}: ${response.statusText}`);
         }
         
-        // Use the clinic service (now uses Supabase)
-        const clinics = await clinicService.getClinics();
+        const data = await response.json();
         
-        if (clinics && Array.isArray(clinics) && clinics.length > 0) {
-            clinicsData = clinics;
+        if (data && data.clinics && Array.isArray(data.clinics) && data.clinics.length > 0) {
+            clinicsData = data.clinics;
             
-            console.log('✅ Loaded', clinics.length, 'clinics from Supabase');
+            console.log('✅ Loaded', data.clinics.length, 'clinics from API');
+            console.log('📊 Total available:', data.totalCount);
+            
+            // Cache the data
+            setCachedClinics(data.clinics);
             
             // Show success indicator
-            showAPIStatus('Live data loaded from Supabase', 'success');
-            return clinics;
+            showAPIStatus(`Live data loaded (${data.clinics.length} clinics)`, 'success');
+            return data.clinics;
         } else {
-            // Service returned empty data, use fallback
-            console.warn('No clinics data received, using fallback');
+            // API returned empty data, use fallback
+            console.warn('No clinics data received from API, using fallback');
             showAPIStatus('Using sample data', 'info');
             return clinicsData;
         }
     } catch (error) {
         // Handle errors gracefully
-        console.error('❌ Failed to load clinics from Supabase:', error.message);
+        console.error('❌ Failed to load clinics from API:', error.message);
+        
+        // Try to use cached data first
+        const cachedClinics = getCachedClinics();
+        if (cachedClinics && cachedClinics.length > 0) {
+            console.log('📦 Using cached clinic data');
+            showAPIStatus('Using cached data', 'warning');
+            clinicsData = cachedClinics;
+            return cachedClinics;
+        }
+        
         handleAPIError(error);
         showAPIStatus('Using sample data', 'info');
         
