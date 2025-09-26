@@ -1,0 +1,507 @@
+/**
+ * Error Handling Styles for CareGrid
+ * Provides styling for error notifications, retry states, and user feedback
+ */
+
+/* Error Notifications Container */
+.error-notifications-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 10000;
+    max-width: 400px;
+    pointer-events: none;
+}
+
+/* Individual Error Notification */
+.error-notification {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    margin-bottom: 12px;
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: auto;
+    border-left: 4px solid #e74c3c;
+    overflow: hidden;
+    max-width: 100%;
+}
+
+.error-notification.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* Error Type Variants */
+.error-notification.error-error {
+    border-left-color: #e74c3c;
+}
+
+.error-notification.error-warning {
+    border-left-color: #f39c12;
+}
+
+.error-notification.error-info {
+    border-left-color: #3498db;
+}
+
+/* Error Content */
+.error-content {
+    padding: 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.error-icon {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 2px;
+}
+
+.error-notification.error-error .error-icon {
+    color: #e74c3c;
+}
+
+.error-notification.error-warning .error-icon {
+    color: #f39c12;
+}
+
+.error-notification.error-info .error-icon {
+    color: #3498db;
+}
+
+.error-message {
+    flex: 1;
+    min-width: 0;
+}
+
+.error-message p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.4;
+    color: #2c3e50;
+    font-weight: 500;
+}
+
+/* Error Actions */
+.error-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+}
+
+.error-btn {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.error-btn.primary {
+    background: #3498db;
+    color: white;
+}
+
+.error-btn.primary:hover {
+    background: #2980b9;
+    transform: translateY(-1px);
+}
+
+.error-btn.secondary {
+    background: #ecf0f1;
+    color: #7f8c8d;
+    border: 1px solid #bdc3c7;
+}
+
+.error-btn.secondary:hover {
+    background: #d5dbdb;
+    color: #2c3e50;
+}
+
+.error-dismiss {
+    background: none;
+    border: none;
+    color: #95a5a6;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    margin-left: auto;
+}
+
+.error-dismiss:hover {
+    background: #ecf0f1;
+    color: #7f8c8d;
+}
+
+/* Retry Notification */
+.retry-notification {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100%);
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    padding: 16px 20px;
+    z-index: 10001;
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid #e8f4fd;
+    min-width: 280px;
+}
+
+.retry-notification.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+.retry-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.retry-spinner {
+    color: #3498db;
+    font-size: 16px;
+}
+
+.retry-message {
+    flex: 1;
+}
+
+.retry-message p {
+    margin: 0 0 8px 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: #2c3e50;
+}
+
+/* Retry Progress Bar */
+.retry-progress {
+    width: 100%;
+    height: 3px;
+    background: #ecf0f1;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.retry-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #3498db, #2980b9);
+    border-radius: 2px;
+    animation: retryProgress linear;
+    transform-origin: left;
+    transform: scaleX(0);
+}
+
+@keyframes retryProgress {
+    from {
+        transform: scaleX(0);
+    }
+    to {
+        transform: scaleX(1);
+    }
+}
+
+/* Error States for Form Elements */
+.form-group.error .form-control {
+    border-color: #e74c3c;
+    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+}
+
+.form-group.error .form-label {
+    color: #e74c3c;
+}
+
+.error-text {
+    color: #e74c3c;
+    font-size: 12px;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.error-text i {
+    font-size: 10px;
+}
+
+/* Loading States with Error Handling */
+.loading-with-error {
+    position: relative;
+}
+
+.loading-error-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.95);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    border-radius: inherit;
+}
+
+.loading-error-content {
+    text-align: center;
+    padding: 20px;
+}
+
+.loading-error-icon {
+    font-size: 32px;
+    color: #e74c3c;
+    margin-bottom: 12px;
+}
+
+.loading-error-message {
+    font-size: 14px;
+    color: #7f8c8d;
+    margin-bottom: 16px;
+    line-height: 1.4;
+}
+
+.loading-error-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}
+
+/* Offline Indicator */
+.offline-indicator {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: #e74c3c;
+    color: white;
+    padding: 8px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    z-index: 10002;
+    transform: translateY(-100%);
+    transition: transform 0.3s ease;
+}
+
+.offline-indicator.show {
+    transform: translateY(0);
+}
+
+/* Error Boundary Fallback */
+.error-boundary {
+    padding: 40px 20px;
+    text-align: center;
+    background: #f8f9fa;
+    border-radius: 12px;
+    margin: 20px;
+}
+
+.error-boundary-icon {
+    font-size: 48px;
+    color: #e74c3c;
+    margin-bottom: 16px;
+}
+
+.error-boundary-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 8px;
+}
+
+.error-boundary-message {
+    font-size: 14px;
+    color: #7f8c8d;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+.error-boundary-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .error-notifications-container {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        max-width: none;
+    }
+    
+    .error-notification {
+        margin-bottom: 8px;
+    }
+    
+    .error-content {
+        padding: 12px;
+        gap: 8px;
+    }
+    
+    .error-message p {
+        font-size: 13px;
+    }
+    
+    .error-actions {
+        margin-top: 8px;
+        gap: 6px;
+    }
+    
+    .error-btn {
+        padding: 8px 12px;
+        font-size: 11px;
+    }
+    
+    .retry-notification {
+        bottom: 10px;
+        left: 10px;
+        right: 10px;
+        transform: translateY(100%);
+        min-width: auto;
+    }
+    
+    .retry-notification.show {
+        transform: translateY(0);
+    }
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+    .error-notification {
+        border: 2px solid;
+    }
+    
+    .error-notification.error-error {
+        border-color: #e74c3c;
+    }
+    
+    .error-notification.error-warning {
+        border-color: #f39c12;
+    }
+    
+    .error-notification.error-info {
+        border-color: #3498db;
+    }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+    .error-notification,
+    .retry-notification,
+    .error-btn,
+    .retry-progress-bar {
+        transition: none;
+        animation: none;
+    }
+    
+    .error-notification.show {
+        transform: none;
+    }
+    
+    .retry-notification.show {
+        transform: translateX(-50%);
+    }
+}
+
+/* Focus Management */
+.error-btn:focus,
+.error-dismiss:focus {
+    outline: 2px solid #3498db;
+    outline-offset: 2px;
+}
+
+/* Print Styles */
+@media print {
+    .error-notifications-container,
+    .retry-notification,
+    .offline-indicator {
+        display: none;
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .error-notification {
+        background: #2c3e50;
+        color: #ecf0f1;
+    }
+    
+    .error-message p {
+        color: #ecf0f1;
+    }
+    
+    .error-btn.secondary {
+        background: #34495e;
+        color: #bdc3c7;
+        border-color: #7f8c8d;
+    }
+    
+    .error-btn.secondary:hover {
+        background: #4a5f7a;
+        color: #ecf0f1;
+    }
+    
+    .error-dismiss {
+        color: #7f8c8d;
+    }
+    
+    .error-dismiss:hover {
+        background: #34495e;
+        color: #bdc3c7;
+    }
+    
+    .retry-notification {
+        background: #2c3e50;
+        border-color: #34495e;
+    }
+    
+    .retry-message p {
+        color: #ecf0f1;
+    }
+    
+    .retry-progress {
+        background: #34495e;
+    }
+    
+    .loading-error-overlay {
+        background: rgba(44, 62, 80, 0.95);
+    }
+    
+    .loading-error-message {
+        color: #bdc3c7;
+    }
+    
+    .error-boundary {
+        background: #2c3e50;
+    }
+    
+    .error-boundary-title {
+        color: #ecf0f1;
+    }
+    
+    .error-boundary-message {
+        color: #bdc3c7;
+    }
+}

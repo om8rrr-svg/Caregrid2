@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import { Activity } from 'lucide-react';
 
 export default function HomePage() {
@@ -10,12 +10,15 @@ export default function HomePage() {
   const { state } = useAuth();
 
   useEffect(() => {
+    // Don't redirect while auth is still loading
+    if (state.isLoading) return;
+    
     if (state.isAuthenticated) {
       router.replace('/dashboard');
     } else {
       router.replace('/auth/login');
     }
-  }, [state.isAuthenticated, router]);
+  }, [state.isAuthenticated, state.isLoading, router]);
 
   // Loading state while redirecting
   return (

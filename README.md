@@ -1,10 +1,42 @@
-# CareGrid - Private Healthcare Directory
+# CareGrid - Private Healthcare Directory & AI Reception System
 
-A modern, responsive healthcare directory website connecting patients with trusted private healthcare providers across the UK.
+A modern, responsive healthcare directory website connecting patients with trusted private healthcare providers across the UK, now featuring an AI-powered reception system for automated clinic operations.
 
 ## 🏥 About CareGrid
 
 CareGrid is a comprehensive healthcare directory platform that helps patients find and connect with private healthcare providers including GPs, dentists, physiotherapists, and aesthetic clinics across major UK cities.
+
+## 🤖 AI Reception System
+
+We've developed a complete AI reception system using n8n + VAPI for automated clinic operations, demonstrated with **Deane Eye Clinic** as a case study.
+
+### Clinic Information
+- **Deane Eye Clinic**
+- **Address:** 222 Deane Rd, Deane, Bolton BL3 5DP
+- **Phone:** 01204 524785
+- **Hours:** 9:30 AM - 5:30 PM (Daily)
+
+### AI Reception Features
+- 24/7 Automated Phone Reception
+- Intelligent Appointment Booking
+- SMS Confirmations & Reminders
+- Emergency Call Routing
+- Real-time Monitoring Dashboard
+- GDPR Compliant Data Handling
+
+### Cost Analysis
+- **Monthly Cost:** £80 (vs £2,263 manual reception)
+- **Annual Savings:** £26,196
+- **ROI Payback:** 0.75 months
+
+### Quick Start Files
+- `AI_Reception_Setup_Guide.md` - Complete implementation guide
+- `AI_Reception_Cost_Analysis.md` - Detailed cost breakdown
+- `Implementation_Checklist.md` - Step-by-step checklist
+- `setup-ai-reception.sh` - Automated setup script
+- `test-ai-reception.js` - Testing suite
+- `monitoring-dashboard.js` - Real-time monitoring
+- `n8n-workflows/deane-eye-clinic-reception.json` - Workflow template
 
 ## ✨ Features
 

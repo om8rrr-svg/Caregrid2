@@ -63,11 +63,6 @@ let clinicsData = [
 // Load data on page load (function defined later)
 document.addEventListener('DOMContentLoaded', async function() {
   try {
-<<<<<<< Updated upstream
-    // Load clinics directly from API (no need to wait for Supabase client)
-    console.log('🔍 Fetching clinics from Supabase...');
-    
-=======
     // Wait for Supabase to be ready
     if (!window.supabase) {
       console.log('Waiting for Supabase to initialize...');
@@ -81,8 +76,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
       });
     }
-
->>>>>>> Stashed changes
     const loadedClinics = await loadClinicsFromSupabase();
     if (loadedClinics && Array.isArray(loadedClinics)) {
       clinicsData = loadedClinics;
@@ -230,13 +223,7 @@ function handleURLParameters() {
 // Load clinics using REST API (with Supabase backend)
 async function loadClinicsFromSupabase(retryCount = 0) {
     // Show loading status
-<<<<<<< Updated upstream
-    showAPIStatus('Loading clinics...', 'info');
-    
-=======
     showAPIStatus('Loading clinics from Supabase...', 'info');
-
->>>>>>> Stashed changes
     try {
         // Get API base URL
         const apiBase = window.__CONFIG__ ? window.__CONFIG__.getApiBase() : window.__API_BASE__;
@@ -257,20 +244,6 @@ async function loadClinicsFromSupabase(retryCount = 0) {
         if (!response.ok) {
             throw new Error(`API responded with ${response.status}: ${response.statusText}`);
         }
-<<<<<<< Updated upstream
-        
-        const data = await response.json();
-        
-        if (data && data.clinics && Array.isArray(data.clinics) && data.clinics.length > 0) {
-            clinicsData = data.clinics;
-            
-            console.log('✅ Loaded', data.clinics.length, 'clinics from API');
-            console.log('📊 Total available:', data.totalCount);
-            
-            // Cache the data
-            setCachedClinics(data.clinics);
-            
-=======
 
         // Use the clinic service (now uses Supabase)
         const clinics = await clinicService.getClinics();
@@ -280,9 +253,8 @@ async function loadClinicsFromSupabase(retryCount = 0) {
 
             console.log('✅ Loaded', clinics.length, 'clinics from Supabase');
 
->>>>>>> Stashed changes
             // Show success indicator
-            showAPIStatus(`Live data loaded (${data.clinics.length} clinics)`, 'success');
+            showAPIStatus(`Live data loaded (${clinics.length} clinics)`, 'success');
             return data.clinics;
         } else {
             // API returned empty data, use fallback

@@ -1,0 +1,248 @@
+/* CareGrid Performance Optimizations */
+
+/* GPU Acceleration for animations */
+.clinic-card,
+.filter-option,
+.nav-item,
+.btn,
+.modal {
+    will-change: transform;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+}
+
+/* Optimize transitions */
+* {
+    transition-duration: 0.2s !important;
+}
+
+/* Reduce repaints */
+.clinic-card:hover {
+    transform: translateY(-2px) translateZ(0);
+}
+
+/* Optimize images */
+img {
+    image-rendering: optimizeSpeed;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: optimize-contrast;
+}
+
+/* Lazy loading optimization */
+img[loading="lazy"] {
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+img[loading="lazy"].loaded {
+    opacity: 1;
+}
+
+/* Virtual scrolling container */
+.virtual-scroll-container {
+    overflow-y: auto;
+    height: 400px;
+    contain: layout style paint;
+}
+
+/* Reduce layout thrashing */
+.clinic-grid {
+    contain: layout style;
+}
+
+/* Optimize filters */
+.filters-container {
+    contain: layout;
+}
+
+/* Performance-critical elements */
+.search-input,
+.filter-dropdown {
+    contain: layout style;
+}
+
+/* Reduce paint complexity */
+.complex-shadow {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+}
+
+/* Optimize animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px) translateZ(0); }
+    to { opacity: 1; transform: translateY(0) translateZ(0); }
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* Memory-efficient grid */
+.clinic-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+    contain: layout;
+}
+
+/* Optimize mobile performance */
+@media (max-width: 768px) {
+    * {
+        transition-duration: 0.1s !important;
+    }
+    
+    .clinic-card {
+        will-change: auto;
+        transform: none;
+    }
+    
+    .complex-shadow {
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
+    }
+}
+
+/* Hide elements efficiently */
+.hidden {
+    display: none !important;
+}
+
+.invisible {
+    visibility: hidden;
+    opacity: 0;
+}
+
+/* Optimize text rendering */
+body {
+    text-rendering: optimizeSpeed;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Reduce composite layers */
+.no-composite {
+    will-change: auto;
+    transform: none;
+}
+
+/* Performance monitoring styles */
+.performance-warning {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background: #ff6b6b;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    z-index: 10000;
+    opacity: 0.9;
+}
+
+.performance-info {
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+    background: rgba(0,0,0,0.8);
+    color: white;
+    padding: 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-family: monospace;
+    z-index: 9999;
+    max-width: 200px;
+}
+
+/* Critical CSS inlining optimization */
+.above-fold {
+    contain: layout style paint;
+}
+
+/* Reduce JavaScript layout thrashing */
+.js-optimized {
+    contain: layout;
+}
+
+/* Optimize form elements */
+input, select, textarea {
+    contain: layout style;
+}
+
+/* Efficient loading states */
+.loading-skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* Memory leak prevention */
+.cleanup-on-remove {
+    /* Elements with this class will be properly cleaned up */
+}
+
+/* Optimize scrolling */
+.smooth-scroll {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Reduce paint on scroll */
+.fixed-during-scroll {
+    position: fixed;
+    will-change: transform;
+}
+
+/* Critical performance fixes */
+.performance-critical {
+    contain: strict;
+    content-visibility: auto;
+    contain-intrinsic-size: 300px;
+}
+
+/* Optimize large lists */
+.virtual-list-item {
+    contain: layout style paint;
+    height: 80px; /* Fixed height for virtualization */
+}
+
+/* Reduce memory usage */
+.memory-efficient {
+    contain: layout style;
+    will-change: auto;
+}
+
+/* Emergency performance mode */
+body.performance-mode * {
+    animation: none !important;
+    transition: none !important;
+    will-change: auto !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+body.performance-mode img {
+    max-width: 200px !important;
+    height: auto !important;
+}
+
+body.performance-mode .clinic-card {
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1) !important;
+}
+
+/* Optimize for low-end devices */
+@media (max-width: 480px) and (max-height: 800px) {
+    .clinic-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .performance-critical {
+        contain-intrinsic-size: 200px;
+    }
+    
+    * {
+        will-change: auto !important;
+    }
+}

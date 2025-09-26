@@ -1,0 +1,283 @@
+{
+  "name": "Deane Eye Clinic - AI Reception System",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "clinic-reception",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Incoming Call Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "webhookId": "deane-clinic-calls"
+    },
+    {
+      "parameters": {
+        "functionCode": "// Extract and process incoming call data\nconst callData = items[0].json;\n\n// Clinic information\nconst clinicInfo = {\n  name: 'Deane Eye Clinic',\n  address: '222 Deane Rd, Deane, Bolton BL3 5DP',\n  phone: '01204 524785',\n  hours: {\n    open: '09:30',\n    close: '17:30',\n    days: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']\n  },\n  services: [\n    { name: 'Eye Examination', duration: 30, price: 45 },\n    { name: 'Contact Lens Fitting', duration: 45, price: 65 },\n    { name: 'Emergency Consultation', duration: 15, price: 35 },\n    { name: 'Children Eye Test', duration: 25, price: 40 },\n    { name: 'Diabetic Eye Screening', duration: 20, price: 50 }\n  ]\n};\n\n// Determine call intent and prepare response\nconst processedData = {\n  caller_number: callData.From || callData.caller_id,\n  call_time: new Date().toISOString(),\n  clinic_info: clinicInfo,\n  session_id: `deane_${Date.now()}`,\n  call_type: 'incoming'\n};\n\nreturn [{ json: processedData }];"
+      },
+      "id": "process-call-data",
+      "name": "Process Call Data",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://api.vapi.ai/call",
+        "authentication": "headerAuth",
+        "requestMethod": "POST",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{$env.VAPI_API_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "assistant",
+              "value": "={{$json.vapi_assistant_config}}"
+            },
+            {
+              "name": "phoneNumberId",
+              "value": "{{$env.VAPI_PHONE_NUMBER_ID}}"
+            },
+            {
+              "name": "customer",
+              "value": "{\"number\": \"{{$json.caller_number}}\"}"
+            }
+          ]
+        }
+      },
+      "id": "vapi-call-handler",
+      "name": "VAPI Call Handler",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// VAPI Assistant Configuration for Deane Eye Clinic\nconst assistantConfig = {\n  model: {\n    provider: 'openai',\n    model: 'gpt-4',\n    temperature: 0.7,\n    maxTokens: 500\n  },\n  voice: {\n    provider: 'elevenlabs',\n    voiceId: 'pNInz6obpgDQGcFmaJgB', // British female voice\n    stability: 0.5,\n    similarityBoost: 0.8\n  },\n  name: 'Sarah - Deane Eye Clinic Receptionist',\n  firstMessage: \"Hello, thank you for calling Deane Eye Clinic. I'm Sarah, your AI assistant. How may I help you today?\",\n  systemPrompt: `You are Sarah, a professional and friendly AI receptionist for Deane Eye Clinic.\n\nCLINIC INFORMATION:\n- Name: Deane Eye Clinic\n- Address: 222 Deane Rd, Deane, Bolton BL3 5DP\n- Phone: 01204 524785\n- Hours: 9:30 AM - 5:30 PM, seven days a week\n\nSERVICES OFFERED:\n- Comprehensive eye examinations (30 min, £45)\n- Contact lens fittings and aftercare (45 min, £65)\n- Emergency eye consultations (15 min, £35)\n- Children's eye tests (25 min, £40)\n- Diabetic eye screening (20 min, £50)\n- Spectacle dispensing and adjustments\n\nYOUR ROLE:\n1. Greet callers warmly and professionally\n2. Help with appointment bookings\n3. Provide clinic information (hours, location, services)\n4. Handle appointment changes and cancellations\n5. For emergencies, prioritize urgent care\n6. Collect patient details: name, phone, email, preferred date/time\n7. Always confirm appointment details before ending the call\n\nGUIDELINES:\n- Be empathetic and patient-focused\n- Speak clearly and at a moderate pace\n- Ask clarifying questions when needed\n- For complex medical questions, offer to connect with a clinician\n- Always end calls professionally with next steps\n\nEMERGENCY PROTOCOL:\nFor urgent eye problems (sudden vision loss, severe pain, injury), immediately offer to:\n1. Schedule same-day emergency appointment\n2. Provide after-hours emergency contact\n3. Advise to visit A&E if extremely urgent`,\n  functions: [\n    {\n      name: 'check_availability',\n      description: 'Check appointment availability for specific dates and times',\n      parameters: {\n        type: 'object',\n        properties: {\n          date: { type: 'string', description: 'Preferred date (YYYY-MM-DD)' },\n          time: { type: 'string', description: 'Preferred time (HH:MM)' },\n          service: { type: 'string', description: 'Type of service needed' }\n        },\n        required: ['date', 'service']\n      }\n    },\n    {\n      name: 'book_appointment',\n      description: 'Book a new appointment',\n      parameters: {\n        type: 'object',\n        properties: {\n          patient_name: { type: 'string', description: 'Patient full name' },\n          phone: { type: 'string', description: 'Patient phone number' },\n          email: { type: 'string', description: 'Patient email address' },\n          date: { type: 'string', description: 'Appointment date (YYYY-MM-DD)' },\n          time: { type: 'string', description: 'Appointment time (HH:MM)' },\n          service: { type: 'string', description: 'Type of service' },\n          notes: { type: 'string', description: 'Additional notes or requirements' }\n        },\n        required: ['patient_name', 'phone', 'date', 'time', 'service']\n      }\n    },\n    {\n      name: 'send_confirmation',\n      description: 'Send appointment confirmation via SMS',\n      parameters: {\n        type: 'object',\n        properties: {\n          phone: { type: 'string', description: 'Patient phone number' },\n          appointment_details: { type: 'string', description: 'Appointment summary' }\n        },\n        required: ['phone', 'appointment_details']\n      }\n    }\n  ],\n  endCallMessage: \"Thank you for calling Deane Eye Clinic. Have a wonderful day and we look forward to seeing you soon!\",\n  endCallPhrases: [\"goodbye\", \"thank you\", \"that's all\", \"bye\"],\n  recordingEnabled: true,\n  maxDurationSeconds: 600\n};\n\nreturn [{\n  json: {\n    ...items[0].json,\n    vapi_assistant_config: assistantConfig\n  }\n}];"
+      },
+      "id": "configure-assistant",
+      "name": "Configure VAPI Assistant",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [460, 180]
+    },
+    {
+      "parameters": {
+        "url": "https://www.googleapis.com/calendar/v3/calendars/{{$env.GOOGLE_CALENDAR_ID}}/events",
+        "authentication": "oAuth2Api",
+        "requestMethod": "GET",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "timeMin",
+              "value": "={{$json.date}}T00:00:00Z"
+            },
+            {
+              "name": "timeMax",
+              "value": "={{$json.date}}T23:59:59Z"
+            },
+            {
+              "name": "singleEvents",
+              "value": "true"
+            },
+            {
+              "name": "orderBy",
+              "value": "startTime"
+            }
+          ]
+        }
+      },
+      "id": "check-calendar",
+      "name": "Check Calendar Availability",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [900, 180]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Process calendar data and find available slots\nconst calendarData = items[0].json;\nconst requestedDate = $json.date;\nconst serviceType = $json.service;\n\n// Clinic operating hours\nconst clinicHours = {\n  start: '09:30',\n  end: '17:30'\n};\n\n// Service durations (in minutes)\nconst serviceDurations = {\n  'Eye Examination': 30,\n  'Contact Lens Fitting': 45,\n  'Emergency Consultation': 15,\n  'Children Eye Test': 25,\n  'Diabetic Eye Screening': 20\n};\n\n// Generate time slots\nfunction generateTimeSlots(startTime, endTime, duration) {\n  const slots = [];\n  const start = new Date(`2024-01-01T${startTime}:00`);\n  const end = new Date(`2024-01-01T${endTime}:00`);\n  \n  while (start < end) {\n    slots.push(start.toTimeString().slice(0, 5));\n    start.setMinutes(start.getMinutes() + duration);\n  }\n  \n  return slots;\n}\n\n// Check for conflicts with existing appointments\nfunction isSlotAvailable(timeSlot, existingEvents, duration) {\n  const slotStart = new Date(`${requestedDate}T${timeSlot}:00`);\n  const slotEnd = new Date(slotStart.getTime() + duration * 60000);\n  \n  for (const event of existingEvents) {\n    const eventStart = new Date(event.start.dateTime || event.start.date);\n    const eventEnd = new Date(event.end.dateTime || event.end.date);\n    \n    if (slotStart < eventEnd && slotEnd > eventStart) {\n      return false;\n    }\n  }\n  \n  return true;\n}\n\nconst duration = serviceDurations[serviceType] || 30;\nconst allSlots = generateTimeSlots(clinicHours.start, clinicHours.end, duration);\nconst existingEvents = calendarData.items || [];\n\nconst availableSlots = allSlots.filter(slot => \n  isSlotAvailable(slot, existingEvents, duration)\n);\n\nreturn [{\n  json: {\n    date: requestedDate,\n    service: serviceType,\n    duration: duration,\n    available_slots: availableSlots,\n    total_slots: allSlots.length,\n    booked_slots: allSlots.length - availableSlots.length\n  }\n}];"
+      },
+      "id": "process-availability",
+      "name": "Process Availability",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1120, 180]
+    },
+    {
+      "parameters": {
+        "url": "https://www.googleapis.com/calendar/v3/calendars/{{$env.GOOGLE_CALENDAR_ID}}/events",
+        "authentication": "oAuth2Api",
+        "requestMethod": "POST",
+        "sendHeaders": true,
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "summary",
+              "value": "={{$json.service}} - {{$json.patient_name}}"
+            },
+            {
+              "name": "description",
+              "value": "Patient: {{$json.patient_name}}\nPhone: {{$json.phone}}\nEmail: {{$json.email}}\nService: {{$json.service}}\nNotes: {{$json.notes}}"
+            },
+            {
+              "name": "start",
+              "value": "{\"dateTime\": \"{{$json.date}}T{{$json.time}}:00\", \"timeZone\": \"Europe/London\"}"
+            },
+            {
+              "name": "end",
+              "value": "={{$json.end_time}}"
+            },
+            {
+              "name": "attendees",
+              "value": "[{\"email\": \"{{$json.email}}\", \"displayName\": \"{{$json.patient_name}}\"}]"
+            }
+          ]
+        }
+      },
+      "id": "book-appointment",
+      "name": "Book Appointment",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [900, 420]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Calculate appointment end time and prepare booking data\nconst appointmentData = items[0].json;\n\n// Service durations\nconst serviceDurations = {\n  'Eye Examination': 30,\n  'Contact Lens Fitting': 45,\n  'Emergency Consultation': 15,\n  'Children Eye Test': 25,\n  'Diabetic Eye Screening': 20\n};\n\nconst duration = serviceDurations[appointmentData.service] || 30;\nconst startTime = new Date(`${appointmentData.date}T${appointmentData.time}:00`);\nconst endTime = new Date(startTime.getTime() + duration * 60000);\n\nreturn [{\n  json: {\n    ...appointmentData,\n    duration: duration,\n    end_time: {\n      dateTime: endTime.toISOString(),\n      timeZone: 'Europe/London'\n    },\n    booking_reference: `DEANE${Date.now().toString().slice(-6)}`\n  }\n}];"
+      },
+      "id": "prepare-booking",
+      "name": "Prepare Booking Data",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [680, 420]
+    },
+    {
+      "parameters": {
+        "accountSid": "{{$env.TWILIO_ACCOUNT_SID}}",
+        "authToken": "{{$env.TWILIO_AUTH_TOKEN}}",
+        "fromPhoneNumber": "{{$env.TWILIO_PHONE_NUMBER}}",
+        "toPhoneNumber": "={{$json.phone}}",
+        "message": "Hi {{$json.patient_name}},\n\nYour appointment at Deane Eye Clinic is confirmed:\n\n📅 Date: {{$json.date}}\n⏰ Time: {{$json.time}}\n🏥 Service: {{$json.service}}\n📍 Address: 222 Deane Rd, Deane, Bolton BL3 5DP\n\nBooking Reference: {{$json.booking_reference}}\n\nPlease arrive 10 minutes early.\nTo reschedule, call 01204 524785\n\nDeane Eye Clinic"
+      },
+      "id": "send-sms-confirmation",
+      "name": "Send SMS Confirmation",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [1120, 420]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"status\": \"success\", \"message\": \"Call processed successfully\", \"session_id\": \"{{$json.session_id}}\", \"timestamp\": \"{{$json.call_time}}\"}"
+      },
+      "id": "webhook-response",
+      "name": "Webhook Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1340, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Log call analytics and metrics\nconst callData = items[0].json;\n\nconst analytics = {\n  timestamp: new Date().toISOString(),\n  caller_number: callData.caller_number,\n  session_id: callData.session_id,\n  call_duration: callData.call_duration || 0,\n  intent_recognized: callData.intent || 'unknown',\n  appointment_booked: !!callData.booking_reference,\n  service_requested: callData.service || null,\n  booking_reference: callData.booking_reference || null,\n  clinic: 'Deane Eye Clinic'\n};\n\n// You can send this to your analytics service\n// Example: Google Analytics, Mixpanel, or custom database\n\nreturn [{ json: analytics }];"
+      },
+      "id": "log-analytics",
+      "name": "Log Call Analytics",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1120, 300]
+    }
+  ],
+  "connections": {
+    "Incoming Call Webhook": {
+      "main": [
+        [
+          {
+            "node": "Process Call Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Call Data": {
+      "main": [
+        [
+          {
+            "node": "Configure VAPI Assistant",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configure VAPI Assistant": {
+      "main": [
+        [
+          {
+            "node": "VAPI Call Handler",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "VAPI Call Handler": {
+      "main": [
+        [
+          {
+            "node": "Log Call Analytics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Call Analytics": {
+      "main": [
+        [
+          {
+            "node": "Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "timezone": "Europe/London",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "1",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "id": "deane-eye-clinic-reception",
+  "tags": [
+    {
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z",
+      "id": "clinic-ai",
+      "name": "Clinic AI"
+    }
+  ]
+}

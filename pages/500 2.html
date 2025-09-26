@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server Error (500) - CareGrid</title>
+    <meta name="description" content="We're experiencing technical difficulties. Please try again later. Find private healthcare providers across the UK with CareGrid.">
+    <meta name="robots" content="noindex, nofollow">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Server Error - CareGrid">
+    <meta property="og:description" content="We're experiencing technical difficulties. Please try again later.">
+    <meta property="og:url" content="https://www.caregrid.co.uk/500.html">
+    <meta property="og:image" content="https://www.caregrid.co.uk/og-image.svg">
+    <meta property="og:site_name" content="CareGrid">
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Server Error - CareGrid">
+    <meta name="twitter:description" content="We're experiencing technical difficulties. Please try again later.">
+    <meta name="twitter:image" content="https://www.caregrid.co.uk/og-image.svg">
+    
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/fontawesome/css/all.min.css">
+    <style>
+        .error-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+            padding: 20px;
+        }
+        
+        .error-container {
+            text-align: center;
+            background: white;
+            border-radius: 20px;
+            padding: 60px 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        .error-code {
+            font-size: 120px;
+            font-weight: 700;
+            color: #e53e3e;
+            margin: 0;
+            line-height: 1;
+        }
+        
+        .error-title {
+            font-size: 32px;
+            font-weight: 600;
+            color: #2d3748;
+            margin: 20px 0;
+        }
+        
+        .error-description {
+            font-size: 18px;
+            color: #718096;
+            margin: 20px 0 40px;
+            line-height: 1.6;
+        }
+        
+        .error-actions {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: #e53e3e;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #c53030;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: #f7fafc;
+            color: #4a5568;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .btn-secondary:hover {
+            background: #edf2f7;
+            transform: translateY(-2px);
+        }
+        
+        .status-info {
+            border-top: 1px solid #e2e8f0;
+            padding-top: 30px;
+            margin-top: 30px;
+            background: #f7fafc;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        
+        .status-info h3 {
+            font-size: 18px;
+            color: #2d3748;
+            margin-bottom: 15px;
+        }
+        
+        .status-info p {
+            color: #4a5568;
+            margin-bottom: 10px;
+        }
+        
+        .retry-info {
+            background: #fff5f5;
+            border: 1px solid #fed7d7;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+        
+        .retry-info strong {
+            color: #c53030;
+        }
+        
+        @media (max-width: 768px) {
+            .error-container {
+                padding: 40px 20px;
+            }
+            
+            .error-code {
+                font-size: 80px;
+            }
+            
+            .error-title {
+                font-size: 24px;
+            }
+            
+            .error-actions {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <header>
+        <nav>
+            <a href="index.html"><img src="images/logo.svg" alt="CareGrid Logo" width="150"></a>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="pricing.html">Pricing</a></li>
+                <li><a href="list-clinic.html">List Your Clinic</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="error-page">
+        <div class="error-container">
+            <h1 class="error-code">500</h1>
+            <h2 class="error-title">Server Error</h2>
+            <p class="error-description">
+                We're experiencing technical difficulties on our end. Our team has been notified and is working to resolve the issue.
+            </p>
+            
+            <div class="error-actions">
+                <a href="/" class="btn btn-primary">
+                    <i class="fas fa-home"></i> Go Home
+                </a>
+                <a href="javascript:location.reload()" class="btn btn-secondary">
+                    <i class="fas fa-redo"></i> Try Again
+                </a>
+            </div>
+            
+            <div class="status-info">
+                <h3>What happened?</h3>
+                <p>Our servers encountered an unexpected error while processing your request.</p>
+                <p>This is usually temporary and resolves itself within a few minutes.</p>
+                
+                <div class="retry-info">
+                    <strong>What you can do:</strong>
+                    <ul style="text-align: left; margin: 10px 0; padding-left: 20px;">
+                        <li>Wait a few minutes and try again</li>
+                        <li>Check our <a href="/help.html" style="color: #c53030;">help page</a> for known issues</li>
+                        <li>Contact us at <a href="mailto:support@caregrid.co.uk" style="color: #c53030;">support@caregrid.co.uk</a> if the problem persists</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025 CareGrid. All rights reserved. | <a href="#">Privacy Policy</a> | <a href="#">Terms</a></p>
+        <p>Connecting patients with private healthcare in Manchester, Bolton, Liverpool, Leeds.</p>
+    </footer>
+
+    <script>
+        // Track 500 errors if analytics is available
+        if (typeof gtag !== 'undefined') {
+            gtag('event', '500_error', {
+                page_location: window.location.href,
+                page_referrer: document.referrer
+            });
+        }
+        
+        // Auto-retry after 30 seconds
+        setTimeout(function() {
+            if (confirm('Would you like to try loading the page again?')) {
+                location.reload();
+            }
+        }, 30000);
+    </script>
+</body>
+</html>

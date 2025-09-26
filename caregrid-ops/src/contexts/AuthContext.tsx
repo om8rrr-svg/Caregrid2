@@ -1,9 +1,9 @@
 'use client';
 
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
-import { apiClient } from '@/lib/api/client';
-import { getFromStorage, removeFromStorage } from '@/lib/utils';
-import { API_CONFIG } from '@/lib/api/config';
+import { apiClient } from '../lib/api/client';
+import { getFromStorage, removeFromStorage } from '../lib/utils';
+import { API_CONFIG, STORAGE_KEYS } from '../lib/api/config';
 import type { User, AuthState, UserRole } from '@/types';
 
 // Auth Actions
@@ -98,7 +98,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
       
-      const token = getFromStorage(API_CONFIG.TOKEN_STORAGE_KEY, null);
+      const token = getFromStorage(STORAGE_KEYS.ACCESS_TOKEN);
       
       if (!token) {
         dispatch({ type: 'SET_LOADING', payload: false });
@@ -117,14 +117,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
         dispatch({ type: 'SET_USER', payload: response.data });
       } else {
         // Token is invalid, clear it
-        removeFromStorage(API_CONFIG.TOKEN_STORAGE_KEY);
-        removeFromStorage(API_CONFIG.REFRESH_TOKEN_STORAGE_KEY);
+        removeFromStorage(STORAGE_KEYS.ACCESS_TOKEN);
+        removeFromStorage(STORAGE_KEYS.REFRESH_TOKEN);
         clearAuthCookie();
         dispatch({ type: 'LOGOUT' });
       }
     } catch (error) {
       console.error('Auth initialization error:', error);
       dispatch({ type: 'SET_ERROR', payload: 'Failed to initialize authentication' });
+    } finally {
+      dispatch({ type: 'SET_LOADING', payload: false });
     }
   };
 
@@ -260,7 +262,7 @@ export function withAuth<P extends object>(
     if (!state.isAuthenticated) {
       // Redirect to login or show unauthorized message
       if (typeof window !== 'undefined') {
-        window.location.href = '/auth/login';
+        window.location.href = '/login';
       }
       return null;
     }

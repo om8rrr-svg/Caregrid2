@@ -62,9 +62,16 @@ export async function middleware(request: NextRequest) {
   if (isPublicRoute(pathname)) {
     // If user is already authenticated and trying to access login, redirect to dashboard
     if (pathname === '/auth/login' && token) {
-      const payload = await verifyToken(token);
-      if (payload) {
-        return NextResponse.redirect(new URL('/dashboard', request.url));
+      try {
+        const payload = await verifyToken(token);
+        if (payload) {
+          return NextResponse.redirect(new URL('/dashboard', request.url));
+        }
+      } catch (error) {
+        // Invalid token, clear it and continue to login
+        const response = NextResponse.next();
+        response.cookies.delete('auth-token');
+        return response;
       }
     }
     return NextResponse.next();
@@ -81,7 +88,7 @@ export async function middleware(request: NextRequest) {
     }
 
     // Verify token
-    const payload = await verifyToken(token);
+    const payload = token ? await verifyToken(token) : null;
     if (!payload) {
       // Invalid token, redirect to login
       const loginUrl = new URL('/auth/login', request.url);
@@ -111,7 +118,7 @@ export async function middleware(request: NextRequest) {
   // For root path, redirect based on authentication status
   if (pathname === '/') {
     if (token) {
-      const payload = await verifyToken(token);
+      const payload = token ? await verifyToken(token) : null;
       if (payload) {
         return NextResponse.redirect(new URL('/dashboard', request.url));
       }

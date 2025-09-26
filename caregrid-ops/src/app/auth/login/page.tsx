@@ -2,8 +2,8 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
-import { LoginForm, DemoCredentials } from '@/components/auth/LoginForm';
+import { useAuth } from '../../../contexts/AuthContext';
+import { LoginForm, DemoCredentials } from '../../../components/auth/LoginForm';
 
 export default function LoginPage() {
   const router = useRouter();
